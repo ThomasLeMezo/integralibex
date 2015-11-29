@@ -4,16 +4,19 @@
 #include <ibex.h>
 #include <border.h>
 
+class Border;
 class Pave
 {
 /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &b);
+    Pave(const ibex::IntervalVector &box);
     ~Pave(){}
 
     void draw();
     void process();
     void cut(std::vector<Pave> *result);
+    void project(std::vector<ibex::Interval> &seg_out, ibex::Interval seg_in, ibex::Interval theta, ibex::Interval c0, ibex::Interval c1);
+    void computePropagation(ibex::Interval seg_in, int face);
 
 /***************** Variables ******************/
 
