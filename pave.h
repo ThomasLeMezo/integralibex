@@ -26,7 +26,7 @@ public:
 
     ibex::IntervalVector box;
 
-    ibex::Interval table_rotation[4] = {ibex::Interval(0.0), ibex::Interval::PI/2.0, ibex::Interval::PI, 3.0*ibex::Interval::PI/2.0};
+    ibex::Interval table_rotation[4] = {-ibex::Interval::PI/2.0, -ibex::Interval::PI, -3.0*ibex::Interval::PI/2.0, ibex::Interval(0.0)};
 
     std::vector<Border> queue;
     std::vector<Border> borders;

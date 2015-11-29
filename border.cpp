@@ -29,19 +29,14 @@ void Border::draw(){
         IntervalVector segment = this->position;
 
         // Find the non flat dimension and complete replaced it by the segment
-        if(this->face==0 || this->face==2){
-            segment[0] = this->segments[i];
-        }
-        else{
-            segment[1] = this->segments[i];
-        }
+        segment[this->face%2] = this->segments[i];
 
         vibes::drawBox(segment & this->position, "g[]");
     }
 }
 
 void Border::add_segement(Interval seg){
-    // ToDo:
+    // To Do : merge segments
     if(seg.is_empty())
         return;
 
