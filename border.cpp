@@ -31,7 +31,7 @@ void Border::draw(){
         // Find the non flat dimension and complete replaced it by the segment
         segment[this->face%2] = this->segments[i];
 
-        vibes::drawBox(segment & this->position, "g[]");
+        vibes::drawBox(segment, "g[]");
     }
 }
 

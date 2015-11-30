@@ -14,17 +14,15 @@ int main()
 
     IntervalVector box(2);
     box[0]=Interval(0,1);
-    box[1]=Interval(0,2);
+    box[1]=Interval(0,1);
     Pave p1(box);
-    p1.theta = Interval(M_PI/2.0+0.0000000000001, M_PI/2.0+0.5);
+//    p1.theta = (-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
+//    p1.theta = (-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0) + Interval::HALF_PI;
+//    p1.theta = (-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0) + Interval::PI;
+    p1.theta = (-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0) - Interval::HALF_PI;
 
-//    IntervalVector box2(2);
-//    box2[0] = Interval(0.5, 0.75);
-//    box2[1] = Interval(0.0);
 
-//    Border b(box2, 0, NULL);
-
-    int face = 0;
+    int face = 2;
     Border b = Border(Interval(0.5, 0.75), face);
     p1.borders[face].segments.push_back(Interval(0.5, 0.75));
     p1.queue.push_back(b);

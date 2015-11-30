@@ -2,8 +2,8 @@ project(integrationIBEX)
 cmake_minimum_required(VERSION 2.8)
 
 ##### IBEX #####
-include_directories(${CMAKE_CURRENT_LIST_DIR} "/home/lemezoth/Ibex/soplex-1.7.2/lib /home/lemezoth/Ibex/soplex-1.7.2/src /usr/local/include/ibex")
-FILE(GLOB LOCAL_LIBRARY_DIRS /usr/local/include/ibex /home/lemezoth/Ibex/soplex-1.7.2/lib /home/lemezoth/Ibex/soplex-1.7.2/src)
+include_directories(${CMAKE_CURRENT_LIST_DIR} "/usr/local/include/ibex")
+FILE(GLOB LOCAL_LIBRARY_DIRS /usr/local/include/ibex)
 INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 LINK_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 
@@ -26,7 +26,5 @@ SET(HEADERS
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${SRC})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
-    ${IBEX}
-    ${SOPLEX}
-    ${CLP}
-    ${PRIM})
+    ibex
+    prim)

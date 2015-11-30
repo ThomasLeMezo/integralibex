@@ -14,8 +14,7 @@ public:
 
     void draw();
     void process();
-    void cut(std::vector<Pave> *result);
-    void project(std::vector<ibex::Interval> &seg_out, ibex::Interval seg_in, ibex::Interval theta, ibex::Interval c0, ibex::Interval c1);
+    void bisect(std::vector<Pave> *result);
     void computePropagation(ibex::Interval seg_in, int face);
 
 /***************** Variables ******************/
@@ -26,7 +25,7 @@ public:
 
     ibex::IntervalVector box;
 
-    ibex::Interval table_rotation[4] = {-ibex::Interval::PI/2.0, -ibex::Interval::PI, -3.0*ibex::Interval::PI/2.0, ibex::Interval(0.0)};
+    ibex::Interval table_rotation[4] = {-ibex::Interval::HALF_PI, ibex::Interval::PI, ibex::Interval::HALF_PI, ibex::Interval(0.0)};
 
     std::vector<Border> queue;
     std::vector<Border> borders;

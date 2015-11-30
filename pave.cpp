@@ -42,8 +42,12 @@ void Pave::draw(){
 
 }
 
-void Pave::cut(vector<Pave> *result){
+void Pave::bisect(vector<Pave> *result){
     // Create 4 new paves
+    std::pair<IntervalVector(2), IntervalVector(2)> result_boxes;
+    ibex::LargestFirst bisector(0.0, 0.5);
+
+    result_boxes = bisector.bisect(this->box);
 
     // Link the borders between the new paves & with neighbours
 
@@ -69,44 +73,104 @@ void Pave::process(){
 }
 
 void Pave::computePropagation(Interval seg_in, int face){
-
     vector<Interval> seg_out;
-    //project(seg_out, seg_in, this->table_rotation[face] + this->theta, this->box[face % 2], this->box[(face +1) % 2]);
+    CtcPolar contract_p0;
 
-    Interval c0 = box[face %2];
-    Interval c1 = box[(face +1)%2];
-    Interval theta = this->table_rotation[face] + this->theta;
-
-    if(tan(theta) == Interval::ALL_REALS)
-        cout << "THETA IS NOT SET WELL" << endl;
-
-    cout << "CASE " << face << endl;
-
+    // Passage dans le repère local
+    Interval seg_in_local;
     switch(face){
     case 0:
-        seg_out.push_back((c1.lb() + (c0.ub() - seg_in)* tan(-Interval::PI/2.0 - (theta & Interval::NEG_REALS))) & c1);
-        seg_out.push_back((seg_in - tan(theta) * c1.diam()) & c0);
-        seg_out.push_back((c1.lb() + (seg_in - c0.lb()) * tan(Interval::PI/2.0 - (theta & Interval::POS_REALS))) & c1);
+        seg_in_local = seg_in - box[0].lb();
         break;
-
     case 1:
-        seg_out.push_back((c1.ub() - (c0.ub() - seg_in)* tan(-Interval::PI/2.0 - theta)) & c1);
-        seg_out.push_back((seg_in - tan(theta) * c1.diam()) & c0);
-        seg_out.push_back((c1.ub() - (seg_in - c0.lb()) * tan(Interval::PI/2.0 - theta)) & c1);
+        seg_in_local = seg_in - box[1].lb();
         break;
-
     case 2:
-        seg_out.push_back((c1.ub() - (seg_in - c0.lb())* tan(-Interval::PI/2.0 - theta)) & c1);
-        seg_out.push_back((seg_in + tan(theta) * c1.diam()) & c0);
-        seg_out.push_back((c1.ub() - (c0.ub() - seg_in) * tan(Interval::PI/2.0 - theta)) & c1);
+        seg_in_local = box[0].ub() - seg_in;
         break;
     case 3:
-        seg_out.push_back((c1.lb() + (seg_in - c0.lb())* tan(-Interval::PI/2.0 - theta)) & c1);
-        seg_out.push_back((seg_in + tan(theta) * c1.diam()) & c0);
-        seg_out.push_back((c1.lb() + (c0.ub() - seg_in) * tan(Interval::PI/2.0 - theta)) & c1);
+        seg_in_local = box[1].ub() - seg_in;
         break;
     }
 
+    double offset_x = box[face % 2].lb();
+    double offset_y = box[(face + 1) % 2].lb();
+
+    Interval c0 = box[face % 2] - offset_x;
+    Interval c1 = box[(face + 1) % 2] - offset_y;
+    Interval theta = this->table_rotation[face] + this->theta;
+
+    // ****** RIGHT Border ******
+    Interval x = c0.ub() - seg_in_local;
+    Interval y = c1;
+    Interval rho = Interval::POS_REALS;
+    Interval theta_c = Interval::PI/2.0 + theta;
+
+    contract_p0.contract(x, y, rho, theta_c);
+
+    switch(face){
+    case 0:
+        seg_out.push_back(y + offset_y);
+        break;
+    case 1:
+        seg_out.push_back(c1.ub() - y + offset_x);
+        break;
+    case 2:
+        seg_out.push_back(c1.ub() - y + offset_y);
+        break;
+    case 3:
+        seg_out.push_back(y + offset_x);
+        break;
+    }
+
+    // ****** FRONT Border ******
+    x = Interval(c1.diam());
+    y = Interval::ALL_REALS;
+    rho = Interval::POS_REALS;
+    theta_c = theta;
+
+    contract_p0.contract(x, y, rho, theta_c);
+    Interval front = (seg_in_local - y) & c0;
+
+    switch(face){
+    case 0:
+        seg_out.push_back(front + c0.lb() + offset_x);
+        break;
+    case 1:
+        seg_out.push_back(front + c1.lb() + offset_y);
+        break;
+    case 2:
+        seg_out.push_back(c0.ub() - front + offset_x);
+        break;
+    case 3:
+        seg_out.push_back(c1.ub() - front + offset_y);
+        break;
+    }
+
+    // ****** LEFT Border ******
+    x = seg_in_local;
+    y = c1;
+    rho = Interval::POS_REALS;
+    theta_c = Interval::PI/2.0 - theta;
+
+    contract_p0.contract(x, y, rho, theta_c);
+
+    switch(face){
+    case 0:
+        seg_out.push_back(y + offset_y);
+        break;
+    case 1:
+        seg_out.push_back(c1.ub() - y + offset_x);
+        break;
+    case 2:
+        seg_out.push_back(c1.ub() - y + offset_y);
+        break;
+    case 3:
+        seg_out.push_back(y + offset_x);
+        break;
+    }
+
+    // ******* Publish new segments *******
     for(int i=0; i<seg_out.size(); i++){
         if(!seg_out[i].is_empty()){
             this->borders[(i+1+face)%4].add_segement(seg_out[i]);
@@ -114,13 +178,3 @@ void Pave::computePropagation(Interval seg_in, int face){
         }
     }
 }
-
-//void Pave::project(vector<Interval> &seg_out, Interval seg_in, Interval theta, Interval c0, Interval c1){
-//    seg_out.push_back((c1.ub() + (c0.lb() - seg_in) * tan(theta)) & c1);
-//    seg_out.push_back((seg_in + tan(theta) * c1.diam()) & c0);
-//    seg_out.push_back((c1.lb() + (seg_in - c0.lb())* tan(Interval::PI - theta)) & c1);
-
-//    if(tan(theta) == Interval::ALL_REALS){
-//        cout << "ERROR : tetha to large" << endl;
-//    }
-//}
