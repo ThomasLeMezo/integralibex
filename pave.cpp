@@ -27,7 +27,7 @@ Pave::Pave(const IntervalVector &box): box(2)
 
 void Pave::draw(){
     // Draw the pave
-    vibes::drawBox(this->box, "b[]");
+    //  vibes::drawBox(this->box, "b[]");
 
     // Draw the impacted segment (in option)
     for(int i=0; i<this->borders.size(); i++){
@@ -42,15 +42,40 @@ void Pave::draw(){
 
 }
 
-void Pave::bisect(vector<Pave> *result){
+void Pave::bisect(vector<Pave*> &result){
     // Create 4 new paves
-    std::pair<IntervalVector(2), IntervalVector(2)> result_boxes;
     ibex::LargestFirst bisector(0.0, 0.5);
+    std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(this->box);
 
-    result_boxes = bisector.bisect(this->box);
+    Pave *pave1 = new Pave(result_boxes.first); // Left or Up
+    Pave *pave2 = new Pave(result_boxes.second); // Right or Down
 
-    // Link the borders between the new paves & with neighbours
+    int indice1, indice2;
 
+    if(pave1->box[0] == this->box[0]){
+        // Case UP/DOWN bisection
+        indice1 = 2;
+        indice2 = 0;
+    }
+    else{
+        // Case LEFT/RIGHT bisection
+        indice1 = 1;
+        indice2 = 3;
+    }
+
+    for(int i=0; i<4; i++){
+        if(this->borders[i].brothers.size()!=0){
+            if(i!=indice1)
+                pave1->borders[i].add_brothers(this->borders[i].brothers);
+            if(i!=indice2)
+                pave2->borders[i].add_brothers(this->borders[i].brothers);
+        }
+    }
+    pave1->borders[indice1].brothers.push_back(&pave2->borders[indice2]);
+    pave2->borders[indice2].brothers.push_back(&pave1->borders[indice1]);
+
+    result.push_back(pave1);
+    result.push_back(pave2);
 }
 
 void Pave::process(){
@@ -59,16 +84,12 @@ void Pave::process(){
         Border segment = queue.back();
         queue.pop_back();
 
-        // Test if the border interesect the segment of the pave
-        // ToDo : Test if this is a new part of the segment !!!
-        Interval seg_in = segment.segments[0] & this->box[(segment.face)%2];
+        // Add the new segment & Test if the border interesect the segment of the pave
+        Interval seg_in = this->borders[segment.face].add_segment(segment.segments[0]);
 
         if(seg_in.diam() !=0){
             computePropagation(seg_in, segment.face);
         }
-
-        // Then publish the impact on the neighbour paves
-
     }
 }
 
@@ -77,6 +98,9 @@ void Pave::computePropagation(Interval seg_in, int face){
     CtcPolar contract_p0;
 
     // Passage dans le repère local
+    double offset_x = box[0].lb();
+    double offset_y = box[1].lb();
+
     Interval seg_in_local;
     switch(face){
     case 0:
@@ -93,11 +117,8 @@ void Pave::computePropagation(Interval seg_in, int face){
         break;
     }
 
-    double offset_x = box[face % 2].lb();
-    double offset_y = box[(face + 1) % 2].lb();
-
-    Interval c0 = box[face % 2] - offset_x;
-    Interval c1 = box[(face + 1) % 2] - offset_y;
+    Interval c0 = box[face % 2] - box[face % 2].lb();
+    Interval c1 = box[(face + 1) % 2] - box[(face + 1) % 2].lb();
     Interval theta = this->table_rotation[face] + this->theta;
 
     // ****** RIGHT Border ******
@@ -171,10 +192,14 @@ void Pave::computePropagation(Interval seg_in, int face){
     }
 
     // ******* Publish new segments *******
-    for(int i=0; i<seg_out.size(); i++){
+    for(int i=0; i<3; i++){
         if(!seg_out[i].is_empty()){
-            this->borders[(i+1+face)%4].add_segement(seg_out[i]);
+            this->borders[(i+1+face)%4].add_segment(seg_out[i]);
             this->borders[(i+1+face)%4].publish_to_borthers(seg_out[i]);
         }
     }
+}
+
+void Pave::push_queue(Border &b){
+    this->queue.push_back(b);
 }

@@ -14,8 +14,9 @@ public:
 
     void draw();
     void process();
-    void bisect(std::vector<Pave> *result);
+    void bisect(vector<Pave *> &result);
     void computePropagation(ibex::Interval seg_in, int face);
+    void push_queue(Border &b);
 
 /***************** Variables ******************/
 

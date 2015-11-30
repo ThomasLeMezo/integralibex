@@ -13,14 +13,15 @@ public:
     Border(const ibex::Interval &segment, int face);
 
     void draw();
-    void add_segement(ibex::Interval seg);
+    ibex::Interval add_segment(ibex::Interval seg);
     void publish_to_borthers(ibex::Interval seg);
+    void add_brothers(std::vector<Border *> brother_list);
 
 // State Variable
 public:
     std::vector<ibex::Interval> segments;   // List of impacted interval of the segment
     int face;                               // Number of the face (0=bottom, 1=right, ...)
-    std::vector<Border*> borthers;          // Pointer to brothers Borders
+    std::vector<Border*> brothers;          // Pointer to brothers Borders
     ibex::IntervalVector position;          // Position of the border ([x], [y]) where one of the dimension is singleton
 
     Pave *pave;                             // Pointer to its container
