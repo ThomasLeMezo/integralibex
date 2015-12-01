@@ -25,25 +25,27 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
     this->theta = Interval(0.0);
     this->speed = Interval(1.0);
 
-    double mu = 1;
-    this->theta = atan2(box[1], mu*(1-pow(box[0], 2))*box[1]-box[0]);
+    double mu = 0.01;
+
+    Interval dx = box[1];
+    Interval dy = 1.0*(1-pow(box[0], 2))*box[1]-box[0];
+
+    this->theta = atan2(dy, dx);
 }
 
 void Pave::draw() const{
     // Draw the pave
-    vibes::drawBox(this->box, "b[]");
+//    vibes::drawBox(this->box, "b[]");
 
     // Draw the impacted segment (in option)
-    cout << this->borders.size() << endl;
     for(int i=0; i<this->borders.size(); i++){
-        cout << this->borders[i].position << endl;
         this->borders[i].draw();
     }
 
     // Draw the inside impact -> polygone (in option) ?
 
     // Draw theta
-    double size = min(this->box[0].diam(), this->box[1].diam())/2.0;
+    double size = 0.8*min(this->box[0].diam(), this->box[1].diam())/2.0;
     vibes::drawSector(this->box[0].mid(), this->box[1].mid(), size, size, (-this->theta.lb())*180.0/M_PI, (-this->theta.ub())*180.0/M_PI, "r[]");
 
 }
@@ -216,4 +218,18 @@ void Pave::push_queue(Border &b){
 
 void Pave::warn_scheduler(){
     this->scheduler->add_to_queue(this);
+}
+
+void Pave::activate_pave(){
+    Border b0(this->box[0], 0);
+    Border b1(this->box[1], 1);
+    Border b2(this->box[0], 2);
+    Border b3(this->box[1], 3);
+
+    this->queue.push_back(b0);
+    this->queue.push_back(b1);
+    this->queue.push_back(b2);
+    this->queue.push_back(b3);
+
+    this->warn_scheduler();
 }

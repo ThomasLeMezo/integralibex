@@ -22,7 +22,9 @@ int main()
     s.set_initial_pave(box);
 
     s.SIVIA(M_PI/10.0, 10000);
-//    s.process();
+
+    s.add_segment();
+    s.process(200);
     s.draw();
 
     return 0;

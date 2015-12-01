@@ -13,9 +13,9 @@ public:
     Scheduler();
     void add_to_queue(Pave* pave);
     void draw();
-    void process();
+    void process(int max_iterations);
     void SIVIA(double epsilon_theta, int iterations_max);
-    void add_segment(const ibex::IntervalVector &box);
+    void add_segment();
     void set_initial_pave(const ibex::IntervalVector &box);
 
 public:

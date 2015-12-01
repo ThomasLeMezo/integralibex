@@ -20,6 +20,7 @@ public:
     void computePropagation(ibex::Interval seg_in, int face);
     void push_queue(Border &b);
     void warn_scheduler();
+    void activate_pave();
 
 /***************** Variables ******************/
 
