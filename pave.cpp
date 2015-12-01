@@ -9,9 +9,11 @@
 using namespace std;
 using namespace ibex;
 
-Pave::Pave(const IntervalVector &box): box(2)
+Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
 {
     this->box = box;    // Box corresponding to the Pave
+    this->scheduler = scheduler;
+    this->borders.reserve(4);
 
     // Border creation
     IntervalVector coordinate(2);
@@ -23,14 +25,18 @@ Pave::Pave(const IntervalVector &box): box(2)
     this->theta = Interval(0.0);
     this->speed = Interval(1.0);
 
+    double mu = 1;
+    this->theta = atan2(box[1], mu*(1-pow(box[0], 2))*box[1]-box[0]);
 }
 
-void Pave::draw(){
+void Pave::draw() const{
     // Draw the pave
-    //  vibes::drawBox(this->box, "b[]");
+    vibes::drawBox(this->box, "b[]");
 
     // Draw the impacted segment (in option)
+    cout << this->borders.size() << endl;
     for(int i=0; i<this->borders.size(); i++){
+        cout << this->borders[i].position << endl;
         this->borders[i].draw();
     }
 
@@ -47,8 +53,8 @@ void Pave::bisect(vector<Pave*> &result){
     ibex::LargestFirst bisector(0.0, 0.5);
     std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(this->box);
 
-    Pave *pave1 = new Pave(result_boxes.first); // Left or Up
-    Pave *pave2 = new Pave(result_boxes.second); // Right or Down
+    Pave *pave1 = new Pave(result_boxes.first, this->scheduler); // Left or Up
+    Pave *pave2 = new Pave(result_boxes.second, this->scheduler); // Right or Down
 
     int indice1, indice2;
 
@@ -206,4 +212,8 @@ void Pave::computePropagation(Interval seg_in, int face){
 
 void Pave::push_queue(Border &b){
     this->queue.push_back(b);
+}
+
+void Pave::warn_scheduler(){
+    this->scheduler->add_to_queue(this);
 }

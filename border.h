@@ -5,14 +5,14 @@
 #include <pave.h>
 
 class Pave;
-
+class Scheduler;
 class Border
 {
 public:
-    Border(const ibex::IntervalVector& position, int face, Pave *pave);
-    Border(const ibex::Interval &segment, int face);
+    Border(const ibex::IntervalVector& position, const int face, Pave *pave);
+    Border(const ibex::Interval &segment, const int face);
 
-    void draw();
+    void draw() const;
     ibex::Interval add_segment(ibex::Interval seg);
     void publish_to_borthers(ibex::Interval seg);
     void add_brothers(std::vector<Border *> brother_list);

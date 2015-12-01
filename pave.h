@@ -3,24 +3,29 @@
 
 #include <ibex.h>
 #include <border.h>
+#include <scheduler.h>
 
 class Border;
+class Scheduler;
 class Pave
 {
 /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &box);
+    Pave(const ibex::IntervalVector &box, Scheduler *scheduler);
     ~Pave(){}
 
-    void draw();
+    void draw() const;
     void process();
     void bisect(vector<Pave *> &result);
     void computePropagation(ibex::Interval seg_in, int face);
     void push_queue(Border &b);
+    void warn_scheduler();
 
 /***************** Variables ******************/
 
 public:
+    Scheduler *scheduler;
+
     ibex::Interval theta;
     ibex::Interval speed;
 
