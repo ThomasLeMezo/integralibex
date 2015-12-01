@@ -55,6 +55,10 @@ void Scheduler::process(int max_iterations){
         Pave *pave = this->pave_queue.back();
         this->pave_queue.pop_back();
         pave->process();
+
+        if(iterations%100 == 0){
+            cout << iterations << endl;
+        }
     }
 
     cout << "queue size = " << this->pave_queue.size() << endl;

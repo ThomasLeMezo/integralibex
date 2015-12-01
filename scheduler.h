@@ -11,6 +11,8 @@ class Scheduler
 {
 public:
     Scheduler();
+    ~Scheduler(){}
+
     void add_to_queue(Pave* pave);
     void draw();
     void process(int max_iterations);

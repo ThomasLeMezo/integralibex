@@ -8,8 +8,17 @@ using namespace ibex;
 
 int main()
 {
+//    vibes::beginDrawing();
+//    vibes::newFigure("integralIBEX");
+//    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
+//    vibes::axisAuto();
+
+//    vibes::drawSector(0.0, 0.0, 1.0, 1.0, 359.0, 0.0, "r[]");
+
+    // *************************
+
     vibes::beginDrawing();
-    vibes::newFigure("integralIBEX");
+    vibes::newFigure("integralIBEX2");
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
     vibes::axisAuto();
 
@@ -24,7 +33,7 @@ int main()
     s.SIVIA(M_PI/10.0, 10000);
 
     s.add_segment();
-    s.process(200);
+    s.process(100);
     s.draw();
 
     return 0;

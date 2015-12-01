@@ -22,7 +22,7 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
     coordinate[0] = box[0]; coordinate[1] = Interval(box[1].ub()); this->borders.push_back(Border(coordinate, 2, this));
     coordinate[1] = box[1]; coordinate[0] = Interval(box[0].lb()); this->borders.push_back(Border(coordinate, 3, this));
 
-    this->theta = Interval(0.0);
+    this->theta = Interval::ALL_REALS;
     this->speed = Interval(1.0);
 
     double mu = 0.01;
@@ -30,7 +30,14 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
     Interval dx = box[1];
     Interval dy = 1.0*(1-pow(box[0], 2))*box[1]-box[0];
 
-    this->theta = atan2(dy, dx);
+
+    Interval rho = Interval::POS_REALS;
+    Interval t = Interval::ZERO | 2.0*Interval::PI;
+    CtcPolar polar;
+    polar.contract(dx, dy,  rho, t);
+    this->theta = t;
+
+//    this->theta = atan2(dy, dx);
 }
 
 void Pave::draw() const{
@@ -47,7 +54,6 @@ void Pave::draw() const{
     // Draw theta
     double size = 0.8*min(this->box[0].diam(), this->box[1].diam())/2.0;
     vibes::drawSector(this->box[0].mid(), this->box[1].mid(), size, size, (-this->theta.lb())*180.0/M_PI, (-this->theta.ub())*180.0/M_PI, "r[]");
-
 }
 
 void Pave::bisect(vector<Pave*> &result){
@@ -97,10 +103,9 @@ void Pave::process(){
         queue.pop_back();
 
         // Add the new segment & Test if the border interesect the segment of the pave
-        Interval seg_in = this->borders[segment.face].add_segment(segment.segments[0]);
-
-        if(seg_in.diam() !=0){
-            computePropagation(seg_in, segment.face);
+        vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segments[0]);
+        for(int i=0; i<seg_in_list.size(); i++){
+            computePropagation(seg_in_list[i], segment.face);
         }
     }
 }

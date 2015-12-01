@@ -11,9 +11,10 @@ class Border
 public:
     Border(const ibex::IntervalVector& position, const int face, Pave *pave);
     Border(const ibex::Interval &segment, const int face);
+    ~Border(){}
 
     void draw() const;
-    ibex::Interval add_segment(ibex::Interval seg);
+    vector<ibex::Interval> add_segment(ibex::Interval seg);
     void publish_to_borthers(ibex::Interval seg);
     void add_brothers(std::vector<Border *> brother_list);
     void update_brothers(Border* border_pave1, Border* border_pave2);
