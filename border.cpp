@@ -80,3 +80,18 @@ void Border::add_brothers(std::vector<Border*> brother_list){
     }
 }
 
+void Border::update_brothers(Border* border_pave1, Border* border_pave2){
+    for(int i=0; i<brothers.size(); i++){
+        // Remove reference to this border inside brothers
+        for(int j=0; j<this->brothers[i]->brothers.size(); j++){
+            if(this->brothers[i]->brothers[j]==this){
+                this->brothers[i]->brothers.erase(this->brothers[i]->brothers.begin()+j);
+            }
+        }
+        // Add reference of border_pave 1 and 2
+        vector<Border*> list_tmp;
+        list_tmp.push_back(border_pave1);
+        list_tmp.push_back(border_pave2);
+        this->brothers[i]->add_brothers(list_tmp);
+    }
+}

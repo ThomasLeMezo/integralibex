@@ -16,6 +16,7 @@ public:
     ibex::Interval add_segment(ibex::Interval seg);
     void publish_to_borthers(ibex::Interval seg);
     void add_brothers(std::vector<Border *> brother_list);
+    void update_brothers(Border* border_pave1, Border* border_pave2);
 
 // State Variable
 public:

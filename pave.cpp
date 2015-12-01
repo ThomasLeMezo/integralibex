@@ -74,6 +74,10 @@ void Pave::bisect(vector<Pave*> &result){
     pave1->borders[indice1].brothers.push_back(&pave2->borders[indice2]);
     pave2->borders[indice2].brothers.push_back(&pave1->borders[indice1]);
 
+    for(int i=0; i<4; i++){
+        this->borders[i].update_brothers(&(pave1->borders[i]), &(pave2->borders[i]));
+    }
+
     result.push_back(pave1);
     result.push_back(pave2);
 }

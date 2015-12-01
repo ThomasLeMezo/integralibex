@@ -19,7 +19,7 @@ int main()
     //    p1.theta = (-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
     //    p1.theta = (-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0) + Interval::HALF_PI;
     //    p1.theta = (-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0) + Interval::PI;
-    p1.theta = (-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0) - Interval::HALF_PI;
+    p1.theta = (-Interval::HALF_PI/10.0 | Interval::HALF_PI/10.0) - Interval::HALF_PI;
 
     Border b = Border(Interval(0.0, 0.5), 2);
     p1.queue.push_back(b);
@@ -45,10 +45,12 @@ int main()
         bisect_pave[i]->bisect(bisect_pave1);
     }
 
-    Border b_test = Border(Interval(0.0, 0.5), 2);
-    bisect_pave1[1]->queue.push_back(b_test);
+    for(int i=0; i<bisect_pave1.size(); i++){
+        cout << "PAVE " << i << " " << bisect_pave1[i] << endl;
+    }
 
-    cout << "bisect_pave1[0]" << bisect_pave1[0]->box << endl;
+    Border b_test = Border(Interval(0.3, 0.5), 2);
+    bisect_pave1[1]->queue.push_back(b_test);
 
     for(int i=0; i<bisect_pave1.size(); i++){
         bisect_pave1[i]->theta = (-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0) - Interval::HALF_PI;
