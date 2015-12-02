@@ -5,6 +5,7 @@
 #include "iostream"
 #include "stdlib.h"
 #include "stdio.h"
+#include <ctime>
 
 using namespace std;
 using namespace ibex;
@@ -30,14 +31,12 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
     Interval dx = box[1];
     Interval dy = 1.0*(1-pow(box[0], 2))*box[1]-box[0];
 
+//    Interval rho = Interval::POS_REALS;
+//    Interval t = Interval::ZERO | 2.0*Interval::PI;
+//    this->scheduler->contract_polar.contract(dx, dy,  rho, t);
+//    this->theta = t;
 
-    Interval rho = Interval::POS_REALS;
-    Interval t = Interval::ZERO | 2.0*Interval::PI;
-    CtcPolar polar;
-    polar.contract(dx, dy,  rho, t);
-    this->theta = t;
-
-//    this->theta = atan2(dy, dx);
+    this->theta = atan2(dy, dx);
 }
 
 void Pave::draw() const{
@@ -98,21 +97,22 @@ void Pave::bisect(vector<Pave*> &result){
 
 void Pave::process(){
     // Process all new incoming valid segment (represents as borders)
-    while(!this->queue.empty()){
-        Border segment = queue.back();
-        queue.pop_back();
 
-        // Add the new segment & Test if the border interesect the segment of the pave
-        vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segments[0]);
-        for(int i=0; i<seg_in_list.size(); i++){
-            computePropagation(seg_in_list[i], segment.face);
-        }
+    // Only take the first box in the list because the Pave is called for each new segment in the scheduler
+    Border segment = queue.back();
+    queue.pop_back();
+
+    // Add the new segment & Test if the border interesect the segment of the pave
+    vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segments[0]);
+//    cout << seg_in_list.size() << endl;
+
+    for(int i=0; i<seg_in_list.size(); i++){
+        computePropagation(seg_in_list[i], segment.face);
     }
 }
 
 void Pave::computePropagation(Interval seg_in, int face){
     vector<Interval> seg_out;
-    CtcPolar contract_p0;
 
     // Passage dans le repère local
     double offset_x = box[0].lb();
@@ -139,72 +139,52 @@ void Pave::computePropagation(Interval seg_in, int face){
     Interval theta = this->table_rotation[face] + this->theta;
 
     // ****** RIGHT Border ******
-    Interval x = c0.ub() - seg_in_local;
-    Interval y = c1;
-    Interval rho = Interval::POS_REALS;
-    Interval theta_c = Interval::PI/2.0 + theta;
+    Interval x_right = c0.ub() - seg_in_local;
+    Interval y_right = c1;
+    Interval rho_right = Interval::POS_REALS;
+    Interval theta_c_right = Interval::PI/2.0 + theta;
 
-    contract_p0.contract(x, y, rho, theta_c);
-
-    switch(face){
-    case 0:
-        seg_out.push_back(y + offset_y);
-        break;
-    case 1:
-        seg_out.push_back(c1.ub() - y + offset_x);
-        break;
-    case 2:
-        seg_out.push_back(c1.ub() - y + offset_y);
-        break;
-    case 3:
-        seg_out.push_back(y + offset_x);
-        break;
-    }
+    this->scheduler->contract_polar.contract(x_right, y_right, rho_right, theta_c_right);
 
     // ****** FRONT Border ******
-    x = Interval(c1.diam());
-    y = Interval::ALL_REALS;
-    rho = Interval::POS_REALS;
-    theta_c = theta;
+    Interval x_front = Interval(c1.diam());
+    Interval y_front = Interval::ALL_REALS;
+    Interval rho_front = Interval::POS_REALS;
+    Interval theta_c_front = theta;
 
-    contract_p0.contract(x, y, rho, theta_c);
-    Interval front = (seg_in_local - y) & c0;
-
-    switch(face){
-    case 0:
-        seg_out.push_back(front + c0.lb() + offset_x);
-        break;
-    case 1:
-        seg_out.push_back(front + c1.lb() + offset_y);
-        break;
-    case 2:
-        seg_out.push_back(c0.ub() - front + offset_x);
-        break;
-    case 3:
-        seg_out.push_back(c1.ub() - front + offset_y);
-        break;
-    }
+    this->scheduler->contract_polar.contract(x_front, y_front, rho_front, theta_c_front);
+    Interval front = (seg_in_local - y_front) & c0;
 
     // ****** LEFT Border ******
-    x = seg_in_local;
-    y = c1;
-    rho = Interval::POS_REALS;
-    theta_c = Interval::PI/2.0 - theta;
+    Interval x_left = seg_in_local;
+    Interval y_left = c1;
+    Interval rho_left = Interval::POS_REALS;
+    Interval theta_c_left = Interval::PI/2.0 - theta;
 
-    contract_p0.contract(x, y, rho, theta_c);
+    this->scheduler->contract_polar.contract(x_left, y_left, rho_left, theta_c_left);
+
+    // Passage dans le repère global (et rotation)
 
     switch(face){
     case 0:
-        seg_out.push_back(y + offset_y);
+        seg_out.push_back(y_right + offset_y);
+        seg_out.push_back(front + c0.lb() + offset_x);
+        seg_out.push_back(y_left + offset_y);
         break;
     case 1:
-        seg_out.push_back(c1.ub() - y + offset_x);
+        seg_out.push_back(c1.ub() - y_right + offset_x);
+        seg_out.push_back(front + c1.lb() + offset_y);
+        seg_out.push_back(c1.ub() - y_left + offset_x);
         break;
     case 2:
-        seg_out.push_back(c1.ub() - y + offset_y);
+        seg_out.push_back(c1.ub() - y_right + offset_y);
+        seg_out.push_back(c0.ub() - front + offset_x);
+        seg_out.push_back(c1.ub() - y_left + offset_y);
         break;
     case 3:
-        seg_out.push_back(y + offset_x);
+        seg_out.push_back(y_right + offset_x);
+        seg_out.push_back(c1.ub() - front + offset_y);
+        seg_out.push_back(y_left + offset_x);
         break;
     }
 

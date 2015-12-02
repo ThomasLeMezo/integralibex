@@ -33,7 +33,7 @@ int main()
     s.SIVIA(M_PI/10.0, 10000);
 
     s.add_segment();
-    s.process(100);
+    s.process(100000);
     s.draw();
 
     return 0;

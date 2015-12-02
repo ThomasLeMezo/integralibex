@@ -23,6 +23,8 @@ public:
 public:
     std::vector<Pave*> pave_list;
     std::vector<Pave*> pave_queue;
+
+    ibex::CtcPolar contract_polar;
 };
 
 #endif // SCHEDULER_H

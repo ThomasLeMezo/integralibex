@@ -54,14 +54,13 @@ vector<ibex::Interval> Border::add_segment(Interval seg){
         Interval inter = seg & this->segments[i];
         Interval u = seg | this->segments[i];
         if(!inter.is_empty() || u.diam() == (seg.diam() + this->segments[i].diam())){
-            //          Interval left, right;
-            //          seg.diff(this->segments[i], left, right);
+            Interval left, right;
+            seg.diff(this->segments[i], left, right);
             this->segments[i] = inter;
-            //          if(!left.is_empty())
-            //              list_segments.push_back(left);
-            //          if(!right.is_empty())
-            //              list_segments.push_back(right);
-            list_segments.push_back(inter);
+            if(!left.is_empty())
+              list_segments.push_back(left);
+            if(!right.is_empty())
+              list_segments.push_back(right);
             return list_segments;
         }
     }
