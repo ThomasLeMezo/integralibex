@@ -27,7 +27,7 @@ public:
 public:
     Scheduler *scheduler;
 
-    ibex::Interval theta;
+    vector<ibex::Interval> theta;
     ibex::Interval speed;
 
     ibex::IntervalVector box;

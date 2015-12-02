@@ -23,7 +23,6 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
     coordinate[0] = box[0]; coordinate[1] = Interval(box[1].ub()); this->borders.push_back(Border(coordinate, 2, this));
     coordinate[1] = box[1]; coordinate[0] = Interval(box[0].lb()); this->borders.push_back(Border(coordinate, 3, this));
 
-    this->theta = Interval::ALL_REALS;
     this->speed = Interval(1.0);
 
     double mu = 0.01;
@@ -31,17 +30,31 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
     Interval dx = box[1];
     Interval dy = 1.0*(1-pow(box[0], 2))*box[1]-box[0];
 
-//    Interval rho = Interval::POS_REALS;
-//    Interval t = Interval::ZERO | 2.0*Interval::PI;
-//    this->scheduler->contract_polar.contract(dx, dy,  rho, t);
-//    this->theta = t;
+    //    Interval rho = Interval::POS_REALS;
+    //    Interval t = Interval::ZERO | 2.0*Interval::PI;
+    //    this->scheduler->contract_polar.contract(dx, dy,  rho, t);
+    //    this->theta = t;
 
-    this->theta = atan2(dy, dx);
+    Interval theta = atan2(dy, dx);
+    if(theta==(-Interval::PI|Interval::PI)){
+        vector<Interval> dR = scheduler->rotate(Interval::PI, dx, dy);
+        Interval thetaR = atan2(dR[1], dR[0]);
+        if(thetaR.diam()<theta.diam()){
+            this->theta.push_back((thetaR+Interval::PI) & (-Interval::PI | Interval::PI));
+            this->theta.push_back((thetaR-Interval::PI) & (-Interval::PI | Interval::PI));
+        }
+        else{
+            this->theta.push_back(theta);
+        }
+    }
+    else{
+        this->theta.push_back(theta);
+    }
 }
 
 void Pave::draw() const{
     // Draw the pave
-//    vibes::drawBox(this->box, "b[]");
+    //    vibes::drawBox(this->box, "b[]");
 
     // Draw the impacted segment (in option)
     for(int i=0; i<this->borders.size(); i++){
@@ -52,7 +65,9 @@ void Pave::draw() const{
 
     // Draw theta
     double size = 0.8*min(this->box[0].diam(), this->box[1].diam())/2.0;
-    vibes::drawSector(this->box[0].mid(), this->box[1].mid(), size, size, (-this->theta.lb())*180.0/M_PI, (-this->theta.ub())*180.0/M_PI, "r[]");
+    for(int i=0; i<this->theta.size(); i++){
+        vibes::drawSector(this->box[0].mid(), this->box[1].mid(), size, size, (-this->theta[i].lb())*180.0/M_PI, (-this->theta[i].ub())*180.0/M_PI, "r[]");
+    }
 }
 
 void Pave::bisect(vector<Pave*> &result){
@@ -104,7 +119,7 @@ void Pave::process(){
 
     // Add the new segment & Test if the border interesect the segment of the pave
     vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segments[0]);
-//    cout << seg_in_list.size() << endl;
+    //    cout << seg_in_list.size() << endl;
 
     for(int i=0; i<seg_in_list.size(); i++){
         computePropagation(seg_in_list[i], segment.face);
@@ -136,63 +151,87 @@ void Pave::computePropagation(Interval seg_in, int face){
 
     Interval c0 = box[face % 2] - box[face % 2].lb();
     Interval c1 = box[(face + 1) % 2] - box[(face + 1) % 2].lb();
-    Interval theta = this->table_rotation[face] + this->theta;
+    vector<Interval> theta;
+    for(int i=0; i<this->theta.size(); i++){
+        theta.push_back(this->table_rotation[face] + this->theta[i]);
+    }
 
     // ****** RIGHT Border ******
-    Interval x_right = c0.ub() - seg_in_local;
-    Interval y_right = c1;
-    Interval rho_right = Interval::POS_REALS;
-    Interval theta_c_right = Interval::PI/2.0 + theta;
+    vector<Interval> x_right;
+    vector<Interval> y_right;
+    vector<Interval> rho_right;
+    vector<Interval> theta_c_right;
 
-    this->scheduler->contract_polar.contract(x_right, y_right, rho_right, theta_c_right);
+    for(int i=0; i<this->theta.size(); i++){
+        theta_c_right.push_back(Interval::PI/2.0 + theta[i]);
+        x_right.push_back(c0.ub() - seg_in_local);
+        y_right.push_back(c1);
+        rho_right.push_back(Interval::POS_REALS);
+        this->scheduler->contract_polar.contract(x_right[i], y_right[i], rho_right[i], theta_c_right[i]);
+    }
 
     // ****** FRONT Border ******
-    Interval x_front = Interval(c1.diam());
-    Interval y_front = Interval::ALL_REALS;
-    Interval rho_front = Interval::POS_REALS;
-    Interval theta_c_front = theta;
+    vector<Interval> x_front;
+    vector<Interval> y_front;
+    vector<Interval> rho_front;
+    vector<Interval> theta_c_front;
+    vector<Interval> front;
 
-    this->scheduler->contract_polar.contract(x_front, y_front, rho_front, theta_c_front);
-    Interval front = (seg_in_local - y_front) & c0;
+    for(int i=0; i<this->theta.size(); i++){
+        theta_c_front.push_back(theta[i]);
+        x_front.push_back(Interval(c1.diam()));
+        y_front.push_back(Interval::ALL_REALS);
+        rho_front.push_back(Interval::POS_REALS);
+        this->scheduler->contract_polar.contract(x_front[i], y_front[i], rho_front[i], theta_c_front[i]);
+        front.push_back((seg_in_local - y_front[i]) & c0);
+    }
 
     // ****** LEFT Border ******
-    Interval x_left = seg_in_local;
-    Interval y_left = c1;
-    Interval rho_left = Interval::POS_REALS;
-    Interval theta_c_left = Interval::PI/2.0 - theta;
+    vector<Interval> x_left;
+    vector<Interval> y_left;
+    vector<Interval> rho_left;
+    vector<Interval> theta_c_left;
 
-    this->scheduler->contract_polar.contract(x_left, y_left, rho_left, theta_c_left);
+    for(int i=0; i<this->theta.size(); i++){
+        theta_c_left.push_back(Interval::PI/2.0 - theta[i]);
+        x_left.push_back(seg_in_local);
+        y_left.push_back(c1);
+        rho_left.push_back(Interval::POS_REALS);
+        this->scheduler->contract_polar.contract(x_left[i], y_left[i], rho_left[i], theta_c_left[i]);
+    }
 
     // Passage dans le repère global (et rotation)
 
-    switch(face){
-    case 0:
-        seg_out.push_back(y_right + offset_y);
-        seg_out.push_back(front + c0.lb() + offset_x);
-        seg_out.push_back(y_left + offset_y);
-        break;
-    case 1:
-        seg_out.push_back(c1.ub() - y_right + offset_x);
-        seg_out.push_back(front + c1.lb() + offset_y);
-        seg_out.push_back(c1.ub() - y_left + offset_x);
-        break;
-    case 2:
-        seg_out.push_back(c1.ub() - y_right + offset_y);
-        seg_out.push_back(c0.ub() - front + offset_x);
-        seg_out.push_back(c1.ub() - y_left + offset_y);
-        break;
-    case 3:
-        seg_out.push_back(y_right + offset_x);
-        seg_out.push_back(c1.ub() - front + offset_y);
-        seg_out.push_back(y_left + offset_x);
-        break;
+    for(int i=0; i<this->theta.size(); i++){
+        switch(face){
+        case 0:
+            seg_out.push_back(y_right[i] + offset_y);
+            seg_out.push_back(front[i] + c0.lb() + offset_x);
+            seg_out.push_back(y_left[i] + offset_y);
+            break;
+        case 1:
+            seg_out.push_back(c1.ub() - y_right[i] + offset_x);
+            seg_out.push_back(front[i] + c1.lb() + offset_y);
+            seg_out.push_back(c1.ub() - y_left[i] + offset_x);
+            break;
+        case 2:
+            seg_out.push_back(c1.ub() - y_right[i] + offset_y);
+            seg_out.push_back(c0.ub() - front[i] + offset_x);
+            seg_out.push_back(c1.ub() - y_left[i] + offset_y);
+            break;
+        case 3:
+            seg_out.push_back(y_right[i] + offset_x);
+            seg_out.push_back(c1.ub() - front[i] + offset_y);
+            seg_out.push_back(y_left[i] + offset_x);
+            break;
+        }
     }
 
     // ******* Publish new segments *******
-    for(int i=0; i<3; i++){
+    for(int i=0; i<seg_out.size(); i++){
         if(!seg_out[i].is_empty()){
-            this->borders[(i+1+face)%4].add_segment(seg_out[i]);
-            this->borders[(i+1+face)%4].publish_to_borthers(seg_out[i]);
+            this->borders[(i%3+1+face)%4].add_segment(seg_out[i]);
+            this->borders[(i%3+1+face)%4].publish_to_borthers(seg_out[i]);
         }
     }
 }

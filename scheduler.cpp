@@ -31,7 +31,12 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
-        if(tmp->theta.diam() < epsilon_theta){
+        double diam = tmp->theta[0].diam();
+        if(tmp->theta.size()==2){
+            diam += tmp->theta[1].diam();
+        }
+
+        if(diam < epsilon_theta){
             this->pave_list.push_back(tmp);
         }
         else{
@@ -45,7 +50,7 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
 }
 
 void Scheduler::add_segment(){
-    this->pave_list[100]->activate_pave();
+    this->pave_list[1]->activate_pave();
 }
 
 void Scheduler::process(int max_iterations){
@@ -70,3 +75,11 @@ void Scheduler::draw(){
     }
 }
 
+std::vector<ibex::Interval> Scheduler::rotate(ibex::Interval theta, ibex::Interval x, ibex::Interval y){
+    Interval xR = cos(theta)*x -sin(theta)*y;
+    Interval yR = sin(theta)*x + cos(theta)*y;
+    vector<Interval> list;
+    list.push_back(xR);
+    list.push_back(yR);
+    return list;
+}
