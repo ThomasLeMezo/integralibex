@@ -54,7 +54,7 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
 
 void Pave::draw() const{
     // Draw the pave
-    //    vibes::drawBox(this->box, "b[]");
+//    vibes::drawBox(this->box, "b[]");
 
     // Draw the impacted segment (in option)
     for(int i=0; i<this->borders.size(); i++){
@@ -201,30 +201,42 @@ void Pave::computePropagation(Interval seg_in, int face){
     }
 
     // Passage dans le repère global (et rotation)
+    Interval y_right_union;
+    Interval front_union;
+    Interval y_left_union;
+    if(this->theta.size()==1){
+        y_right_union = y_right[0];
+        front_union = front[0];
+        y_left_union = y_left[0];
+    }
+    else{
+        y_right_union = y_right[0] | y_right[1];
+        front_union = front[0] | front[1];
+        y_left_union = y_left[0] | y_left[1];
+    }
 
-    for(int i=0; i<this->theta.size(); i++){
-        switch(face){
-        case 0:
-            seg_out.push_back(y_right[i] + offset_y);
-            seg_out.push_back(front[i] + c0.lb() + offset_x);
-            seg_out.push_back(y_left[i] + offset_y);
-            break;
-        case 1:
-            seg_out.push_back(c1.ub() - y_right[i] + offset_x);
-            seg_out.push_back(front[i] + c1.lb() + offset_y);
-            seg_out.push_back(c1.ub() - y_left[i] + offset_x);
-            break;
-        case 2:
-            seg_out.push_back(c1.ub() - y_right[i] + offset_y);
-            seg_out.push_back(c0.ub() - front[i] + offset_x);
-            seg_out.push_back(c1.ub() - y_left[i] + offset_y);
-            break;
-        case 3:
-            seg_out.push_back(y_right[i] + offset_x);
-            seg_out.push_back(c1.ub() - front[i] + offset_y);
-            seg_out.push_back(y_left[i] + offset_x);
-            break;
-        }
+
+    switch(face){
+    case 0:
+        seg_out.push_back(y_right_union + offset_y);
+        seg_out.push_back(front_union + c0.lb() + offset_x);
+        seg_out.push_back(y_left_union + offset_y);
+        break;
+    case 1:
+        seg_out.push_back(c1.ub() - y_right_union + offset_x);
+        seg_out.push_back(front_union + c1.lb() + offset_y);
+        seg_out.push_back(c1.ub() - y_left_union + offset_x);
+        break;
+    case 2:
+        seg_out.push_back(c1.ub() - y_right_union + offset_y);
+        seg_out.push_back(c0.ub() - front_union + offset_x);
+        seg_out.push_back(c1.ub() - y_left_union + offset_y);
+        break;
+    case 3:
+        seg_out.push_back(y_right_union + offset_x);
+        seg_out.push_back(c1.ub() - front_union + offset_y);
+        seg_out.push_back(y_left_union + offset_x);
+        break;
     }
 
     // ******* Publish new segments *******
@@ -250,10 +262,8 @@ void Pave::activate_pave(){
     Border b2(this->box[0], 2);
     Border b3(this->box[1], 3);
 
-    this->queue.push_back(b0);
-    this->queue.push_back(b1);
-    this->queue.push_back(b2);
-    this->queue.push_back(b3);
-
-    this->warn_scheduler();
+    this->queue.push_back(b0); this->warn_scheduler();
+    this->queue.push_back(b1); this->warn_scheduler();
+    this->queue.push_back(b2); this->warn_scheduler();
+    this->queue.push_back(b3); this->warn_scheduler();
 }

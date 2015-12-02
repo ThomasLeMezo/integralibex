@@ -49,8 +49,8 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
     }
 }
 
-void Scheduler::add_segment(){
-    this->pave_list[1]->activate_pave();
+void Scheduler::add_segment(int id_box){
+    this->pave_list[id_box]->activate_pave();
 }
 
 void Scheduler::process(int max_iterations){

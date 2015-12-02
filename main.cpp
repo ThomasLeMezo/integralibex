@@ -47,11 +47,14 @@ int main()
 
     s.set_initial_pave(box);
 
-    s.SIVIA(M_PI/10.0, 10000);
+    s.SIVIA(M_PI/10.0, 20000);
 
-    s.add_segment();
+    cout << s.pave_list.size() << endl;
+    s.add_segment(12833);
     s.process(100000);
     s.draw();
+
+    cout << s.pave_list[0]->box << endl;
 #endif
 
     return 0;

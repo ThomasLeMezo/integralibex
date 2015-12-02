@@ -17,7 +17,7 @@ public:
     void draw();
     void process(int max_iterations);
     void SIVIA(double epsilon_theta, int iterations_max);
-    void add_segment();
+    void add_segment(int id_box);
     void set_initial_pave(const ibex::IntervalVector &box);
     std::vector<ibex::Interval> rotate(ibex::Interval theta, ibex::Interval x, ibex::Interval y);
 
