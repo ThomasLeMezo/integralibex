@@ -18,9 +18,11 @@ public:
     void process();
     void bisect(vector<Pave *> &result);
     void computePropagation(ibex::Interval seg_in, int face);
+    void computePropagation2(ibex::Interval seg_in, int face);
     void push_queue(Border &b);
     void warn_scheduler();
     void activate_pave();
+
 
 /***************** Variables ******************/
 

@@ -15,7 +15,6 @@ int main()
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500, "viewbox", "equal"));
     vibes::axisAuto();
 
-
 #endif
 
     // *************************
@@ -36,10 +35,7 @@ int main()
     cout << "theta_p = " << theta_p << endl;
 #endif
 
-    Interval x(0.5, 0.75);
-    cout << x << 1.0-x << endl;
-
-#if 0
+#if 1
     vibes::beginDrawing();
     vibes::newFigure("integralIBEX2");
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
@@ -53,10 +49,10 @@ int main()
 
     s.set_initial_pave(box);
 
-    s.SIVIA(M_PI/10.0, 20000);
+    s.SIVIA(M_PI/10.0, 6);
 
     s.add_segment(-1.28, 4.0);
-    s.process(100000);
+    s.process(100);
     s.draw();
 
     vibes::axisAuto();

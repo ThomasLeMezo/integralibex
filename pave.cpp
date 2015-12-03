@@ -7,6 +7,8 @@
 #include "stdio.h"
 #include <ctime>
 
+#include "utils.h"
+
 using namespace std;
 using namespace ibex;
 
@@ -37,7 +39,7 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
 
     Interval theta = atan2(dy, dx);
     if(theta==(-Interval::PI|Interval::PI)){
-        vector<Interval> dR = scheduler->rotate(Interval::PI, dx, dy);
+        vector<Interval> dR = this->scheduler->utils.rotate(Interval::PI, dx, dy);
         Interval thetaR = atan2(dR[1], dR[0]);
         if(thetaR.diam()<theta.diam()){
             this->theta.push_back((thetaR+Interval::PI) & (-Interval::PI | Interval::PI));
@@ -122,7 +124,62 @@ void Pave::process(){
     //    cout << seg_in_list.size() << endl;
 
     for(int i=0; i<seg_in_list.size(); i++){
-        computePropagation(seg_in_list[i], segment.face);
+        computePropagation2(seg_in_list[i], segment.face);
+    }
+}
+
+void Pave::computePropagation2(Interval seg_in, int face){
+    // Translate and rotate the Segment
+    IntervalVector box = this->box;
+    IntervalVector segment(2);
+    segment[face%2] = seg_in;
+    segment[(face+1)%2] = (face == 1 | face == 2 ) ? Interval(box[(face+1)%2].ub()) : Interval(box[(face+1)%2].lb());
+
+    double tab_theta[4] = {0.0, M_PI/2.0, M_PI, -M_PI/2.0};
+
+    this->scheduler->utils.translate_segment_and_box(segment, box, true);
+    this->scheduler->utils.rotate_segment_and_box(segment, tab_theta[face], box);
+
+    // Compute the propagation
+    Interval seg_out[3];
+
+    Interval segment_Rside[2] = {segment[0], segment[0]};
+    Interval segment_front[2] = {segment[0], segment[0]};
+    Interval segment_Lside[2] = {segment[0], segment[0]};
+
+    for(int i=0; i<2; i++){
+        this->scheduler->utils.CtcPropagateRightSide(segment_Rside[i], this->theta[i], box);
+        this->scheduler->utils.CtcPropagateFront(segment_front[i], this->theta[i], box);
+        this->scheduler->utils.CtcPropagateLeftSide(segment_Lside[i], this->theta[i], box);
+    }
+
+    // Translate and rotate back the Segment
+    IntervalVector segment_front_v(2);
+    IntervalVector segment_Lside_v(2);
+    IntervalVector segment_Rside_v(2);
+
+    segment_Rside_v[1] = segment_Rside[0] | segment_Rside[1]; segment_Rside_v[0] = box[0].ub();
+    segment_front_v[0] = segment_front[0] | segment_front[1]; segment_front_v[1] = box[1].ub();
+    segment_Lside_v[1] = segment_Lside[0] | segment_Lside[1]; segment_Lside_v[0] = box[0].lb();
+
+    this->scheduler->utils.rotate_segment_and_box(segment_front_v, -tab_theta[face], box);
+    this->scheduler->utils.rotate_segment_and_box(segment_Lside_v, -tab_theta[face], box);
+    this->scheduler->utils.rotate_segment_and_box(segment_Rside_v, -tab_theta[face], box);
+
+    this->scheduler->utils.translate_segment_and_box(segment_front_v, box, false);
+    this->scheduler->utils.translate_segment_and_box(segment_Lside_v, box, false);
+    this->scheduler->utils.translate_segment_and_box(segment_Rside_v, box, false);
+
+    seg_out[0] = (segment_Rside_v[0].diam()!=0) ? segment_Rside_v[1] : segment_Rside_v[0];
+    seg_out[1] = (segment_front_v[0].diam()!=0) ? segment_front_v[1] : segment_front_v[0];
+    seg_out[2] = (segment_Lside_v[0].diam()!=0) ? segment_Lside_v[1] : segment_Lside_v[0];
+
+    for(int i=0; i<3; i++){
+        if(!seg_out[i].is_empty()){
+            cout << seg_out[i] << endl;
+            this->borders[(i%3+1+face)%4].add_segment(seg_out[i]);
+            this->borders[(i%3+1+face)%4].publish_to_borthers(seg_out[i]);
+        }
     }
 }
 
@@ -167,7 +224,7 @@ void Pave::computePropagation(Interval seg_in, int face){
         x_right[i] = c0.ub() - seg_in_local;
         y_right[i] = c1;
         rho_right[i] = Interval::POS_REALS;
-        this->scheduler->contract_polar.contract(x_right[i], y_right[i], rho_right[i], theta_c_right[i]);
+        this->scheduler->utils.contract_polar.contract(x_right[i], y_right[i], rho_right[i], theta_c_right[i]);
     }
 
     // ****** FRONT Border ******
@@ -183,7 +240,7 @@ void Pave::computePropagation(Interval seg_in, int face){
         x_front[i] = Interval(c1.diam());
         y_front[i] = Interval::ALL_REALS;
         rho_front[i] = Interval::POS_REALS;
-        this->scheduler->contract_polar.contract(x_front[i], y_front[i], rho_front[i], theta_c_front[i]);
+        this->scheduler->utils.contract_polar.contract(x_front[i], y_front[i], rho_front[i], theta_c_front[i]);
         front[i] = (seg_in_local - y_front[i]) & c0;
     }
 
@@ -198,7 +255,7 @@ void Pave::computePropagation(Interval seg_in, int face){
         x_left[i] = seg_in_local;
         y_left[i] = c1;
         rho_left[i] = Interval::POS_REALS;
-        this->scheduler->contract_polar.contract(x_left[i], y_left[i], rho_left[i], theta_c_left[i]);
+        this->scheduler->utils.contract_polar.contract(x_left[i], y_left[i], rho_left[i], theta_c_left[i]);
     }
 
     // Passage dans le repère global (et rotation)
@@ -258,12 +315,3 @@ void Pave::activate_pave(){
     this->queue.push_back(b2); this->warn_scheduler();
     this->queue.push_back(b3); this->warn_scheduler();
 }
-
-void Pave::rotateSegment(ibex::Interval Sk, double theta, double dx, double dy){
-
-}
-
-void Pave::translateSegment(ibex::Interval Sk, ){
-
-}
-
