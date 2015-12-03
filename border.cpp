@@ -14,26 +14,27 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): posi
     this->position = position;
     this->face = face;
     this->pave = pave;
+    this->segment = Interval::EMPTY_SET;
 }
 
 Border::Border(const Interval &segment, const int face): position(2)
 {
-    this->segments.push_back(segment);
+    this->segment = segment;
     this->face = face;
 }
 
 void Border::draw() const{
-    for(int i=0; i<this->segments.size(); i++){
+    // Create an IntervalVector (2D) from the segment (1D)
+    IntervalVector segment = this->position;
 
-        // Create an IntervalVector (2D) from the segment (1D)
-        IntervalVector segment = this->position;
+    // Find the non flat dimension and complete replaced it by the segment
+    segment[this->face%2] = this->segment;
 
-        // Find the non flat dimension and complete replaced it by the segment
-        segment[this->face%2] = this->segments[i];
-
-        vibes::drawBox(segment, "g[]");
-    }
+    vibes::drawBox(segment, "g[]");
 }
+
+// ********************************************************************************
+// ****************** Segment Propagation *****************************************
 
 // Add a new segment to the list of segment (check wheter there is overlapping)
 // ToDo : Check whole overlapping
@@ -50,22 +51,18 @@ vector<ibex::Interval> Border::add_segment(Interval seg){
         return list_segments;
     }
 
-    for(int i=0; i<this->segments.size(); i++){
-        Interval inter = seg & this->segments[i];
-        Interval u = seg | this->segments[i];
-        if(!inter.is_empty() || u.diam() == (seg.diam() + this->segments[i].diam())){
-            Interval left, right;
-            seg.diff(this->segments[i], left, right);
-            this->segments[i] = u;
-            if(!left.is_empty())
-              list_segments.push_back(left);
-            if(!right.is_empty())
-              list_segments.push_back(right);
-            return list_segments;
-        }
-    }
-    this->segments.push_back(seg);
-    list_segments.push_back(seg);
+    Interval new_segment = this->segment | seg;
+
+    // Compute the new segment(s) to propagate
+    Interval left, right;
+    new_segment.diff(this->segment, left, right);
+
+    if(!left.is_empty())
+      list_segments.push_back(left);
+    if(!right.is_empty())
+      list_segments.push_back(right);
+
+    this->segment = new_segment;
     return list_segments;
 }
 
@@ -78,6 +75,9 @@ void Border::publish_to_borthers(ibex::Interval seg){
         this->brothers[i]->pave->warn_scheduler();
     }
 }
+
+// ********************************************************************************
+// ****************** Paving building *********************************************
 
 // Add new brothers to the list
 void Border::add_brothers(std::vector<Border*> brother_list){

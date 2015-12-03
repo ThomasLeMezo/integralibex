@@ -49,10 +49,6 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
     }
 }
 
-void Scheduler::add_segment(int id_box){
-    this->pave_list[id_box]->activate_pave();
-}
-
 void Scheduler::process(int max_iterations){
     int iterations=0;
     while(this->pave_queue.size() != 0 & iterations < max_iterations){
@@ -82,4 +78,70 @@ std::vector<ibex::Interval> Scheduler::rotate(ibex::Interval theta, ibex::Interv
     list.push_back(xR);
     list.push_back(yR);
     return list;
+}
+
+void Scheduler::print_pave_info(double x, double y){
+
+    Pave* p = this->get_pave(x, y);
+    for(int i= 0; i<p->borders.size(); i++){
+        cout << "border " << i << " " << p->borders[i].position << p->borders[i].segment << endl;
+    }
+}
+
+Pave* Scheduler::get_pave(double x, double y){
+    IntervalVector position(2);
+    position[0] = Interval(x);
+    position[1] = Interval(y);
+
+    for(int i=0; i<this->pave_list.size(); i++){
+        if(!(position & this->pave_list[i]->box).is_empty()){
+            return this->pave_list[i];
+        }
+    }
+}
+
+void Scheduler::add_segment(int id_box){
+    this->pave_list[id_box]->activate_pave();
+}
+
+void Scheduler::add_segment(double x, double y){
+    this->get_pave(x, y)->activate_pave();
+}
+
+/**
+ ** CtcPropagateFront supposed that the down left box corner is (0,0)
+ **
+*/
+void Scheduler::CtcPropagateFront(ibex::Interval &Sk, const ibex::Interval &theta, const double &dx, const double &dy){
+    Interval Y(0.0, dy);
+
+    Interval x = Interval(-dx, dx);
+    Interval y = Interval(dx);
+    Interval rho = Interval::POS_REALS;
+    Interval theta2 = Interval::HALF_PI - theta;
+
+    contract_polar.contract(x, y, rho, theta2);
+
+    Sk = (Sk + x ) & Y;
+}
+
+void Scheduler::CtcPropagateLeftSide(ibex::Interval &Sk, const ibex::Interval &theta, const double &dy){
+    Interval x = Sk;
+    Interval y = Interval(0.0, dy);
+    Interval rho = Interval::POS_REALS;
+    Interval theta2 = Interval::PI - theta;
+
+    contract_polar.contract(x, y, rho, theta2);
+
+    Sk = y;
+}
+
+void Scheduler::CtcPropagateRightSide(ibex::Interval &Sk, const ibex::Interval &theta, const double &dx, const double &dy){
+    /** Apply a symetry to CtcPropagateLeftSide
+     ** theta -> -theta
+     ** [X] -> dx - [X]
+    */
+
+    CtcPropagateLeftSide(Sk, -theta, dy);
+    Sk = dx - Sk;
 }

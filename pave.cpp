@@ -118,7 +118,7 @@ void Pave::process(){
     queue.pop_back();
 
     // Add the new segment & Test if the border interesect the segment of the pave
-    vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segments[0]);
+    vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segment);
     //    cout << seg_in_list.size() << endl;
 
     for(int i=0; i<seg_in_list.size(); i++){
@@ -127,7 +127,7 @@ void Pave::process(){
 }
 
 void Pave::computePropagation(Interval seg_in, int face){
-    vector<Interval> seg_out;
+
 
     // Passage dans le repère local
     double offset_x = box[0].lb();
@@ -157,90 +157,81 @@ void Pave::computePropagation(Interval seg_in, int face){
     }
 
     // ****** RIGHT Border ******
-    vector<Interval> x_right;
-    vector<Interval> y_right;
-    vector<Interval> rho_right;
-    vector<Interval> theta_c_right;
+    Interval x_right[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
+    Interval y_right[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
+    Interval rho_right[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
+    Interval theta_c_right[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int i=0; i<this->theta.size(); i++){
-        theta_c_right.push_back(Interval::PI/2.0 + theta[i]);
-        x_right.push_back(c0.ub() - seg_in_local);
-        y_right.push_back(c1);
-        rho_right.push_back(Interval::POS_REALS);
+        theta_c_right[i]= Interval::PI/2.0 + theta[i];
+        x_right[i] = c0.ub() - seg_in_local;
+        y_right[i] = c1;
+        rho_right[i] = Interval::POS_REALS;
         this->scheduler->contract_polar.contract(x_right[i], y_right[i], rho_right[i], theta_c_right[i]);
     }
 
     // ****** FRONT Border ******
-    vector<Interval> x_front;
-    vector<Interval> y_front;
-    vector<Interval> rho_front;
-    vector<Interval> theta_c_front;
-    vector<Interval> front;
+    Interval x_front[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
+    Interval y_front[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
+    Interval rho_front[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
+    Interval theta_c_front[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
+    Interval front[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int i=0; i<this->theta.size(); i++){
-        theta_c_front.push_back(theta[i]);
-        x_front.push_back(Interval(c1.diam()));
-        y_front.push_back(Interval::ALL_REALS);
-        rho_front.push_back(Interval::POS_REALS);
+        theta_c_front[i] = theta[i];
+
+        x_front[i] = Interval(c1.diam());
+        y_front[i] = Interval::ALL_REALS;
+        rho_front[i] = Interval::POS_REALS;
         this->scheduler->contract_polar.contract(x_front[i], y_front[i], rho_front[i], theta_c_front[i]);
-        front.push_back((seg_in_local - y_front[i]) & c0);
+        front[i] = (seg_in_local - y_front[i]) & c0;
     }
 
     // ****** LEFT Border ******
-    vector<Interval> x_left;
-    vector<Interval> y_left;
-    vector<Interval> rho_left;
-    vector<Interval> theta_c_left;
+    Interval x_left[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
+    Interval y_left[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
+    Interval rho_left[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
+    Interval theta_c_left[2] = {Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int i=0; i<this->theta.size(); i++){
-        theta_c_left.push_back(Interval::PI/2.0 - theta[i]);
-        x_left.push_back(seg_in_local);
-        y_left.push_back(c1);
-        rho_left.push_back(Interval::POS_REALS);
+        theta_c_left[i] = Interval::PI/2.0 - theta[i];
+        x_left[i] = seg_in_local;
+        y_left[i] = c1;
+        rho_left[i] = Interval::POS_REALS;
         this->scheduler->contract_polar.contract(x_left[i], y_left[i], rho_left[i], theta_c_left[i]);
     }
 
     // Passage dans le repère global (et rotation)
-    Interval y_right_union;
-    Interval front_union;
-    Interval y_left_union;
-    if(this->theta.size()==1){
-        y_right_union = y_right[0];
-        front_union = front[0];
-        y_left_union = y_left[0];
-    }
-    else{
-        y_right_union = y_right[0] | y_right[1];
-        front_union = front[0] | front[1];
-        y_left_union = y_left[0] | y_left[1];
-    }
+    Interval y_right_union = y_right[0] | y_right[1];
+    Interval front_union = front[0] | front[1];
+    Interval y_left_union = y_left[0] | y_left[1];
 
-
+    Interval seg_out[3];
     switch(face){
     case 0:
-        seg_out.push_back(y_right_union + offset_y);
-        seg_out.push_back(front_union + c0.lb() + offset_x);
-        seg_out.push_back(y_left_union + offset_y);
+        seg_out[0] = (y_right_union + offset_y);
+        seg_out[1] = (front_union + c0.lb() + offset_x);
+        seg_out[2] = (y_left_union + offset_y);
         break;
     case 1:
-        seg_out.push_back(c1.ub() - y_right_union + offset_x);
-        seg_out.push_back(front_union + c1.lb() + offset_y);
-        seg_out.push_back(c1.ub() - y_left_union + offset_x);
+        seg_out[0] = (c1.ub() - y_right_union + offset_x);
+        seg_out[1] = (front_union + c1.lb() + offset_y);
+        seg_out[2] = (c1.ub() - y_left_union + offset_x);
         break;
     case 2:
-        seg_out.push_back(c1.ub() - y_right_union + offset_y);
-        seg_out.push_back(c0.ub() - front_union + offset_x);
-        seg_out.push_back(c1.ub() - y_left_union + offset_y);
+        seg_out[0] = (c1.ub() - y_right_union + offset_y);
+        seg_out[1] = (c0.ub() - front_union + offset_x);
+        seg_out[2] = (c1.ub() - y_left_union + offset_y);
         break;
     case 3:
-        seg_out.push_back(y_right_union + offset_x);
-        seg_out.push_back(c1.ub() - front_union + offset_y);
-        seg_out.push_back(y_left_union + offset_x);
+        seg_out[0] = (y_right_union + offset_x);
+        seg_out[1] = (c1.ub() - front_union + offset_y);
+        seg_out[2] = (y_left_union + offset_x);
         break;
     }
 
     // ******* Publish new segments *******
-    for(int i=0; i<seg_out.size(); i++){
+    for(int i=0; i<3; i++){
         if(!seg_out[i].is_empty()){
             this->borders[(i%3+1+face)%4].add_segment(seg_out[i]);
             this->borders[(i%3+1+face)%4].publish_to_borthers(seg_out[i]);
@@ -267,3 +258,12 @@ void Pave::activate_pave(){
     this->queue.push_back(b2); this->warn_scheduler();
     this->queue.push_back(b3); this->warn_scheduler();
 }
+
+void Pave::rotateSegment(ibex::Interval Sk, double theta, double dx, double dy){
+
+}
+
+void Pave::translateSegment(ibex::Interval Sk, ){
+
+}
+

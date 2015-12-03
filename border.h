@@ -21,7 +21,8 @@ public:
 
 // State Variable
 public:
-    std::vector<ibex::Interval> segments;   // List of impacted interval of the segment
+    ibex::Interval segment;   // List of impacted interval of the segment
+    // We suppose that there is only ONE segment and not a list (otherwise, SIVIA requiered)
     int face;                               // Number of the face (0=bottom, 1=right, ...)
     std::vector<Border*> brothers;          // Pointer to brothers Borders
     ibex::IntervalVector position;          // Position of the border ([x], [y]) where one of the dimension is singleton

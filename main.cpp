@@ -8,12 +8,15 @@ using namespace ibex;
 
 int main()
 {
-//    vibes::beginDrawing();
-//    vibes::newFigure("integralIBEX");
-//    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
-//    vibes::axisAuto();
+#if 0
+    vibes::beginDrawing();
+    vibes::newFigure("integralIBEX");
+    vibes::drawSector(0.0, 0.0, 1.0, 1.0, 0.0, 359.0, "r[]");
+    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500, "viewbox", "equal"));
+    vibes::axisAuto();
 
-//    vibes::drawSector(0.0, 0.0, 1.0, 1.0, 359.0, 0.0, "r[]");
+
+#endif
 
     // *************************
 #if 0
@@ -33,11 +36,14 @@ int main()
     cout << "theta_p = " << theta_p << endl;
 #endif
 
-#if 1
+    Interval x(0.5, 0.75);
+    cout << x << 1.0-x << endl;
+
+#if 0
     vibes::beginDrawing();
     vibes::newFigure("integralIBEX2");
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
-    vibes::axisAuto();
+
 
     Scheduler s;
 
@@ -49,12 +55,16 @@ int main()
 
     s.SIVIA(M_PI/10.0, 20000);
 
-    cout << s.pave_list.size() << endl;
-    s.add_segment(12833);
+    s.add_segment(-1.28, 4.0);
     s.process(100000);
     s.draw();
 
-    cout << s.pave_list[0]->box << endl;
+    vibes::axisAuto();
+    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+
+    cout << "Nb of paves = " << s.pave_list.size() << endl;
+
+    s.print_pave_info(-0.7,3.91);
 #endif
 
     return 0;
