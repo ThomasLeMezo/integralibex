@@ -17,6 +17,7 @@ SET(SRC
     pave.cpp
     scheduler.cpp
     utils.cpp
+    tests.cpp
     ${vibes_SOURCES}
 )
 
@@ -25,6 +26,7 @@ SET(HEADERS
     pave.h
     scheduler.h
     utils.h
+    tests.h
 )
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${SRC})

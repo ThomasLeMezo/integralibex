@@ -3,6 +3,8 @@
 #include <pave.h>
 #include <vibes.h>
 
+#include <tests.h>
+
 using namespace std;
 using namespace ibex;
 
@@ -14,7 +16,6 @@ int main()
     vibes::drawSector(0.0, 0.0, 1.0, 1.0, 0.0, 359.0, "r[]");
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500, "viewbox", "equal"));
     vibes::axisAuto();
-
 #endif
 
     // *************************
@@ -35,11 +36,10 @@ int main()
     cout << "theta_p = " << theta_p << endl;
 #endif
 
-#if 1
+#if 0
     vibes::beginDrawing();
     vibes::newFigure("integralIBEX2");
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
-
 
     Scheduler s;
 
@@ -52,7 +52,7 @@ int main()
     s.SIVIA(M_PI/10.0, 1000);
 
     s.add_segment(-1.28, 4.0);
-    s.process(100);
+    s.process(1000);
     s.draw();
 
     vibes::axisAuto();
@@ -63,6 +63,12 @@ int main()
     s.print_pave_info(-0.7,3.91);
 #endif
 
+//    testTranslate();
+//    testRotate();
+//    test_CtcPropagateLeftSide();
+//    test_CtcPropagateRightSide();
+//    test_CtcPropagateFront();
+    test_Propagate();
+
     return 0;
 }
-

@@ -27,7 +27,7 @@ void Utils::CtcPropagateFront(ibex::Interval &Sk, const ibex::Interval &theta, c
     Interval x = Interval(-dx, dx);
     Interval y = Interval(dx);
     Interval rho = Interval::POS_REALS;
-    Interval theta2 = Interval::HALF_PI - theta;
+    Interval theta2 = theta;
 
     contract_polar.contract(x, y, rho, theta2);
 
@@ -55,12 +55,10 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &Sk, const ibex::Interval &theta
 
 void Utils::CtcPropagateRightSide(ibex::Interval &Sk, const ibex::Interval &theta, const double &dx, const double &dy){
     /** Apply a symetry to CtcPropagateLeftSide
-     ** theta -> -theta
-     ** [X] -> dx - [X]
+     ** theta -> pi -theta
     */
 
-    this->CtcPropagateLeftSide(Sk, -theta, dy);
-    Sk = dx - Sk;
+    this->CtcPropagateLeftSide(Sk, Interval::PI-theta, dy);
 }
 
 void Utils::CtcPropagateRightSide(ibex::Interval &Sk, const ibex::Interval &theta, const IntervalVector &box){
@@ -81,7 +79,7 @@ void Utils::rotate_segment_and_box(ibex::IntervalVector &Sk, const double &theta
     Vector center = box.mid();
 
     Sk_ -= center;
-    box_ -= box;
+    box_ -= center;
 
     Sk[0] = cos(theta)*Sk_[0] -sin(theta)*Sk_[1];
     Sk[1] = sin(theta)*Sk_[0] + cos(theta)*Sk_[1];
@@ -102,16 +100,18 @@ void Utils::rotate_segment_and_box(ibex::IntervalVector &Sk, const double &theta
  * Translate a segment such as the box is down/left centered on (0,0) when toZero == true
  * Backward translation when toZero == false
  */
-void Utils::translate_segment_and_box(ibex::IntervalVector &Sk, IntervalVector &box, bool toZero){
-    Vector center = box.mid();
+void Utils::translate_segment_and_box(ibex::IntervalVector &Sk, IntervalVector &box, bool toZero, bool modifyBox){
+    Vector center = box.lb();
 
     if(toZero){
         Sk -= center;
-        box -= center;
+        if(modifyBox)
+            box -= center;
     }
     else{
         Sk += center;
-        box += center;
+        if(modifyBox)
+            box += center;
     }
 }
 

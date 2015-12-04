@@ -32,9 +32,8 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
         tmp_pave_list.erase(tmp_pave_list.begin());
 
         double diam = tmp->theta[0].diam();
-        if(tmp->theta.size()==2){
+        if(!(tmp->theta[1].is_empty()))
             diam += tmp->theta[1].diam();
-        }
 
         if(diam < epsilon_theta){
             this->pave_list.push_back(tmp);

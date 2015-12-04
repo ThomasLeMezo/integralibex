@@ -71,7 +71,7 @@ void Border::publish_to_borthers(ibex::Interval seg){
     Border new_segment(seg, (this->face+2)%4);
 
     for(int i=0; i<this->brothers.size(); i++){
-        this->brothers[i]->pave->push_queue(new_segment);
+        this->brothers[i]->pave->add_new_segment(new_segment);
         this->brothers[i]->pave->warn_scheduler();
     }
 }

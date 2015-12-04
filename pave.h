@@ -19,9 +19,11 @@ public:
     void bisect(vector<Pave *> &result);
     void computePropagation(ibex::Interval seg_in, int face);
     void computePropagation2(ibex::Interval seg_in, int face);
-    void push_queue(Border &b);
+    void add_new_segment(Border &b);
     void warn_scheduler();
     void activate_pave();
+
+    void set_theta(ibex::Interval theta);
 
 
 /***************** Variables ******************/
@@ -29,7 +31,7 @@ public:
 public:
     Scheduler *scheduler;
 
-    vector<ibex::Interval> theta;
+    ibex::Interval theta[2];
     ibex::Interval speed;
 
     ibex::IntervalVector box;
