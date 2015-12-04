@@ -49,7 +49,7 @@ int main()
 
     s.set_initial_pave(box);
 
-    s.SIVIA(M_PI/10.0, 6);
+    s.SIVIA(M_PI/10.0, 1000);
 
     s.add_segment(-1.28, 4.0);
     s.process(100);

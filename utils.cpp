@@ -78,9 +78,7 @@ void Utils::CtcPropagateRightSide(ibex::Interval &Sk, const ibex::Interval &thet
 void Utils::rotate_segment_and_box(ibex::IntervalVector &Sk, const double &theta, IntervalVector &box){
     IntervalVector Sk_(Sk);
     IntervalVector box_(box);
-    IntervalVector center(2);
-    center[0] = Interval(box[0].mid());
-    center[1] = Interval(box[1].mid());
+    Vector center = box.mid();
 
     Sk_ -= center;
     box_ -= box;
@@ -105,9 +103,7 @@ void Utils::rotate_segment_and_box(ibex::IntervalVector &Sk, const double &theta
  * Backward translation when toZero == false
  */
 void Utils::translate_segment_and_box(ibex::IntervalVector &Sk, IntervalVector &box, bool toZero){
-    IntervalVector center(2);
-    center[0] = Interval(box[0].lb());
-    center[1] = Interval(box[1].lb());
+    Vector center = box.mid();
 
     if(toZero){
         Sk -= center;
