@@ -22,16 +22,15 @@ std::vector<ibex::Interval> Utils::rotate(const ibex::Interval &theta, const ibe
  **
 */
 void Utils::CtcPropagateFront(ibex::Interval &Sk, const ibex::Interval &theta, const double &dx, const double &dy){
-    Interval Y(0.0, dy);
+    Interval X(0.0, dx);
 
-    Interval x = Interval(-dx, dx);
-    Interval y = Interval(dx);
+    Interval x = Interval(dy);
+    Interval y = Interval(-dx, dx);
     Interval rho = Interval::POS_REALS;
     Interval theta2 = theta;
 
     contract_polar.contract(x, y, rho, theta2);
-
-    Sk = (Sk + x ) & Y;
+    Sk = (Sk + x ) & X;
 }
 
 void Utils::CtcPropagateFront(ibex::Interval &Sk, const ibex::Interval &theta, const IntervalVector &box){
@@ -42,7 +41,7 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &Sk, const ibex::Interval &theta
     Interval x = Sk;
     Interval y = Interval(0.0, dy);
     Interval rho = Interval::POS_REALS;
-    Interval theta2 = Interval::PI - theta;
+    Interval theta2 = (Interval::PI - theta) & (-Interval::ZERO | Interval::HALF_PI);
 
     this->contract_polar.contract(x, y, rho, theta2);
 
@@ -72,10 +71,12 @@ void Utils::CtcPropagateRightSide(ibex::Interval &Sk, const ibex::Interval &thet
  * @param box
  *
  * Rotate a Segment from the center of the "box"
+ * The box is supposed (down,left) centered to (0,0)
  */
-void Utils::rotate_segment_and_box(ibex::IntervalVector &Sk, const double &theta, IntervalVector &box){
+void Utils::rotate_segment_and_box(ibex::IntervalVector &Sk, const ibex::Interval &theta, IntervalVector &box, bool modifyBox){
     IntervalVector Sk_(Sk);
     IntervalVector box_(box);
+    IntervalVector box_2(2);
     Vector center = box.mid();
 
     Sk_ -= center;
@@ -84,11 +85,17 @@ void Utils::rotate_segment_and_box(ibex::IntervalVector &Sk, const double &theta
     Sk[0] = cos(theta)*Sk_[0] -sin(theta)*Sk_[1];
     Sk[1] = sin(theta)*Sk_[0] + cos(theta)*Sk_[1];
 
-    box[0] = cos(theta)*box_[0] -sin(theta)*box_[1];
-    box[1] = sin(theta)*box_[0] + cos(theta)*box_[1];
+    box_2[0] = cos(theta)*box_[0] -sin(theta)*box_[1];
+    box_2[1] = sin(theta)*box_[0] + cos(theta)*box_[1];
 
-    Sk += center;
-    box += center;
+    Vector lb = box_2.lb();
+    Sk -= lb;
+    box_2 -= lb;
+
+    if(modifyBox)
+        box=box_2;
+
+//    Sk = Sk & box;
 }
 
 /**
@@ -101,17 +108,17 @@ void Utils::rotate_segment_and_box(ibex::IntervalVector &Sk, const double &theta
  * Backward translation when toZero == false
  */
 void Utils::translate_segment_and_box(ibex::IntervalVector &Sk, IntervalVector &box, bool toZero, bool modifyBox){
-    Vector center = box.lb();
+    Vector lb = box.lb();
 
     if(toZero){
-        Sk -= center;
+        Sk -= lb;
         if(modifyBox)
-            box -= center;
+            box -= lb;
     }
     else{
-        Sk += center;
+        Sk += lb;
         if(modifyBox)
-            box += center;
+            box += lb;
     }
 }
 

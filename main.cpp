@@ -36,7 +36,7 @@ int main()
     cout << "theta_p = " << theta_p << endl;
 #endif
 
-#if 0
+#if 1
     vibes::beginDrawing();
     vibes::newFigure("integralIBEX2");
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
@@ -49,10 +49,10 @@ int main()
 
     s.set_initial_pave(box);
 
-    s.SIVIA(M_PI/10.0, 1000);
+    s.SIVIA(M_PI/10.0, 10000);
 
     s.add_segment(-1.28, 4.0);
-    s.process(1000);
+    s.process(100000);
     s.draw();
 
     vibes::axisAuto();
@@ -61,7 +61,7 @@ int main()
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 
     s.print_pave_info(-0.7,3.91);
-#endif
+#else
 
 //    testTranslate();
 //    testRotate();
@@ -69,6 +69,6 @@ int main()
 //    test_CtcPropagateRightSide();
 //    test_CtcPropagateFront();
     test_Propagate();
-
+#endif
     return 0;
 }

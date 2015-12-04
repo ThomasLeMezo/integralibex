@@ -153,10 +153,10 @@ void Pave::computePropagation2(Interval seg_in, int face){
     segment[face%2] = seg_in;
     segment[(face+1)%2] = (face == 1 | face == 2 ) ? Interval(box[(face+1)%2].ub()) : Interval(box[(face+1)%2].lb());
 
-    double tab_theta[4] = {0.0, M_PI/2.0, M_PI, -M_PI/2.0};
+    Interval tab_theta[4] = {Interval::ZERO, -Interval::HALF_PI, Interval::PI, Interval::HALF_PI};
 
     this->scheduler->utils.translate_segment_and_box(segment, box, true, true);
-    this->scheduler->utils.rotate_segment_and_box(segment, tab_theta[face], box);
+    this->scheduler->utils.rotate_segment_and_box(segment, tab_theta[face], box, true);
 
     // Compute the propagation
     Interval seg_out[3];
@@ -166,9 +166,14 @@ void Pave::computePropagation2(Interval seg_in, int face){
     Interval segment_Lside[2] = {segment[0], segment[0]};
 
     for(int i=0; i<2; i++){
-        this->scheduler->utils.CtcPropagateRightSide(segment_Rside[i], this->theta[i] - tab_theta[face], box);
-        this->scheduler->utils.CtcPropagateFront(segment_front[i], this->theta[i] - tab_theta[face], box);
-        this->scheduler->utils.CtcPropagateLeftSide(segment_Lside[i], this->theta[i] - tab_theta[face], box);
+//        cout << this->theta[i] << endl;
+//        cout << tab_theta[face] << endl;
+//        cout << this->theta[i] + tab_theta[face] << endl;
+//        cout << "---" << endl;
+
+        this->scheduler->utils.CtcPropagateRightSide(segment_Rside[i], this->theta[i] + tab_theta[face], box);
+        this->scheduler->utils.CtcPropagateFront(segment_front[i], this->theta[i] + tab_theta[face], box);
+        this->scheduler->utils.CtcPropagateLeftSide(segment_Lside[i], this->theta[i] + tab_theta[face], box);
     }
 
     // Translate and rotate back the Segment
@@ -176,21 +181,21 @@ void Pave::computePropagation2(Interval seg_in, int face){
     IntervalVector segment_front_v(2);
     IntervalVector segment_Lside_v(2);
 
-    segment_Rside_v[1] = segment_Rside[0] | segment_Rside[1]; segment_Rside_v[0] = box[0].ub();
-    segment_front_v[0] = segment_front[0] | segment_front[1]; segment_front_v[1] = box[1].ub();
-    segment_Lside_v[1] = segment_Lside[0] | segment_Lside[1]; segment_Lside_v[0] = box[0].lb();
+    segment_Rside_v[1] = segment_Rside[0] | segment_Rside[1]; segment_Rside_v[0] = Interval(box[0].ub());
+    segment_front_v[0] = segment_front[0] | segment_front[1]; segment_front_v[1] = Interval(box[1].ub());
+    segment_Lside_v[1] = segment_Lside[0] | segment_Lside[1]; segment_Lside_v[0] = Interval(box[0].lb());
 
-    this->scheduler->utils.rotate_segment_and_box(segment_front_v, -tab_theta[face], box);
-    this->scheduler->utils.rotate_segment_and_box(segment_Lside_v, -tab_theta[face], box);
-    this->scheduler->utils.rotate_segment_and_box(segment_Rside_v, -tab_theta[face], box);
+    this->scheduler->utils.rotate_segment_and_box(segment_Rside_v, -tab_theta[face], box, false);
+    this->scheduler->utils.rotate_segment_and_box(segment_front_v, -tab_theta[face], box, false);
+    this->scheduler->utils.rotate_segment_and_box(segment_Lside_v, -tab_theta[face], box, false);
 
+    this->scheduler->utils.translate_segment_and_box(segment_Rside_v, this->box, false, false);
     this->scheduler->utils.translate_segment_and_box(segment_front_v, this->box, false, false); // Translate back with the initial box
     this->scheduler->utils.translate_segment_and_box(segment_Lside_v, this->box, false, false);
-    this->scheduler->utils.translate_segment_and_box(segment_Rside_v, this->box, false, false);
 
-    seg_out[0] = (segment_Rside_v[0].diam()!=0) ? segment_Rside_v[0] : segment_Rside_v[1];
-    seg_out[1] = (segment_front_v[0].diam()!=0) ? segment_front_v[0] : segment_front_v[1];
-    seg_out[2] = (segment_Lside_v[0].diam()!=0) ? segment_Lside_v[0] : segment_Lside_v[1];
+    seg_out[0] = (segment_Rside_v[0].diam() > segment_Rside_v[1].diam()) ? segment_Rside_v[0] : segment_Rside_v[1];
+    seg_out[1] = (segment_front_v[0].diam() > segment_front_v[1].diam()) ? segment_front_v[0] : segment_front_v[1];
+    seg_out[2] = (segment_Lside_v[0].diam() > segment_Lside_v[1].diam()) ? segment_Lside_v[0] : segment_Lside_v[1];
 
     for(int i=0; i<3; i++){
         if(!seg_out[i].is_empty()){

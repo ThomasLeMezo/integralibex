@@ -10,7 +10,7 @@ public:
     Utils();
 
     std::vector<ibex::Interval> rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y);
-    void rotate_segment_and_box(ibex::IntervalVector &Sk, const double &theta, ibex::IntervalVector &box);
+    void rotate_segment_and_box(ibex::IntervalVector &Sk, const ibex::Interval &theta, ibex::IntervalVector &box, bool modifyBox);
     void translate_segment_and_box(ibex::IntervalVector &Sk, ibex::IntervalVector &box, bool toZero, bool modifyBox);
 
 

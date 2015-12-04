@@ -38,7 +38,7 @@ void testRotate(){
     Sk[0] = Interval(0.0, 0.75);
     Sk[1] = Interval(0.0);
 
-    u.rotate_segment_and_box(Sk, M_PI, box);
+    u.rotate_segment_and_box(Sk, M_PI, box, true);
 
     cout << Sk << endl;
 //    cout << box << endl;
@@ -96,14 +96,22 @@ void test_CtcPropagateFront(){
 
 void test_Propagate(){
     IntervalVector box(2);
-    box[0] = Interval(0.0, 1.0);
-    box[1] = Interval(0.0, 1.0);
+    box[0] = Interval(0.5, 1.5);
+    box[1] = Interval(1.0, 3.0);
 
     Pave p(box, NULL);
 
-    Border b(Interval(0.25, 0.75), 1);
+//    Border b(Interval(0.5, 1.5), 0);
+//    Border b(Interval(1.0, 3.0), 1);
+    Border b(Interval(0.5, 1.5), 2);
+
     p.add_new_segment(b);
-    p.set_theta( (Interval::ZERO | Interval::PI));
+//    p.set_theta( (-3.88*Interval::PI/8.0 | -Interval::HALF_PI));
+//    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0));
+//    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0) + Interval::HALF_PI);
+//    p.set_theta( (Interval::PI/8.0 | 2*Interval::PI/8.0) - 2* Interval::PI/3.0);
+    p.set_theta(Interval(-M_PI/3.0, -M_PI/4.0));
+
     p.process();
 
     vibes::beginDrawing();
