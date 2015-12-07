@@ -73,7 +73,7 @@ void Pave::set_theta(ibex::Interval theta){
     }
 }
 
-void Pave::draw() const{
+void Pave::draw(){
     // Draw the pave
     vibes::drawBox(this->box, "b[]");
 
@@ -87,8 +87,15 @@ void Pave::draw() const{
     // Draw theta
     double size = 0.8*min(this->box[0].diam(), this->box[1].diam())/2.0;
     for(int i=0; i<2; i++){
-        vibes::drawSector(this->box[0].mid(), this->box[1].mid(), size, size, (-this->theta[i].lb())*180.0/M_PI, (-this->theta[i].ub())*180.0/M_PI, "r[]");
+         vibes::drawSector(this->box[0].mid(), this->box[1].mid(), size, size, (-this->theta[i].lb())*180.0/M_PI, (-this->theta[i].ub())*180.0/M_PI, "r[]");
     }
+
+    // Draw Polygone
+//    vector<double> x, y;
+//    for(int i=0; i<this->borders.size(); i++){
+//        this->borders[i].get_points(x, y);
+//    }
+//    vibes::drawPolygon(x, y, "g[g]");
 }
 
 void Pave::bisect(vector<Pave*> &result){
@@ -135,8 +142,8 @@ void Pave::process(){
     // Process all new incoming valid segment (represents as borders)
 
     // Only take the first box in the list because the Pave is called for each new segment in the scheduler
-    Border segment = queue.back();
-    queue.pop_back();
+    Border segment = queue.front();
+    queue.erase(queue.begin());
 
     // Add the new segment & Test if the border interesect the segment of the pave
     vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segment);
@@ -166,11 +173,6 @@ void Pave::computePropagation2(Interval seg_in, int face){
     Interval segment_Lside[2] = {segment[0], segment[0]};
 
     for(int i=0; i<2; i++){
-//        cout << this->theta[i] << endl;
-//        cout << tab_theta[face] << endl;
-//        cout << this->theta[i] + tab_theta[face] << endl;
-//        cout << "---" << endl;
-
         this->scheduler->utils.CtcPropagateRightSide(segment_Rside[i], this->theta[i] + tab_theta[face], box);
         this->scheduler->utils.CtcPropagateFront(segment_front[i], this->theta[i] + tab_theta[face], box);
         this->scheduler->utils.CtcPropagateLeftSide(segment_Lside[i], this->theta[i] + tab_theta[face], box);
@@ -205,6 +207,7 @@ void Pave::computePropagation2(Interval seg_in, int face){
     }
 }
 
+/*
 void Pave::computePropagation(Interval seg_in, int face){
 
 
@@ -317,6 +320,7 @@ void Pave::computePropagation(Interval seg_in, int face){
         }
     }
 }
+*/
 
 void Pave::add_new_segment(Border &b){
     this->queue.push_back(b);

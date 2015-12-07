@@ -25,18 +25,21 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
 
     this->pave_list.clear();
 
-    while(tmp_pave_list.size()!=0 & iterations<iterations_max){
-        iterations++;
+    while(tmp_pave_list.size()!=0 & (iterations+tmp_pave_list.size())<iterations_max){
+
 
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
-        double diam = tmp->theta[0].diam();
+        double diam = 0.0;
+        if(!(tmp->theta[0].is_empty()))
+            diam += tmp->theta[0].diam();
         if(!(tmp->theta[1].is_empty()))
             diam += tmp->theta[1].diam();
 
         if(diam < epsilon_theta){
             this->pave_list.push_back(tmp);
+            iterations++;
         }
         else{
             tmp->bisect(tmp_pave_list);
@@ -52,8 +55,9 @@ void Scheduler::process(int max_iterations){
     int iterations=0;
     while(this->pave_queue.size() != 0 & iterations < max_iterations){
         iterations++;
-        Pave *pave = this->pave_queue.back();
-        this->pave_queue.pop_back();
+        Pave *pave = this->pave_queue.front();
+        this->pave_queue.erase(this->pave_queue.begin());
+
         pave->process();
 
         if(iterations%100 == 0){
@@ -76,6 +80,7 @@ void Scheduler::print_pave_info(double x, double y){
     for(int i= 0; i<p->borders.size(); i++){
         cout << "border " << i << " " << p->borders[i].position << p->borders[i].segment << endl;
     }
+    cout << "theta " << p->theta[0] << " " << p->theta[1] << endl;
 }
 
 Pave* Scheduler::get_pave(double x, double y){

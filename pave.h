@@ -14,7 +14,7 @@ public:
     Pave(const ibex::IntervalVector &box, Scheduler *scheduler);
     ~Pave(){}
 
-    void draw() const;
+    void draw();
     void process();
     void bisect(vector<Pave *> &result);
     void computePropagation(ibex::Interval seg_in, int face);

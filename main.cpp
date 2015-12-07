@@ -49,9 +49,10 @@ int main()
 
     s.set_initial_pave(box);
 
-    s.SIVIA(M_PI/10.0, 10000);
+    s.SIVIA(M_PI/10.0, 3000);
 
     s.add_segment(-1.28, 4.0);
+//    s.add_segment(1.78, -6.42);
     s.process(100000);
     s.draw();
 
@@ -60,7 +61,8 @@ int main()
 
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 
-    s.print_pave_info(-0.7,3.91);
+    s.print_pave_info(2.0,0.15);
+    s.print_pave_info(2.11,-0.08);
 #else
 
 //    testTranslate();

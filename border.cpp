@@ -33,6 +33,35 @@ void Border::draw() const{
     vibes::drawBox(segment, "g[]");
 }
 
+void Border::get_points(std::vector<double> &x, std::vector<double> &y){
+    if(!this->segment.is_empty()){
+        if(this->face == 0){
+            x.push_back(this->segment.lb());
+            x.push_back(this->segment.ub());
+            y.push_back(this->position[1].lb());
+            y.push_back(this->position[1].ub());
+        }
+        else if(this->face == 1){
+            x.push_back(this->position[0].lb());
+            x.push_back(this->position[0].ub());
+            y.push_back(this->segment.lb());
+            y.push_back(this->segment.ub());
+        }
+        else if(this->face == 2){
+            x.push_back(this->segment.ub());
+            x.push_back(this->segment.lb());
+            y.push_back(this->position[1].ub());
+            y.push_back(this->position[1].lb());
+        }
+        else if(this->face == 3){
+            x.push_back(this->position[0].ub());
+            x.push_back(this->position[0].lb());
+            y.push_back(this->segment.ub());
+            y.push_back(this->segment.lb());
+        }
+    }
+}
+
 // ********************************************************************************
 // ****************** Segment Propagation *****************************************
 

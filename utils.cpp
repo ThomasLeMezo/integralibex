@@ -24,13 +24,27 @@ std::vector<ibex::Interval> Utils::rotate(const ibex::Interval &theta, const ibe
 void Utils::CtcPropagateFront(ibex::Interval &Sk, const ibex::Interval &theta, const double &dx, const double &dy){
     Interval X(0.0, dx);
 
-    Interval x = Interval(dy);
-    Interval y = Interval(-dx, dx);
+    Interval x = Interval(-dx, dx);
+    Interval y = Interval(dy);
     Interval rho = Interval::POS_REALS;
     Interval theta2 = theta;
 
+//    cout << "x" << x << endl;
+//    cout << "y" << y << endl;
+//    cout << "rho" << rho << endl;
+//    cout << "theta2" << theta2 << endl;
+//    cout << "---" << endl;
+
     contract_polar.contract(x, y, rho, theta2);
     Sk = (Sk + x ) & X;
+
+//    cout << "x" << x << endl;
+//    cout << "y" << y << endl;
+//    cout << "rho" << rho << endl;
+//    cout << "theta2" << theta2 << endl;
+//    cout << "X" << X << endl;
+//    cout << "SK" << Sk << endl;
+//    cout << endl;
 }
 
 void Utils::CtcPropagateFront(ibex::Interval &Sk, const ibex::Interval &theta, const IntervalVector &box){
@@ -41,9 +55,22 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &Sk, const ibex::Interval &theta
     Interval x = Sk;
     Interval y = Interval(0.0, dy);
     Interval rho = Interval::POS_REALS;
-    Interval theta2 = (Interval::PI - theta) & (-Interval::ZERO | Interval::HALF_PI);
+    Interval theta2 = (Interval::PI - theta);// & (-Interval::ZERO | Interval::HALF_PI);
+
+//        cout << "x" << x << endl;
+//        cout << "y" << y << endl;
+//        cout << "rho" << rho << endl;
+//        cout << "theta" << theta << endl;
+//        cout << "theta2" << theta2 << endl;
+//        cout << "---" << endl;
 
     this->contract_polar.contract(x, y, rho, theta2);
+
+//        cout << "x" << x << endl;
+//        cout << "y" << y << endl;
+//        cout << "rho" << rho << endl;
+//        cout << "theta2" << theta2 << endl;
+//        cout << endl;
 
     Sk = y;
 }
@@ -54,10 +81,15 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &Sk, const ibex::Interval &theta
 
 void Utils::CtcPropagateRightSide(ibex::Interval &Sk, const ibex::Interval &theta, const double &dx, const double &dy){
     /** Apply a symetry to CtcPropagateLeftSide
-     ** theta -> pi -theta
+     ** theta -> pi - theta
+     ** Sk -> dx - Sk
     */
 
-    this->CtcPropagateLeftSide(Sk, Interval::PI-theta, dy);
+    Interval Sk_tmp;
+    Sk_tmp = Interval(dx) - Sk;
+
+    this->CtcPropagateLeftSide(Sk_tmp, Interval::PI-theta, dy);
+    Sk=Sk_tmp;
 }
 
 void Utils::CtcPropagateRightSide(ibex::Interval &Sk, const ibex::Interval &theta, const IntervalVector &box){
