@@ -73,19 +73,19 @@ void Border::get_points(std::vector<double> &x, std::vector<double> &y){
  * // Add a new segment to the list of segment (check wheter there is overlapping)
  * // ToDo : Check whole overlapping
  */
-vector<ibex::Interval> Border::add_segment(Interval seg){
+vector<ibex::Interval> Border::add_segment(const Interval &seg){
     // To Do : merge segments
     vector<Interval> list_segments;
 
-    if(seg.is_empty()){
-        return list_segments;
-    }
 
-    if((seg & this->position[this->face%2]).is_empty()){
+    if(seg.is_empty())
         return list_segments;
-    }
 
-    Interval new_segment = this->segment | seg;
+    Interval seg_box = seg & this->position[this->face%2];
+    if(seg_box.is_empty())
+        return list_segments;
+
+    Interval new_segment = this->segment | seg_box;
 
     // Compute the new segment(s) to propagate
     Interval left, right;

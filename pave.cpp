@@ -29,8 +29,6 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
     this->theta[0] = Interval::EMPTY_SET;
     this->theta[1] = Interval::EMPTY_SET;
 
-    double mu = 0.01;
-
     Interval dx = box[1];
     Interval dy = 1.0*(1-pow(box[0], 2))*box[1]-box[0];
 
@@ -78,9 +76,9 @@ void Pave::draw(){
     vibes::drawBox(this->box, "b[]");
 
     // Draw the impacted segment (in option)
-    for(int i=0; i<this->borders.size(); i++){
-        this->borders[i].draw();
-    }
+//    for(int i=0; i<this->borders.size(); i++){
+//        this->borders[i].draw();
+//    }
 
     // Draw the inside impact -> polygone (in option) ?
 
@@ -91,17 +89,23 @@ void Pave::draw(){
     }
 
     // Draw Polygone
-//    vector<double> x, y;
-//    for(int i=0; i<this->borders.size(); i++){
-//        this->borders[i].get_points(x, y);
-//    }
-//    vibes::drawPolygon(x, y, "g[g]");
+    vector<double> x, y;
+    for(int i=0; i<this->borders.size(); i++){
+        this->borders[i].get_points(x, y);
+    }
+    vibes::drawPolygon(x, y, "g[g]");
 }
 
 void Pave::draw_borders(){
+//    for(int i=0; i<this->borders.size(); i++){
+//        this->borders[i].draw();
+//    }
+
+    vector<double> x, y;
     for(int i=0; i<this->borders.size(); i++){
-        this->borders[i].draw();
+        this->borders[i].get_points(x, y);
     }
+    vibes::drawPolygon(x, y, "[g]");
 }
 
 void Pave::bisect(vector<Pave*> &result){
@@ -157,6 +161,7 @@ void Pave::process(){
 
     // Add the new segment & Test if the border interesect the segment of the pave
     vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segment);
+
 
     for(int i=0; i<seg_in_list.size(); i++){
         computePropagation(seg_in_list[i], segment.face);
@@ -217,7 +222,7 @@ void Pave::computePropagation(Interval seg_in, int face){
 
             if(output.size()!=0){
                 this->borders[(i+1+face)%4].publish_to_borthers(output[0]);
-                if(output.size()==1){
+                if(output.size()==2){
                     this->borders[(i+1+face)%4].publish_to_borthers(output[1]);
                 }
             }
@@ -234,15 +239,13 @@ void Pave::warn_scheduler(){
 }
 
 void Pave::activate_pave(){
-    Border b0(this->box[0], 0);
-    Border b1(this->box[1], 1);
-    Border b2(this->box[0], 2);
-    Border b3(this->box[1], 3);
-
-    this->queue.push_back(b0); this->warn_scheduler();
-    this->queue.push_back(b1); this->warn_scheduler();
-    this->queue.push_back(b2); this->warn_scheduler();
-    this->queue.push_back(b3); this->warn_scheduler();
+    for(int face=0; face<4; face++){
+        Border b(this->box[face%2], face);
+        this->queue.push_back(b); this->warn_scheduler();
+        for(int i=0; i < this->borders.size(); i++){
+            this->borders[(i+1+face)%4].publish_to_borthers(this->box[i%2]);
+        }
+    }
 }
 
 
