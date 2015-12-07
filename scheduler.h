@@ -23,7 +23,7 @@ public:
     void set_initial_pave(const ibex::IntervalVector &box);
 
     Pave* get_pave(double x, double y);
-    void print_pave_info(double x, double y);
+    void print_pave_info(double x, double y, string color);
 
     Utils utils;
 

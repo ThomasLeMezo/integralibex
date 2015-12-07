@@ -64,8 +64,7 @@ void Scheduler::process(int max_iterations){
             cout << iterations << endl;
         }
     }
-
-    cout << "queue size = " << this->pave_queue.size() << endl;
+//    cout << "queue size = " << this->pave_queue.size() << endl;
 }
 
 void Scheduler::draw(){
@@ -74,13 +73,27 @@ void Scheduler::draw(){
     }
 }
 
-void Scheduler::print_pave_info(double x, double y){
+void Scheduler::print_pave_info(double x, double y, string color){
 
     Pave* p = this->get_pave(x, y);
+    cout << "BOX = " << p->box << endl;
+    cout << p << endl;
     for(int i= 0; i<p->borders.size(); i++){
-        cout << "border " << i << " " << p->borders[i].position << p->borders[i].segment << endl;
+        cout << "border " << i << '\t' << p->borders[i].position << '\t' << p->borders[i].segment << endl;
     }
     cout << "theta " << p->theta[0] << " " << p->theta[1] << endl;
+
+    for(int i=0; i<p->borders.size(); i++){
+        for(int j = 0; j<p->borders[i].brothers.size(); j++){
+            cout << "border=" << i << " brother=" << j << " " << p->borders[i].brothers[j]->pave << endl;
+        }
+    }
+
+    double r=0.5*min(p->box[0].diam(), p->box[1].diam())/2.0;
+
+    vibes::drawCircle(p->box[0].mid(), p->box[1].mid(), r, color);
+
+    cout << endl;
 }
 
 Pave* Scheduler::get_pave(double x, double y){

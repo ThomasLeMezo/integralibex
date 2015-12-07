@@ -49,20 +49,21 @@ int main()
 
     s.set_initial_pave(box);
 
-    s.SIVIA(M_PI/10.0, 3000);
+    s.SIVIA(M_PI/10.0, 3500);
 
-    s.add_segment(-1.28, 4.0);
-//    s.add_segment(1.78, -6.42);
-    s.process(100000);
+//    s.add_segment(-1.28, 4.0);
+    s.add_segment(1.78, -6.42);
+    s.process(200000);
+
     s.draw();
-
     vibes::axisAuto();
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
 
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 
-    s.print_pave_info(2.0,0.15);
-    s.print_pave_info(2.11,-0.08);
+//    s.print_pave_info(2.0,0.1, "r[]");
+//    s.print_pave_info(1.9,-0.1, "g[]");
+//    s.print_pave_info(2.1,-0.1, "y[]");
 #else
 
 //    testTranslate();
@@ -70,7 +71,7 @@ int main()
 //    test_CtcPropagateLeftSide();
 //    test_CtcPropagateRightSide();
 //    test_CtcPropagateFront();
-    test_Propagate();
+//    test_Propagate();
 #endif
     return 0;
 }

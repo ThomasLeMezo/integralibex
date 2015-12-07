@@ -14,17 +14,18 @@ public:
     Pave(const ibex::IntervalVector &box, Scheduler *scheduler);
     ~Pave(){}
 
-    void draw();
     void process();
     void bisect(vector<Pave *> &result);
     void computePropagation(ibex::Interval seg_in, int face);
-    void computePropagation2(ibex::Interval seg_in, int face);
+
     void add_new_segment(Border &b);
     void warn_scheduler();
     void activate_pave();
 
     void set_theta(ibex::Interval theta);
 
+    void draw();
+    void draw_borders();
 
 /***************** Variables ******************/
 
