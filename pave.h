@@ -16,7 +16,6 @@ public:
 
     void process();
     void bisect(vector<Pave *> &result);
-    void computePropagation(ibex::Interval seg_in, int face);
 
     void add_new_segment(Border &b);
     void warn_scheduler();
@@ -24,8 +23,10 @@ public:
 
     void set_theta(ibex::Interval theta);
 
-    void draw();
-    void draw_borders();
+    void draw(bool filled);
+    void draw_borders(bool filled);
+
+    void compute_successors();
 
 /***************** Variables ******************/
 
@@ -37,10 +38,11 @@ public:
 
     ibex::IntervalVector box;
 
-    ibex::Interval table_rotation[4] = {-ibex::Interval::HALF_PI, ibex::Interval::PI, ibex::Interval::HALF_PI, ibex::Interval(0.0)};
-
     std::vector<Border> queue;
     std::vector<Border> borders;
+
+    std::vector<Pave*> precursors;
+    std::vector<Pave*> successors;
 };
 
 #endif // PAVE_H

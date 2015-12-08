@@ -71,41 +71,34 @@ void Pave::set_theta(ibex::Interval theta){
     }
 }
 
-void Pave::draw(){
+void Pave::draw(bool filled){
     // Draw the pave
     vibes::drawBox(this->box, "b[]");
 
-    // Draw the impacted segment (in option)
-//    for(int i=0; i<this->borders.size(); i++){
-//        this->borders[i].draw();
-//    }
-
-    // Draw the inside impact -> polygone (in option) ?
+    this->draw_borders(filled);
 
     // Draw theta
     double size = 0.8*min(this->box[0].diam(), this->box[1].diam())/2.0;
     for(int i=0; i<2; i++){
-         vibes::drawSector(this->box[0].mid(), this->box[1].mid(), size, size, (-this->theta[i].lb())*180.0/M_PI, (-this->theta[i].ub())*180.0/M_PI, "r[]");
+        vibes::drawSector(this->box[0].mid(), this->box[1].mid(), size, size, (-this->theta[i].lb())*180.0/M_PI, (-this->theta[i].ub())*180.0/M_PI, "r[]");
     }
-
-    // Draw Polygone
-    vector<double> x, y;
-    for(int i=0; i<this->borders.size(); i++){
-        this->borders[i].get_points(x, y);
-    }
-    vibes::drawPolygon(x, y, "g[g]");
 }
 
-void Pave::draw_borders(){
-//    for(int i=0; i<this->borders.size(); i++){
-//        this->borders[i].draw();
-//    }
-
-    vector<double> x, y;
-    for(int i=0; i<this->borders.size(); i++){
-        this->borders[i].get_points(x, y);
+void Pave::draw_borders(bool filled){
+    if(!filled){
+        // Draw Segments
+        for(int i=0; i<this->borders.size(); i++){
+            this->borders[i].draw();
+        }
     }
-    vibes::drawPolygon(x, y, "[g]");
+    else{
+        // Draw Polygone
+        vector<double> x, y;
+        for(int i=0; i<this->borders.size(); i++){
+            this->borders[i].get_points(x, y);
+        }
+        vibes::drawPolygon(x, y, "g[g]");
+    }
 }
 
 void Pave::bisect(vector<Pave*> &result){
@@ -156,78 +149,35 @@ void Pave::process(){
     // Process all new incoming valid segment (represents as borders)
 
     // Only take the first box in the list because the Pave is called for each new segment in the scheduler
+    if(queue.size()==0)
+        return;
     Border segment = queue.front();
     queue.erase(queue.begin());
 
     // Add the new segment & Test if the border interesect the segment of the pave
     vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segment);
 
-
     for(int i=0; i<seg_in_list.size(); i++){
-        computePropagation(seg_in_list[i], segment.face);
-    }
+        vector<Interval> seg_out;
+        for(int j=0; j<3; j++){
+            seg_out.push_back(Interval::ALL_REALS);
+        }
+        // Compute the propagation to the 3 other face
+        this->scheduler->utils.CtcPropagateSegment(seg_in_list[i], seg_out, segment.face, this->theta, this->box);
 
-//    this->draw_borders();
-}
+        // Apply the principle of continuity by sending results to neighbours
+        for(int j=0; j<3; j++){
+            if(!seg_out[j].is_empty()){
+                vector<Interval> output = this->borders[(j+1+segment.face)%4].add_segment(seg_out[j]);
 
-void Pave::computePropagation(Interval seg_in, int face){
-    // Translate and rotate the Segment
-    IntervalVector box = this->box;
-    IntervalVector segment(2);
-    segment[face%2] = seg_in;
-    segment[(face+1)%2] = (face == 1 | face == 2 ) ? Interval(box[(face+1)%2].ub()) : Interval(box[(face+1)%2].lb());
-
-    Interval tab_theta[4] = {Interval::ZERO, -Interval::HALF_PI, Interval::PI, Interval::HALF_PI};
-
-    this->scheduler->utils.translate_segment_and_box(segment, box, true, true);
-    this->scheduler->utils.rotate_segment_and_box(segment, tab_theta[face], box, true);
-
-    // Compute the propagation
-    Interval seg_out[3];
-
-    Interval segment_Rside[2] = {segment[0], segment[0]};
-    Interval segment_front[2] = {segment[0], segment[0]};
-    Interval segment_Lside[2] = {segment[0], segment[0]};
-
-    for(int i=0; i<2; i++){
-        this->scheduler->utils.CtcPropagateRightSide(segment_Rside[i], this->theta[i] + tab_theta[face], box);
-        this->scheduler->utils.CtcPropagateFront(segment_front[i], this->theta[i] + tab_theta[face], box);
-        this->scheduler->utils.CtcPropagateLeftSide(segment_Lside[i], this->theta[i] + tab_theta[face], box);
-    }
-
-    // Translate and rotate back the Segment
-    IntervalVector segment_Rside_v(2);
-    IntervalVector segment_front_v(2);
-    IntervalVector segment_Lside_v(2);
-
-    segment_Rside_v[1] = segment_Rside[0] | segment_Rside[1]; segment_Rside_v[0] = Interval(box[0].ub());
-    segment_front_v[0] = segment_front[0] | segment_front[1]; segment_front_v[1] = Interval(box[1].ub());
-    segment_Lside_v[1] = segment_Lside[0] | segment_Lside[1]; segment_Lside_v[0] = Interval(box[0].lb());
-
-    this->scheduler->utils.rotate_segment_and_box(segment_Rside_v, -tab_theta[face], box, false);
-    this->scheduler->utils.rotate_segment_and_box(segment_front_v, -tab_theta[face], box, false);
-    this->scheduler->utils.rotate_segment_and_box(segment_Lside_v, -tab_theta[face], box, false);
-
-    this->scheduler->utils.translate_segment_and_box(segment_Rside_v, this->box, false, false);
-    this->scheduler->utils.translate_segment_and_box(segment_front_v, this->box, false, false); // Translate back with the initial box
-    this->scheduler->utils.translate_segment_and_box(segment_Lside_v, this->box, false, false);
-
-    seg_out[0] = (segment_Rside_v[0].diam() > segment_Rside_v[1].diam()) ? segment_Rside_v[0] : segment_Rside_v[1];
-    seg_out[1] = (segment_front_v[0].diam() > segment_front_v[1].diam()) ? segment_front_v[0] : segment_front_v[1];
-    seg_out[2] = (segment_Lside_v[0].diam() > segment_Lside_v[1].diam()) ? segment_Lside_v[0] : segment_Lside_v[1];
-
-    for(int i=0; i<3; i++){
-        if(!seg_out[i].is_empty()){
-            vector<Interval> output = this->borders[(i+1+face)%4].add_segment(seg_out[i]);
-
-            if(output.size()!=0){
-                this->borders[(i+1+face)%4].publish_to_borthers(output[0]);
-                if(output.size()==2){
-                    this->borders[(i+1+face)%4].publish_to_borthers(output[1]);
+                for(int k=0; k<output.size(); k++){
+                    this->borders[(j+1+segment.face)%4].publish_to_borthers(output[0]);
                 }
             }
         }
     }
+
+    //    this->draw_borders();
 }
 
 void Pave::add_new_segment(Border &b){
@@ -248,4 +198,13 @@ void Pave::activate_pave(){
     }
 }
 
+void Pave::compute_successors(){
+    for(int face=0; face<4; face++){
+        Border test_border(this->box[face%2], face);
+        vector<Interval> output;
+        for(int i=0; i<3; i++)
+            output.push_back(Interval::ALL_REALS);
 
+        this->scheduler->utils.CtcPropagateSegment(test_border.segment, output, test_border.face, this->theta, this->box);
+    }
+}

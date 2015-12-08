@@ -48,7 +48,8 @@ void test_CtcPropagateLeftSide(){
     cout << "TEST CtcPropagateLeftSide" << endl;
     Utils u;
 
-    Interval Sk = Interval(0.0, 1.0);
+    Interval x = Interval(0.0, 1.0);
+    Interval y = Interval::ALL_REALS;
     IntervalVector box(2);
     box[0] = Interval(0.0, 1.0);
     box[1] = Interval(0.0, 1.0);
@@ -56,54 +57,59 @@ void test_CtcPropagateLeftSide(){
 //    Interval theta = Interval::PI/4.0 | Interval::HALF_PI;
     Interval theta = Interval::PI | 4*Interval::PI/5.0;
 
-    u.CtcPropagateLeftSide(Sk, theta, box);
+    u.CtcPropagateLeftSide(x, y, theta, box);
 
-    cout << Sk << endl;
+    cout << x << endl;
+    cout << y << endl;
 }
 
 void test_CtcPropagateRightSide(){
     cout << "TEST test_CtcPropagateRightSide" << endl;
     Utils u;
 
-    Interval Sk = Interval(0.0, 1.0);
+    Interval x = Interval(0.0, 1.0);
+    Interval y = Interval::ALL_REALS;
+
     IntervalVector box(2);
     box[0] = Interval(0.0, 1.0);
     box[1] = Interval(0.0, 1.0);
 
     Interval theta = Interval::ZERO | Interval::PI/5.0;
 
-    u.CtcPropagateRightSide(Sk, theta, box);
+    u.CtcPropagateRightSide(x, y, theta, box);
 
-    cout << Sk << endl;
+    cout << x << endl;
+    cout << y << endl;
 }
 
 void test_CtcPropagateFront(){
     cout << "TEST test_CtcPropagateFront" << endl;
     Utils u;
 
-    Interval Sk = Interval(0.0, 1.0);
+    Interval x = Interval(0.0, 1.0);
+    Interval x_front = Interval::ALL_REALS;
     IntervalVector box(2);
     box[0] = Interval(0.0, 1.0);
     box[1] = Interval(0.0, 1.0);
 
     Interval theta = Interval::ZERO | Interval::PI/4.0;
 
-    cout << Sk << endl;
-    u.CtcPropagateFront(Sk, theta, box);
+    u.CtcPropagateFront(x, x_front, theta, box);
 
-    cout << Sk << endl;
+    cout << x << endl;
+    cout << x_front << endl;
 }
 
 void test_Propagate(){
     IntervalVector box(2);
     box[0] = Interval(0.5, 1.5);
     box[1] = Interval(1.0, 3.0);
-
-    Pave p(box, NULL);
+    Scheduler s;
+    Pave p(box, &s);
 
 //    Border b(Interval(0.5, 1.0), 0);
-    Border b(Interval(1.0, 3.0), 1);
-    Border b2(Interval(1.0, 1.5), 2);
+    Border b(Interval(1.0, 2.0), 1);
+    Border b2(Interval(1.0, 1.25), 2);
 //    Border b(Interval(1.0, 3.0), 3);
 
     p.add_new_segment(b2);
@@ -122,7 +128,7 @@ void test_Propagate(){
     vibes::newFigure("test");
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
 
-    p.draw();
+    p.draw(false);
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     vibes::axisAuto();

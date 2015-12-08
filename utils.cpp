@@ -21,79 +21,49 @@ std::vector<ibex::Interval> Utils::rotate(const ibex::Interval &theta, const ibe
  ** CtcPropagateFront supposed that the down left box corner is (0,0)
  **
 */
-void Utils::CtcPropagateFront(ibex::Interval &Sk, const ibex::Interval &theta, const double &dx, const double &dy){
+void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const double &dx, const double &dy){
     Interval X(0.0, dx);
 
-    Interval x = Interval(-dx, dx);
-    Interval y = Interval(dy);
+    Interval Dx = Interval(-dx, dx);
+    Interval Dy = Interval(dy);
     Interval rho = Interval::POS_REALS;
     Interval theta2 = theta;
 
-//    cout << "x" << x << endl;
-//    cout << "y" << y << endl;
-//    cout << "rho" << rho << endl;
-//    cout << "theta2" << theta2 << endl;
-//    cout << "---" << endl;
-
-    contract_polar.contract(x, y, rho, theta2);
-    Sk = (Sk + x ) & X;
-
-//    cout << "x" << x << endl;
-//    cout << "y" << y << endl;
-//    cout << "rho" << rho << endl;
-//    cout << "theta2" << theta2 << endl;
-//    cout << "X" << X << endl;
-//    cout << "SK" << Sk << endl;
-//    cout << endl;
+    contract_polar.contract(Dx, Dy, rho, theta2);
+    x_front = (x + Dx ) & X;    // A écrire sous forme de contracteur !!
+    x = (x_front - Dx) & X;
 }
 
-void Utils::CtcPropagateFront(ibex::Interval &Sk, const ibex::Interval &theta, const IntervalVector &box){
-    this->CtcPropagateFront(Sk, theta, box[0].ub(), box[1].ub());
+void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const IntervalVector &box){
+    this->CtcPropagateFront(x, x_front, theta, box[0].ub(), box[1].ub());
 }
 
-void Utils::CtcPropagateLeftSide(ibex::Interval &Sk, const ibex::Interval &theta, const double &dy){
-    Interval x = Sk;
-    Interval y = Interval(0.0, dy);
+void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy){
+    x = x & Interval(0.0, dx);
+    y = y & Interval(0.0, dy);
     Interval rho = Interval::POS_REALS;
-    Interval theta2 = (Interval::PI - theta);// & (-Interval::ZERO | Interval::HALF_PI);
-
-//        cout << "x" << x << endl;
-//        cout << "y" << y << endl;
-//        cout << "rho" << rho << endl;
-//        cout << "theta" << theta << endl;
-//        cout << "theta2" << theta2 << endl;
-//        cout << "---" << endl;
+    Interval theta2 = (Interval::PI - theta);
 
     this->contract_polar.contract(x, y, rho, theta2);
-
-//        cout << "x" << x << endl;
-//        cout << "y" << y << endl;
-//        cout << "rho" << rho << endl;
-//        cout << "theta2" << theta2 << endl;
-//        cout << endl;
-
-    Sk = y;
 }
 
-void Utils::CtcPropagateLeftSide(ibex::Interval &Sk, const ibex::Interval &theta, const IntervalVector &box){
-    this->CtcPropagateLeftSide(Sk, theta, box[1].ub());
+void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const IntervalVector &box){
+    this->CtcPropagateLeftSide(x, y, theta, box[0].ub(), box[1].ub());
 }
 
-void Utils::CtcPropagateRightSide(ibex::Interval &Sk, const ibex::Interval &theta, const double &dx, const double &dy){
+void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy){
     /** Apply a symetry to CtcPropagateLeftSide
      ** theta -> pi - theta
-     ** Sk -> dx - Sk
+     ** x -> dx - x
     */
 
-    Interval Sk_tmp;
-    Sk_tmp = Interval(dx) - Sk;
-
-    this->CtcPropagateLeftSide(Sk_tmp, Interval::PI-theta, dy);
-    Sk=Sk_tmp;
+    x = Interval(dx) - x;
+    this->CtcPropagateLeftSide(x, y, Interval::PI-theta, dx, dy);
+    x = Interval(dx) - x;
 }
 
-void Utils::CtcPropagateRightSide(ibex::Interval &Sk, const ibex::Interval &theta, const IntervalVector &box){
-    this->CtcPropagateRightSide(Sk, theta, box[0].ub(), box[1].ub());
+void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const IntervalVector &box){
+    this->CtcPropagateRightSide(x, y, theta, box[0].ub(), box[1].ub());
 }
 
 /**
@@ -126,8 +96,6 @@ void Utils::rotate_segment_and_box(ibex::IntervalVector &Sk, const ibex::Interva
 
     if(modifyBox)
         box=box_2;
-
-//    Sk = Sk & box;
 }
 
 /**
@@ -153,4 +121,64 @@ void Utils::translate_segment_and_box(ibex::IntervalVector &Sk, IntervalVector &
             box += lb;
     }
 }
+
+ibex::IntervalVector Utils::segment2IntervalVector(const ibex::Interval &seg, const int &face, const ibex::IntervalVector &box){
+    IntervalVector intervalVectorSegment(2);
+    intervalVectorSegment[face%2] = seg;
+    intervalVectorSegment[(face+1)%2] = (((face == 1) | (face == 2) ) ? Interval(box[(face+1)%2].ub()) : Interval(box[(face+1)%2].lb()));
+    return intervalVectorSegment;
+}
+
+void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const ibex::Interval theta[], const ibex::IntervalVector &box_pave){
+    // Translate and rotate the Segment
+    IntervalVector box(box_pave);
+    IntervalVector segment_in = segment2IntervalVector(seg_in, face, box);
+
+    this->translate_segment_and_box(segment_in, box, true, true);
+    this->rotate_segment_and_box(segment_in, this->tab_rotation[face], box, true);
+
+    // Compute the propagation
+    Interval segment_norm_in[3][2], segment_norm_out[3][2];
+
+    for(int i=0; i<3; i++){
+        for(int j=0; j<2; j++){
+            segment_norm_in[i][j] = segment_in[0];
+            segment_norm_out[i][j] = seg_out[i];
+        }
+    }
+
+    for(int i=0; i<2; i++){
+        this->CtcPropagateRightSide(segment_norm_in[0][i], segment_norm_out[0][i], theta[i] + tab_rotation[face], box);
+        this->CtcPropagateFront(segment_norm_in[1][i], segment_norm_out[1][i], theta[i] + tab_rotation[face], box);
+        this->CtcPropagateLeftSide(segment_norm_in[2][i], segment_norm_out[2][i], theta[i] + tab_rotation[face], box);
+    }
+
+    // Translate and rotate back the Segment
+    IntervalVector segment_contracted_out[3] = IntervalVector(2);
+    segment_contracted_out[0][1] = segment_norm_out[0][0] | segment_norm_out[0][1]; segment_contracted_out[0][0] = Interval(box[0].ub());
+    segment_contracted_out[1][0] = segment_norm_out[1][0] | segment_norm_out[1][1]; segment_contracted_out[1][1] = Interval(box[1].ub());
+    segment_contracted_out[2][1] = segment_norm_out[2][0] | segment_norm_out[2][1]; segment_contracted_out[2][0] = Interval(box[0].lb());
+
+    // Rotate and translate back with the initial box
+    seg_out.clear();
+    for(int i=0; i<3; i++){
+        this->rotate_segment_and_box(segment_contracted_out[i], -tab_rotation[face], box, false);
+        this->translate_segment_and_box(segment_contracted_out[i], box, false, false);
+        // Add segment to seg_out list
+        seg_out.push_back( (segment_contracted_out[i][0].diam() > segment_contracted_out[i][1].diam()) ? segment_contracted_out[i][0] : segment_contracted_out[i][1] );
+    }
+
+    // Segment in (backward)
+    Interval segment_contracted_in;
+    for(int i=0; i<3; i++){
+        for(int j=0; j<3; j++){
+            segment_contracted_in = segment_contracted_in | segment_norm_in[i][j];
+        }
+    }
+    seg_in = segment_contracted_in;
+}
+
+
+
+
 

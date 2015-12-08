@@ -69,7 +69,7 @@ void Scheduler::process(int max_iterations){
 
 void Scheduler::draw(){
     for(int i=0; i<this->pave_list.size(); i++){
-        this->pave_list[i]->draw();
+        this->pave_list[i]->draw(true);
     }
 }
 

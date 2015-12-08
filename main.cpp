@@ -53,8 +53,8 @@ int main()
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
 
-    //s.add_segment(-1.28, 4.0);
-    s.add_segment(1.78, -6.42);
+    s.add_segment(-1.28, 4.0);
+//    s.add_segment(1.78, -6.42);
 //    s.add_segment(0.0, 0.5);
 
     s.process(200000);
@@ -75,7 +75,7 @@ int main()
 //    test_CtcPropagateLeftSide();
 //    test_CtcPropagateRightSide();
 //    test_CtcPropagateFront();
-//    test_Propagate();
+    test_Propagate();
 #endif
     return 0;
 }
