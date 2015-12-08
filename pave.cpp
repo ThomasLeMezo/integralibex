@@ -171,7 +171,7 @@ void Pave::process(){
                 vector<Interval> output = this->borders[(j+1+segment.face)%4].add_segment(seg_out[j]);
 
                 for(int k=0; k<output.size(); k++){
-                    this->borders[(j+1+segment.face)%4].publish_to_borthers(output[0]);
+                    this->borders[(j+1+segment.face)%4].publish_to_borthers(output[k]);
                 }
             }
         }
