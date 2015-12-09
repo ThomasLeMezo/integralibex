@@ -203,5 +203,45 @@ void Pave::compute_successors(){
             output.push_back(Interval::ALL_REALS);
 
         this->scheduler->utils.CtcPropagateSegment(test_border.segment, output, test_border.face, this->theta, this->box);
+
+        for(int i=0; i<3; i++){
+            if(!output[i].is_empty()){
+                for(int j=0; j< this->borders[(i+1+face)%4].brothers.size(); j++){
+                    this->borders[(i+1+face)%4].brothers[j]->pave->add_precursors(this);  // Add precursors
+                    this->add_successors(this->borders[(i+1+face)%4].brothers[j]->pave);  // Add successors
+                }
+            }
+        }
     }
+}
+
+void Pave::add_precursors(Pave* p){
+    IntervalVector intersection = this->box & p->box;
+    if(!intersection.is_empty() && (intersection[0].is_degenerated() != intersection[1].is_degenerated())){
+        bool flag = true;
+        for(int i=0; i<this->precursors.size(); i++){
+            if(this->precursors[i] == p)
+                flag=false;
+        }
+        if(flag)
+            this->precursors.push_back(p);
+    }
+}
+
+void Pave::add_successors(Pave* p){
+    IntervalVector intersection = this->box & p->box;
+    if(!intersection.is_empty() && (intersection[0].is_degenerated() != intersection[1].is_degenerated())){
+        bool flag = true;
+        for(int i=0; i<this->successors.size(); i++){
+            if(this->successors[i] == p)
+                flag=false;
+        }
+        if(flag)
+            this->successors.push_back(p);
+    }
+}
+
+void Pave::clear_graph(){
+    this->successors.clear();
+    this->precursors.clear();
 }

@@ -28,6 +28,10 @@ public:
 
     void compute_successors();
 
+    void add_precursors(Pave* p);
+    void add_successors(Pave* p);
+    void clear_graph();
+
 /***************** Variables ******************/
 
 public:

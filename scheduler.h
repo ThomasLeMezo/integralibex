@@ -17,6 +17,8 @@ public:
     void add_to_queue(Pave* pave);
     void draw();
     void process(int max_iterations);
+    void process_graph(int iterations_max);
+
     void SIVIA(double epsilon_theta, int iterations_max);
     void add_segment(int id_box);
     void add_segment(double x, double y);

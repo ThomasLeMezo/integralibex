@@ -67,6 +67,37 @@ void Scheduler::process(int max_iterations){
 //    cout << "queue size = " << this->pave_queue.size() << endl;
 }
 
+void Scheduler::process_graph(int iterations_max){
+
+    vector<Pave*> pave_list_tmp;
+    int nb_graph_node_before = this->pave_list.size();
+    int nb_graph_node_after = 0;
+    int iterations;
+
+    while(nb_graph_node_before != nb_graph_node_after & iterations < iterations_max){
+        nb_graph_node_after = 0;
+        for(int i=0; i<this->pave_list.size(); i++){
+            this->pave_list[i]->compute_successors();
+            if(this->pave_list[i]->precursors.size()!=0){
+                pave_list_tmp.push_back(this->pave_list[i]);
+
+                nb_graph_node_after++;
+            }
+        }
+
+        this->pave_list = pave_list_tmp;
+        pave_list_tmp.clear();
+        for(int i=0; i<this->pave_list.size(); i++){
+            this->pave_list[i]->clear_graph();
+        }
+        iterations ++;
+
+        if(iterations%100 == 0){
+            cout << iterations << " " << this->pave_list.size() << endl;
+        }
+    }
+}
+
 void Scheduler::draw(){
     for(int i=0; i<this->pave_list.size(); i++){
         this->pave_list[i]->draw(true);

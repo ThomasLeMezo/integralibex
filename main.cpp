@@ -49,15 +49,16 @@ int main()
 
     s.set_initial_pave(box);
 
-    s.SIVIA(M_PI/10.0, 5000);
+    s.SIVIA(M_PI/10.0, 1000);
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
 
-    s.add_segment(-1.28, 4.0);
+//    s.add_segment(-1.28, 4.0);
 //    s.add_segment(1.78, -6.42);
 //    s.add_segment(0.0, 0.5);
 
-    s.process(200000);
+    //s.process(200000);
+    s.process_graph(3);
 
     s.draw();
 
