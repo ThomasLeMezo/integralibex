@@ -38,8 +38,6 @@ int main()
 
 #if 1
     vibes::beginDrawing();
-    vibes::newFigure("integralIBEX2");
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",1000,"height",1000));
 
     Scheduler s;
 
@@ -48,19 +46,16 @@ int main()
     box[1] = Interval(-10.0, 10.0);
 
     s.set_initial_pave(box);
-
-    s.SIVIA(M_PI/10.0, 1000);
-
-    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+    //s.SIVIA(M_PI/10.0, 6);
 
 //    s.add_segment(-1.28, 4.0);
 //    s.add_segment(1.78, -6.42);
 //    s.add_segment(0.0, 0.5);
 
     //s.process(200000);
-    s.process_graph(3);
-
-    s.draw();
+    //s.draw(500);
+    s.process_graph(1000, 1000);
+    s.draw(500);
 
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 

@@ -6,7 +6,7 @@ using namespace std;
 using namespace ibex;
 
 Scheduler::Scheduler(){
-
+    this->draw_nb = 0;
 }
 
 void Scheduler::set_initial_pave(const IntervalVector &box){
@@ -64,44 +64,62 @@ void Scheduler::process(int max_iterations){
             cout << iterations << endl;
         }
     }
-//    cout << "queue size = " << this->pave_queue.size() << endl;
+    //    cout << "queue size = " << this->pave_queue.size() << endl;
 }
 
-void Scheduler::process_graph(int iterations_max){
+void Scheduler::process_graph(int iterations_max, int pave_max){
 
     vector<Pave*> pave_list_tmp;
     int nb_graph_node_before = this->pave_list.size();
     int nb_graph_node_after = 0;
-    int iterations;
+    int iterations_fix_pt = 0;
 
-    while(nb_graph_node_before != nb_graph_node_after & iterations < iterations_max){
+    while(this->pave_list.size()<pave_max & this->pave_list.size()!=0){
+        this->SIVIA(0.0, 2*this->pave_list.size());
+        nb_graph_node_before = this->pave_list.size();
         nb_graph_node_after = 0;
-        for(int i=0; i<this->pave_list.size(); i++){
-            this->pave_list[i]->compute_successors();
-            if(this->pave_list[i]->precursors.size()!=0){
-                pave_list_tmp.push_back(this->pave_list[i]);
 
-                nb_graph_node_after++;
+        while(nb_graph_node_before != nb_graph_node_after & iterations_fix_pt < iterations_max){
+            nb_graph_node_before = this->pave_list.size();
+            nb_graph_node_after = 0;
+            for(int i=0; i<this->pave_list.size(); i++){
+                this->pave_list[i]->compute_successors();
             }
-        }
 
-        this->pave_list = pave_list_tmp;
-        pave_list_tmp.clear();
-        for(int i=0; i<this->pave_list.size(); i++){
-            this->pave_list[i]->clear_graph();
-        }
-        iterations ++;
+            for(int i=0; i<this->pave_list.size(); i++){
+                for(int j=0; j<this->pave_list.size(); j++)
+                    this->pave_list[j]->visited_node = false;
 
-        if(iterations%100 == 0){
-            cout << iterations << " " << this->pave_list.size() << endl;
+                if(this->pave_list[i]->test_cycle(this->pave_list[i], 0, this->pave_list.size())){
+                    pave_list_tmp.push_back(this->pave_list[i]);
+                    nb_graph_node_after++;
+                }
+            }
+
+            this->pave_list = pave_list_tmp;
+            pave_list_tmp.clear();
+            for(int i=0; i<this->pave_list.size(); i++){
+                this->pave_list[i]->clear_graph();
+            }
+            iterations_fix_pt ++;
         }
+        cout << "iterations = " << iterations_fix_pt << " Nb pave = " << this->pave_list.size() << endl;
     }
 }
 
-void Scheduler::draw(){
+void Scheduler::draw(int size){
+
+    stringstream ss;
+    ss << "integralIbex" << this->draw_nb;
+    vibes::newFigure(ss.str());
+    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
+
     for(int i=0; i<this->pave_list.size(); i++){
         this->pave_list[i]->draw(true);
     }
+
+    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+    this->draw_nb++;
 }
 
 void Scheduler::print_pave_info(double x, double y, string color){

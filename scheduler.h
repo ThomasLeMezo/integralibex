@@ -15,9 +15,9 @@ public:
     ~Scheduler(){}
 
     void add_to_queue(Pave* pave);
-    void draw();
+    void draw(int size);
     void process(int max_iterations);
-    void process_graph(int iterations_max);
+    void process_graph(int iterations_max, int pave_max);
 
     void SIVIA(double epsilon_theta, int iterations_max);
     void add_segment(int id_box);
@@ -32,6 +32,8 @@ public:
 public:
     std::vector<Pave*> pave_list;
     std::vector<Pave*> pave_queue;
+
+    int draw_nb;
 };
 
 #endif // SCHEDULER_H

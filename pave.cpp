@@ -52,6 +52,8 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
     else{
         this->theta[0] = theta;
     }
+
+    visited_node = false;
 }
 
 void Pave::set_theta(ibex::Interval theta){
@@ -212,6 +214,29 @@ void Pave::compute_successors(){
                 }
             }
         }
+    }
+}
+
+bool Pave::test_cycle(Pave* p_test, int depth, int depth_max){
+    if(this->precursors.size()==0){
+        return false;
+    }
+
+    if(depth!=0 && this==p_test){
+        return true;
+    }
+    else if(depth < depth_max && !this->visited_node){
+        this->visited_node = true;
+        bool test = false;
+        for(int i=0; i<this->successors.size(); i++){
+            test = test || this->successors[i]->test_cycle(p_test, depth+1, depth_max);
+            if(test)
+                return true;
+        }
+        return false;
+    }
+    else{
+        return false;
     }
 }
 

@@ -32,6 +32,8 @@ public:
     void add_successors(Pave* p);
     void clear_graph();
 
+    bool test_cycle(Pave *p_test, int depth, int depth_max);
+
 /***************** Variables ******************/
 
 public:
@@ -47,6 +49,8 @@ public:
 
     std::vector<Pave*> precursors;
     std::vector<Pave*> successors;
+
+    bool visited_node;
 };
 
 #endif // PAVE_H
