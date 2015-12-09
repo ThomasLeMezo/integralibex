@@ -77,7 +77,6 @@ vector<ibex::Interval> Border::add_segment(const Interval &seg){
     // To Do : merge segments
     vector<Interval> list_segments;
 
-
     if(seg.is_empty())
         return list_segments;
 

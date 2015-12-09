@@ -112,13 +112,13 @@ void test_Propagate(){
     Border b2(Interval(1.0, 1.25), 2);
 //    Border b(Interval(1.0, 3.0), 3);
 
-    p.add_new_segment(b2);
+//    p.add_new_segment(b2);
     p.add_new_segment(b);
 //    p.set_theta( (-3.88*Interval::PI/8.0 | -Interval::HALF_PI));
 //    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0));
 //    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0) + Interval::HALF_PI);
-//    p.set_theta( (Interval::PI/8.0 | 2*Interval::PI/8.0) - 2* Interval::PI/3.0);
-    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
+    p.set_theta( (Interval::PI/8.0 | 2*Interval::PI/8.0) - 2* Interval::PI/3.0);
+//    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
 
 
     p.process();

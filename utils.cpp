@@ -132,6 +132,7 @@ ibex::IntervalVector Utils::segment2IntervalVector(const ibex::Interval &seg, co
 void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const ibex::Interval theta[], const ibex::IntervalVector &box_pave){
     // Translate and rotate the Segment
     IntervalVector box(box_pave);
+    IntervalVector box_in(box_pave);
     IntervalVector segment_in = segment2IntervalVector(seg_in, face, box);
 
     this->translate_segment_and_box(segment_in, box, true, true);
@@ -163,7 +164,7 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     seg_out.clear();
     for(int i=0; i<3; i++){
         this->rotate_segment_and_box(segment_contracted_out[i], -tab_rotation[face], box, false);
-        this->translate_segment_and_box(segment_contracted_out[i], box, false, false);
+        this->translate_segment_and_box(segment_contracted_out[i], box_in, false, false);
         // Add segment to seg_out list
         seg_out.push_back( (segment_contracted_out[i][0].diam() > segment_contracted_out[i][1].diam()) ? segment_contracted_out[i][0] : segment_contracted_out[i][1] );
     }

@@ -164,12 +164,11 @@ void Pave::process(){
         }
         // Compute the propagation to the 3 other face
         this->scheduler->utils.CtcPropagateSegment(seg_in_list[i], seg_out, segment.face, this->theta, this->box);
-
         // Apply the principle of continuity by sending results to neighbours
+
         for(int j=0; j<3; j++){
             if(!seg_out[j].is_empty()){
                 vector<Interval> output = this->borders[(j+1+segment.face)%4].add_segment(seg_out[j]);
-
                 for(int k=0; k<output.size(); k++){
                     this->borders[(j+1+segment.face)%4].publish_to_borthers(output[k]);
                 }
@@ -191,10 +190,8 @@ void Pave::warn_scheduler(){
 void Pave::activate_pave(){
     for(int face=0; face<4; face++){
         Border b(this->box[face%2], face);
-        this->queue.push_back(b); this->warn_scheduler();
-        for(int i=0; i < this->borders.size(); i++){
-            this->borders[(i+1+face)%4].publish_to_borthers(this->box[i%2]);
-        }
+        this->queue.push_back(b);this->warn_scheduler();
+        this->borders[face].publish_to_borthers(this->box[face%2]);
     }
 }
 
