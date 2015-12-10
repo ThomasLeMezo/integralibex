@@ -16,10 +16,12 @@ public:
     void draw() const;
     std::vector<ibex::Interval> add_segment(const ibex::Interval &seg);
     bool plug_segment(ibex::Interval &input);
-    void publish_to_borthers(ibex::Interval seg);
+    void publish_to_borthers(ibex::Interval seg, bool forward);
     void add_brothers(std::vector<Border *> brother_list);
     void update_brothers(Border* border_pave1, Border* border_pave2);
     void get_points(std::vector<double> &x, std::vector<double> &y);
+
+    void set_full();
 
 // State Variable
 public:

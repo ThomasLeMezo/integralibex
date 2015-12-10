@@ -15,12 +15,13 @@ public:
     ~Pave(){}
 
     void process_forward();
+    void process_backward();
     void bisect(vector<Pave *> &result);
 
-    void add_new_segment(Border &b);
-    void warn_scheduler_forward();
-    void warn_scheduler_backward();
+    void add_new_segment(Border &b, bool forward);
+    void warn_scheduler(bool forward);
     void activate_pave();
+    void set_full_continuity();
 
     void set_theta(ibex::Interval theta);
 
@@ -45,7 +46,7 @@ public:
 
     ibex::IntervalVector box;
 
-    std::vector<Border> queue_forward;
+    std::vector<Border> queue_forward, queue_backward;
     std::vector<Border> borders;
 
     std::vector<Pave*> precursors;

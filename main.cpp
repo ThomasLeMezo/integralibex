@@ -9,12 +9,13 @@ using namespace std;
 using namespace ibex;
 
 void test(){
-    //    testTranslate();
-    //    testRotate();
-    //    test_CtcPropagateLeftSide();
-    //    test_CtcPropagateRightSide();
-    //    test_CtcPropagateFront();
-        test_Propagate();
+//    testTranslate();
+//    testRotate();
+//    test_CtcPropagateLeftSide();
+//    test_CtcPropagateRightSide();
+//    test_CtcPropagateFront();
+//    test_Propagate();
+    test_Backward();
 }
 
 int main()
@@ -59,6 +60,26 @@ int main()
     s.draw(500);
 
     cout << "Nb of paves = " << s.pave_list.size() << endl;
+#endif
+
+#if 1
+    vibes::beginDrawing();
+
+    Scheduler s;
+
+    IntervalVector box(2);
+    box[0] = Interval(-10.0, 10.0);
+    box[1] = Interval(-10.0, 10.0);
+
+    s.set_initial_pave(box);
+    s.SIVIA(M_PI/10.0, 3000);
+    s.set_full_continuity();
+    s.process_backward(100000);
+    s.draw(500);
+
+    cout << "Nb of paves = " << s.pave_list.size() << endl;
+#else
+   test();
 #endif
     return 0;
 }

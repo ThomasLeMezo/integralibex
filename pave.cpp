@@ -74,8 +74,21 @@ void Pave::set_theta(ibex::Interval theta){
 void Pave::activate_pave(){
     for(int face=0; face<4; face++){
         Border b(this->box[face%2], face);
-        this->queue.push_back(b);this->warn_scheduler_forward();
-        this->borders[face].publish_to_borthers(this->box[face%2]);
+        this->queue_forward.push_back(b);this->warn_scheduler(true);
+        this->borders[face].publish_to_borthers(this->box[face%2], true);
+    }
+}
+
+void Pave::set_full_continuity(){
+    for(int face=0; face < 4; face++){
+        this->borders[face].set_full();
+
+        if(this->borders[face].brothers.size()==0){
+            this->borders[face].set_full();
+            Border b(Interval::EMPTY_SET, face);
+            this->add_new_segment(b, false);
+            this->warn_scheduler(false);
+        }
     }
 }
 
@@ -140,11 +153,11 @@ void Pave::bisect(vector<Pave*> &result){
         if(this->borders[i].brothers.size()!=0){
             if(i!=indice1){
                 pave1->borders[i].add_brothers(this->borders[i].brothers);
-                pave1->queue.push_back(this->borders[i]);this->warn_scheduler_forward(); // Add segments of this to pave1
+                pave1->queue_forward.push_back(this->borders[i]);this->warn_scheduler(true); // Add segments of this to pave1
             }
             if(i!=indice2){
                 pave2->borders[i].add_brothers(this->borders[i].brothers);
-                pave2->queue.push_back(this->borders[i]);this->warn_scheduler_forward(); // Add segments of this to pave2
+                pave2->queue_forward.push_back(this->borders[i]);this->warn_scheduler(true); // Add segments of this to pave2
             }
         }
     }
@@ -167,15 +180,14 @@ void Pave::bisect(vector<Pave*> &result){
 
 void Pave::process_forward(){
     // Process all new incoming valid segment (represents as borders)
-
-    // Only take the first box in the list because the Pave is called for each new segment in the scheduler
-    if(queue.size()==0)
+    if(queue_forward.size()==0)
         return;
-    Border segment = queue.front();
-    queue.erase(queue.begin());
+    // Only take the first box in the list because the Pave is called for each new segment in the scheduler
+    Border border = queue_forward.front();
+    queue_forward.erase(queue_forward.begin());
 
     // Add the new segment & Test if the border interesect the segment of the pave
-    vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segment);
+    vector<Interval> seg_in_list = this->borders[border.face].add_segment(border.segment);
 
     for(int i=0; i<seg_in_list.size(); i++){
         vector<Interval> seg_out;
@@ -183,14 +195,14 @@ void Pave::process_forward(){
             seg_out.push_back(Interval::ALL_REALS);
         }
         // Compute the propagation to the 3 other face
-        this->scheduler->utils.CtcPropagateSegment(seg_in_list[i], seg_out, segment.face, this->theta, this->box);
+        this->scheduler->utils.CtcPropagateSegment(seg_in_list[i], seg_out, border.face, this->theta, this->box);
         // Apply the principle of continuity by sending results to neighbours
 
         for(int j=0; j<3; j++){
             if(!seg_out[j].is_empty()){
-                vector<Interval> output = this->borders[(j+1+segment.face)%4].add_segment(seg_out[j]);
+                vector<Interval> output = this->borders[(j+1+border.face)%4].add_segment(seg_out[j]);
                 for(int k=0; k<output.size(); k++){
-                    this->borders[(j+1+segment.face)%4].publish_to_borthers(output[k]);
+                    this->borders[(j+1+border.face)%4].publish_to_borthers(output[k], true);
                 }
             }
         }
@@ -200,16 +212,63 @@ void Pave::process_forward(){
 }
 
 void Pave::process_backward(){
+    // Process all new incoming valid segment (represents as borders)
+    if(queue_backward.size()==0)
+        return;
+    // Only take the first box in the list because the Pave is called for each new segment in the scheduler
+    Border border = queue_backward.front();
+    queue_backward.erase(queue_backward.begin());
 
+    Interval segment = border.segment;
+    if(this->borders[border.face].plug_segment(segment)){
+
+        vector<Interval> seg_in;
+        vector< vector<Interval>> seg_out;
+        for(int j=0; j<3; j++){
+            vector<Interval> tmp;
+            seg_in.push_back(this->borders[(j+1+border.face)%4].segment);
+            for(int k=0; k<3; k++){
+                if((j+1+border.face+k+1)%4 == border.face){
+                    tmp.push_back(segment);
+                }
+                else{
+                    tmp.push_back(this->borders[(j+1+border.face+k+1)%4].segment);
+                }
+            }
+            seg_out.push_back(tmp);
+        }
+        // Compute the backward propagation to the 3 other face
+        for(int j=0; j<3; j++){
+            this->scheduler->utils.CtcPropagateSegment(seg_in[j], seg_out[j], (border.face+1+j)%4, this->theta, this->box);
+        }
+        Interval segment_ctc;
+        for(int j=0; j<3; j++){
+            for(int k=0; k<3; k++){
+                if((j+1+border.face+k+1)%4 == border.face)
+                    segment_ctc = segment_ctc | seg_out[j][k];
+            }
+        }
+
+        // Publish results to neighbours + modify this pave borders
+        for(int j=0; j<3; j++){
+            if(this->borders[(j+1+border.face)%4].plug_segment(seg_in[j])){
+                this->borders[(j+1+border.face)%4].publish_to_borthers(seg_in[j], false);
+            }
+        }
+        // Update the initial segment with the contracted segment
+        if(this->borders[border.face].plug_segment(segment_ctc)){
+            this->borders[border.face].publish_to_borthers(segment_ctc, false);
+        }
+    }
 }
 
 
 /**
- * @brief Pave::warn_scheduler_forward
- * Warn the scheduler that this Pave has new segment to forward process
+ * @brief Pave::warn_scheduler
+ * Warn the scheduler that this Pave has new segment to forward/backward process
  */
-void Pave::warn_scheduler_forward(){
-    this->scheduler->add_to_queue(this);
+void Pave::warn_scheduler(bool forward){
+    this->scheduler->add_to_queue(this, forward);
 }
 
 // ********************************************************************************
@@ -290,9 +349,14 @@ void Pave::clear_graph(){
 /**
  * @brief Pave::add_new_segment
  * @param b
- * Add new segment to queue list of Pave
+ * Add new segment to queue_forward list of Pave
  * Used by
  */
-void Pave::add_new_segment(Border &b){
-    this->queue.push_back(b);
+void Pave::add_new_segment(Border &b, bool forward){
+    if(forward){
+        this->queue_forward.push_back(b);
+    }
+    else{
+        this->queue_backward.push_back(b);
+    }
 }

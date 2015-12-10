@@ -118,12 +118,12 @@ bool Border::plug_segment(ibex::Interval &input){
  * @brief Publish a new segment to a list of brothers
  * @param seg
  */
-void Border::publish_to_borthers(ibex::Interval seg){
+void Border::publish_to_borthers(ibex::Interval seg, bool forward){
     Border new_segment(seg, (this->face+2)%4);
 
     for(int i=0; i<this->brothers.size(); i++){
-        this->brothers[i]->pave->add_new_segment(new_segment);
-        this->brothers[i]->pave->warn_scheduler_forward();
+        this->brothers[i]->pave->add_new_segment(new_segment, forward);
+        this->brothers[i]->pave->warn_scheduler(forward);
     }
 }
 
@@ -157,4 +157,8 @@ void Border::update_brothers(Border* border_pave1, Border* border_pave2){
         // Add reference of border_pave 1 and 2
         this->brothers[i]->add_brothers(list_tmp);
     }
+}
+
+void Border::set_full(){
+    this->segment = this->position[this->face%2];
 }

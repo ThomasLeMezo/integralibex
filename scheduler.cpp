@@ -35,11 +35,22 @@ void Scheduler::add_segment(double x, double y){
     this->get_pave(x, y)->activate_pave();
 }
 
+void Scheduler::set_full_continuity(){
+    for(int i=0; i<this->pave_list.size(); i++){
+        this->pave_list[i]->set_full_continuity();
+    }
+}
+
 // ********************************************************************************
 // ****************** Propagation functions ***************************************
 
-void Scheduler::add_to_queue(Pave* pave){
-    this->pave_queue_forward.push_back(pave);
+void Scheduler::add_to_queue(Pave* pave, bool forward){
+    if(forward){
+        this->pave_queue_forward.push_back(pave);
+    }
+    else{
+        this->pave_queue_backward.push_back(pave);
+    }
 }
 
 void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
@@ -50,8 +61,6 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
     this->pave_list.clear();
 
     while(tmp_pave_list.size()!=0 & (iterations+tmp_pave_list.size())<iterations_max){
-
-
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
@@ -89,6 +98,24 @@ void Scheduler::process(int max_iterations){
     }
     //    cout << "queue size = " << this->pave_queue_forward.size() << endl;
 }
+
+void Scheduler::process_backward(int max_iterations){
+    int iterations=0;
+    while(this->pave_queue_backward.size() != 0 & iterations < max_iterations){
+        // ToDo : Backward/forward combination !!
+        iterations++;
+        Pave *pave = this->pave_queue_backward.front();
+        this->pave_queue_backward.erase(this->pave_queue_backward.begin());
+
+        pave->process_backward();
+
+        if(iterations%100 == 0){
+            cout << iterations << endl;
+        }
+    }
+    //    cout << "queue size = " << this->pave_queue_forward.size() << endl;
+}
+
 void Scheduler::process_graph(int iterations_max, int pave_max){
 
     vector<Pave*> pave_list_tmp;

@@ -14,10 +14,11 @@ public:
     Scheduler();
     ~Scheduler(){}
 
-    void add_to_queue(Pave* pave);
+    void add_to_queue(Pave* pave, bool forward);
     void draw(int size);
     void process(int max_iterations);
     void process_graph(int iterations_max, int pave_max);
+    void process_backward(int max_iterations);
 
     void SIVIA(double epsilon_theta, int iterations_max);
     void add_segment(int id_box);
@@ -26,6 +27,9 @@ public:
 
     Pave* get_pave(double x, double y);
     void print_pave_info(double x, double y, string color);
+
+    void set_full_continuity();
+    void set_empty_borders();
 
     Utils utils;
 
