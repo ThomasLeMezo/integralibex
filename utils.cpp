@@ -5,18 +5,10 @@ using namespace ibex;
 
 Utils::Utils()
 {
-
 }
 
-std::vector<ibex::Interval> Utils::rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y){
-    Interval xR = cos(theta)*x -sin(theta)*y;
-    Interval yR = sin(theta)*x + cos(theta)*y;
-    vector<Interval> list;
-    list.push_back(xR);
-    list.push_back(yR);
-    return list;
-}
-
+// ********************************************************************************
+// ****************** Contractors functions ***************************************
 /**
  ** CtcPropagateFront supposed that the down left box corner is (0,0)
  **
@@ -64,6 +56,68 @@ void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ib
 
 void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const IntervalVector &box){
     this->CtcPropagateRightSide(x, y, theta, box[0].ub(), box[1].ub());
+}
+
+void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const ibex::Interval theta[], const ibex::IntervalVector &box_pave){
+    // Translate and rotate the Segment
+    IntervalVector box(box_pave);
+    IntervalVector box_in(box_pave);
+    IntervalVector segment_in = segment2IntervalVector(seg_in, face, box);
+
+    this->translate_segment_and_box(segment_in, box, true, true);
+    this->rotate_segment_and_box(segment_in, this->tab_rotation[face], box, true);
+
+    // Compute the propagation
+    Interval segment_norm_in[3][2], segment_norm_out[3][2];
+
+    for(int i=0; i<3; i++){
+        for(int j=0; j<2; j++){
+            segment_norm_in[i][j] = segment_in[0];
+            segment_norm_out[i][j] = seg_out[i];
+        }
+    }
+
+    for(int i=0; i<2; i++){
+        this->CtcPropagateRightSide(segment_norm_in[0][i], segment_norm_out[0][i], theta[i] + tab_rotation[face], box);
+        this->CtcPropagateFront(segment_norm_in[1][i], segment_norm_out[1][i], theta[i] + tab_rotation[face], box);
+        this->CtcPropagateLeftSide(segment_norm_in[2][i], segment_norm_out[2][i], theta[i] + tab_rotation[face], box);
+    }
+
+    // Translate and rotate back the Segment
+    IntervalVector segment_contracted_out[3] = IntervalVector(2);
+    segment_contracted_out[0][1] = segment_norm_out[0][0] | segment_norm_out[0][1]; segment_contracted_out[0][0] = Interval(box[0].ub());
+    segment_contracted_out[1][0] = segment_norm_out[1][0] | segment_norm_out[1][1]; segment_contracted_out[1][1] = Interval(box[1].ub());
+    segment_contracted_out[2][1] = segment_norm_out[2][0] | segment_norm_out[2][1]; segment_contracted_out[2][0] = Interval(box[0].lb());
+
+    // Rotate and translate back with the initial box
+    seg_out.clear();
+    for(int i=0; i<3; i++){
+        this->rotate_segment_and_box(segment_contracted_out[i], -tab_rotation[face], box, false);
+        this->translate_segment_and_box(segment_contracted_out[i], box_in, false, false);
+        // Add segment to seg_out list
+        seg_out.push_back( (segment_contracted_out[i][0].diam() > segment_contracted_out[i][1].diam()) ? segment_contracted_out[i][0] : segment_contracted_out[i][1] );
+    }
+
+    // Segment in (backward)
+    Interval segment_contracted_in;
+    for(int i=0; i<3; i++){
+        for(int j=0; j<3; j++){
+            segment_contracted_in = segment_contracted_in | segment_norm_in[i][j];
+        }
+    }
+    seg_in = segment_contracted_in;
+}
+
+// ********************************************************************************
+// ****************** Transformation functions ************************************
+
+std::vector<ibex::Interval> Utils::rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y){
+    Interval xR = cos(theta)*x -sin(theta)*y;
+    Interval yR = sin(theta)*x + cos(theta)*y;
+    vector<Interval> list;
+    list.push_back(xR);
+    list.push_back(yR);
+    return list;
 }
 
 /**
@@ -127,56 +181,6 @@ ibex::IntervalVector Utils::segment2IntervalVector(const ibex::Interval &seg, co
     intervalVectorSegment[face%2] = seg;
     intervalVectorSegment[(face+1)%2] = (((face == 1) | (face == 2) ) ? Interval(box[(face+1)%2].ub()) : Interval(box[(face+1)%2].lb()));
     return intervalVectorSegment;
-}
-
-void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const ibex::Interval theta[], const ibex::IntervalVector &box_pave){
-    // Translate and rotate the Segment
-    IntervalVector box(box_pave);
-    IntervalVector box_in(box_pave);
-    IntervalVector segment_in = segment2IntervalVector(seg_in, face, box);
-
-    this->translate_segment_and_box(segment_in, box, true, true);
-    this->rotate_segment_and_box(segment_in, this->tab_rotation[face], box, true);
-
-    // Compute the propagation
-    Interval segment_norm_in[3][2], segment_norm_out[3][2];
-
-    for(int i=0; i<3; i++){
-        for(int j=0; j<2; j++){
-            segment_norm_in[i][j] = segment_in[0];
-            segment_norm_out[i][j] = seg_out[i];
-        }
-    }
-
-    for(int i=0; i<2; i++){
-        this->CtcPropagateRightSide(segment_norm_in[0][i], segment_norm_out[0][i], theta[i] + tab_rotation[face], box);
-        this->CtcPropagateFront(segment_norm_in[1][i], segment_norm_out[1][i], theta[i] + tab_rotation[face], box);
-        this->CtcPropagateLeftSide(segment_norm_in[2][i], segment_norm_out[2][i], theta[i] + tab_rotation[face], box);
-    }
-
-    // Translate and rotate back the Segment
-    IntervalVector segment_contracted_out[3] = IntervalVector(2);
-    segment_contracted_out[0][1] = segment_norm_out[0][0] | segment_norm_out[0][1]; segment_contracted_out[0][0] = Interval(box[0].ub());
-    segment_contracted_out[1][0] = segment_norm_out[1][0] | segment_norm_out[1][1]; segment_contracted_out[1][1] = Interval(box[1].ub());
-    segment_contracted_out[2][1] = segment_norm_out[2][0] | segment_norm_out[2][1]; segment_contracted_out[2][0] = Interval(box[0].lb());
-
-    // Rotate and translate back with the initial box
-    seg_out.clear();
-    for(int i=0; i<3; i++){
-        this->rotate_segment_and_box(segment_contracted_out[i], -tab_rotation[face], box, false);
-        this->translate_segment_and_box(segment_contracted_out[i], box_in, false, false);
-        // Add segment to seg_out list
-        seg_out.push_back( (segment_contracted_out[i][0].diam() > segment_contracted_out[i][1].diam()) ? segment_contracted_out[i][0] : segment_contracted_out[i][1] );
-    }
-
-    // Segment in (backward)
-    Interval segment_contracted_in;
-    for(int i=0; i<3; i++){
-        for(int j=0; j<3; j++){
-            segment_contracted_in = segment_contracted_in | segment_norm_in[i][j];
-        }
-    }
-    seg_in = segment_contracted_in;
 }
 
 

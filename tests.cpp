@@ -121,8 +121,8 @@ void test_Propagate(){
 //    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
 
 
-    p.process();
-    p.process();
+    p.process_forward();
+    p.process_forward();
 
     vibes::beginDrawing();
     vibes::newFigure("test");

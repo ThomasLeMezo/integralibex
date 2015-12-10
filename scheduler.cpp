@@ -9,13 +9,37 @@ Scheduler::Scheduler(){
     this->draw_nb = 0;
 }
 
+// ********************************************************************************
+// ****************** Setup Init functions ****************************************
+
 void Scheduler::set_initial_pave(const IntervalVector &box){
     Pave *p = new Pave(box, this);
     this->pave_list.push_back(p);
 }
 
+Pave* Scheduler::get_pave(double x, double y){
+    IntervalVector position(2);
+    position[0] = Interval(x);
+    position[1] = Interval(y);
+
+    for(int i=0; i<this->pave_list.size(); i++){
+        if(!(position & this->pave_list[i]->box).is_empty()){
+            return this->pave_list[i];
+        }
+    }
+}
+void Scheduler::add_segment(int id_box){
+    this->pave_list[id_box]->activate_pave();
+}
+void Scheduler::add_segment(double x, double y){
+    this->get_pave(x, y)->activate_pave();
+}
+
+// ********************************************************************************
+// ****************** Propagation functions ***************************************
+
 void Scheduler::add_to_queue(Pave* pave){
-    this->pave_queue.push_back(pave);
+    this->pave_queue_forward.push_back(pave);
 }
 
 void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
@@ -50,23 +74,21 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
         this->pave_list.push_back(tmp_pave_list[i]);
     }
 }
-
 void Scheduler::process(int max_iterations){
     int iterations=0;
-    while(this->pave_queue.size() != 0 & iterations < max_iterations){
+    while(this->pave_queue_forward.size() != 0 & iterations < max_iterations){
         iterations++;
-        Pave *pave = this->pave_queue.front();
-        this->pave_queue.erase(this->pave_queue.begin());
+        Pave *pave = this->pave_queue_forward.front();
+        this->pave_queue_forward.erase(this->pave_queue_forward.begin());
 
-        pave->process();
+        pave->process_forward();
 
         if(iterations%100 == 0){
             cout << iterations << endl;
         }
     }
-    //    cout << "queue size = " << this->pave_queue.size() << endl;
+    //    cout << "queue size = " << this->pave_queue_forward.size() << endl;
 }
-
 void Scheduler::process_graph(int iterations_max, int pave_max){
 
     vector<Pave*> pave_list_tmp;
@@ -107,6 +129,9 @@ void Scheduler::process_graph(int iterations_max, int pave_max){
     }
 }
 
+// ********************************************************************************
+// ****************** Draw functions **********************************************
+
 void Scheduler::draw(int size){
 
     stringstream ss;
@@ -121,6 +146,9 @@ void Scheduler::draw(int size){
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     this->draw_nb++;
 }
+
+// ********************************************************************************
+// ****************** TEST functions **********************************************
 
 void Scheduler::print_pave_info(double x, double y, string color){
 
@@ -144,25 +172,3 @@ void Scheduler::print_pave_info(double x, double y, string color){
 
     cout << endl;
 }
-
-Pave* Scheduler::get_pave(double x, double y){
-    IntervalVector position(2);
-    position[0] = Interval(x);
-    position[1] = Interval(y);
-
-    for(int i=0; i<this->pave_list.size(); i++){
-        if(!(position & this->pave_list[i]->box).is_empty()){
-            return this->pave_list[i];
-        }
-    }
-}
-
-void Scheduler::add_segment(int id_box){
-    this->pave_list[id_box]->activate_pave();
-}
-
-void Scheduler::add_segment(double x, double y){
-    this->get_pave(x, y)->activate_pave();
-}
-
-

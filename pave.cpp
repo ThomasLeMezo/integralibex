@@ -55,7 +55,6 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
 
     visited_node = false;
 }
-
 void Pave::set_theta(ibex::Interval theta){
     this->theta[0] = Interval::EMPTY_SET;
     this->theta[1] = Interval::EMPTY_SET;
@@ -72,6 +71,16 @@ void Pave::set_theta(ibex::Interval theta){
             this->theta[1] = (theta - 2*Interval::PI);
     }
 }
+void Pave::activate_pave(){
+    for(int face=0; face<4; face++){
+        Border b(this->box[face%2], face);
+        this->queue.push_back(b);this->warn_scheduler_forward();
+        this->borders[face].publish_to_borthers(this->box[face%2]);
+    }
+}
+
+// ********************************************************************************
+// ****************** Drawing functions *******************************************
 
 void Pave::draw(bool filled){
     // Draw the pave
@@ -85,7 +94,6 @@ void Pave::draw(bool filled){
         vibes::drawSector(this->box[0].mid(), this->box[1].mid(), size, size, (-this->theta[i].lb())*180.0/M_PI, (-this->theta[i].ub())*180.0/M_PI, "r[]");
     }
 }
-
 void Pave::draw_borders(bool filled){
     if(!filled){
         // Draw Segments
@@ -102,6 +110,9 @@ void Pave::draw_borders(bool filled){
         vibes::drawPolygon(x, y, "g[g]");
     }
 }
+
+// ********************************************************************************
+// ****************** Paving building *********************************************
 
 void Pave::bisect(vector<Pave*> &result){
     // Create 4 new paves
@@ -127,10 +138,14 @@ void Pave::bisect(vector<Pave*> &result){
     // Copy brothers Pave (this) to pave1 and pave2
     for(int i=0; i<4; i++){
         if(this->borders[i].brothers.size()!=0){
-            if(i!=indice1)
+            if(i!=indice1){
                 pave1->borders[i].add_brothers(this->borders[i].brothers);
-            if(i!=indice2)
+                pave1->queue.push_back(this->borders[i]);this->warn_scheduler_forward(); // Add segments of this to pave1
+            }
+            if(i!=indice2){
                 pave2->borders[i].add_brothers(this->borders[i].brothers);
+                pave2->queue.push_back(this->borders[i]);this->warn_scheduler_forward(); // Add segments of this to pave2
+            }
         }
     }
 
@@ -147,7 +162,10 @@ void Pave::bisect(vector<Pave*> &result){
     result.push_back(pave2);
 }
 
-void Pave::process(){
+// ********************************************************************************
+// ****************** Segment Propagation *****************************************
+
+void Pave::process_forward(){
     // Process all new incoming valid segment (represents as borders)
 
     // Only take the first box in the list because the Pave is called for each new segment in the scheduler
@@ -181,21 +199,21 @@ void Pave::process(){
     //    this->draw_borders();
 }
 
-void Pave::add_new_segment(Border &b){
-    this->queue.push_back(b);
+void Pave::process_backward(){
+
 }
 
-void Pave::warn_scheduler(){
+
+/**
+ * @brief Pave::warn_scheduler_forward
+ * Warn the scheduler that this Pave has new segment to forward process
+ */
+void Pave::warn_scheduler_forward(){
     this->scheduler->add_to_queue(this);
 }
 
-void Pave::activate_pave(){
-    for(int face=0; face<4; face++){
-        Border b(this->box[face%2], face);
-        this->queue.push_back(b);this->warn_scheduler();
-        this->borders[face].publish_to_borthers(this->box[face%2]);
-    }
-}
+// ********************************************************************************
+// ****************** Graph functions *********************************************
 
 void Pave::compute_successors(){
     for(int face=0; face<4; face++){
@@ -216,7 +234,6 @@ void Pave::compute_successors(){
         }
     }
 }
-
 bool Pave::test_cycle(Pave* p_test, int depth, int depth_max){
     if(this->precursors.size()==0){
         return false;
@@ -239,7 +256,6 @@ bool Pave::test_cycle(Pave* p_test, int depth, int depth_max){
         return false;
     }
 }
-
 void Pave::add_precursors(Pave* p){
     IntervalVector intersection = this->box & p->box;
     if(!intersection.is_empty() && (intersection[0].is_degenerated() != intersection[1].is_degenerated())){
@@ -252,7 +268,6 @@ void Pave::add_precursors(Pave* p){
             this->precursors.push_back(p);
     }
 }
-
 void Pave::add_successors(Pave* p){
     IntervalVector intersection = this->box & p->box;
     if(!intersection.is_empty() && (intersection[0].is_degenerated() != intersection[1].is_degenerated())){
@@ -265,8 +280,19 @@ void Pave::add_successors(Pave* p){
             this->successors.push_back(p);
     }
 }
-
 void Pave::clear_graph(){
     this->successors.clear();
     this->precursors.clear();
+}
+
+// ********************************************************************************
+// ****************** TEST functions *********************************************
+/**
+ * @brief Pave::add_new_segment
+ * @param b
+ * Add new segment to queue list of Pave
+ * Used by
+ */
+void Pave::add_new_segment(Border &b){
+    this->queue.push_back(b);
 }

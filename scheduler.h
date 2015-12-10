@@ -31,7 +31,7 @@ public:
 
 public:
     std::vector<Pave*> pave_list;
-    std::vector<Pave*> pave_queue;
+    std::vector<Pave*> pave_queue_forward,pave_queue_backward;
 
     int draw_nb;
 };

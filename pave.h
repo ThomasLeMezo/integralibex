@@ -14,11 +14,12 @@ public:
     Pave(const ibex::IntervalVector &box, Scheduler *scheduler);
     ~Pave(){}
 
-    void process();
+    void process_forward();
     void bisect(vector<Pave *> &result);
 
     void add_new_segment(Border &b);
-    void warn_scheduler();
+    void warn_scheduler_forward();
+    void warn_scheduler_backward();
     void activate_pave();
 
     void set_theta(ibex::Interval theta);
@@ -44,7 +45,7 @@ public:
 
     ibex::IntervalVector box;
 
-    std::vector<Border> queue;
+    std::vector<Border> queue_forward;
     std::vector<Border> borders;
 
     std::vector<Pave*> precursors;

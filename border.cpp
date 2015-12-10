@@ -74,7 +74,6 @@ void Border::get_points(std::vector<double> &x, std::vector<double> &y){
  * // ToDo : Check whole overlapping
  */
 vector<ibex::Interval> Border::add_segment(const Interval &seg){
-    // To Do : merge segments
     vector<Interval> list_segments;
 
     if(seg.is_empty())
@@ -100,6 +99,22 @@ vector<ibex::Interval> Border::add_segment(const Interval &seg){
 }
 
 /**
+ * @brief Border::plug_segment
+ * @param input
+ * @return true if change / false if no change
+ */
+bool Border::plug_segment(ibex::Interval &input){
+    if(input == this->segment){
+        return false;
+    }
+    else{
+        this->segment = this->segment & input;
+        input = this->segment;
+        return true;
+    }
+}
+
+/**
  * @brief Publish a new segment to a list of brothers
  * @param seg
  */
@@ -108,7 +123,7 @@ void Border::publish_to_borthers(ibex::Interval seg){
 
     for(int i=0; i<this->brothers.size(); i++){
         this->brothers[i]->pave->add_new_segment(new_segment);
-        this->brothers[i]->pave->warn_scheduler();
+        this->brothers[i]->pave->warn_scheduler_forward();
     }
 }
 
