@@ -155,7 +155,7 @@ void test_Backward(){
 //    p.set_theta( (-3.88*Interval::PI/8.0 | -Interval::HALF_PI));
 //    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0));
 //    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0) + Interval::HALF_PI);
-    p.set_theta( (Interval::PI/8.0 | 2*Interval::PI/8.0) - 2* Interval::PI/3.0);
+    p.set_theta( (-Interval::HALF_PI/8.0 | Interval::HALF_PI/8.0) - 0*Interval::PI/2);
 //    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
 
 

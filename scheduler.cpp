@@ -113,7 +113,6 @@ void Scheduler::process_backward(int max_iterations){
             cout << iterations << endl;
         }
     }
-    //    cout << "queue size = " << this->pave_queue_forward.size() << endl;
 }
 
 void Scheduler::process_graph(int iterations_max, int pave_max){

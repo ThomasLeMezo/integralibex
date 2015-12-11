@@ -22,8 +22,21 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
     Interval theta2 = theta;
 
     contract_polar.contract(Dx, Dy, rho, theta2);
-    x_front = (x + Dx ) & X;    // A écrire sous forme de contracteur !!
-    x = (x_front - Dx) & X;
+    x_front &= (x + Dx ) & X;    // A écrire sous forme de contracteur !!
+    if(!(X & (x_front - Dx)).is_empty()){
+        x &= (x_front - Dx);
+    }
+    else{
+        x |= (x_front - Dx);
+    }
+    if(!(X & (x_front + Dx)).is_empty()){
+        x &= (x_front + Dx);
+    }
+    else{
+        x |= (x_front + Dx);
+    }
+
+    x &= X;
 }
 
 void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const IntervalVector &box){
@@ -50,7 +63,8 @@ void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ib
     */
 
     x = Interval(dx) - x;
-    this->CtcPropagateLeftSide(x, y, Interval::PI-theta, dx, dy);
+    Interval theta2(Interval::PI-theta);
+    this->CtcPropagateLeftSide(x, y, theta2, dx, dy);
     x = Interval(dx) - x;
 }
 
@@ -58,7 +72,7 @@ void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ib
     this->CtcPropagateRightSide(x, y, theta, box[0].ub(), box[1].ub());
 }
 
-void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const ibex::Interval theta[], const ibex::IntervalVector &box_pave, int face_ctc){
+void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const ibex::Interval theta[], const ibex::IntervalVector &box_pave){
     // Translate and rotate the Segment
     IntervalVector box(box_pave);
     IntervalVector box_in(box_pave);
@@ -108,28 +122,6 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
         // Add segment to seg_out list
         seg_out.push_back( (segment_contracted_out[i][0].diam() > segment_contracted_out[i][1].diam()) ? segment_contracted_out[i][0] : segment_contracted_out[i][1] );
     }
-
-    // **************************** INPUT ****************************
-    // Segment in (backward)
-    if(face_ctc != -1){
-        Interval segment_contracted_in[2] = Interval::EMPTY_SET;
-        for(int j=0; j<2; j++){ // theta
-            for(int i=0; i<3; i++){ // right - front - left
-                if((i+1+face)%4 == face_ctc){
-                    segment_contracted_in[j] = segment_norm_in[i][j];
-                }
-                //            segment_contracted_in[j] = segment_contracted_in[j] | segment_norm_in[i][j];
-                // Union car, ce n'est pas pcq segment_norm_in peut être vide à cause de theta et non
-                // des conditions des frontières !
-                // Mais pas asser efficace !!
-                // A REGARDER !!!
-            }
-        }
-        segment_in = segment2IntervalVector(segment_contracted_in[0] | segment_contracted_in[1], face, box);
-        this->rotate_segment_and_box(segment_in, -tab_rotation[face], box, false);
-        this->translate_segment_and_box(segment_in, box_in, false, false);
-        seg_in = (segment_in[0].diam() > segment_in[1].diam()) ? segment_in[0] : segment_in[1];
-    }
 }
 
 // ********************************************************************************
@@ -165,7 +157,7 @@ void Utils::rotate_segment_and_box(ibex::IntervalVector &Sk, const ibex::Interva
     Sk[0] = cos(theta)*Sk_[0] -sin(theta)*Sk_[1];
     Sk[1] = sin(theta)*Sk_[0] + cos(theta)*Sk_[1];
 
-    box_2[0] = cos(theta)*box_[0] -sin(theta)*box_[1];
+    box_2[0] = cos(theta)*box_[0] - sin(theta)*box_[1];
     box_2[1] = sin(theta)*box_[0] + cos(theta)*box_[1];
 
     Vector lb = box_2.lb();

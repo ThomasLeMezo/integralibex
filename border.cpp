@@ -90,9 +90,9 @@ vector<ibex::Interval> Border::add_segment(const Interval &seg){
     new_segment.diff(this->segment, left, right);
 
     if(!left.is_empty())
-      list_segments.push_back(left);
+        list_segments.push_back(left);
     if(!right.is_empty())
-      list_segments.push_back(right);
+        list_segments.push_back(right);
 
     this->segment = new_segment;
     return list_segments;
@@ -108,9 +108,22 @@ bool Border::plug_segment(ibex::Interval &input){
         return false;
     }
     else{
-        this->segment = this->segment & input;
-        input = this->segment;
-        return true;
+        Interval seg_out = input;
+
+        for(int i=0; i<this->brothers.size(); i++){
+            if((input & this->brothers[i]->segment).is_empty()){
+                seg_out |= this->brothers[i]->segment;
+            }
+        }
+
+        if(this->segment == seg_out){
+            return false;
+        }
+        else{
+            this->segment &= seg_out;
+            input = this->segment;
+            return true;
+        }
     }
 }
 
