@@ -153,11 +153,11 @@ void Pave::bisect(vector<Pave*> &result){
         if(this->borders[i].brothers.size()!=0){
             if(i!=indice1){
                 pave1->borders[i].add_brothers(this->borders[i].brothers);
-                pave1->queue_forward.push_back(this->borders[i]);this->warn_scheduler(true); // Add segments of this to pave1
+//                pave1->queue_forward.push_back(this->borders[i]);this->warn_scheduler(true); // Add segments of this to pave1
             }
             if(i!=indice2){
                 pave2->borders[i].add_brothers(this->borders[i].brothers);
-                pave2->queue_forward.push_back(this->borders[i]);this->warn_scheduler(true); // Add segments of this to pave2
+//                pave2->queue_forward.push_back(this->borders[i]);this->warn_scheduler(true); // Add segments of this to pave2
             }
         }
     }
@@ -195,7 +195,7 @@ void Pave::process_forward(){
             seg_out.push_back(Interval::ALL_REALS);
         }
         // Compute the propagation to the 3 other face
-        this->scheduler->utils.CtcPropagateSegment(seg_in_list[i], seg_out, border.face, this->theta, this->box);
+        this->scheduler->utils.CtcPropagateSegment(seg_in_list[i], seg_out, border.face, this->theta, this->box, -1);
         // Apply the principle of continuity by sending results to neighbours
 
         for(int j=0; j<3; j++){
@@ -239,7 +239,7 @@ void Pave::process_backward(){
         }
         // Compute the backward propagation to the 3 other face
         for(int j=0; j<3; j++){
-            this->scheduler->utils.CtcPropagateSegment(seg_in[j], seg_out[j], (border.face+1+j)%4, this->theta, this->box);
+            this->scheduler->utils.CtcPropagateSegment(seg_in[j], seg_out[j], (border.face+1+j)%4, this->theta, this->box, border.face);
         }
         Interval segment_ctc;
         for(int j=0; j<3; j++){
@@ -281,7 +281,7 @@ void Pave::compute_successors(){
         for(int i=0; i<3; i++)
             output.push_back(Interval::ALL_REALS);
 
-        this->scheduler->utils.CtcPropagateSegment(test_border.segment, output, test_border.face, this->theta, this->box);
+        this->scheduler->utils.CtcPropagateSegment(test_border.segment, output, test_border.face, this->theta, this->box, -1);
 
         for(int i=0; i<3; i++){
             if(!output[i].is_empty()){

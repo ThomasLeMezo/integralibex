@@ -21,7 +21,7 @@ void test(){
 int main()
 {
 
-#if 0
+#if 1
     vibes::beginDrawing();
 
     Scheduler s;
@@ -62,7 +62,7 @@ int main()
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 #endif
 
-#if 1
+#if 0
     vibes::beginDrawing();
 
     Scheduler s;
@@ -79,7 +79,7 @@ int main()
 
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 #else
-   test();
+//   test();
 #endif
     return 0;
 }
