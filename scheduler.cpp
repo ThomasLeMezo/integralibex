@@ -100,6 +100,10 @@ void Scheduler::process(int max_iterations){
 }
 
 void Scheduler::process_backward(int max_iterations){
+    for(int i=0; i<this->pave_list.size(); i++){
+        this->pave_list[i]->compute_flow();
+    }
+
     int iterations=0;
     while(this->pave_queue_backward.size() != 0 & iterations < max_iterations){
         // ToDo : Backward/forward combination !!

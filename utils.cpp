@@ -128,8 +128,8 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
 // ****************** Transformation functions ************************************
 
 std::vector<ibex::Interval> Utils::rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y){
-    Interval xR = cos(theta)*x -sin(theta)*y;
-    Interval yR = sin(theta)*x + cos(theta)*y;
+    Interval xR = x*cos(theta) - y*sin(theta);
+    Interval yR = x*sin(theta) + y*cos(theta);
     vector<Interval> list;
     list.push_back(xR);
     list.push_back(yR);

@@ -15,6 +15,11 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): posi
     this->face = face;
     this->pave = pave;
     this->segment = Interval::EMPTY_SET;
+
+    this->flow_in = true;
+    for(int i=0; i<4; i++){
+        this->flow_out[i] = false;
+    }
 }
 
 Border::Border(const Interval &segment, const int face): position(2)
@@ -103,15 +108,17 @@ vector<ibex::Interval> Border::add_segment(const Interval &seg){
  * @param input
  * @return true if change / false if no change
  */
-bool Border::plug_segment(ibex::Interval &input){
+bool Border::plug_segment(ibex::Interval &input, ibex::Interval &segment){
     if(input == this->segment){
         return false;
     }
     else{
         Interval seg_out = input;
 
+        // Union of all brothers segment of the same face
         for(int i=0; i<this->brothers.size(); i++){
-            if((input & this->brothers[i]->segment).is_empty()){
+            if((segment & this->brothers[i]->segment).is_empty()){
+                // Case input is not inside the brothers
                 seg_out |= this->brothers[i]->segment;
             }
         }

@@ -29,6 +29,7 @@ public:
     void draw_borders(bool filled);
 
     void compute_successors();
+    void compute_flow();
 
     void add_precursors(Pave* p);
     void add_successors(Pave* p);

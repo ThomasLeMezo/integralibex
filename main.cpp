@@ -72,14 +72,14 @@ int main()
     box[1] = Interval(-10.0, 10.0);
 
     s.set_initial_pave(box);
-    s.SIVIA(M_PI/10.0, 3000);
+    s.SIVIA(M_PI/10.0, 5000);
     s.set_full_continuity();
     s.process_backward(100000);
     s.draw(500);
 
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 #else
-//   test();
+   test();
 #endif
     return 0;
 }

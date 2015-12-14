@@ -15,7 +15,7 @@ public:
 
     void draw() const;
     std::vector<ibex::Interval> add_segment(const ibex::Interval &seg);
-    bool plug_segment(ibex::Interval &input);
+    bool plug_segment(ibex::Interval &input, ibex::Interval &segment);
     void publish_to_borthers(ibex::Interval seg, bool forward);
     void add_brothers(std::vector<Border *> brother_list);
     void update_brothers(Border* border_pave1, Border* border_pave2);
@@ -33,6 +33,9 @@ public:
     ibex::IntervalVector position;          // Position of the border ([x], [y]) where one of the dimension is singleton
 
     Pave *pave;                             // Pointer to its container
+
+    bool flow_in;
+    bool flow_out[4];
 };
 
 #endif // BORDER_H

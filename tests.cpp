@@ -158,7 +158,7 @@ void test_Backward(){
     p.set_theta( (-Interval::HALF_PI/8.0 | Interval::HALF_PI/8.0) - 0*Interval::PI/2);
 //    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
 
-
+    p.compute_flow();
     p.process_backward();
 
     vibes::beginDrawing();
