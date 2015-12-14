@@ -108,7 +108,7 @@ vector<ibex::Interval> Border::add_segment(const Interval &seg){
  * @param input
  * @return true if change / false if no change
  */
-bool Border::plug_segment(ibex::Interval &input, ibex::Interval &segment){
+bool Border::plug_segment(ibex::Interval &input){
     if(input == this->segment){
         return false;
     }
@@ -117,7 +117,7 @@ bool Border::plug_segment(ibex::Interval &input, ibex::Interval &segment){
 
         // Union of all brothers segment of the same face
         for(int i=0; i<this->brothers.size(); i++){
-            if((segment & this->brothers[i]->segment).is_empty()){
+            if((this->position[this->face%2] & this->brothers[i]->segment).is_empty()){
                 // Case input is not inside the brothers
                 seg_out |= this->brothers[i]->segment;
             }

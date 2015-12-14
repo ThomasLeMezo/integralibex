@@ -15,7 +15,7 @@ public:
 
     void draw() const;
     std::vector<ibex::Interval> add_segment(const ibex::Interval &seg);
-    bool plug_segment(ibex::Interval &input, ibex::Interval &segment);
+    bool plug_segment(ibex::Interval &input);
     void publish_to_borthers(ibex::Interval seg, bool forward);
     void add_brothers(std::vector<Border *> brother_list);
     void update_brothers(Border* border_pave1, Border* border_pave2);

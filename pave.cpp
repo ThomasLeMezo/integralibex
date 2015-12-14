@@ -228,7 +228,7 @@ void Pave::process_backward(){
         test_cout = true;
     }
 
-    if(this->borders[border.face].plug_segment(border.segment, border.position[border.face%2])){
+    if(this->borders[border.face].plug_segment(border.segment)){
         Interval seg_out[4] = Interval::EMPTY_SET;
 
         // Propagation of other faces
@@ -281,7 +281,7 @@ void Pave::process_backward(){
                 if(this->borders[j].flow_out[border.face]){
                     if(test_cout)
                         cout << "TEST" << endl;
-                    if(this->borders[j].plug_segment(seg_out[j], border.position[border.face%2])){
+                    if(this->borders[j].plug_segment(seg_out[j])){
                         if(test_cout)
                             cout << "-- publish to border=" << j << endl;
                         this->borders[j].publish_to_borthers(seg_out[j], false);
