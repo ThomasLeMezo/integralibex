@@ -154,6 +154,12 @@ void Border::publish_to_borthers(ibex::Interval seg, bool forward){
         this->brothers[i]->pave->add_new_segment(new_segment, forward);
         this->brothers[i]->pave->warn_scheduler(forward);
     }
+
+    if(!forward && this->flow_in == false){
+        Border same_segment(this->position, this->face, seg);
+        this->pave->add_new_segment(same_segment, forward);
+        this->pave->warn_scheduler(forward);
+    }
 }
 
 // ********************************************************************************

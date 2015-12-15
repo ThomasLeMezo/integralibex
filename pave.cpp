@@ -269,9 +269,10 @@ void Pave::process_backward(){
         // Publish results to neighbours + modify this pave borders
         for(int j=0; j<4; j++){
             if(j != border.face){
-                if((this->borders[j].flow_out[border.face]==true) && (this->borders[j].flow_in == false)){
+                if((this->borders[j].flow_out[border.face]==true) /*&& (this->borders[j].flow_in == false)*/){
                     if(this->borders[j].plug_segment(seg_out[j], false)){ // modify segment
                         this->borders[j].publish_to_borthers(seg_out[j], false); // publish to neighbour
+
                     }
                 }
             }

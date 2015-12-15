@@ -78,6 +78,9 @@ int main()
     s.draw(1024, true);
 
     cout << "Nb of paves = " << s.pave_list.size() << endl;
+
+    s.print_pave_info(-8.0, -2.0, "r[]");
+    s.print_pave_info(-8.0, -0.5, "b[]");
 #else
    test();
 #endif
