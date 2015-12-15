@@ -10,12 +10,12 @@ class Border
 {
 public:
     Border(const ibex::IntervalVector& position, const int face, Pave *pave);
-    Border(const ibex::Interval &segment, const int face);
+    Border(const ibex::IntervalVector& position, const int face, const ibex::Interval &segment);
     ~Border(){}
 
     void draw() const;
     std::vector<ibex::Interval> add_segment(const ibex::Interval &seg);
-    bool plug_segment(ibex::Interval &input);
+    bool plug_segment(ibex::Interval &input, bool flow_in);
     void publish_to_borthers(ibex::Interval seg, bool forward);
     void add_brothers(std::vector<Border *> brother_list);
     void update_brothers(Border* border_pave1, Border* border_pave2);

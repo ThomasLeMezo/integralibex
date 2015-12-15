@@ -108,8 +108,8 @@ void test_Propagate(){
     Pave p(box, &s);
 
 //    Border b(Interval(0.5, 1.0), 0);
-    Border b(Interval(1.0, 2.0), 1);
-    Border b2(Interval(1.0, 1.25), 2);
+    Border b(p.get_border_position(1), 1, Interval(1.0, 2.0));
+    Border b2(p.get_border_position(2), 2, Interval(1.0, 1.25));
 //    Border b(Interval(1.0, 3.0), 3);
 
 //    p.add_new_segment(b2);
@@ -145,7 +145,7 @@ void test_Backward(){
         p.borders[i].set_full();
     }
 
-    Border b(Interval(0.5, 1.0), 0);
+    Border b(p.get_border_position(0), 0, Interval(0.5, 1.0));
 //    Border b(Interval(1.0, 2.0), 1);
 //    Border b2(Interval(1.0, 1.25), 2);
 //    Border b(Interval(1.0, 3.0), 3);

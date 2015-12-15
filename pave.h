@@ -24,6 +24,7 @@ public:
     void set_full_continuity();
 
     void set_theta(ibex::Interval theta);
+    ibex::IntervalVector get_border_position(int face);
 
     void draw(bool filled);
     void draw_borders(bool filled);

@@ -22,8 +22,9 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): posi
     }
 }
 
-Border::Border(const Interval &segment, const int face): position(2)
+Border::Border(const ibex::IntervalVector& position, const int face, const ibex::Interval &segment): position(2)
 {
+    this->position = position;
     this->segment = segment;
     this->face = face;
 }
@@ -108,22 +109,30 @@ vector<ibex::Interval> Border::add_segment(const Interval &seg){
  * @param input
  * @return true if change / false if no change
  */
-bool Border::plug_segment(ibex::Interval &input){
+bool Border::plug_segment(ibex::Interval &input, bool flow_in){
+
+    // Intersect the input with this border segment
+    input &= this->segment;
+
+    // Test if something is removed
     if(input == this->segment){
         return false;
     }
     else{
+        // Do the union with all brothers
         Interval seg_out = input;
 
-        // Union of all brothers segment of the same face
-        for(int i=0; i<this->brothers.size(); i++){
-            if((this->position[this->face%2] & this->brothers[i]->segment).is_empty()){
-                // Case input is not inside the brothers
-                seg_out |= this->brothers[i]->segment;
+        if(flow_in == true){
+            // Union of all brothers segment of the same face
+            for(int i=0; i<this->brothers.size(); i++){
+                if((input & this->brothers[i]->segment).is_empty()){
+                    // Case input is not inside the brothers
+                    seg_out |= this->brothers[i]->segment;
+                }
             }
         }
 
-        if(this->segment == seg_out){
+        if(this->segment == (seg_out & this->segment)){
             return false;
         }
         else{
@@ -139,7 +148,7 @@ bool Border::plug_segment(ibex::Interval &input){
  * @param seg
  */
 void Border::publish_to_borthers(ibex::Interval seg, bool forward){
-    Border new_segment(seg, (this->face+2)%4);
+    Border new_segment(this->position, (this->face+2)%4, seg);
 
     for(int i=0; i<this->brothers.size(); i++){
         this->brothers[i]->pave->add_new_segment(new_segment, forward);

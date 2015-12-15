@@ -73,7 +73,7 @@ void Pave::set_theta(ibex::Interval theta){
 }
 void Pave::activate_pave(){
     for(int face=0; face<4; face++){
-        Border b(this->box[face%2], face);
+        Border b(this->get_border_position(face), face, this->box[face%2]);
         this->queue_forward.push_back(b);this->warn_scheduler(true);
         this->borders[face].publish_to_borthers(this->box[face%2], true);
     }
@@ -85,11 +85,18 @@ void Pave::set_full_continuity(){
 
         if(this->borders[face].brothers.size()==0){
             this->borders[face].set_full();
-            Border b(Interval::EMPTY_SET, face);
+            Border b(this->borders[face].position, face, Interval::EMPTY_SET);
             this->add_new_segment(b, false);
             this->warn_scheduler(false);
         }
     }
+}
+
+IntervalVector Pave::get_border_position(int face){
+    IntervalVector position(2);
+    position[0] = this->box[face%2];
+    position[1] = this->box[(face+1)%2];
+    return position;
 }
 
 // ********************************************************************************
@@ -221,22 +228,28 @@ void Pave::process_backward(){
 
     bool test_cout = false;
     IntervalVector position(2);
-    position[0] = Interval(-8, -7);
-    position[1] = Interval(5, 6);
+
+    position[0] = Interval(-9.42, -9.4);
+    position[1] = Interval(-1.2, -1);
+
     if(!(position & this->box).is_empty()){
-        cout << "***********" <<endl << "TEST - face=" << border.face << endl;
+        //        this->scheduler->draw(1024, false);
+        cout << "***********" << endl << "TEST - face=" << border.face << endl;
         test_cout = true;
+        //this->scheduler->draw(1024, false);
     }
 
-    if(this->borders[border.face].plug_segment(border.segment)){
+    if(this->borders[border.face].plug_segment(border.segment, true)){
         Interval seg_out[4] = Interval::EMPTY_SET;
 
-        // Propagation of other faces
-        for(int face = (border.face + 1)%4; face != (border.face + 3)%4; face=(face+1)%4){
+        // Propagation of faces
+        for(int face = 0; face<4; face++){
             Border *border_propagation = &(this->borders[face]);
             for(int brother=0; brother < border_propagation->brothers.size(); brother++){
                 //Définition du segment
                 Interval seg_in = border_propagation->brothers[brother]->segment;
+//                Interval seg_in = this->borders[face].segment; // Converge plus lentement !!
+
                 vector<Interval> seg_out_brother;
                 for(int j=(face+1)%4; j!=((face+3)%4); j=(j+1)%4){
                     seg_out_brother.push_back(this->borders[j].segment);
@@ -246,47 +259,19 @@ void Pave::process_backward(){
 
                 // Ajout au seg_out
                 int k=0;
-                for(int j=(face+1)%4 ; j!=(face+3)%4; j=((j+1)%4)){
-                    if(j!=border.face){
-                        seg_out[j] |= seg_out_brother[k];
-                        k++;
-                    }
+                for(int j=(face+1)%4 ; j!=(face+4)%4; j=((j+1)%4)){
+                    seg_out[j] |= seg_out_brother[k];
+                    k++;
                 }
-            }
-        }
-
-        // Propagation of plug segment
-        Interval seg_in = border.segment;
-        vector<Interval> seg_out_brother;
-        for(int j=0; j<3; j++){
-            seg_out_brother.push_back(this->borders[border.face+j+1].segment);
-        }
-        this->scheduler->utils.CtcPropagateSegment(seg_in, seg_out_brother, border.face, this->theta, this->box);
-        for(int j=0; j<3; j++){
-            seg_out[(border.face+j+1)%4] |= seg_out_brother[j];
-        }
-
-        if(test_cout){
-            for(int i=0; i<4; i++){
-                cout << seg_out[i] << endl;
             }
         }
 
         // Publish results to neighbours + modify this pave borders
         for(int j=0; j<4; j++){
             if(j != border.face){
-                if(test_cout){
-                    cout << "FLOW_OUT"<< j << "=" << this->borders[j].flow_out[border.face] << endl;
-                }
-                if(this->borders[j].flow_out[border.face]){
-                    if(test_cout)
-                        cout << "TEST" << endl;
-                    if(this->borders[j].plug_segment(seg_out[j])){
-                        if(test_cout)
-                            cout << "-- publish to border=" << j << endl;
-                        this->borders[j].publish_to_borthers(seg_out[j], false);
-
-
+                if((this->borders[j].flow_out[border.face]==true) && (this->borders[j].flow_in == false)){
+                    if(this->borders[j].plug_segment(seg_out[j], false)){ // modify segment
+                        this->borders[j].publish_to_borthers(seg_out[j], false); // publish to neighbour
                     }
                 }
             }
@@ -339,7 +324,7 @@ void Pave::warn_scheduler(bool forward){
 
 void Pave::compute_successors(){
     for(int face=0; face<4; face++){
-        Border test_border(this->box[face%2], face);
+        Border test_border(this->get_border_position(face), face, this->box[face%2]);
         vector<Interval> output;
         for(int i=0; i<3; i++)
             output.push_back(Interval::ALL_REALS);

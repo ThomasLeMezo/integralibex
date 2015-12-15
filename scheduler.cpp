@@ -162,7 +162,7 @@ void Scheduler::process_graph(int iterations_max, int pave_max){
 // ********************************************************************************
 // ****************** Draw functions **********************************************
 
-void Scheduler::draw(int size){
+void Scheduler::draw(int size, bool filled){
 
     stringstream ss;
     ss << "integralIbex" << this->draw_nb;
@@ -170,7 +170,7 @@ void Scheduler::draw(int size){
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
     for(int i=0; i<this->pave_list.size(); i++){
-        this->pave_list[i]->draw(true);
+        this->pave_list[i]->draw(filled);
     }
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));

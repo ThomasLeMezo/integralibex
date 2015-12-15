@@ -38,7 +38,7 @@ int main()
 //    s.add_segment(0.0, 0.5);
 
     s.process(200000);
-    s.draw(500);
+    s.draw(500, true);
 
 //    s.print_pave_info(2.0,0.1, "r[]");
 //    s.print_pave_info(1.9,-0.1, "g[]");
@@ -57,7 +57,7 @@ int main()
     box[1] = Interval(-10.0, 10.0);
 
     s.process_graph(1000, 1000);
-    s.draw(500);
+    s.draw(500, true);
 
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 #endif
@@ -74,8 +74,8 @@ int main()
     s.set_initial_pave(box);
     s.SIVIA(M_PI/10.0, 5000);
     s.set_full_continuity();
-    s.process_backward(3000);
-    s.draw(500);
+    s.process_backward(100000);
+    s.draw(1024, true);
 
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 #else

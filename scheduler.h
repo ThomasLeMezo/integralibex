@@ -15,7 +15,7 @@ public:
     ~Scheduler(){}
 
     void add_to_queue(Pave* pave, bool forward);
-    void draw(int size);
+    void draw(int size, bool filled);
     void process(int max_iterations);
     void process_graph(int iterations_max, int pave_max);
     void process_backward(int max_iterations);
