@@ -14,8 +14,8 @@ void test(){
 //    test_CtcPropagateLeftSide();
 //    test_CtcPropagateRightSide();
 //    test_CtcPropagateFront();
-//    test_Propagate();
-    test_Backward();
+    test_Propagate();
+//    test_Backward();
 }
 
 int main()
@@ -62,7 +62,7 @@ int main()
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 #endif
 
-#if 1
+#if 0
     vibes::beginDrawing();
 
     Scheduler s;
