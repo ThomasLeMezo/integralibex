@@ -54,6 +54,8 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
     }
 
     visited_node = false;
+    is_full = false;
+    is_empty = true;
 }
 void Pave::set_theta(ibex::Interval theta){
     this->theta[0] = Interval::EMPTY_SET;
@@ -80,6 +82,9 @@ void Pave::activate_pave(){
 }
 
 void Pave::set_full_continuity(){
+    this->is_full = true;
+    this->is_empty = false;
+
     for(int face=0; face < 4; face++){
         this->borders[face].set_full();
 
@@ -141,6 +146,11 @@ void Pave::bisect(vector<Pave*> &result){
 
     Pave *pave1 = new Pave(result_boxes.first, this->scheduler); // Left or Up
     Pave *pave2 = new Pave(result_boxes.second, this->scheduler); // Right or Down
+
+    pave1->is_full = this->is_full;
+    pave1->is_empty = this->is_empty;
+    pave2->is_full = this->is_full;
+    pave2->is_empty = this->is_empty;
 
     int indice1, indice2;
 
@@ -233,13 +243,13 @@ void Pave::process_backward(){
     position[1] = Interval(4);
 
     if(!(position & this->box).is_empty()){
-        this->scheduler->draw(1024, false);
-        cout << "*****************" << endl;
-        cout << "face=" << border.face << " " << border.position << " " << border.segment << endl;
-        for(int i=0; i<4; i++){
-            cout << " " << i << " " << this->borders[i].segment << endl;
-        }
-        test_cout = true;
+        //this->scheduler->draw(1024, false);
+        //        cout << "*****************" << endl;
+        //        cout << "face=" << border.face << " " << border.position << " " << border.segment << endl;
+        //        for(int i=0; i<4; i++){
+        //            cout << " " << i << " " << this->borders[i].segment << endl;
+        //        }
+        //        test_cout = true;
     }
 
     if(this->borders[border.face].plug_segment(border.segment, border.position[border.face%2], true)){
@@ -251,7 +261,7 @@ void Pave::process_backward(){
             for(int brother=0; brother < border_propagation->brothers.size(); brother++){
                 //Définition du segment
                 Interval seg_in = border_propagation->brothers[brother]->segment & this->borders[face].segment;
-//                Interval seg_in = this->borders[face].segment; // Converge plus lentement !!
+                //                Interval seg_in = this->borders[face].segment; // Converge plus lentement !!
 
                 vector<Interval> seg_out_brother;
                 for(int j=(face+1)%4; j!=((face+3)%4); j=(j+1)%4){
@@ -275,14 +285,16 @@ void Pave::process_backward(){
         for(int j=0; j<4; j++){
             if(j != border.face){
                 if((this->borders[j].flow_out[border.face]==true)){
-                    if(this->borders[j].plug_segment(seg_out[j], this->borders[j].position[this->borders[j].face%2], !this->borders[j].flow_in)){ // modify segment or not
-                        this->borders[j].publish_to_borthers(seg_out[j], false); // publish to neighbour
+                    if(!this->borders[j].flow_in || (this->get_theta_diam() <= (Interval::ZERO | Interval::PI).diam())){
+                        if(this->borders[j].plug_segment(seg_out[j], this->borders[j].position[this->borders[j].face%2], !this->borders[j].flow_in)){ // modify segment or not
+                            this->borders[j].publish_to_borthers(seg_out[j], false); // publish to neighbour
 
-                        if(this->borders[j].flow_in){
-                            if(test_cout && j==0){
-                                cout << "TEST" << endl;
+                            if(this->borders[j].flow_in){
+                                if(test_cout && j==0){
+                                    cout << "TEST" << endl;
+                                }
+                                reprocess[j] = true;
                             }
-                            reprocess[j] = true;
                         }
                     }
                 }
@@ -309,6 +321,14 @@ void Pave::process_backward(){
             }
             cout << endl;
         }
+
+        bool test_empty = true;
+        for(int i=0; i<4; i++){
+            if(!this->borders[i].is_empty){
+                test_empty = false;
+            }
+        }
+        this->is_empty = test_empty;
     }
 }
 
@@ -439,5 +459,59 @@ void Pave::add_new_segment(Border &b, bool forward){
     }
     else{
         this->queue_backward.push_back(b);
+    }
+}
+
+double Pave::get_theta_diam(){
+    double diam = 0.0;
+    for(int i=0; i<2; i++){
+        if(!this->theta[i].is_empty())
+            diam += this->theta[i].diam();
+    }
+    return diam;
+}
+
+bool Pave::get_brother_empty(){
+    if(!this->is_empty)
+        return false;
+
+    for(int face=0; face<4; face++){
+        for(int i=0; i<this->borders[face].brothers.size(); i++){
+            if(!this->borders[face].brothers[i]->pave->is_empty){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool Pave::one_brother_not_full(){
+    if(!this->is_full)
+        return false;
+
+    for(int face=0; face<4; face++){
+        for(int i=0; i<this->borders[face].brothers.size(); i++){
+            if(!this->borders[face].brothers[i]->pave->is_full){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void Pave::remove_brothers(Pave* p, int face){
+        for(int i=0; i<this->borders[face].brothers.size(); i++){
+            if(this->borders[face].brothers[i]->pave == p){
+                this->borders[face].brothers.erase(this->borders[face].brothers.begin()+i);
+                return;
+            }
+    }
+}
+
+void Pave::remove_from_brothers(){
+    for(int face=0; face<4; face++){
+        for(int i=0; i<this->borders[face].brothers.size(); i++){
+            this->borders[face].brothers[i]->pave->remove_brothers(this, (face+2)%4);
+        }
     }
 }

@@ -25,6 +25,7 @@ public:
 
     void set_theta(ibex::Interval theta);
     ibex::IntervalVector get_border_position(int face);
+    double get_theta_diam();
 
     void draw(bool filled);
     void draw_borders(bool filled);
@@ -37,6 +38,11 @@ public:
     void clear_graph();
 
     bool test_cycle(Pave *p_test, int depth, int depth_max);
+
+    bool get_brother_empty();
+    void remove_from_brothers();
+    void remove_brothers(Pave* p, int face);
+    bool one_brother_not_full();
 
 /***************** Variables ******************/
 
@@ -55,6 +61,8 @@ public:
     std::vector<Pave*> successors;
 
     bool visited_node;
+    bool is_full;
+    bool is_empty;
 };
 
 #endif // PAVE_H

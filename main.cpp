@@ -14,8 +14,8 @@ void test(){
 //    test_CtcPropagateLeftSide();
 //    test_CtcPropagateRightSide();
 //    test_CtcPropagateFront();
-//    test_Propagate();
-    test_Backward();
+    test_Propagate();
+//    test_Backward();
 }
 
 int main()
@@ -31,7 +31,7 @@ int main()
     box[1] = Interval(-10.0, 10.0);
 
     s.set_initial_pave(box);
-    s.SIVIA(M_PI/10.0, 3000);
+    s.SIVIA(M_PI/10.0, 3000, false);
 
     s.add_segment(-1.28, 4.0);
 //    s.add_segment(1.78, -6.42);
@@ -62,6 +62,26 @@ int main()
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 #endif
 
+#if 0
+    vibes::beginDrawing();
+
+    Scheduler s;
+
+    IntervalVector box(2);
+    box[0] = Interval(-10.0, 10.0);
+    box[1] = Interval(-10.0, 10.0);
+
+    s.set_initial_pave(box);
+    s.SIVIA(M_PI/10.0, 5000, false);
+    s.set_full_continuity();
+    s.process_backward(100000);
+    s.draw(1024, true);
+
+    s.print_pave_info(-5,-5, "b[]");
+
+    cout << "Nb of paves = " << s.pave_list.size() << endl;
+#endif
+
 #if 1
     vibes::beginDrawing();
 
@@ -72,15 +92,12 @@ int main()
     box[1] = Interval(-10.0, 10.0);
 
     s.set_initial_pave(box);
-    s.SIVIA(M_PI/10.0, 4);
-    s.set_full_continuity();
-    s.process_backward(100000);
+
+    s.process_SIVIA_cycle(400, 5000, 100000);
     s.draw(1024, true);
+#endif
 
-    s.print_pave_info(-5,-5, "b[]");
-
-    cout << "Nb of paves = " << s.pave_list.size() << endl;
-#else
+#if 0
    test();
 #endif
     return 0;
