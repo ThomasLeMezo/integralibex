@@ -229,17 +229,20 @@ void Pave::process_backward(){
     bool test_cout = false;
     IntervalVector position(2);
 
-    position[0] = Interval(-9.42, -9.4);
-    position[1] = Interval(-1.2, -1);
+    position[0] = Interval(4);
+    position[1] = Interval(1.9);
 
     if(!(position & this->box).is_empty()){
-        //        this->scheduler->draw(1024, false);
-        cout << "***********" << endl << "TEST - face=" << border.face << endl;
-        test_cout = true;
-        //this->scheduler->draw(1024, false);
+//        //        this->scheduler->draw(1024, false);
+//        cout << "*****************" << endl;
+//        cout << "face=" << border.face << " " << border.position << " " << border.segment << endl;
+//        for(int i=0; i<4; i++){
+//            cout << " " << this->borders[i].segment << endl;
+//        }
+//        test_cout = true;
     }
 
-    if(this->borders[border.face].plug_segment(border.segment, true)){
+    if(this->borders[border.face].plug_segment(border.segment, border.position[border.face%2], true)){
         Interval seg_out[4] = Interval::EMPTY_SET;
 
         // Propagation of faces
@@ -247,7 +250,7 @@ void Pave::process_backward(){
             Border *border_propagation = &(this->borders[face]);
             for(int brother=0; brother < border_propagation->brothers.size(); brother++){
                 //Définition du segment
-                Interval seg_in = border_propagation->brothers[brother]->segment;
+                Interval seg_in = border_propagation->brothers[brother]->segment & this->borders[face].segment;
 //                Interval seg_in = this->borders[face].segment; // Converge plus lentement !!
 
                 vector<Interval> seg_out_brother;
@@ -267,13 +270,32 @@ void Pave::process_backward(){
         }
 
         // Publish results to neighbours + modify this pave borders
+        bool reprocess[4] = {false, false, false, false};
         for(int j=0; j<4; j++){
             if(j != border.face){
-                if((this->borders[j].flow_out[border.face]==true) && (this->borders[j].flow_in == false)){
-                    if(this->borders[j].plug_segment(seg_out[j], false)){ // modify segment
+                if((this->borders[j].flow_out[border.face]==true)){
+                    if(this->borders[j].plug_segment(seg_out[j], this->borders[j].position[this->borders[j].face%2], !this->borders[j].flow_in)){ // modify segment or not
                         this->borders[j].publish_to_borthers(seg_out[j], false); // publish to neighbour
+
+                        if(this->borders[j].flow_in){
+                            reprocess[j] = true;
+                        }
                     }
                 }
+            }
+        }
+
+        for(int j=0; j<4; j++){
+            if(reprocess[j]){
+                Border new_segment(this->borders[j].position, this->borders[j].face, seg_out[j]);
+                this->add_new_segment(new_segment, false);
+                this->warn_scheduler(false);
+            }
+        }
+
+        if(test_cout){
+            for(int i=0; i<4; i++){
+                cout << "->" << this->borders[i].segment << endl;
             }
         }
     }
