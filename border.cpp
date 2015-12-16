@@ -125,7 +125,7 @@ bool Border::plug_segment(ibex::Interval &input, ibex::Interval &position, bool 
         if(position.is_strict_subset(this->position[this->face%2])){ // New incoming segment smaller than this
             // Union of all brothers segment of the same face
             for(int i=0; i<this->brothers.size(); i++){
-                if((input & this->brothers[i]->segment).is_empty()){
+                if(this->brothers[i]->position[this->brothers[i]->face%2]!=position){
                     // Case input is not inside the brothers
                     seg_out |= this->brothers[i]->segment;
                 }

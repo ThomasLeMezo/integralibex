@@ -229,22 +229,22 @@ void Pave::process_backward(){
     bool test_cout = false;
     IntervalVector position(2);
 
-    position[0] = Interval(4);
-    position[1] = Interval(1.9);
+    position[0] = Interval(-4);
+    position[1] = Interval(4);
 
     if(!(position & this->box).is_empty()){
-//        //        this->scheduler->draw(1024, false);
-//        cout << "*****************" << endl;
-//        cout << "face=" << border.face << " " << border.position << " " << border.segment << endl;
-//        for(int i=0; i<4; i++){
-//            cout << " " << this->borders[i].segment << endl;
-//        }
-//        test_cout = true;
+        this->scheduler->draw(1024, false);
+        cout << "*****************" << endl;
+        cout << "face=" << border.face << " " << border.position << " " << border.segment << endl;
+        for(int i=0; i<4; i++){
+            cout << " " << i << " " << this->borders[i].segment << endl;
+        }
+        test_cout = true;
     }
 
     if(this->borders[border.face].plug_segment(border.segment, border.position[border.face%2], true)){
         Interval seg_out[4] = Interval::EMPTY_SET;
-
+        this->compute_flow();
         // Propagation of faces
         for(int face = 0; face<4; face++){
             Border *border_propagation = &(this->borders[face]);
@@ -255,7 +255,8 @@ void Pave::process_backward(){
 
                 vector<Interval> seg_out_brother;
                 for(int j=(face+1)%4; j!=((face+3)%4); j=(j+1)%4){
-                    seg_out_brother.push_back(this->borders[j].segment);
+                    //seg_out_brother.push_back(this->borders[j].segment);
+                    seg_out_brother.push_back(Interval::ALL_REALS);
                 }
                 // Propagation
                 this->scheduler->utils.CtcPropagateSegment(seg_in, seg_out_brother, face, this->theta, this->box);
@@ -278,6 +279,9 @@ void Pave::process_backward(){
                         this->borders[j].publish_to_borthers(seg_out[j], false); // publish to neighbour
 
                         if(this->borders[j].flow_in){
+                            if(test_cout && j==0){
+                                cout << "TEST" << endl;
+                            }
                             reprocess[j] = true;
                         }
                     }
@@ -295,8 +299,15 @@ void Pave::process_backward(){
 
         if(test_cout){
             for(int i=0; i<4; i++){
-                cout << "->" << this->borders[i].segment << endl;
+                cout << "-> " << i << " "<< this->borders[i].segment << endl;
             }
+            for(int i=0; i<4; i++){
+                cout << "seg_out[" << i << "]=" << seg_out[i] << endl;
+                for(int j=0; j<this->borders[i].brothers.size(); j++){
+                    cout << "==> border " << i << " brother " << j << " " << this->borders[i].brothers[j]->segment << endl;
+                }
+            }
+            cout << endl;
         }
     }
 }
@@ -313,11 +324,11 @@ void Pave::compute_flow(){
         }
         this->scheduler->utils.CtcPropagateSegment(seg_in, seg_out, face, this->theta, this->box);
 
-        if(!seg_out[0].is_empty() || !seg_out[1].is_empty() || !seg_out[2].is_empty()){
+        if(!seg_out[0].is_degenerated() || !seg_out[1].is_degenerated() || !seg_out[2].is_degenerated()){
             flow_in[face] = true;
         }
         for(int i = 0; i<3; i++){
-            if(!seg_out[i].is_empty()){
+            if(!seg_out[i].is_degenerated()){
                 flow_out[(face+i+1)%4] = true;
                 this->borders[(face+i+1)%4].flow_out[face] = true;
             }

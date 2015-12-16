@@ -108,8 +108,8 @@ void test_Propagate(){
     Pave p(box, &s);
 
 //    Border b(Interval(0.5, 1.0), 0);
-    Border b(p.get_border_position(1), 1, Interval(1.0, 2.0));
-    Border b2(p.get_border_position(2), 2, Interval(1.0, 1.25));
+    Border b(p.get_border_position(3), 3, Interval(1.0, 3.0));
+//    Border b2(p.get_border_position(2), 2, Interval(1.0, 1.25));
 //    Border b(Interval(1.0, 3.0), 3);
 
 //    p.add_new_segment(b2);
@@ -117,12 +117,13 @@ void test_Propagate(){
 //    p.set_theta( (-3.88*Interval::PI/8.0 | -Interval::HALF_PI));
 //    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0));
 //    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0) + Interval::HALF_PI);
-    p.set_theta( (Interval::PI/8.0 | 2*Interval::PI/8.0) - 2* Interval::PI/3.0);
+//    p.set_theta( (Interval::PI/8.0 | 2*Interval::PI/8.0) - 2* Interval::PI/3.0);
 //    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
+      p.set_theta( Interval::ZERO | 2*Interval::PI);
 
 
     p.process_forward();
-    p.process_forward();
+//    p.process_forward();
 
     vibes::beginDrawing();
     vibes::newFigure("test");
