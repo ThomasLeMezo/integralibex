@@ -27,7 +27,7 @@ public:
     ibex::IntervalVector get_border_position(int face);
     double get_theta_diam();
 
-    void draw(bool filled);
+    void draw(bool filled, string color="b[]");
     void draw_borders(bool filled);
 
     void compute_successors();

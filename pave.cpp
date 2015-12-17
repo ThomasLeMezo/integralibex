@@ -107,9 +107,9 @@ IntervalVector Pave::get_border_position(int face){
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Pave::draw(bool filled){
+void Pave::draw(bool filled, string color){
     // Draw the pave
-    vibes::drawBox(this->box, "b[]");
+    vibes::drawBox(this->box, color);
 
     this->draw_borders(filled);
 

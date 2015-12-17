@@ -166,7 +166,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int backwa
 
     int iterations = 1;
 
-    this->SIVIA(0.0, 1000, false); // Start with 4 boxes
+    this->SIVIA(0.0, 4, false); // Start with 4 boxes
     this->set_full_continuity();
     this->process_backward(backward_iterations_max);
 
@@ -186,6 +186,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int backwa
         for(int i=0; i<this->pave_list.size(); i++){
             if(this->pave_list[i]->get_brother_empty()){
                 this->pave_list[i]->remove_from_brothers();
+                this->empty_pave_list.push_back(this->pave_list[i]);
                 this->pave_list.erase(this->pave_list.begin() + i);
                 if(i!=0)
                     i--;
@@ -213,6 +214,10 @@ void Scheduler::draw(int size, bool filled){
     for(int i=0; i<this->pave_list.size(); i++){
         this->pave_list[i]->draw(filled);
     }
+
+//    for(int i=0; i<this->empty_pave_list.size(); i++){
+//        this->empty_pave_list[i]->draw(filled, "gray[]");
+//    }
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     this->draw_nb++;
