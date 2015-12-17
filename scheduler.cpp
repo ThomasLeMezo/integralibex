@@ -70,7 +70,7 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max, bool not_full_te
         if(!(tmp->theta[1].is_empty()))
             diam += tmp->theta[1].diam();
 
-        if(diam < epsilon_theta | (not_full_test && tmp->one_brother_not_full())){
+        if(diam < epsilon_theta || (not_full_test && tmp->is_full())){
             this->pave_list.push_back(tmp);
             iterations++;
         }
@@ -127,7 +127,7 @@ void Scheduler::process_graph(int iterations_max, int pave_max){
     int iterations_fix_pt = 0;
 
     while(this->pave_list.size()<pave_max & this->pave_list.size()!=0){
-        this->SIVIA(0.0, 2*this->pave_list.size(), false);
+        this->SIVIA(M_PI/20.0, 2*this->pave_list.size(), false);
         nb_graph_node_before = this->pave_list.size();
         nb_graph_node_after = 0;
 
@@ -211,13 +211,13 @@ void Scheduler::draw(int size, bool filled){
     vibes::newFigure(ss.str());
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
+    for(int i=0; i<this->empty_pave_list.size(); i++){
+        this->empty_pave_list[i]->draw(filled, "gray[]");
+    }
+
     for(int i=0; i<this->pave_list.size(); i++){
         this->pave_list[i]->draw(filled);
     }
-
-//    for(int i=0; i<this->empty_pave_list.size(); i++){
-//        this->empty_pave_list[i]->draw(filled, "gray[]");
-//    }
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     this->draw_nb++;

@@ -39,10 +39,15 @@ public:
 
     bool test_cycle(Pave *p_test, int depth, int depth_max);
 
-    bool get_brother_empty();
+    bool get_brother_empty(int level=0);
     void remove_from_brothers();
     void remove_brothers(Pave* p, int face);
-    bool one_brother_not_full();
+//    bool one_brother_not_full();
+
+    bool is_empty();
+    bool is_full();
+    void set_empty(bool val);
+    bool set_full(bool val);
 
 /***************** Variables ******************/
 
@@ -61,8 +66,11 @@ public:
     std::vector<Pave*> successors;
 
     bool visited_node;
-    bool is_full;
-    bool is_empty;
+
+
+private:
+    bool empty;
+    bool full;
 };
 
 #endif // PAVE_H

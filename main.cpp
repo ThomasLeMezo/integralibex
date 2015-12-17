@@ -93,7 +93,7 @@ int main()
 
     s.set_initial_pave(box);
 
-    s.process_SIVIA_cycle(7, 5000, 100000);
+    s.process_SIVIA_cycle(40, 5000, 100000);
     s.draw(1024, true);
 
 #endif

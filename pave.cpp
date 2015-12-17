@@ -54,8 +54,9 @@ Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
     }
 
     visited_node = false;
-    is_full = false;
-    is_empty = true;
+    set_full(false);
+    full = false;
+    empty = true;
 }
 void Pave::set_theta(ibex::Interval theta){
     this->theta[0] = Interval::EMPTY_SET;
@@ -82,8 +83,8 @@ void Pave::activate_pave(){
 }
 
 void Pave::set_full_continuity(){
-    this->is_full = true;
-    this->is_empty = false;
+    this->full = true;
+    this->empty = false;
 
     for(int face=0; face < 4; face++){
         this->borders[face].set_full();
@@ -147,10 +148,14 @@ void Pave::bisect(vector<Pave*> &result){
     Pave *pave1 = new Pave(result_boxes.first, this->scheduler); // Left or Up
     Pave *pave2 = new Pave(result_boxes.second, this->scheduler); // Right or Down
 
-    pave1->is_full = this->is_full;
-    pave1->is_empty = this->is_empty;
-    pave2->is_full = this->is_full;
-    pave2->is_empty = this->is_empty;
+    bool full = this->is_full();
+    bool empty = this->is_empty();
+
+    pave1->set_full(full);
+    pave1->set_empty(empty);
+
+    pave2->set_full(full);
+    pave2->set_empty(empty);
 
     int indice1, indice2;
 
@@ -321,14 +326,6 @@ void Pave::process_backward(){
             }
             cout << endl;
         }
-
-        bool test_empty = true;
-        for(int i=0; i<4; i++){
-            if(!this->borders[i].is_empty){
-                test_empty = false;
-            }
-        }
-        this->is_empty = test_empty;
     }
 }
 
@@ -462,6 +459,9 @@ void Pave::add_new_segment(Border &b, bool forward){
     }
 }
 
+// ********************************************************************************
+// ****************** UTILS functions *********************************************
+
 double Pave::get_theta_diam(){
     double diam = 0.0;
     for(int i=0; i<2; i++){
@@ -471,40 +471,49 @@ double Pave::get_theta_diam(){
     return diam;
 }
 
-bool Pave::get_brother_empty(){
-    if(!this->is_empty)
+bool Pave::get_brother_empty(int level){
+    // ToDo : improve function by adding visited_node option
+    if(!this->is_empty())
         return false;
 
     for(int face=0; face<4; face++){
         for(int i=0; i<this->borders[face].brothers.size(); i++){
-            if(!this->borders[face].brothers[i]->pave->is_empty){
-                return false;
+            if(level == 0){
+                if(!this->borders[face].brothers[i]->pave->is_empty()){
+                    return false;
+                }
+            }
+            else{
+                if(!this->borders[face].brothers[i]->pave->get_brother_empty(level-1)){
+                    return false;
+                }
             }
         }
     }
+
     return true;
 }
 
-bool Pave::one_brother_not_full(){
-    if(!this->is_full)
-        return false;
+//bool Pave::one_brother_not_full(){
+//    if(!this->is_full())
+//        return false;
 
-    for(int face=0; face<4; face++){
-        for(int i=0; i<this->borders[face].brothers.size(); i++){
-            if(!this->borders[face].brothers[i]->pave->is_full){
-                return false;
-            }
-        }
-    }
-    return true;
-}
+//    for(int face=0; face<4; face++){
+//        for(int i=0; i<this->borders[face].brothers.size(); i++){
+//            if(!this->borders[face].brothers[i]->pave->is_full()){
+//                return false;
+//            }
+//        }
+//    }
+//    return true;
+//}
 
 void Pave::remove_brothers(Pave* p, int face){
-        for(int i=0; i<this->borders[face].brothers.size(); i++){
-            if(this->borders[face].brothers[i]->pave == p){
-                this->borders[face].brothers.erase(this->borders[face].brothers.begin()+i);
-                return;
-            }
+    for(int i=0; i<this->borders[face].brothers.size(); i++){
+        if(this->borders[face].brothers[i]->pave == p){
+            this->borders[face].brothers.erase(this->borders[face].brothers.begin()+i);
+            return;
+        }
     }
 }
 
@@ -514,4 +523,42 @@ void Pave::remove_from_brothers(){
             this->borders[face].brothers[i]->pave->remove_brothers(this, (face+2)%4);
         }
     }
+}
+
+bool Pave::is_empty(){
+    if(this->empty)
+        return true;
+
+    for(int i=0; i<4; i++){
+        if(!this->borders[i].is_empty()){
+            this->empty = false; // Normaly useless
+            return false;
+        }
+    }
+
+    this->empty = true;
+    return true;
+}
+
+bool Pave::is_full(){
+    if(!this->full){
+        return false;
+    }
+    else{
+        for(int face=0; face<4; face++){
+            if(!this->borders[face].is_full()){
+                this->full = false;
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+void Pave::set_empty(bool val){
+    this->empty = val;
+}
+
+bool Pave::set_full(bool val){
+    this->full = val;
 }

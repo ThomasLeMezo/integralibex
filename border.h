@@ -14,15 +14,18 @@ public:
     ~Border(){}
 
     void draw() const;
+    void get_points(std::vector<double> &x, std::vector<double> &y);
+
     std::vector<ibex::Interval> add_segment(const ibex::Interval &seg);
     bool plug_segment(ibex::Interval &input, ibex::Interval &position, bool modify);
+
     void publish_to_borthers(ibex::Interval seg, bool forward);
     void add_brothers(std::vector<Border *> brother_list);
     void update_brothers(Border* border_pave1, Border* border_pave2);
-    void get_points(std::vector<double> &x, std::vector<double> &y);
 
     void set_full();
-    void test_is_empty();
+    bool is_empty();
+    bool is_full();
 
 // State Variable
 public:
@@ -37,7 +40,10 @@ public:
 
     bool flow_in;
     bool flow_out[4];
-    bool is_empty;
+
+private:
+    bool empty;
+    bool full;
 };
 
 #endif // BORDER_H
