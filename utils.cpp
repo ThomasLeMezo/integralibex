@@ -5,6 +5,14 @@ using namespace ibex;
 
 Utils::Utils()
 {
+    Variable x, y;
+    vector_field_function = new Function(x, y, Return(y, 1.0*(1-pow(x, 2))*y-x));
+    contract_newton = new CtcNewton(*vector_field_function, 10.0,10.0);
+}
+
+Utils::~Utils(){
+    delete vector_field_function;
+    delete contract_newton;
 }
 
 // ********************************************************************************

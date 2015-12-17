@@ -10,5 +10,7 @@ void test_Propagate();
 
 void test_Backward();
 
+void test_Newton();
+
 #endif // TESTS_H
 

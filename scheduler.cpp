@@ -184,7 +184,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int backwa
         // Remove empty pave
         //cout << "REMOVE" << endl;
         for(int i=0; i<this->pave_list.size(); i++){
-            if(this->pave_list[i]->get_brother_empty()){
+            if(this->pave_list[i]->get_brother_empty() || (this->pave_list[i]->netwon_test())){
                 this->pave_list[i]->remove_from_brothers();
                 this->empty_pave_list.push_back(this->pave_list[i]);
                 this->pave_list.erase(this->pave_list.begin() + i);

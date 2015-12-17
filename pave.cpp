@@ -494,19 +494,27 @@ bool Pave::get_brother_empty(int level){
     return true;
 }
 
-//bool Pave::one_brother_not_full(){
-//    if(!this->is_full())
-//        return false;
+bool Pave::all_brothers_full(int level){
+    if(!this->is_full())
+        return false;
 
-//    for(int face=0; face<4; face++){
-//        for(int i=0; i<this->borders[face].brothers.size(); i++){
-//            if(!this->borders[face].brothers[i]->pave->is_full()){
-//                return false;
-//            }
-//        }
-//    }
-//    return true;
-//}
+    for(int face=0; face<4; face++){
+        for(int i=0; i<this->borders[face].brothers.size(); i++){
+            if(level == 0){
+                if(!this->borders[face].brothers[i]->pave->is_full()){
+                    return false;
+                }
+            }
+            else{
+                if(!this->borders[face].brothers[i]->pave->all_brothers_full(level-1)){
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
 
 void Pave::remove_brothers(Pave* p, int face){
     for(int i=0; i<this->borders[face].brothers.size(); i++){
@@ -561,4 +569,24 @@ void Pave::set_empty(bool val){
 
 bool Pave::set_full(bool val){
     this->full = val;
+}
+
+bool Pave::netwon_test(){
+    if(this->all_brothers_full()){
+        IntervalVector box_tmp = this->box;
+        this->scheduler->utils.contract_newton->contract(box_tmp);
+        if(!box_tmp.is_empty())
+            this->scheduler->utils.contract_newton->contract(box_tmp);
+
+        if(!box_tmp.is_empty() && box_tmp[0].is_degenerated() && box_tmp[1].is_degenerated()){
+            cout << "-->" << this->box << "<>" << box_tmp << endl;
+
+            for(int face=0; face<4; face++){
+                this->borders[face].segment=Interval::EMPTY_SET;
+            }
+
+            return true;
+        }
+    }
+    return false;
 }

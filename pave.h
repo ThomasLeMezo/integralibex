@@ -39,15 +39,17 @@ public:
 
     bool test_cycle(Pave *p_test, int depth, int depth_max);
 
-    bool get_brother_empty(int level=0);
+    bool get_brother_empty(int level=1);
     void remove_from_brothers();
     void remove_brothers(Pave* p, int face);
-//    bool one_brother_not_full();
+    bool all_brothers_full(int level=1);
 
     bool is_empty();
     bool is_full();
     void set_empty(bool val);
     bool set_full(bool val);
+
+    bool netwon_test();
 
 /***************** Variables ******************/
 

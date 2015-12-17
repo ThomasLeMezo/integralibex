@@ -13,6 +13,7 @@ public:
     // ***********************************************************
 
     Utils();
+    ~Utils();
 
     std::vector<ibex::Interval> rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y);
     void rotate_segment_and_box(ibex::IntervalVector &Sk, const ibex::Interval &theta, ibex::IntervalVector &box, bool modifyBox);
@@ -32,6 +33,8 @@ public:
     void CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const ibex::Interval theta[], const ibex::IntervalVector &box_pave);
 
     ibex::CtcPolar contract_polar;
+    ibex::CtcNewton* contract_newton;
+    ibex::Function* vector_field_function;
 
     // ***********************************************************
     // ************************ Variables ************************

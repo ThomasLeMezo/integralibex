@@ -176,3 +176,47 @@ void test_Backward(){
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     vibes::axisAuto();
 }
+
+void test_Newton(){
+//    IntervalVector box(2);
+//    box[0] = Interval(-0.1, 0.1);
+//    box[1] = Interval(-0.1, 0.1);
+
+//    Variable x, y;
+//    //Function vector_field_function(x, y, Return(y, 1.0*(1-pow(x, 2))*y-x));
+//    Function f(x, y, Return(0.0 * x, 0.0 * y));
+//    CtcNewton contract_newton(vector_field_function);
+
+//    cout << box << endl;
+//    contract_newton.contract(box);
+//    cout << box << endl;
+    // x = y
+    // y = 1.0*(1-pow(x, 2))*y-x
+
+    Variable x,y;
+    Function f(x,y,Return(y, 1.0*(1-pow(x, 2))*y-x));
+    IntervalVector box(2);
+    box[0] = Interval(1.0, 3.0);
+    box[1] = Interval(0.0, 1.0);
+
+    // Build an interval Newton iteration
+    // for solving f(x)=0 where f is
+    // a vector-valued function representing
+    // the system.
+    CtcNewton newton(f, 100.0, 100.0);
+
+    /* Contract the box with Newton */
+    IntervalVector box_tmp(box);
+    newton.contract(box_tmp);
+    newton.contract(box_tmp);
+
+    if(!box_tmp.is_empty() && box_tmp[0].is_strict_subset(box[0]) && box_tmp[1].is_strict_subset(box[1])){
+        cout << "TEST OK"<< endl;
+    }
+    else{
+        cout << "TEST FAILED" << endl;
+    }
+    /* display a very small box enclosing (1,0) */
+    cout << box << endl;
+    cout << box_tmp << endl;
+}
