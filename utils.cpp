@@ -116,12 +116,14 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
 
     // Rotate and translate back with the initial box
     seg_out.clear();
+    vector<Interval> seg_out_tmp;
     for(int i=0; i<3; i++){
         this->rotate_segment_and_box(segment_contracted_out[i], -tab_rotation[face], box, false);
         this->translate_segment_and_box(segment_contracted_out[i], box_in, false, false);
         // Add segment to seg_out list
-        seg_out.push_back( (segment_contracted_out[i][0].diam() > segment_contracted_out[i][1].diam()) ? segment_contracted_out[i][0] : segment_contracted_out[i][1] );
+        seg_out_tmp.push_back( (seg_out[i] & ((segment_contracted_out[i][0].diam() > segment_contracted_out[i][1].diam()) ? segment_contracted_out[i][0] : segment_contracted_out[i][1])));
     }
+    seg_out = seg_out_tmp;
 }
 
 // ********************************************************************************

@@ -19,8 +19,9 @@ public:
     void process(int max_iterations);
     void process_graph(int iterations_max, int pave_max);
     void process_backward(int max_iterations);
+    void process_SIVIA_cycle(int iterations_max, int pave_max, int backward_iterations_max);
 
-    void SIVIA(double epsilon_theta, int iterations_max);
+    void SIVIA(double epsilon_theta, int iterations_max, bool not_full_test);
     void add_segment(int id_box);
     void add_segment(double x, double y);
     void set_initial_pave(const ibex::IntervalVector &box);
@@ -36,6 +37,7 @@ public:
 public:
     std::vector<Pave*> pave_list;
     std::vector<Pave*> pave_queue_forward,pave_queue_backward;
+    std::vector<Pave*> empty_pave_list;
 
     int draw_nb;
 };

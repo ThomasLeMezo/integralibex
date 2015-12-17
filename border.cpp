@@ -20,6 +20,7 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): posi
     for(int i=0; i<4; i++){
         this->flow_out[i] = false;
     }
+    this->is_empty = true;
 }
 
 Border::Border(const ibex::IntervalVector& position, const int face, const ibex::Interval &segment): position(2)
@@ -101,6 +102,7 @@ vector<ibex::Interval> Border::add_segment(const Interval &seg){
         list_segments.push_back(right);
 
     this->segment = new_segment;
+    test_is_empty();
     return list_segments;
 }
 
@@ -139,6 +141,7 @@ bool Border::plug_segment(ibex::Interval &input, ibex::Interval &position, bool 
             if(modify)
                 this->segment &= seg_out;
             input = (this->segment & seg_out);
+            test_is_empty();
             return true;
         }
     }
@@ -189,6 +192,19 @@ void Border::update_brothers(Border* border_pave1, Border* border_pave2){
     }
 }
 
+// ********************************************************************************
+// ****************** Other functions *********************************************
+
+void Border::test_is_empty(){
+    if(this->segment == Interval::EMPTY_SET){
+        this->is_empty = true;
+    }
+    if(this->segment != this->position[this->face%2]){
+        this->pave->is_full = false;
+    }
+}
+
 void Border::set_full(){
     this->segment = this->position[this->face%2];
+    this->is_empty = false;
 }

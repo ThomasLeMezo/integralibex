@@ -22,6 +22,7 @@ public:
     void get_points(std::vector<double> &x, std::vector<double> &y);
 
     void set_full();
+    void test_is_empty();
 
 // State Variable
 public:
@@ -36,6 +37,7 @@ public:
 
     bool flow_in;
     bool flow_out[4];
+    bool is_empty;
 };
 
 #endif // BORDER_H

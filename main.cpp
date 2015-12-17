@@ -31,7 +31,7 @@ int main()
     box[1] = Interval(-10.0, 10.0);
 
     s.set_initial_pave(box);
-    s.SIVIA(M_PI/10.0, 3000);
+    s.SIVIA(M_PI/10.0, 3000, false);
 
     s.add_segment(-1.28, 4.0);
 //    s.add_segment(1.78, -6.42);
@@ -72,7 +72,7 @@ int main()
     box[1] = Interval(-10.0, 10.0);
 
     s.set_initial_pave(box);
-    s.SIVIA(M_PI/10.0, 4);
+    s.SIVIA(M_PI/10.0, 5000, false);
     s.set_full_continuity();
     s.process_backward(100000);
     s.draw(1024, true);
@@ -80,7 +80,25 @@ int main()
     s.print_pave_info(-5,-5, "b[]");
 
     cout << "Nb of paves = " << s.pave_list.size() << endl;
-#else
+#endif
+
+#if 1
+    vibes::beginDrawing();
+
+    Scheduler s;
+
+    IntervalVector box(2);
+    box[0] = Interval(-10.0, 10.0);
+    box[1] = Interval(-10.0, 10.0);
+
+    s.set_initial_pave(box);
+
+    s.process_SIVIA_cycle(7, 5000, 100000);
+    s.draw(1024, true);
+
+#endif
+
+#if 0
    test();
 #endif
     return 0;
