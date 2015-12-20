@@ -36,6 +36,10 @@ public:
     ibex::CtcNewton* contract_newton;
     ibex::Function* vector_field_function;
 
+    vector<bool> CtcPaveForward(Pave *p);
+    vector<bool> CtcPaveBackward(Pave *p);
+    bool CtcContinuity(Pave *p);
+
     // ***********************************************************
     // ************************ Variables ************************
     // ***********************************************************

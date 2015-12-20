@@ -142,8 +142,8 @@ void test_Propagate(){
 
 void test_Backward(){
     IntervalVector box(2);
-    box[0] = Interval(0.5, 1.5);
-    box[1] = Interval(1.0, 3.0);
+    box[0] = Interval(0.0, 1.0);
+    box[1] = Interval(0.0, 1.0);
     Scheduler s;
     Pave p(box, &s);
 
@@ -151,7 +151,7 @@ void test_Backward(){
         p.borders[i].set_full();
     }
 
-    Border b(p.get_border_position(0), 0, Interval(0.5, 1.0));
+    Border b(p.get_border_position(2), 2, Interval(0.0, 0.7));
 //    Border b(Interval(1.0, 2.0), 1);
 //    Border b2(Interval(1.0, 1.25), 2);
 //    Border b(Interval(1.0, 3.0), 3);
@@ -165,7 +165,11 @@ void test_Backward(){
 //    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
 
     p.compute_flow();
-    p.process_backward();
+    int i=0;
+    while(p.process_backward()){
+        cout << i << endl;
+        i++;
+    }
 
     vibes::beginDrawing();
     vibes::newFigure("test");

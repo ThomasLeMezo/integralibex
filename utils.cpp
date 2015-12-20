@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "pave.h"
 
 using namespace std;
 using namespace ibex;
@@ -132,19 +133,24 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
         seg_out_tmp.push_back( (seg_out[i] & ((segment_contracted_out[i][0].diam() > segment_contracted_out[i][1].diam()) ? segment_contracted_out[i][0] : segment_contracted_out[i][1])));
     }
     seg_out = seg_out_tmp;
+
+    // **************************** INPUT ****************************
+    IntervalVector segment_contracted_in = IntervalVector(2);
+    segment_contracted_in[0] = Interval::EMPTY_SET;
+    segment_contracted_in[1] = Interval(box[1].lb());
+    for(int i=0; i<3; i++){
+        for(int j=0; j<2; j++){
+            segment_contracted_in[0] |= segment_norm_in[i][j];
+        }
+    }
+    // Rotate and translate back with the initial box
+    this->rotate_segment_and_box(segment_contracted_in, -tab_rotation[face], box, false);
+    this->translate_segment_and_box(segment_contracted_in, box_in, false, false);
+    seg_in &= ((segment_contracted_in[0].diam() > segment_contracted_in[1].diam()) ? segment_contracted_in[0] : segment_contracted_in[1]);
 }
 
 // ********************************************************************************
 // ****************** Transformation functions ************************************
-
-std::vector<ibex::Interval> Utils::rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y){
-    Interval xR = x*cos(theta) - y*sin(theta);
-    Interval yR = x*sin(theta) + y*cos(theta);
-    vector<Interval> list;
-    list.push_back(xR);
-    list.push_back(yR);
-    return list;
-}
 
 /**
  * @brief Utils::rotateSegment
@@ -209,7 +215,96 @@ ibex::IntervalVector Utils::segment2IntervalVector(const ibex::Interval &seg, co
     return intervalVectorSegment;
 }
 
+void Utils::CtcPaveBackward(Pave *p){
 
+    Interval segment_in[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
+    for(int face = 0; face < 4; face++){
+        if(p->borders[face].flow_in == true){
 
+            Interval seg_in = p->borders[face].segment;
+
+            vector<Interval> seg_out;
+            for(int j=(face+1)%4; j!=face; j=(j+1)%4){
+                seg_out.push_back(p->borders[j].segment);
+            }
+
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->theta, p->box);
+
+            segment_in[face] = seg_in;
+        }
+    }
+
+    vector<bool> tab_change;
+    tab_change.reserve(4);
+    for(int i=0; i<4; i++){
+        tab_change.push_back(false);
+    }
+
+    for(int face = 0; face<4; face++){
+        if(p->borders[face].flow_in==true){
+            if((p->borders[face].segment & segment_in[face]) != segment_in[face]){
+                tab_change[face] = true;
+            }
+            p->borders[face].segment &= segment_in[face];
+        }
+    }
+}
+
+vector<bool> Utils::CtcPaveForward(Pave *p){
+    Interval segment_out[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
+
+    for(int face = 0; face < 4; face++){
+        if(p->borders[face].flow_in == true){
+
+            Interval seg_in = p->borders[face].segment;
+
+            vector<Interval> seg_out;
+            for(int j=0; j<3; j++){
+                seg_out.push_back(Interval::ALL_REALS);
+            }
+
+            this->CtcPropagateSegment(seg_in, seg_out, face, this->theta, this->box);
+
+            int k=0;
+            for(int i=(face+1)%4; i!=face; i=(i+1)%4){
+                segment_out[i] |= seg_out[k];
+                k++;
+            }
+        }
+    }
+
+    vector<bool> tab_change;
+    tab_change.reserve(4);
+    for(int i=0; i<4; i++){
+        tab_change.push_back(false);
+    }
+
+    for(int face = 0; face<4; face++){
+        if(!p->borders[face].flow_in){
+            if(p->borders[face].segment != segment_out[face])
+                tab_change[face] = true;
+            p->borders[face].segment = segment_out[face];
+        }
+    }
+
+    return tab_change;
+}
+
+bool Utils::CtcContinuity(Pave *p){
+    bool change = false;
+
+    for(int face = 0; face < 4; face++){
+        Interval segment = Interval::EMPTY_SET;
+        for(int b = 0; b < p->borders[face].brothers.size(); b++){
+            segment |= p->borders[face].brothers[b].segment;
+        }
+
+        if(p->borders[face].segment != segment)
+            change = true;
+        p->borders[face].segment = segment;
+    }
+
+    return change;
+}
 

@@ -16,9 +16,9 @@ void test(){
 //    test_CtcPropagateLeftSide();
 //    test_CtcPropagateRightSide();
 //    test_CtcPropagateFront();
-//    test_Propagate();
+    test_Propagate();
 //    test_Backward();
-    test_Newton();
+//    test_Newton();
 }
 
 int main()
@@ -97,7 +97,7 @@ int main()
 
     s.set_initial_pave(box);
 
-    s.process_SIVIA_cycle(10, 1000, 100000);
+    s.process_SIVIA_cycle(40, 4000, 100000);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC;
 

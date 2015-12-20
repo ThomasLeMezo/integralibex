@@ -14,7 +14,6 @@ public:
     Scheduler();
     ~Scheduler(){}
 
-    void add_to_queue(Pave* pave, bool forward);
     void draw(int size, bool filled);
     void process(int max_iterations);
     void process_graph(int iterations_max, int pave_max);
@@ -32,12 +31,14 @@ public:
     void set_full_continuity();
     void set_empty_borders();
 
+    void warn_scheduler(Pave *p);
+
     Utils utils;
 
 public:
     std::vector<Pave*> pave_list;
-    std::vector<Pave*> pave_queue_forward,pave_queue_backward;
-    std::vector<Pave*> empty_pave_list;
+    std::vector<Pave*> pave_queue;
+    std::vector<Pave*> pave_list_empty;
 
     int draw_nb;
 };

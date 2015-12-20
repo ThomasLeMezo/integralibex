@@ -11,15 +11,17 @@ class Pave
 {
 /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &box, Scheduler *scheduler);
+    Pave(const ibex::IntervalVector &box, ibex::Function f);
     ~Pave(){}
 
-    void process_forward();
-    void process_backward();
+    bool copy_segment(Pave *p);
+    bool equal_segment(Pave *p);
+
+    void process_forward_old();
+    void process_backward_old();
+
     void bisect(vector<Pave *> &result);
 
-    void add_new_segment(Border &b, bool forward);
-    void warn_scheduler(bool forward);
     void activate_pave();
     void set_full_continuity();
 
@@ -27,17 +29,11 @@ public:
     ibex::IntervalVector get_border_position(int face);
     double get_theta_diam();
 
+    // Drawing functions
     void draw(bool filled, string color="b[]");
     void draw_borders(bool filled);
 
-    void compute_successors();
     void compute_flow();
-
-    void add_precursors(Pave* p);
-    void add_successors(Pave* p);
-    void clear_graph();
-
-    bool test_cycle(Pave *p_test, int depth, int depth_max);
 
     bool get_brother_empty(int level=1);
     void remove_from_brothers();
@@ -51,24 +47,15 @@ public:
 
     bool netwon_test();
 
+    vector<Pave*> get_brothers(int face);
+    std::vector<ibex::Interval> rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y);
+
 /***************** Variables ******************/
 
 public:
-    Scheduler *scheduler;
-
     ibex::Interval theta[2];
-    ibex::Interval speed;
-
     ibex::IntervalVector box;
-
-    std::vector<Border> queue_forward, queue_backward;
     std::vector<Border> borders;
-
-    std::vector<Pave*> precursors;
-    std::vector<Pave*> successors;
-
-    bool visited_node;
-
 
 private:
     bool empty;

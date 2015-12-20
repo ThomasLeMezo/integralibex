@@ -44,13 +44,8 @@ void Scheduler::set_full_continuity(){
 // ********************************************************************************
 // ****************** Propagation functions ***************************************
 
-void Scheduler::add_to_queue(Pave* pave, bool forward){
-    if(forward){
-        this->pave_queue_forward.push_back(pave);
-    }
-    else{
-        this->pave_queue_backward.push_back(pave);
-    }
+void Scheduler::warn_scheduler(Pave *p){
+    this->pave_queue.push_back(p);
 }
 
 void Scheduler::SIVIA(double epsilon_theta, int iterations_max, bool not_full_test){
@@ -83,7 +78,7 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max, bool not_full_te
         this->pave_list.push_back(tmp_pave_list[i]);
     }
 }
-void Scheduler::process(int max_iterations){
+void Scheduler::process_old(int max_iterations){
     int iterations=0;
     while(this->pave_queue_forward.size() != 0 & iterations < max_iterations){
         iterations++;
@@ -99,6 +94,34 @@ void Scheduler::process(int max_iterations){
     //    cout << "queue size = " << this->pave_queue_forward.size() << endl;
 }
 
+void Scheduler::process(int max_iterations){
+    int iterations = 0;
+    while(this->pave_queue_forward.size() != 0 & iterations < max_iterations){
+        iterations++;
+        Pave *pave = this->pave_queue.front();
+        this->pave_queue.erase(this->pave_queue.begin());
+
+        bool change = this->utils.CtcContinuity(pave);
+        if(change){
+            vector<bool> changeForward = this->utils.CtcPaveForward(pave);
+            vector<bool> changeBackward = this->utils.CtcPaveForward(pave);
+
+            for(int face=0; face<4; face++){
+                if(changeForward[face] || changeBackward[face]){
+                    vector<Pave*> brothers_pave = pave->get_brothers(face);
+                    for(int i=0; i<brothers_pave.size(); i++){
+                        this->pave_queue.push_back(brothers_pave[i]);
+                    }
+                }
+            }
+        }
+
+        if(iterations%100 == 0){
+            cout << iterations << endl;
+        }
+    }
+}
+
 void Scheduler::process_backward(int max_iterations){
     for(int i=0; i<this->pave_list.size(); i++){
         this->pave_list[i]->compute_flow();
@@ -107,6 +130,7 @@ void Scheduler::process_backward(int max_iterations){
     int iterations=0;
     while(this->pave_queue_backward.size() != 0 & iterations < max_iterations){
         // ToDo : Backward/forward combination !!
+        cout << "***** iteration " << iterations << " *****" << endl;
         iterations++;
         Pave *pave = this->pave_queue_backward.front();
         this->pave_queue_backward.erase(this->pave_queue_backward.begin());
