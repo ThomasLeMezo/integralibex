@@ -41,12 +41,12 @@ void Scheduler::set_full_continuity(){
     }
 }
 
-// ********************************************************************************
-// ****************** Propagation functions ***************************************
-
 void Scheduler::warn_scheduler(Pave *p){
     this->pave_queue.push_back(p);
 }
+
+// ********************************************************************************
+// ****************** Propagation functions ***************************************
 
 void Scheduler::SIVIA(double epsilon_theta, int iterations_max, bool not_full_test){
 
@@ -78,21 +78,6 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max, bool not_full_te
         this->pave_list.push_back(tmp_pave_list[i]);
     }
 }
-void Scheduler::process_old(int max_iterations){
-    int iterations=0;
-    while(this->pave_queue_forward.size() != 0 & iterations < max_iterations){
-        iterations++;
-        Pave *pave = this->pave_queue_forward.front();
-        this->pave_queue_forward.erase(this->pave_queue_forward.begin());
-
-        pave->process_forward();
-
-        if(iterations%100 == 0){
-            cout << iterations << endl;
-        }
-    }
-    //    cout << "queue size = " << this->pave_queue_forward.size() << endl;
-}
 
 void Scheduler::process(int max_iterations){
     int iterations = 0;
@@ -122,68 +107,7 @@ void Scheduler::process(int max_iterations){
     }
 }
 
-void Scheduler::process_backward(int max_iterations){
-    for(int i=0; i<this->pave_list.size(); i++){
-        this->pave_list[i]->compute_flow();
-    }
-
-    int iterations=0;
-    while(this->pave_queue_backward.size() != 0 & iterations < max_iterations){
-        // ToDo : Backward/forward combination !!
-        cout << "***** iteration " << iterations << " *****" << endl;
-        iterations++;
-        Pave *pave = this->pave_queue_backward.front();
-        this->pave_queue_backward.erase(this->pave_queue_backward.begin());
-
-        pave->process_backward();
-
-        if(iterations%100 == 0){
-            cout << iterations << endl;
-        }
-    }
-}
-
-void Scheduler::process_graph(int iterations_max, int pave_max){
-
-    vector<Pave*> pave_list_tmp;
-    int nb_graph_node_before = this->pave_list.size();
-    int nb_graph_node_after = 0;
-    int iterations_fix_pt = 0;
-
-    while(this->pave_list.size()<pave_max & this->pave_list.size()!=0){
-        this->SIVIA(M_PI/20.0, 2*this->pave_list.size(), false);
-        nb_graph_node_before = this->pave_list.size();
-        nb_graph_node_after = 0;
-
-        while(nb_graph_node_before != nb_graph_node_after & iterations_fix_pt < iterations_max){
-            nb_graph_node_before = this->pave_list.size();
-            nb_graph_node_after = 0;
-            for(int i=0; i<this->pave_list.size(); i++){
-                this->pave_list[i]->compute_successors();
-            }
-
-            for(int i=0; i<this->pave_list.size(); i++){
-                for(int j=0; j<this->pave_list.size(); j++)
-                    this->pave_list[j]->visited_node = false;
-
-                if(this->pave_list[i]->test_cycle(this->pave_list[i], 0, this->pave_list.size())){
-                    pave_list_tmp.push_back(this->pave_list[i]);
-                    nb_graph_node_after++;
-                }
-            }
-
-            this->pave_list = pave_list_tmp;
-            pave_list_tmp.clear();
-            for(int i=0; i<this->pave_list.size(); i++){
-                this->pave_list[i]->clear_graph();
-            }
-            iterations_fix_pt ++;
-        }
-        cout << "iterations = " << iterations_fix_pt << " Nb pave = " << this->pave_list.size() << endl;
-    }
-}
-
-void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int backward_iterations_max){
+void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int process_iterations_max){
 
     if(this->pave_list.size()!=1)
         return;
@@ -203,7 +127,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int backwa
 
         // Process the backward with the subpaving
         //cout << "PROCESS" << endl;
-        this->process_backward(backward_iterations_max);
+        this->process(process_iterations_max);
 
         // Remove empty pave
         //cout << "REMOVE" << endl;

@@ -18,7 +18,7 @@ public:
     void process(int max_iterations);
     void process_graph(int iterations_max, int pave_max);
     void process_backward(int max_iterations);
-    void process_SIVIA_cycle(int iterations_max, int pave_max, int backward_iterations_max);
+    void process_SIVIA_cycle(int iterations_max, int pave_max, int process_iterations_max);
 
     void SIVIA(double epsilon_theta, int iterations_max, bool not_full_test);
     void add_segment(int id_box);
