@@ -5,32 +5,37 @@
 #include <pave.h>
 
 class Pave;
-class Scheduler;
 class Border
 {
+/***************** Functions ******************/
 public:
     Border(const ibex::IntervalVector& position, const int face, Pave *pave);
     Border(const ibex::IntervalVector& position, const int face, const ibex::Interval &segment);
     ~Border(){}
 
+    // ******** Drawing functions ********
     void draw() const;
-    void get_points(std::vector<double> &x, std::vector<double> &y);
 
-    std::vector<ibex::Interval> add_segment(const ibex::Interval &seg);
-    bool plug_segment(ibex::Interval &input, ibex::Interval &position, bool modify);
-
-    void publish_to_borthers(ibex::Interval seg, bool forward);
+    // ******** Graph building ********
     void add_brothers(std::vector<Border *> brother_list);
     void update_brothers(Border* border_pave1, Border* border_pave2);
 
+    // ******** Border Properties ********
+    // Setters
     void set_full();
+    bool set_full_continuity();
+
+    // Getters
+    void get_points(std::vector<double> &x, std::vector<double> &y);
+
+    // Tests
     bool is_empty();
     bool is_full();
 
-// State Variable
+/***************** Variables ******************/
 public:
-    ibex::Interval segment;   // List of impacted interval of the segment
-    // We suppose that there is only ONE segment and not a list (otherwise, SIVIA requiered)
+    ibex::Interval segment;
+    ibex::Interval segment_full;
 
     int face;                               // Number of the face (0=bottom, 1=right, ...)
     std::vector<Border*> brothers;          // Pointer to brothers Borders

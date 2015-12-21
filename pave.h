@@ -3,59 +3,59 @@
 
 #include <ibex.h>
 #include <border.h>
-#include <scheduler.h>
 
 class Border;
-class Scheduler;
 class Pave
 {
+
 /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &box, ibex::Function f);
+    Pave(const ibex::IntervalVector &box, ibex::Function *f);
     ~Pave(){}
 
     bool copy_segment(Pave *p);
     bool equal_segment(Pave *p);
 
-    void process_forward_old();
-    void process_backward_old();
-
-    void bisect(vector<Pave *> &result);
-
-    void activate_pave();
-    void set_full_continuity();
-
-    void set_theta(ibex::Interval theta);
-    ibex::IntervalVector get_border_position(int face);
-    double get_theta_diam();
-
-    // Drawing functions
+    // ******** Drawing functions ********
     void draw(bool filled, string color="b[]");
     void draw_borders(bool filled);
 
-    void compute_flow();
-
-    bool get_brother_empty(int level=1);
+    // ******** Graph building ********
+    void bisect(vector<Pave *> &result);
     void remove_from_brothers();
     void remove_brothers(Pave* p, int face);
-    bool all_brothers_full(int level=1);
 
+    // ******** Pave Properties ********
+    // Tests
     bool is_empty();
     bool is_full();
+    bool is_one_brother_empty(int level=1);
+    bool is_all_brothers_full(int level=1);
+
+    // Setter
     void set_empty(bool val);
     bool set_full(bool val);
+    void set_full();
+    bool set_full_continuity();
+    void set_theta(ibex::Interval theta);
+    void set_same_properties(Pave *p);
 
-    bool netwon_test();
-
+    // Getters
+    ibex::IntervalVector get_border_position(int face);
+    double get_theta_diam();
     vector<Pave*> get_brothers(int face);
+
+    // ******** Utils functions ********
     std::vector<ibex::Interval> rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y);
 
-/***************** Variables ******************/
 
+/***************** Variables ******************/
 public:
     ibex::Interval theta[2];
     ibex::IntervalVector box;
     std::vector<Border> borders;
+
+    ibex::Function *f;
 
 private:
     bool empty;

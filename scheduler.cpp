@@ -12,8 +12,8 @@ Scheduler::Scheduler(){
 // ********************************************************************************
 // ****************** Setup Init functions ****************************************
 
-void Scheduler::set_initial_pave(const IntervalVector &box){
-    Pave *p = new Pave(box, this);
+void Scheduler::set_initial_pave(const IntervalVector &box, ibex::Function *f){
+    Pave *p = new Pave(box, f);
     this->pave_list.push_back(p);
 }
 
@@ -28,21 +28,13 @@ Pave* Scheduler::get_pave(double x, double y){
         }
     }
 }
-void Scheduler::add_segment(int id_box){
-    this->pave_list[id_box]->activate_pave();
-}
-void Scheduler::add_segment(double x, double y){
-    this->get_pave(x, y)->activate_pave();
-}
 
 void Scheduler::set_full_continuity(){
     for(int i=0; i<this->pave_list.size(); i++){
-        this->pave_list[i]->set_full_continuity();
+        if(!this->pave_list[i]->set_full_continuity()){
+            this->pave_queue.push_back(pave_list[i]);
+        }
     }
-}
-
-void Scheduler::warn_scheduler(Pave *p){
-    this->pave_queue.push_back(p);
 }
 
 // ********************************************************************************
@@ -81,16 +73,19 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max, bool not_full_te
 
 void Scheduler::process(int max_iterations){
     int iterations = 0;
-    while(this->pave_queue_forward.size() != 0 & iterations < max_iterations){
+    while(this->pave_queue.size() != 0 & iterations < max_iterations){
         iterations++;
         Pave *pave = this->pave_queue.front();
         this->pave_queue.erase(this->pave_queue.begin());
 
         bool change = this->utils.CtcContinuity(pave);
         if(change){
-            vector<bool> changeForward = this->utils.CtcPaveForward(pave);
-            vector<bool> changeBackward = this->utils.CtcPaveForward(pave);
+            this->utils.CtcPaveFlow(pave);
 
+            vector<bool> changeForward = this->utils.CtcPaveForward(pave);
+            vector<bool> changeBackward = this->utils.CtcPaveBackward(pave);
+
+            // Warn scheduler to process new pave
             for(int face=0; face<4; face++){
                 if(changeForward[face] || changeBackward[face]){
                     vector<Pave*> brothers_pave = pave->get_brothers(face);
@@ -116,25 +111,21 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
 
     this->SIVIA(0.0, 4, false); // Start with 4 boxes
     this->set_full_continuity();
-    this->process_backward(backward_iterations_max);
+    this->process(process_iterations_max);
 
     while(this->pave_list.size()<pave_max && this->pave_list.size()!=0 && iterations < iterations_max){
-        //cout << "SIVIA" << endl;
         this->SIVIA(0.0, 2*this->pave_list.size(), true);
         // Set full continuity
-        //cout << "CONTINUITY" << endl;
         this->set_full_continuity();
 
         // Process the backward with the subpaving
-        //cout << "PROCESS" << endl;
         this->process(process_iterations_max);
 
         // Remove empty pave
-        //cout << "REMOVE" << endl;
         for(int i=0; i<this->pave_list.size(); i++){
-            if(this->pave_list[i]->get_brother_empty() || (this->pave_list[i]->netwon_test())){
+            if(this->pave_list[i]->is_one_brother_empty() || (this->utils.CtcNetwonPave(this->pave_list[i]))){
                 this->pave_list[i]->remove_from_brothers();
-                this->empty_pave_list.push_back(this->pave_list[i]);
+                this->pave_list_empty.push_back(this->pave_list[i]);
                 this->pave_list.erase(this->pave_list.begin() + i);
                 if(i!=0)
                     i--;
@@ -159,8 +150,8 @@ void Scheduler::draw(int size, bool filled){
     vibes::newFigure(ss.str());
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
-    for(int i=0; i<this->empty_pave_list.size(); i++){
-        this->empty_pave_list[i]->draw(filled, "gray[]");
+    for(int i=0; i<this->pave_list_empty.size(); i++){
+        this->pave_list_empty[i]->draw(filled, "gray[]");
     }
 
     for(int i=0; i<this->pave_list.size(); i++){

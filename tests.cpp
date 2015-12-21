@@ -1,6 +1,6 @@
 #include <utils.h>
 
-#include <pave.h>
+#include <scheduler.h>
 #include <vibes.h>
 
 using namespace ibex;
@@ -101,84 +101,84 @@ void test_CtcPropagateFront(){
 }
 
 void test_Propagate(){
-    IntervalVector box(2);
+//    IntervalVector box(2);
 
-    box[0] = Interval(-10,0);
-    box[1] = Interval(0,10);
+//    box[0] = Interval(-10,0);
+//    box[1] = Interval(0,10);
 
-    Scheduler s;
-    Pave p(box, &s);
+//    Scheduler s;
+//    Pave p(box, &s);
 
-//    Border b(Interval(0.5, 1.0), 0);
-    Border b(p.get_border_position(1), 1, Interval(0,10));
-    Border b2(p.get_border_position(0), 0, Interval(-10,0));
-//    Border b2(p.get_border_position(2), 2, Interval(1.0, 1.25));
+////    Border b(Interval(0.5, 1.0), 0);
+//    Border b(p.get_border_position(1), 1, Interval(0,10));
+//    Border b2(p.get_border_position(0), 0, Interval(-10,0));
+////    Border b2(p.get_border_position(2), 2, Interval(1.0, 1.25));
 
-//    Border b(Interval(1.0, 3.0), 3);
+////    Border b(Interval(1.0, 3.0), 3);
 
-    p.add_new_segment(b, true);
-    p.add_new_segment(b2, true);
+//    p.add_new_segment(b, true);
+//    p.add_new_segment(b2, true);
 
-//    p.set_theta( (-3.88*Interval::PI/8.0 | -Interval::HALF_PI));
-//    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0));
-//    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0) + Interval::HALF_PI);
-//    p.set_theta( (Interval::PI/8.0 | 2*Interval::PI/8.0) - 2* Interval::PI/3.0);
-//    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
+////    p.set_theta( (-3.88*Interval::PI/8.0 | -Interval::HALF_PI));
+////    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0));
+////    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0) + Interval::HALF_PI);
+////    p.set_theta( (Interval::PI/8.0 | 2*Interval::PI/8.0) - 2* Interval::PI/3.0);
+////    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
 
-    p.set_theta( -Interval::HALF_PI | Interval::HALF_PI);
+//    p.set_theta( -Interval::HALF_PI | Interval::HALF_PI);
 
-    p.process_forward();
 //    p.process_forward();
+////    p.process_forward();
 
-    vibes::beginDrawing();
-    vibes::newFigure("test");
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
+//    vibes::beginDrawing();
+//    vibes::newFigure("test");
+//    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
 
-    p.draw(false);
+//    p.draw(false);
 
-    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-    vibes::axisAuto();
+//    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+//    vibes::axisAuto();
 }
 
 void test_Backward(){
-    IntervalVector box(2);
-    box[0] = Interval(0.0, 1.0);
-    box[1] = Interval(0.0, 1.0);
-    Scheduler s;
-    Pave p(box, &s);
+//    IntervalVector box(2);
+//    box[0] = Interval(0.0, 1.0);
+//    box[1] = Interval(0.0, 1.0);
+//    Scheduler s;
+//    Pave p(box, &s);
 
-    for(int i=0;i<4; i++){
-        p.borders[i].set_full();
-    }
+//    for(int i=0;i<4; i++){
+//        p.borders[i].set_full();
+//    }
 
-    Border b(p.get_border_position(2), 2, Interval(0.0, 0.7));
-//    Border b(Interval(1.0, 2.0), 1);
-//    Border b2(Interval(1.0, 1.25), 2);
-//    Border b(Interval(1.0, 3.0), 3);
+//    Border b(p.get_border_position(2), 2, Interval(0.0, 0.7));
+////    Border b(Interval(1.0, 2.0), 1);
+////    Border b2(Interval(1.0, 1.25), 2);
+////    Border b(Interval(1.0, 3.0), 3);
 
-//    p.add_new_segment(b2);
-    p.add_new_segment(b, false);
-//    p.set_theta( (-3.88*Interval::PI/8.0 | -Interval::HALF_PI));
-//    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0));
-//    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0) + Interval::HALF_PI);
-    p.set_theta( (-Interval::HALF_PI/8.0 | Interval::HALF_PI/8.0) - 0*Interval::PI/2);
-//    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
+////    p.add_new_segment(b2);
+//    p.add_new_segment(b, false);
+////    p.set_theta( (-3.88*Interval::PI/8.0 | -Interval::HALF_PI));
+////    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0));
+////    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0) + Interval::HALF_PI);
+//    p.set_theta( (-Interval::HALF_PI/8.0 | Interval::HALF_PI/8.0) - 0*Interval::PI/2);
+////    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
 
-    p.compute_flow();
-    int i=0;
-    while(p.process_backward()){
-        cout << i << endl;
-        i++;
-    }
+//    p.compute_flow();
+//    int i=0;
+//    while(p.process_backward()){
+//        cout << i << endl;
+//        i++;
+//    }
 
-    vibes::beginDrawing();
-    vibes::newFigure("test");
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
+//    vibes::beginDrawing();
+//    vibes::newFigure("test");
+//    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
 
-    p.draw(false);
+//    p.draw(false);
 
-    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-    vibes::axisAuto();
+//    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+//    vibes::axisAuto();
 }
 
 void test_Newton(){

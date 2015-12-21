@@ -1,10 +1,12 @@
-#include <iostream>
 #include <ibex.h>
-#include <pave.h>
 #include <vibes.h>
+
+#include <pave.h>
+#include <scheduler.h>
 
 #include <tests.h>
 
+#include <iostream>
 #include <ctime>
 
 using namespace std;
@@ -95,7 +97,8 @@ int main()
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
 
-    s.set_initial_pave(box);
+    ibex::Function f;
+    s.set_initial_pave(box, &f);
 
     s.process_SIVIA_cycle(40, 4000, 100000);
 

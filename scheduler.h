@@ -3,44 +3,41 @@
 
 #include "pave.h"
 #include "ibex.h"
-#include "border.h"
 #include "utils.h"
 
 class Pave;
 class Border;
 class Scheduler
 {
+/***************** Functions ******************/
 public:
     Scheduler();
     ~Scheduler(){}
 
-    void draw(int size, bool filled);
     void process(int max_iterations);
-    void process_graph(int iterations_max, int pave_max);
-    void process_backward(int max_iterations);
+    void SIVIA(double epsilon_theta, int iterations_max, bool not_full_test);
     void process_SIVIA_cycle(int iterations_max, int pave_max, int process_iterations_max);
 
-    void SIVIA(double epsilon_theta, int iterations_max, bool not_full_test);
-    void add_segment(int id_box);
-    void add_segment(double x, double y);
-    void set_initial_pave(const ibex::IntervalVector &box);
-
+    void set_full_continuity();
+    void set_initial_pave(const ibex::IntervalVector &box, ibex::Function *f);
     Pave* get_pave(double x, double y);
+
+    // ******** Drawing functions ********
+    void draw(int size, bool filled);
+
+    // ******** Utils functions ********
     void print_pave_info(double x, double y, string color);
 
-    void set_full_continuity();
-    void set_empty_borders();
 
-    void warn_scheduler(Pave *p);
 
-    Utils utils;
-
+/***************** Variables ******************/
 public:
     std::vector<Pave*> pave_list;
-    std::vector<Pave*> pave_queue;
     std::vector<Pave*> pave_list_empty;
+    std::vector<Pave*> pave_queue;
 
     int draw_nb;
+    Utils utils;
 };
 
 #endif // SCHEDULER_H

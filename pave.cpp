@@ -3,19 +3,15 @@
 #include "border.h"
 
 #include "iostream"
-#include "stdlib.h"
-#include "stdio.h"
-#include <ctime>
-
-#include "utils.h"
 
 using namespace std;
 using namespace ibex;
 
-Pave::Pave(const IntervalVector &box, ibex::Function f): box(2)
+Pave::Pave(const IntervalVector &box, ibex::Function *f): box(2)
 {
     this->box = box;    // Box corresponding to the Pave
     this->borders.reserve(4);
+    this->f = f;
 
     // Border building
     IntervalVector coordinate(2);
@@ -49,6 +45,7 @@ Pave::Pave(const IntervalVector &box, ibex::Function f): box(2)
     full = false;
     empty = true;
 }
+
 void Pave::set_theta(ibex::Interval theta){
     this->theta[0] = Interval::EMPTY_SET;
     this->theta[1] = Interval::EMPTY_SET;
@@ -65,26 +62,24 @@ void Pave::set_theta(ibex::Interval theta){
             this->theta[1] = (theta - 2*Interval::PI);
     }
 }
-void Pave::activate_pave(){
+
+void Pave::set_full(){
     for(int face=0; face<4; face++){
         this->borders[face].set_full();
     }
+    this->full = true;
 }
 
-void Pave::set_full_continuity(){
-    this->full = true;
-    this->empty = false;
-
+bool Pave::set_full_continuity(){
+    bool full = true;
     for(int face=0; face < 4; face++){
-        this->borders[face].set_full();
-
-        if(this->borders[face].brothers.size()==0){
-            this->borders[face].set_full();
-            Border b(this->borders[face].position, face, Interval::EMPTY_SET);
-            this->add_new_segment(b, false);
-            this->warn_scheduler(false);
+        if(!this->borders[face].set_full_continuity()){
+            full = false;
         }
     }
+
+    this->full = full;
+    return full;
 }
 
 IntervalVector Pave::get_border_position(int face){
@@ -134,17 +129,11 @@ void Pave::bisect(vector<Pave*> &result){
     ibex::LargestFirst bisector(0.0, 0.5);
     std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(this->box);
 
-    Pave *pave1 = new Pave(result_boxes.first, this->scheduler); // Left or Up
-    Pave *pave2 = new Pave(result_boxes.second, this->scheduler); // Right or Down
+    Pave *pave1 = new Pave(result_boxes.first, this->f); // Left or Up
+    Pave *pave2 = new Pave(result_boxes.second, this->f); // Right or Down
 
-    bool full = this->is_full();
-    bool empty = this->is_empty();
-
-    pave1->set_full(full);
-    pave1->set_empty(empty);
-
-    pave2->set_full(full);
-    pave2->set_empty(empty);
+    pave1->set_same_properties(this);
+    pave2->set_same_properties(this);
 
     int indice1, indice2;
 
@@ -185,40 +174,6 @@ void Pave::bisect(vector<Pave*> &result){
 }
 
 // ********************************************************************************
-// ****************** Segment Propagation *****************************************
-
-void Pave::compute_flow(){
-    bool flow_in[4] = {false, false, false, false};
-    bool flow_out[4] = {false, false, false, false};
-
-    for(int face = 0; face < 4; face++){
-        Interval seg_in = this->borders[face].position[face%2];
-        vector<Interval> seg_out;
-        for(int i=0; i<3; i++){
-            seg_out.push_back(this->borders[(face+i+1)%4].segment);
-        }
-        this->scheduler->utils.CtcPropagateSegment(seg_in, seg_out, face, this->theta, this->box);
-
-        if(!seg_out[0].is_degenerated() || !seg_out[1].is_degenerated() || !seg_out[2].is_degenerated()){
-            flow_in[face] = true;
-        }
-        for(int i = 0; i<3; i++){
-            if(!seg_out[i].is_degenerated()){
-                flow_out[(face+i+1)%4] = true;
-                this->borders[(face+i+1)%4].flow_out[face] = true;
-            }
-            else{
-                this->borders[(face+i+1)%4].flow_out[face] = false;
-            }
-        }
-    }
-
-    for(int face = 0; face <4; face++){
-        this->borders[face].flow_in = flow_in[face];
-    }
-}
-
-// ********************************************************************************
 // ****************** UTILS functions *********************************************
 
 double Pave::get_theta_diam(){
@@ -230,7 +185,7 @@ double Pave::get_theta_diam(){
     return diam;
 }
 
-bool Pave::get_brother_empty(int level){
+bool Pave::is_one_brother_empty(int level){
     // ToDo : improve function by adding visited_node option
     if(!this->is_empty())
         return false;
@@ -243,7 +198,7 @@ bool Pave::get_brother_empty(int level){
                 }
             }
             else{
-                if(!this->borders[face].brothers[i]->pave->get_brother_empty(level-1)){
+                if(!this->borders[face].brothers[i]->pave->is_one_brother_empty(level-1)){
                     return false;
                 }
             }
@@ -253,7 +208,7 @@ bool Pave::get_brother_empty(int level){
     return true;
 }
 
-bool Pave::all_brothers_full(int level){
+bool Pave::is_all_brothers_full(int level){
     if(!this->is_full())
         return false;
 
@@ -265,7 +220,7 @@ bool Pave::all_brothers_full(int level){
                 }
             }
             else{
-                if(!this->borders[face].brothers[i]->pave->all_brothers_full(level-1)){
+                if(!this->borders[face].brothers[i]->pave->is_all_brothers_full(level-1)){
                     return false;
                 }
             }
@@ -326,32 +281,6 @@ void Pave::set_empty(bool val){
     this->empty = val;
 }
 
-bool Pave::set_full(bool val){
-    this->full = val;
-}
-
-bool Pave::netwon_test(){
-    return false;
-
-    if(this->all_brothers_full()){
-        IntervalVector box_tmp = this->box;
-        this->scheduler->utils.contract_newton->contract(box_tmp);
-        if(!box_tmp.is_empty())
-            this->scheduler->utils.contract_newton->contract(box_tmp);
-
-        if(!box_tmp.is_empty() && box_tmp[0].is_degenerated() && box_tmp[1].is_degenerated()){
-            cout << "-->" << this->box << "<>" << box_tmp << endl;
-
-            for(int face=0; face<4; face++){
-                this->borders[face].segment=Interval::EMPTY_SET;
-            }
-
-            return true;
-        }
-    }
-    return false;
-}
-
 bool Pave::copy_segment(Pave *p){
     if(this->box == p->box){
         for(int face=0; face < 4; face++){
@@ -387,4 +316,9 @@ std::vector<ibex::Interval> Pave::rotate(const ibex::Interval &theta, const ibex
     list.push_back(xR);
     list.push_back(yR);
     return list;
+}
+
+void Pave::set_same_properties(Pave *p){
+    this->full = p->is_full();
+    this->empty = p->is_empty();
 }

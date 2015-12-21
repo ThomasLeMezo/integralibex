@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include "ibex.h"
+#include "pave.h"
 
 
 class Utils
@@ -39,6 +40,9 @@ public:
     vector<bool> CtcPaveForward(Pave *p);
     vector<bool> CtcPaveBackward(Pave *p);
     bool CtcContinuity(Pave *p);
+
+    void CtcPaveFlow(Pave *p);
+    bool CtcNetwonPave(Pave *p);
 
     // ***********************************************************
     // ************************ Variables ************************

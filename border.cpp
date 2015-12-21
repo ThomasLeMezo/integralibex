@@ -15,6 +15,7 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): posi
     this->face = face;
     this->pave = pave;
     this->segment = Interval::EMPTY_SET;
+    this->segment_full = position[face%2];
 
     this->flow_in = true;
     for(int i=0; i<4; i++){
@@ -29,6 +30,7 @@ Border::Border(const ibex::IntervalVector& position, const int face, const ibex:
     this->position = position;
     this->segment = segment;
     this->face = face;
+    this->segment_full = position[face%2];
 }
 
 void Border::draw() const{
@@ -71,96 +73,6 @@ void Border::get_points(std::vector<double> &x, std::vector<double> &y){
 }
 
 // ********************************************************************************
-// ****************** Segment Propagation *****************************************
-
-/**
- * @brief Border::add_segment
- * @param seg
- * @return
- *
- * // Add a new segment to the list of segment (check wheter there is overlapping)
- * // ToDo : Check whole overlapping
- */
-vector<ibex::Interval> Border::add_segment(const Interval &seg){
-    vector<Interval> list_segments;
-
-    if(seg.is_empty())
-        return list_segments;
-
-    Interval seg_box = seg & this->position[this->face%2];
-    if(seg_box.is_empty())
-        return list_segments;
-
-    Interval new_segment = this->segment | seg_box;
-
-    // Compute the new segment(s) to propagate
-    Interval left, right;
-    new_segment.diff(this->segment, left, right);
-
-    if(!left.is_empty())
-        list_segments.push_back(left);
-    if(!right.is_empty())
-        list_segments.push_back(right);
-
-    this->segment = new_segment;
-    return list_segments;
-}
-
-/**
- * @brief Border::plug_segment
- * @param input
- * @return true if change / false if no change
- */
-bool Border::plug_segment(ibex::Interval &input, ibex::Interval &position, bool modify){
-
-    // Intersect the input with this border segment
-    input &= this->segment;
-
-    // Test if something is removed
-    if(input == this->segment){
-        return false;
-    }
-    else{
-        // Do the union with all brothers
-        Interval seg_out = input;
-
-        if(position.is_strict_subset(this->position[this->face%2])){ // New incoming segment smaller than this
-            // Union of all brothers segment of the same face
-            for(int i=0; i<this->brothers.size(); i++){
-                if(this->brothers[i]->position[this->brothers[i]->face%2]!=position){
-                    // Case input is not inside the brothers
-                    seg_out |= this->brothers[i]->segment;
-                }
-            }
-        }
-
-        if(this->segment == (seg_out & this->segment)){
-            return false;
-        }
-        else{
-            if(modify)
-                this->segment &= seg_out;
-            input = (this->segment & seg_out);
-            this->is_empty();
-            return true;
-        }
-    }
-}
-
-/**
- * @brief Publish a new segment to a list of brothers
- * @param seg
- */
-void Border::publish_to_borthers(ibex::Interval seg, bool forward){
-    Border new_segment(this->position, (this->face+2)%4, seg);
-
-    for(int i=0; i<this->brothers.size(); i++){
-        this->brothers[i]->pave->add_new_segment(new_segment, forward);
-        this->brothers[i]->pave->warn_scheduler(forward);
-    }
-}
-
-// ********************************************************************************
 // ****************** Paving building *********************************************
 
 // Add new brothers to the list
@@ -196,9 +108,29 @@ void Border::update_brothers(Border* border_pave1, Border* border_pave2){
 // ****************** Other functions *********************************************
 
 void Border::set_full(){
-    this->segment = this->position[this->face%2];
+    this->segment = this->segment_full;
     this->empty = false;
     this->full = true;
+}
+
+/**
+ * @brief Border::set_full_continuity
+ * @return true if equal to segment_full, else false
+ *
+ */
+bool Border::set_full_continuity(){
+    Interval segment;
+    for(int i=0; i<this->brothers.size(); i++){
+        segment |= this->brothers[i]->segment_full;
+    }
+    this->segment = segment;
+
+    if(segment == this->segment_full){
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 bool Border::is_empty(){
@@ -207,12 +139,12 @@ bool Border::is_empty(){
 
     if(this->segment == Interval::EMPTY_SET){
         this->empty = true;
-        this->pave->set_full(false);
+        this->pave->set_full();
         return true;
     }
 
     if(this->segment != this->position[this->face%2]){
-        this->pave->set_full(false);
+        this->pave->set_full();
     }
 
     return false;
@@ -233,3 +165,80 @@ bool Border::is_full(){
     }
 
 }
+
+// **************************************************************************************
+// ******************************* OLD FUNCTIONS ****************************************
+
+///**
+// * @brief Border::add_segment
+// * @param seg
+// * @return
+// *
+// * // Add a new segment to the list of segment (check wheter there is overlapping)
+// * // ToDo : Check whole overlapping
+// */
+//vector<ibex::Interval> Border::add_segment(const Interval &seg){
+//    vector<Interval> list_segments;
+
+//    if(seg.is_empty())
+//        return list_segments;
+
+//    Interval seg_box = seg & this->position[this->face%2];
+//    if(seg_box.is_empty())
+//        return list_segments;
+
+//    Interval new_segment = this->segment | seg_box;
+
+//    // Compute the new segment(s) to propagate
+//    Interval left, right;
+//    new_segment.diff(this->segment, left, right);
+
+//    if(!left.is_empty())
+//        list_segments.push_back(left);
+//    if(!right.is_empty())
+//        list_segments.push_back(right);
+
+//    this->segment = new_segment;
+//    return list_segments;
+//}
+
+///**
+// * @brief Border::plug_segment
+// * @param input
+// * @return true if change / false if no change
+// */
+//bool Border::plug_segment(ibex::Interval &input, ibex::Interval &position, bool modify){
+
+//    // Intersect the input with this border segment
+//    input &= this->segment;
+
+//    // Test if something is removed
+//    if(input == this->segment){
+//        return false;
+//    }
+//    else{
+//        // Do the union with all brothers
+//        Interval seg_out = input;
+
+//        if(position.is_strict_subset(this->position[this->face%2])){ // New incoming segment smaller than this
+//            // Union of all brothers segment of the same face
+//            for(int i=0; i<this->brothers.size(); i++){
+//                if(this->brothers[i]->position[this->brothers[i]->face%2]!=position){
+//                    // Case input is not inside the brothers
+//                    seg_out |= this->brothers[i]->segment;
+//                }
+//            }
+//        }
+
+//        if(this->segment == (seg_out & this->segment)){
+//            return false;
+//        }
+//        else{
+//            if(modify)
+//                this->segment &= seg_out;
+//            input = (this->segment & seg_out);
+//            this->is_empty();
+//            return true;
+//        }
+//    }
+//}
