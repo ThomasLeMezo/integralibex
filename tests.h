@@ -6,6 +6,10 @@ void testRotate();
 void test_CtcPropagateLeftSide();
 void test_CtcPropagateRightSide();
 void test_CtcPropagateFront();
+void test_CtcPaveForward();
+void test_CtcPaveBackward();
+
+
 void test_Propagate();
 
 void test_Backward();

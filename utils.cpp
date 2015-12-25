@@ -23,6 +23,11 @@ Utils::~Utils(){
  **
 */
 void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const double &dx, const double &dy){
+    if(x_front.is_empty()){
+        x=Interval::EMPTY_SET;
+        return;
+    }
+
     Interval X = Interval(0.0, dx);
 
     Interval Dx = Interval(-dx, dx);
@@ -31,13 +36,15 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
     Interval theta2 = theta;
 
     contract_polar.contract(Dx, Dy, rho, theta2);
-    x_front &= (x + Dx ) & X;    // A écrire sous forme de contracteur !!
+    x_front &= (x + Dx ) & X;
+
     if(!(X & (x_front - Dx)).is_empty()){
         x &= (x_front - Dx);
     }
     else{
         x |= (x_front - Dx);
     }
+
     if(!(X & (x_front + Dx)).is_empty()){
         x &= (x_front + Dx);
     }
@@ -337,10 +344,12 @@ void Utils::CtcPaveFlow(Pave *p){
     bool flow_out[4] = {false, false, false, false};
 
     for(int face = 0; face < 4; face++){
-        Interval seg_in = p->borders[face].position[face%2];
+//        Interval seg_in = p->borders[face].position[face%2];
+        Interval seg_in = Interval::ALL_REALS;
         vector<Interval> seg_out;
         for(int i=0; i<3; i++){
-            seg_out.push_back(p->borders[(face+i+1)%4].segment);
+            //seg_out.push_back(p->borders[(face+i+1)%4].segment);
+            seg_out.push_back(Interval::ALL_REALS);
         }
         this->CtcPropagateSegment(seg_in, seg_out, face, p->theta, p->box);
 

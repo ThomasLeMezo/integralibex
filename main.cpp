@@ -18,8 +18,10 @@ void test(){
 //    test_CtcPropagateLeftSide();
 //    test_CtcPropagateRightSide();
 //    test_CtcPropagateFront();
-    test_Propagate();
-//    test_Backward();
+
+//    test_CtcPaveForward();
+    test_CtcPaveBackward();
+
 //    test_Newton();
 }
 
@@ -87,7 +89,7 @@ int main()
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 #endif
 
-#if 1
+#if 0
     const clock_t begin_time = clock();
     vibes::beginDrawing();
 
@@ -102,13 +104,13 @@ int main()
 
     s.process_SIVIA_cycle(40, 4000, 100000);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC;
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     s.draw(1024, true);
 
 #endif
 
-#if 0
+#if 1
    test();
 #endif
     return 0;

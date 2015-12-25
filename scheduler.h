@@ -12,7 +12,7 @@ class Scheduler
 /***************** Functions ******************/
 public:
     Scheduler();
-    ~Scheduler(){}
+    ~Scheduler();
 
     void process(int max_iterations);
     void SIVIA(double epsilon_theta, int iterations_max, bool not_full_test);

@@ -139,12 +139,7 @@ bool Border::is_empty(){
 
     if(this->segment == Interval::EMPTY_SET){
         this->empty = true;
-        this->pave->set_full();
         return true;
-    }
-
-    if(this->segment != this->position[this->face%2]){
-        this->pave->set_full();
     }
 
     return false;
@@ -155,7 +150,7 @@ bool Border::is_full(){
         return false;
     }
     else{
-        if(this->segment != this->position[this->face%2]){
+        if(this->segment != this->segment_full){
             this->full = false;
             return false;
         }

@@ -273,6 +273,7 @@ bool Pave::is_full(){
                 return false;
             }
         }
+        this->full = true;
         return true;
     }
 }

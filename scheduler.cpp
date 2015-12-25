@@ -9,6 +9,17 @@ Scheduler::Scheduler(){
     this->draw_nb = 0;
 }
 
+Scheduler::~Scheduler(){
+    for(int i=0; i<this->pave_list.size(); i++){
+        delete(this->pave_list[i]);
+    }
+    for(int i=0; i<this->pave_list_empty.size(); i++){
+        delete(this->pave_list_empty[i]);
+    }
+    this->pave_list.clear();
+    this->pave_list_empty.clear();
+}
+
 // ********************************************************************************
 // ****************** Setup Init functions ****************************************
 
@@ -111,30 +122,35 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
 
     this->SIVIA(0.0, 4, false); // Start with 4 boxes
     this->set_full_continuity();
+    for(int i=0; i<this->pave_list.size(); i++){
+        this->utils.CtcPaveFlow(this->pave_list[i]);
+    }
     this->process(process_iterations_max);
 
     while(this->pave_list.size()<pave_max && this->pave_list.size()!=0 && iterations < iterations_max){
         this->SIVIA(0.0, 2*this->pave_list.size(), true);
         // Set full continuity
         this->set_full_continuity();
+        for(int i=0; i<this->pave_list.size(); i++){
+            this->utils.CtcPaveFlow(this->pave_list[i]);
+        }
 
         // Process the backward with the subpaving
         this->process(process_iterations_max);
 
-        // Remove empty pave
-        for(int i=0; i<this->pave_list.size(); i++){
-            if(this->pave_list[i]->is_one_brother_empty() || (this->utils.CtcNetwonPave(this->pave_list[i]))){
-                this->pave_list[i]->remove_from_brothers();
-                this->pave_list_empty.push_back(this->pave_list[i]);
-                this->pave_list.erase(this->pave_list.begin() + i);
-                if(i!=0)
-                    i--;
-            }
-        }
+//         Remove empty pave
+//        for(int i=0; i<this->pave_list.size(); i++){
+//            // || (this->utils.CtcNetwonPave(this->pave_list[i]))
+//            if(this->pave_list[i]->is_one_brother_empty() ){
+//                this->pave_list[i]->remove_from_brothers();
+//                this->pave_list_empty.push_back(this->pave_list[i]);
+//                this->pave_list.erase(this->pave_list.begin() + i);
+//                if(i!=0)
+//                    i--;
+//            }
+//        }
 
-        if(iterations%100==0){
-            cout << "****** " << iterations <<  " ******" << endl;
-        }
+        cout << "****** " << iterations <<  " ******" << endl;
 
         iterations++;
     }
