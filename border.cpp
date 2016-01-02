@@ -119,16 +119,18 @@ void Border::set_full(){
  *
  */
 bool Border::set_full_continuity(){
-    Interval segment;
+    Interval segment = Interval::EMPTY_SET;
     for(int i=0; i<this->brothers.size(); i++){
         segment |= this->brothers[i]->segment_full;
     }
-    this->segment = segment;
+//    this->segment = segment;
 
     if(segment == this->segment_full){
+        this->segment = this->segment_full;
         return true;
     }
     else{
+        this->segment = this->segment_full;
         return false;
     }
 }

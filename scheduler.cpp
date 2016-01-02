@@ -34,7 +34,7 @@ Pave* Scheduler::get_pave(double x, double y){
     position[1] = Interval(y);
 
     for(int i=0; i<this->pave_list.size(); i++){
-        if(!(position & this->pave_list[i]->box).is_empty()){
+        if(!(position & this->pave_list[i]->m_box).is_empty()){
             return this->pave_list[i];
         }
     }
@@ -63,10 +63,10 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max, bool not_full_te
         tmp_pave_list.erase(tmp_pave_list.begin());
 
         double diam = 0.0;
-        if(!(tmp->theta[0].is_empty()))
-            diam += tmp->theta[0].diam();
-        if(!(tmp->theta[1].is_empty()))
-            diam += tmp->theta[1].diam();
+        if(!(tmp->m_theta[0].is_empty()))
+            diam += tmp->m_theta[0].diam();
+        if(!(tmp->m_theta[1].is_empty()))
+            diam += tmp->m_theta[1].diam();
 
         if(diam < epsilon_theta || (not_full_test && tmp->is_full())){
             this->pave_list.push_back(tmp);
@@ -93,12 +93,12 @@ void Scheduler::process(int max_iterations){
         if(change){
             this->utils.CtcPaveFlow(pave);
 
-            vector<bool> changeForward = this->utils.CtcPaveForward(pave);
+            //            vector<bool> changeForward = this->utils.CtcPaveForward(pave);
             vector<bool> changeBackward = this->utils.CtcPaveBackward(pave);
 
             // Warn scheduler to process new pave
             for(int face=0; face<4; face++){
-                if(changeForward[face] || changeBackward[face]){
+                if(/*changeForward[face] ||*/ changeBackward[face]){
                     vector<Pave*> brothers_pave = pave->get_brothers(face);
                     for(int i=0; i<brothers_pave.size(); i++){
                         this->pave_queue.push_back(brothers_pave[i]);
@@ -122,23 +122,23 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
 
     this->SIVIA(0.0, 4, false); // Start with 4 boxes
     this->set_full_continuity();
-    for(int i=0; i<this->pave_list.size(); i++){
-        this->utils.CtcPaveFlow(this->pave_list[i]);
+
+    if(iterations < iterations_max){
+        //        for(int i=0; i<this->pave_list.size(); i++){
+        //            this->utils.CtcPaveFlow(this->pave_list[i]);
+        //        }
+        this->process(process_iterations_max);
     }
-    this->process(process_iterations_max);
 
     while(this->pave_list.size()<pave_max && this->pave_list.size()!=0 && iterations < iterations_max){
         this->SIVIA(0.0, 2*this->pave_list.size(), true);
         // Set full continuity
         this->set_full_continuity();
-        for(int i=0; i<this->pave_list.size(); i++){
-            this->utils.CtcPaveFlow(this->pave_list[i]);
-        }
 
         // Process the backward with the subpaving
         this->process(process_iterations_max);
 
-//         Remove empty pave
+        // Remove empty pave
 //        for(int i=0; i<this->pave_list.size(); i++){
 //            // || (this->utils.CtcNetwonPave(this->pave_list[i]))
 //            if(this->pave_list[i]->is_one_brother_empty() ){
@@ -157,7 +157,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
 }
 
 // ********************************************************************************
-// ****************** Draw functions **********************************************
+// ****************** Drawing functions *******************************************
 
 void Scheduler::draw(int size, bool filled){
 
@@ -184,22 +184,22 @@ void Scheduler::draw(int size, bool filled){
 void Scheduler::print_pave_info(double x, double y, string color){
 
     Pave* p = this->get_pave(x, y);
-    cout << "BOX = " << p->box << endl;
+    cout << "BOX = " << p->m_box << endl;
     cout << p << endl;
-    for(int i= 0; i<p->borders.size(); i++){
-        cout << "border " << i << '\t' << p->borders[i].position << '\t' << p->borders[i].segment << endl;
+    for(int i= 0; i<p->m_borders.size(); i++){
+        cout << "border " << i << '\t' << p->m_borders[i].position << '\t' << p->m_borders[i].segment << endl;
     }
-    cout << "theta " << p->theta[0] << " " << p->theta[1] << endl;
+    cout << "theta " << p->m_theta[0] << " " << p->m_theta[1] << endl;
 
-    for(int i=0; i<p->borders.size(); i++){
-        for(int j = 0; j<p->borders[i].brothers.size(); j++){
-            cout << "border=" << i << " brother=" << j << " " << p->borders[i].brothers[j]->pave << endl;
+    for(int i=0; i<p->m_borders.size(); i++){
+        for(int j = 0; j<p->m_borders[i].brothers.size(); j++){
+            cout << "border=" << i << " brother=" << j << " " << p->m_borders[i].brothers[j]->pave << endl;
         }
     }
 
-    double r=0.5*min(p->box[0].diam(), p->box[1].diam())/2.0;
+    double r=0.5*min(p->m_box[0].diam(), p->m_box[1].diam())/2.0;
 
-    vibes::drawCircle(p->box[0].mid(), p->box[1].mid(), r, color);
+    vibes::drawCircle(p->m_box[0].mid(), p->m_box[1].mid(), r, color);
 
     cout << endl;
 }

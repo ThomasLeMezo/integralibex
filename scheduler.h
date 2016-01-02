@@ -26,7 +26,7 @@ public:
     void draw(int size, bool filled);
 
     // ******** Utils functions ********
-    void print_pave_info(double x, double y, string color);
+    void print_pave_info(double x, double y, string color="g[]");
 
 
 

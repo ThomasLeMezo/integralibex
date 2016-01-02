@@ -227,16 +227,16 @@ vector<bool> Utils::CtcPaveBackward(Pave *p){
     Interval segment_in[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int face = 0; face < 4; face++){
-        if(p->borders[face].flow_in == true){
+        if(p->m_borders[face].flow_in == true){
 
-            Interval seg_in = p->borders[face].segment;
+            Interval seg_in = p->m_borders[face].segment;
 
             vector<Interval> seg_out;
             for(int j=(face+1)%4; j!=face; j=(j+1)%4){
-                seg_out.push_back(p->borders[j].segment);
+                seg_out.push_back(p->m_borders[j].segment);
             }
 
-            this->CtcPropagateSegment(seg_in, seg_out, face, p->theta, p->box);
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->m_theta, p->m_box);
 
             segment_in[face] = seg_in;
         }
@@ -249,12 +249,20 @@ vector<bool> Utils::CtcPaveBackward(Pave *p){
     }
 
     for(int face = 0; face<4; face++){
-        if(p->borders[face].flow_in==true){
-            if((p->borders[face].segment & segment_in[face]) != segment_in[face]){
+        if(p->m_borders[face].flow_in==true){
+            if((p->m_borders[face].segment & segment_in[face]) != segment_in[face]){
                 tab_change[face] = true;
             }
-            p->borders[face].segment &= segment_in[face];
+            p->m_borders[face].segment &= segment_in[face];
         }
+    }
+
+    Pave p2(*p);
+    vector<bool> tab_change_forward = this->CtcPaveForward(&p2);
+    *p &= p2;
+
+    for(int face = 0; face<4; face++){
+        tab_change[face] = tab_change[face] || tab_change_forward[face];
     }
 
     return tab_change;
@@ -264,22 +272,24 @@ vector<bool> Utils::CtcPaveForward(Pave *p){
     Interval segment_out[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int face = 0; face < 4; face++){
-        if(p->borders[face].flow_in == true){
+        if(p->m_borders[face].flow_in == true){
 
-            Interval seg_in = p->borders[face].segment;
+            Interval seg_in = p->m_borders[face].segment;
+            segment_out[face] |= seg_in; // usefull ?
 
             vector<Interval> seg_out;
             for(int j=0; j<3; j++){
                 seg_out.push_back(Interval::ALL_REALS);
             }
 
-            this->CtcPropagateSegment(seg_in, seg_out, face, p->theta, p->box);
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->m_theta, p->m_box);
 
             int k=0;
             for(int i=(face+1)%4; i!=face; i=(i+1)%4){
                 segment_out[i] |= seg_out[k];
                 k++;
             }
+
         }
     }
 
@@ -290,10 +300,9 @@ vector<bool> Utils::CtcPaveForward(Pave *p){
     }
 
     for(int face = 0; face<4; face++){
-        if(!p->borders[face].flow_in){
-            if(p->borders[face].segment != segment_out[face])
-                tab_change[face] = true;
-            p->borders[face].segment = segment_out[face];
+        if(p->m_borders[face].segment != segment_out[face]){
+            tab_change[face] = true;
+            p->m_borders[face].segment = segment_out[face];
         }
     }
 
@@ -305,13 +314,13 @@ bool Utils::CtcContinuity(Pave *p){
 
     for(int face = 0; face < 4; face++){
         Interval segment = Interval::EMPTY_SET;
-        for(int b = 0; b < p->borders[face].brothers.size(); b++){
-            segment |= p->borders[face].brothers[b]->segment;
+        for(int b = 0; b < p->m_borders[face].brothers.size(); b++){
+            segment |= p->m_borders[face].brothers[b]->segment;
         }
 
-        if(p->borders[face].segment != segment)
+        if(p->m_borders[face].segment != segment)
             change = true;
-        p->borders[face].segment = segment;
+        p->m_borders[face].segment = segment;
     }
 
     return change;
@@ -321,16 +330,16 @@ bool Utils::CtcNetwonPave(Pave *p){
     return false;
 
     if(p->is_all_brothers_full()){
-        IntervalVector box_tmp = p->box;
+        IntervalVector box_tmp = p->m_box;
         this->contract_newton->contract(box_tmp);
         if(!box_tmp.is_empty())
             this->contract_newton->contract(box_tmp);
 
         if(!box_tmp.is_empty() && box_tmp[0].is_degenerated() && box_tmp[1].is_degenerated()){
-            cout << "-->" << p->box << "<>" << box_tmp << endl;
+            cout << "-->" << p->m_box << "<>" << box_tmp << endl;
 
             for(int face=0; face<4; face++){
-                p->borders[face].segment=Interval::EMPTY_SET;
+                p->m_borders[face].segment=Interval::EMPTY_SET;
             }
 
             return true;
@@ -348,10 +357,10 @@ void Utils::CtcPaveFlow(Pave *p){
         Interval seg_in = Interval::ALL_REALS;
         vector<Interval> seg_out;
         for(int i=0; i<3; i++){
-            //seg_out.push_back(p->borders[(face+i+1)%4].segment);
-            seg_out.push_back(Interval::ALL_REALS);
+            seg_out.push_back(p->m_borders[(face+i+1)%4].segment);
+//            seg_out.push_back(Interval::ALL_REALS);
         }
-        this->CtcPropagateSegment(seg_in, seg_out, face, p->theta, p->box);
+        this->CtcPropagateSegment(seg_in, seg_out, face, p->m_theta, p->m_box);
 
         if(!seg_out[0].is_degenerated() || !seg_out[1].is_degenerated() || !seg_out[2].is_degenerated()){
             flow_in[face] = true;
@@ -359,16 +368,16 @@ void Utils::CtcPaveFlow(Pave *p){
         for(int i = 0; i<3; i++){
             if(!seg_out[i].is_degenerated()){
                 flow_out[(face+i+1)%4] = true;
-                p->borders[(face+i+1)%4].flow_out[face] = true;
+                p->m_borders[(face+i+1)%4].flow_out[face] = true;
             }
             else{
-                p->borders[(face+i+1)%4].flow_out[face] = false;
+                p->m_borders[(face+i+1)%4].flow_out[face] = false;
             }
         }
     }
 
     for(int face = 0; face <4; face++){
-        p->borders[face].flow_in = flow_in[face];
+        p->m_borders[face].flow_in = flow_in[face];
     }
 }
 

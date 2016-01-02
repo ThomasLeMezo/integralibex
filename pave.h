@@ -11,7 +11,10 @@ class Pave
 /***************** Functions ******************/
 public:
     Pave(const ibex::IntervalVector &box, ibex::Function *f);
+    Pave(const Pave *p);
     ~Pave(){}
+
+    Pave& operator&=(const Pave &p);
 
     bool copy_segment(Pave *p);
     bool equal_segment(Pave *p);
@@ -51,15 +54,15 @@ public:
 
 /***************** Variables ******************/
 public:
-    ibex::Interval theta[2];
-    ibex::IntervalVector box;
-    std::vector<Border> borders;
+    ibex::Interval m_theta[2];
+    ibex::IntervalVector m_box;
+    std::vector<Border> m_borders;
 
-    ibex::Function *f;
+    ibex::Function *m_f;
 
 private:
-    bool empty;
-    bool full;
+    bool m_empty;
+    bool m_full;
 };
 
 #endif // PAVE_H

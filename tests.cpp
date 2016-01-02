@@ -6,6 +6,15 @@
 using namespace ibex;
 using namespace std;
 
+void test_draw(Pave *p, string drawing_name){
+    vibes::beginDrawing();
+    vibes::newFigure(drawing_name);
+    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
+    p->draw(true);
+    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+    vibes::axisAuto();
+}
+
 void testTranslate(){
     cout << "TEST TRANSLATE" << endl;
     Utils u;
@@ -109,9 +118,12 @@ void test_CtcPaveForward(){
     Function f;
     Pave p(box, &f);
 
-    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
+//    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
+    p.set_theta(-Interval::HALF_PI | Interval::HALF_PI);
 
-    p.borders[0].segment = Interval(0,1);
+    p.m_borders[1].segment = Interval(0,1);
+    p.m_borders[0].segment = Interval(0,1);
+//    p.m_borders[2].segment = Interval(0.75,1);
 
     u.CtcPaveFlow(&p);
     vector<bool> output_bool = u.CtcPaveForward(&p);
@@ -141,33 +153,37 @@ void test_CtcPaveBackward(){
     Function f;
     Pave p(box, &f);
 
-    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
+    p.set_theta(-Interval::HALF_PI | -Interval::HALF_PI/4.0);
 
-    p.borders[3].segment = Interval(0,1);
+    p.m_borders[0].segment = Interval(0,1);
+    p.m_borders[1].segment = Interval(0,1);
 
-    vibes::beginDrawing();
-    vibes::newFigure("test_before");
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
-
-    p.draw(true);
-
-    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-    vibes::axisAuto();
-
-
+    test_draw(&p, "test_before");
     u.CtcPaveFlow(&p);
 
     for(int i=0; i<4; i++){
-        cout << "Border " << i << " flow_in = " << p.borders[i].flow_in;
+        cout << "Border " << i << " flow_in = " << p.m_borders[i].flow_in;
         cout << " | flow_out=[";
         for(int j=0; j<4; j++){
-            cout << p.borders[i].flow_out[j] << ",";
+            cout << p.m_borders[i].flow_out[j] << ",";
         }
         cout << "]" << endl;
     }
     cout << endl;
 
+//    Interval seg_before[4];
+//    for(int i=0; i<4; i++){
+//        seg_before[i]=p.borders[i].segment;
+//    }
+
     vector<bool> output_bool = u.CtcPaveBackward(&p);
+
+//    vector<bool> output_bool2 = u.CtcPaveForward(&p);
+
+//    for(int i=0; i<4; i++){
+//        cout << seg_before[i] << p.borders[i].segment<< endl;
+//        p.borders[i].segment &= seg_before[i];
+//    }
 
     cout << "output_bool = [";
     for(int i=0; i<output_bool.size(); i++)
@@ -175,14 +191,7 @@ void test_CtcPaveBackward(){
     cout << "]" << endl;
     cout << output_bool.size() << endl;
 
-    vibes::beginDrawing();
-    vibes::newFigure("test_after");
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
-
-    p.draw(true);
-
-    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-    vibes::axisAuto();
+    test_draw(&p, "test_after");
 }
 
 void test_Newton(){
