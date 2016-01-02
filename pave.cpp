@@ -252,6 +252,15 @@ bool Pave::is_all_brothers_full(int level){
     return true;
 }
 
+bool Pave::is_border_flow_out(int border){
+    for(int face = (border+1)%4; face != border; face=(face+1)%4){
+        if(this->m_borders[face].flow_out[border]){
+            return true;
+        }
+    }
+    return false;
+}
+
 void Pave::remove_brothers(Pave* p, int face){
     for(int i=0; i<this->m_borders[face].brothers.size(); i++){
         if(this->m_borders[face].brothers[i]->pave == p){

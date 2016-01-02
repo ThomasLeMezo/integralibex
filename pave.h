@@ -34,6 +34,7 @@ public:
     bool is_full();
     bool is_one_brother_empty(int level=1);
     bool is_all_brothers_full(int level=1);
+    bool is_border_flow_out(int border);
 
     // Setter
     void set_empty(bool val);
