@@ -39,6 +39,7 @@ public:
 
     vector<bool> CtcPaveForward(Pave *p);
     vector<bool> CtcPaveBackward(Pave *p);
+    vector<bool> CtcPaveConsistency(Pave *p);
     bool CtcContinuity(Pave *p);
 
 //    void CtcPaveFlow(Pave *p);

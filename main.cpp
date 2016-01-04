@@ -18,10 +18,11 @@ void test(){
 //    test_CtcPropagateLeftSide();
 //    test_CtcPropagateRightSide();
 //    test_CtcPropagateFront();
-    test_CtcPropagateSegment();
+//    test_CtcPropagateSegment();
 
 //    test_CtcPaveForward();
 //    test_CtcPaveBackward();
+    test_CtcPaveConsistency();
 
 //    test_Newton();
 
@@ -105,7 +106,7 @@ int main()
     ibex::Function f;
     s.set_initial_pave(box, &f);
 
-    s.process_SIVIA_cycle(3, 4000, 100000);
+    s.process_SIVIA_cycle(15, 4000, 100000);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

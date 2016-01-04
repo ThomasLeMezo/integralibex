@@ -89,16 +89,16 @@ void Scheduler::process(int max_iterations){
 
         bool change = this->utils.CtcContinuity(pave);
         if(change){
-            vector<bool> changeBackward = this->utils.CtcPaveBackward(pave);
+            vector<bool> changeConsistency = this->utils.CtcPaveConsistency(pave);
 
             // Warn scheduler to process new pave
             for(int face=0; face<4; face++){
-                if(/*changeForward[face] ||*/ changeBackward[face]){
+//                if(changeConsistency[face]){
                     vector<Pave*> brothers_pave = pave->get_brothers(face);
                     for(int i=0; i<brothers_pave.size(); i++){
                         this->pave_queue.push_back(brothers_pave[i]);
                     }
-                }
+//                }
             }
         }
 

@@ -32,8 +32,11 @@ void Border::draw() const{
     segment_in[this->m_face%2] = this->m_segment_in;
     segment_out[this->m_face%2] = this->m_segment_out;
 
-    vibes::drawBox(segment_in, "g[]");
-    vibes::drawBox(segment_out, "r[]");
+    double pourcentage = min(this->m_segment_full.diam()*0.01, 0.01);
+    segment_in[(this->m_face+1)%2] += Interval(-pourcentage, pourcentage);
+
+    vibes::drawBox(segment_in, "r[r]");
+    vibes::drawBox(segment_out, "b[b]");
 }
 
 void Border::get_points(std::vector<double> &x, std::vector<double> &y){
@@ -167,11 +170,11 @@ bool Border::is_full(){
 }
 
 void Border::set_segment_in(ibex::Interval segment_in){
-    this->m_segment_in = segment_in;
+    this->m_segment_in &= segment_in;
 }
 
 void Border::set_segment_out(ibex::Interval segment_out){
-    this->m_segment_out = segment_out;
+    this->m_segment_out &= segment_out;
 }
 
 ibex::Interval Border::segment_in() const{

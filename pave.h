@@ -17,7 +17,7 @@ public:
     Pave& operator&=(const Pave &p);
 
     // ******** Drawing functions ********
-    void draw(bool filled, string color="b[]");
+    void draw(bool filled, string color="black[]");
     void draw_borders(bool filled);
 
     // ******** Graph building ********

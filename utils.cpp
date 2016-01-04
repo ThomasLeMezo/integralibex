@@ -286,14 +286,21 @@ vector<bool> Utils::CtcPaveBackward(Pave *p){
         p->m_borders[face].set_segment_in(segment_in[face]);
     }
 
+    return tab_change;
+}
+
+vector<bool> Utils::CtcPaveConsistency(Pave *p){
+    vector<bool> tab_change_backward = this->CtcPaveBackward(p);
     Pave p2(*p);
     vector<bool> tab_change_forward = this->CtcPaveForward(&p2);
     *p &= p2;
+//    vector<bool> tab_change_backward2 = this->CtcPaveBackward(p);
 
+
+    vector<bool> tab_change;
     for(int face = 0; face<4; face++){
-        tab_change[face] = tab_change[face] || tab_change_forward[face];
+        tab_change.push_back(tab_change_backward[face] || tab_change_forward[face] /*|| tab_change_backward2[face]*/);
     }
-
     return tab_change;
 }
 
@@ -302,7 +309,6 @@ vector<bool> Utils::CtcPaveForward(Pave *p){
 
     for(int face = 0; face < 4; face++){
         Interval seg_in = p->m_borders[face].segment_in();
-        segment_out[face] |= seg_in; // usefull ?
 
         vector<Interval> seg_out;
         for(int j=0; j<3; j++){
@@ -326,9 +332,9 @@ vector<bool> Utils::CtcPaveForward(Pave *p){
     }
 
     for(int face = 0; face<4; face++){
+        p->m_borders[face].set_segment_out(segment_out[face]);
         if(p->m_borders[face].segment_out() != segment_out[face]){
             tab_change[face] = true;
-            p->m_borders[face].set_segment_out(segment_out[face]);
         }
     }
 
@@ -347,11 +353,12 @@ bool Utils::CtcContinuity(Pave *p){
             segment_out |= p->m_borders[face].brothers()[b]->segment_out();
         }
 
+        if(p->m_borders[face].segment_in() != (segment_out & p->m_borders[face].segment_in())
+                || p->m_borders[face].segment_out() != (segment_in & p->m_borders[face].segment_out()))
+            change = true;
+
         p->m_borders[face].set_segment_in(segment_out);
         p->m_borders[face].set_segment_out(segment_in);
-
-        if(p->m_borders[face].segment_in() != segment_out || p->m_borders[face].segment_out() != segment_in)
-            change = true;
     }
 
     return change;

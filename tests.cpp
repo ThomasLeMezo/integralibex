@@ -164,7 +164,7 @@ void test_CtcPaveForward(){
     test_draw(&p, "test_after");
 }
 
-void test_CtcPaveBackward(){
+void test_CtcPaveConsistency(){
     Utils u;
     IntervalVector box(2);
     box[0] = Interval(0, 1);
@@ -173,7 +173,7 @@ void test_CtcPaveBackward(){
     Function f;
     Pave p(box, &f);
 
-    p.set_theta(Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0);
+    p.set_theta(3.0*Interval::HALF_PI/4.0 | 5.0*Interval::HALF_PI/4.0);
 
     p.m_borders[1].set_full();
     p.m_borders[2].set_full();
@@ -181,7 +181,7 @@ void test_CtcPaveBackward(){
 
     test_draw(&p, "test_before");
 
-    vector<bool> output_bool = u.CtcPaveBackward(&p);
+    vector<bool> output_bool = u.CtcPaveConsistency(&p);
 
     cout << "output_bool = [";
     for(int i=0; i<output_bool.size(); i++)

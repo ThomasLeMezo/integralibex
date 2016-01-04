@@ -16,7 +16,7 @@ void test_CtcPropagateFront();
 void test_CtcPropagateSegment();
 
 void test_CtcPaveForward();
-void test_CtcPaveBackward();
+void test_CtcPaveConsistency();
 
 void test_Newton();
 void test_rotation();
