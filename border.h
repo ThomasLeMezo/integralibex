@@ -10,7 +10,6 @@ class Border
 /***************** Functions ******************/
 public:
     Border(const ibex::IntervalVector& position, const int face, Pave *pave);
-    Border(const ibex::IntervalVector& position, const int face, const ibex::Interval &segment);
     ~Border(){}
 
     // ******** Drawing functions ********
@@ -18,37 +17,49 @@ public:
 
     // ******** Graph building ********
     void add_brothers(std::vector<Border *> brother_list);
+    void add_brothers(Border* brother);
     void update_brothers(Border* border_pave1, Border* border_pave2);
 
     // ******** Border Properties ********
+    // Operations
+    Border& operator&=(const Border &p);
+    void remove_brother(int indice);
+
     // Setters
     void set_full();
     bool set_full_continuity();
 
+    void set_segment_in(ibex::Interval segment_in);
+    void set_segment_out(ibex::Interval segment_out);
+
     // Getters
     void get_points(std::vector<double> &x, std::vector<double> &y);
+    ibex::Interval segment_in() const;
+    ibex::Interval segment_out() const;
+    std::vector<Border *> brothers();
+    ibex::IntervalVector position();
+    Pave* pave();
+    ibex::Interval segment_full();
 
     // Tests
     bool is_empty();
     bool is_full();
 
 /***************** Variables ******************/
-public:
-    ibex::Interval segment;
-    ibex::Interval segment_full;
-
-    int face;                               // Number of the face (0=bottom, 1=right, ...)
-    std::vector<Border*> brothers;          // Pointer to brothers Borders
-    ibex::IntervalVector position;          // Position of the border ([x], [y]) where one of the dimension is singleton
-
-    Pave *pave;                             // Pointer to its container
-
-    bool flow_in;
-    bool flow_out[4];
+private:
+    ibex::Interval m_segment_in, m_segment_out;
+    ibex::Interval m_segment_full;
 
 private:
-    bool empty;
-    bool full;
+    int m_face;                               // Number of the face (0=bottom, 1=right, ...)
+    std::vector<Border*> m_brothers;          // Pointer to brothers Borders
+    ibex::IntervalVector m_position;          // Position of the border ([x], [y]) where one of the dimension is singleton
+
+    Pave *m_pave;                             // Pointer to its container
+
+private:
+    bool m_empty;
+    bool m_full;
 };
 
 #endif // BORDER_H

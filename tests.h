@@ -19,6 +19,7 @@ void test_CtcPaveForward();
 void test_CtcPaveBackward();
 
 void test_Newton();
+void test_rotation();
 
 #endif // TESTS_H
 

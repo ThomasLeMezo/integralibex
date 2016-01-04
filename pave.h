@@ -16,9 +16,6 @@ public:
 
     Pave& operator&=(const Pave &p);
 
-    bool copy_segment(Pave *p);
-    bool equal_segment(Pave *p);
-
     // ******** Drawing functions ********
     void draw(bool filled, string color="b[]");
     void draw_borders(bool filled);
@@ -32,17 +29,12 @@ public:
     // Tests
     bool is_empty();
     bool is_full();
-    bool is_one_brother_empty(int level=1);
+    bool is_all_brother_empty(int level=1);
     bool is_all_brothers_full(int level=1);
-    bool is_border_flow_out(int border);
 
     // Setter
-    void set_empty(bool val);
-    bool set_full(bool val);
     void set_full();
-    bool set_full_continuity();
     void set_theta(ibex::Interval theta);
-    void set_same_properties(Pave *p);
 
     // Getters
     ibex::IntervalVector get_border_position(int face);

@@ -15,19 +15,6 @@ void test_draw(Pave *p, string drawing_name){
     vibes::axisAuto();
 }
 
-void test_display_flow(Pave *p){
-    for(int i=0; i<4; i++){
-        cout << "Border " << i << " flow_in = " << p->m_borders[i].flow_in;
-        cout << " | flow_out=[";
-        for(int j=0; j<4; j++){
-            cout << p->m_borders[i].flow_out[j] << ",";
-        }
-        cout << "]";
-        cout << " | " << p->m_borders[i].segment << endl;
-    }
-    cout << endl;
-}
-
 void testTranslate(){
     cout << "TEST TRANSLATE" << endl;
     Utils u;
@@ -130,16 +117,20 @@ void test_CtcPropagateSegment(){
     box[0] = Interval(0.0, 1.0);
     box[1] = Interval(0.0, 1.0);
 
-    int face = 0;
-    Interval theta[2] = {Interval::ZERO | Interval::PI/4.0, Interval::EMPTY_SET};
+    int face = 3;
+    Interval theta[2] = {Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0, Interval::EMPTY_SET};
     Interval seg_in = Interval(0,1);
     vector<Interval> seg_out;
     for(int j=0; j<3; j++){
         seg_out.push_back(Interval::ALL_REALS);
     }
 
+    cout << "seg_in = " << seg_in << endl;
+    cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
+
     u.CtcPropagateSegment(seg_in, seg_out, face, theta, box);
 
+    cout << "----------" << endl;
     cout << "seg_in = " << seg_in << endl;
     cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
 }
@@ -156,15 +147,11 @@ void test_CtcPaveForward(){
 //    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
     p.set_theta(Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0);
 
-    p.m_borders[3].segment = Interval(0,1);
+    p.m_borders[3].set_full();
 //    p.m_borders[2].segment = Interval(0,1);
 //    p.m_borders[1].segment = Interval(0,1);
 
     test_draw(&p, "test_before");
-
-    u.CtcPaveFlow(&p);
-
-    test_display_flow(&p);
 
     vector<bool> output_bool = u.CtcPaveForward(&p);
 
@@ -188,14 +175,11 @@ void test_CtcPaveBackward(){
 
     p.set_theta(Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0);
 
-    p.m_borders[1].segment = Interval(0,1);
-    p.m_borders[2].segment = Interval(0,1);
-    p.m_borders[3].segment = Interval(0,1);
+    p.m_borders[1].set_full();
+    p.m_borders[2].set_full();
+    p.m_borders[3].set_full();
 
     test_draw(&p, "test_before");
-    u.CtcPaveFlow(&p);
-
-    test_display_flow(&p);
 
     vector<bool> output_bool = u.CtcPaveBackward(&p);
 
@@ -236,4 +220,26 @@ void test_Newton(){
     /* display a very small box enclosing (1,0) */
     cout << box << endl;
     cout << box_tmp << endl;
+}
+
+void test_rotation(){
+    IntervalVector box(2);
+    box[0] = Interval(0,1);
+    box[1] = Interval(0,1);
+
+    IntervalVector Sk(2);
+    Sk[0] = Interval(0);
+    Sk[1] = Interval(0);
+
+    Interval theta = -Interval::PI/2.0;
+
+    cout << "Sk=" << Sk << endl;
+    cout << "box=" << box << endl;
+
+    Utils u;
+    u.rotate_segment_and_box(Sk, theta, box, true);
+
+    cout << "-----" << endl;
+    cout << "Sk=" << Sk << endl;
+    cout << "box=" << box << endl;
 }

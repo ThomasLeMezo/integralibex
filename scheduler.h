@@ -18,7 +18,7 @@ public:
     void SIVIA(double epsilon_theta, int iterations_max, bool not_full_test);
     void process_SIVIA_cycle(int iterations_max, int pave_max, int process_iterations_max);
 
-    void set_full_continuity();
+    void set_full();
     void set_initial_pave(const ibex::IntervalVector &box, ibex::Function *f);
     Pave* get_pave(double x, double y);
 

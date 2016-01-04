@@ -40,11 +40,9 @@ Pave* Scheduler::get_pave(double x, double y){
     }
 }
 
-void Scheduler::set_full_continuity(){
+void Scheduler::set_full(){
     for(int i=0; i<this->pave_list.size(); i++){
-        if(!this->pave_list[i]->set_full_continuity()){
-            this->pave_queue.push_back(pave_list[i]);
-        }
+        this->pave_list[i]->set_full();
     }
 }
 
@@ -91,9 +89,6 @@ void Scheduler::process(int max_iterations){
 
         bool change = this->utils.CtcContinuity(pave);
         if(change){
-            this->utils.CtcPaveFlow(pave);
-
-            //            vector<bool> changeForward = this->utils.CtcPaveForward(pave);
             vector<bool> changeBackward = this->utils.CtcPaveBackward(pave);
 
             // Warn scheduler to process new pave
@@ -114,41 +109,45 @@ void Scheduler::process(int max_iterations){
 }
 
 void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int process_iterations_max){
-
     if(this->pave_list.size()!=1)
         return;
 
-    int iterations = 1;
-
-    this->SIVIA(0.0, 4, false); // Start with 4 boxes
-    this->set_full_continuity();
+    int iterations = 0;
+    this->set_full();
 
     if(iterations < iterations_max){
-        //        for(int i=0; i<this->pave_list.size(); i++){
-        //            this->utils.CtcPaveFlow(this->pave_list[i]);
-        //        }
+        this->SIVIA(0.0, 4, false); // Start with 4 boxes
+        this->set_full();
+        for(int i=0; i<this->pave_list.size(); i++){
+            this->pave_queue.push_back(this->pave_list[i]);
+        }
+
         this->process(process_iterations_max);
+        iterations++;
     }
 
     while(this->pave_list.size()<pave_max && this->pave_list.size()!=0 && iterations < iterations_max){
         this->SIVIA(0.0, 2*this->pave_list.size(), true);
         // Set full continuity
-        this->set_full_continuity();
+        this->set_full();
+        for(int i=0; i<this->pave_list.size(); i++){
+            this->pave_queue.push_back(this->pave_list[i]);
+        }
 
         // Process the backward with the subpaving
         this->process(process_iterations_max);
 
         // Remove empty pave
-//        for(int i=0; i<this->pave_list.size(); i++){
-//            // || (this->utils.CtcNetwonPave(this->pave_list[i]))
-//            if(this->pave_list[i]->is_one_brother_empty() ){
-//                this->pave_list[i]->remove_from_brothers();
-//                this->pave_list_empty.push_back(this->pave_list[i]);
-//                this->pave_list.erase(this->pave_list.begin() + i);
-//                if(i!=0)
-//                    i--;
-//            }
-//        }
+        for(int i=0; i<this->pave_list.size(); i++){
+            // || (this->utils.CtcNetwonPave(this->pave_list[i]))
+            if(this->pave_list[i]->is_all_brother_empty()){
+                this->pave_list[i]->remove_from_brothers();
+                this->pave_list_empty.push_back(this->pave_list[i]);
+                this->pave_list.erase(this->pave_list.begin() + i);
+                if(i!=0)
+                    i--;
+            }
+        }
 
         cout << "****** " << iterations <<  " ******" << endl;
 
@@ -187,13 +186,13 @@ void Scheduler::print_pave_info(double x, double y, string color){
     cout << "BOX = " << p->m_box << endl;
     cout << p << endl;
     for(int i= 0; i<p->m_borders.size(); i++){
-        cout << "border " << i << '\t' << p->m_borders[i].position << '\t' << p->m_borders[i].segment << endl;
+        cout << "border " << i << '\t' << p->m_borders[i].position() << '\t' << p->m_borders[i].segment_in() << p->m_borders[i].segment_out()<< endl;
     }
     cout << "theta " << p->m_theta[0] << " " << p->m_theta[1] << endl;
 
     for(int i=0; i<p->m_borders.size(); i++){
-        for(int j = 0; j<p->m_borders[i].brothers.size(); j++){
-            cout << "border=" << i << " brother=" << j << " " << p->m_borders[i].brothers[j]->pave << endl;
+        for(int j = 0; j<p->m_borders[i].brothers().size(); j++){
+            cout << "border=" << i << " brother=" << j << " " << p->m_borders[i].brothers()[j]->pave() << endl;
         }
     }
 

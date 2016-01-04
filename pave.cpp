@@ -21,7 +21,7 @@ Pave::Pave(const IntervalVector &box, ibex::Function *f): m_box(2)
     coordinate[1] = box[1]; coordinate[0] = Interval(box[0].lb()); this->m_borders.push_back(Border(coordinate, 3, this));
 
     m_full = false;
-    m_empty = true;
+    m_empty = false;
 
     for(int i=0; i<2; i++)
         this->m_theta[i] = Interval::EMPTY_SET;
@@ -62,9 +62,8 @@ Pave::Pave(const Pave *p): m_box(2)
 
 Pave& Pave::operator&=(const Pave &p){
     for(int face = 0; face <4; face++){
-        this->m_borders[face].segment &= p.m_borders[face].segment;
+        this->m_borders[face] &= p.m_borders[face];
     }
-
     return *this;
 }
 
@@ -90,18 +89,6 @@ void Pave::set_full(){
         this->m_borders[face].set_full();
     }
     this->m_full = true;
-}
-
-bool Pave::set_full_continuity(){
-    bool full = true;
-    for(int face=0; face < 4; face++){
-        if(!this->m_borders[face].set_full_continuity()){
-            full = false;
-        }
-    }
-
-    this->m_full = full;
-    return full;
 }
 
 IntervalVector Pave::get_border_position(int face){
@@ -154,9 +141,6 @@ void Pave::bisect(vector<Pave*> &result){
     Pave *pave1 = new Pave(result_boxes.first, this->m_f); // Left or Up
     Pave *pave2 = new Pave(result_boxes.second, this->m_f); // Right or Down
 
-    pave1->set_same_properties(this);
-    pave2->set_same_properties(this);
-
     int indice1, indice2;
 
     if(pave1->m_box[0] == this->m_box[0]){
@@ -172,19 +156,19 @@ void Pave::bisect(vector<Pave*> &result){
 
     // Copy brothers Pave (this) to pave1 and pave2
     for(int i=0; i<4; i++){
-        if(this->m_borders[i].brothers.size()!=0){
+        if(this->m_borders[i].brothers().size()!=0){
             if(i!=indice1){
-                pave1->m_borders[i].add_brothers(this->m_borders[i].brothers);
+                pave1->m_borders[i].add_brothers(this->m_borders[i].brothers());
             }
             if(i!=indice2){
-                pave2->m_borders[i].add_brothers(this->m_borders[i].brothers);
+                pave2->m_borders[i].add_brothers(this->m_borders[i].brothers());
             }
         }
     }
 
     // Add each other to its brother list (pave1 <-> pave2)
-    pave1->m_borders[indice1].brothers.push_back(&pave2->m_borders[indice2]);
-    pave2->m_borders[indice2].brothers.push_back(&pave1->m_borders[indice1]);
+    pave1->m_borders[indice1].add_brothers(&pave2->m_borders[indice2]);
+    pave2->m_borders[indice2].add_brothers(&pave1->m_borders[indice1]);
 
     // Remove
     for(int i=0; i<4; i++){
@@ -207,20 +191,18 @@ double Pave::get_theta_diam(){
     return diam;
 }
 
-bool Pave::is_one_brother_empty(int level){
+bool Pave::is_all_brother_empty(int level){
     // ToDo : improve function by adding visited_node option
     if(!this->is_empty())
         return false;
 
-    for(int face=0; face<4; face++){
-        for(int i=0; i<this->m_borders[face].brothers.size(); i++){
-            if(level == 0){
-                if(!this->m_borders[face].brothers[i]->pave->is_empty()){
-                    return false;
-                }
-            }
-            else{
-                if(!this->m_borders[face].brothers[i]->pave->is_one_brother_empty(level-1)){
+    if(level == 0){
+        return this->is_empty();
+    }
+    else{
+        for(int face=0; face<4; face++){
+            for(int i=0; i<this->m_borders[face].brothers().size(); i++){
+                if(!this->m_borders[face].brothers()[i]->pave()->is_all_brother_empty(level-1)){
                     return false;
                 }
             }
@@ -235,14 +217,14 @@ bool Pave::is_all_brothers_full(int level){
         return false;
 
     for(int face=0; face<4; face++){
-        for(int i=0; i<this->m_borders[face].brothers.size(); i++){
+        for(int i=0; i<this->m_borders[face].brothers().size(); i++){
             if(level == 0){
-                if(!this->m_borders[face].brothers[i]->pave->is_full()){
+                if(!this->m_borders[face].brothers()[i]->pave()->is_full()){
                     return false;
                 }
             }
             else{
-                if(!this->m_borders[face].brothers[i]->pave->is_all_brothers_full(level-1)){
+                if(!this->m_borders[face].brothers()[i]->pave()->is_all_brothers_full(level-1)){
                     return false;
                 }
             }
@@ -252,19 +234,10 @@ bool Pave::is_all_brothers_full(int level){
     return true;
 }
 
-bool Pave::is_border_flow_out(int border){
-    for(int face = (border+1)%4; face != border; face=(face+1)%4){
-        if(this->m_borders[face].flow_out[border]){
-            return true;
-        }
-    }
-    return false;
-}
-
 void Pave::remove_brothers(Pave* p, int face){
-    for(int i=0; i<this->m_borders[face].brothers.size(); i++){
-        if(this->m_borders[face].brothers[i]->pave == p){
-            this->m_borders[face].brothers.erase(this->m_borders[face].brothers.begin()+i);
+    for(int i=0; i<this->m_borders[face].brothers().size(); i++){
+        if(this->m_borders[face].brothers()[i]->pave() == p){
+            this->m_borders[face].remove_brother(i);
             return;
         }
     }
@@ -272,25 +245,26 @@ void Pave::remove_brothers(Pave* p, int face){
 
 void Pave::remove_from_brothers(){
     for(int face=0; face<4; face++){
-        for(int i=0; i<this->m_borders[face].brothers.size(); i++){
-            this->m_borders[face].brothers[i]->pave->remove_brothers(this, (face+2)%4);
+        for(int i=0; i<this->m_borders[face].brothers().size(); i++){
+            this->m_borders[face].brothers()[i]->pave()->remove_brothers(this, (face+2)%4);
         }
     }
 }
 
 bool Pave::is_empty(){
-    if(this->m_empty)
+    if(this->m_empty){
         return true;
-
-    for(int i=0; i<4; i++){
-        if(!this->m_borders[i].is_empty()){
-            this->m_empty = false; // Normaly useless
-            return false;
-        }
     }
+    else{
+        for(int i=0; i<4; i++){
+            if(!this->m_borders[i].is_empty()){
+                return false;
+            }
+        }
 
-    this->m_empty = true;
-    return true;
+        this->m_empty = true;
+        return true;
+    }
 }
 
 bool Pave::is_full(){
@@ -309,34 +283,10 @@ bool Pave::is_full(){
     }
 }
 
-void Pave::set_empty(bool val){
-    this->m_empty = val;
-}
-
-bool Pave::copy_segment(Pave *p){
-    if(this->m_box == p->m_box){
-        for(int face=0; face < 4; face++){
-            this->m_borders[face].segment = p->m_borders[face].segment;
-        }
-        return true;
-    }
-    else{
-        return false;
-    }
-}
-
-bool Pave::equal_segment(Pave *p){
-    for(int face = 0; face < 4; face++){
-        if(this->m_borders[face].segment != p->m_borders[face].segment)
-            return false;
-    }
-    return true;
-}
-
 vector<Pave*> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
-    for(int i=0; i<this->m_borders[face].brothers.size(); i++){
-        brothers_list.push_back(this->m_borders[face].brothers[i]->pave);
+    for(int i=0; i<this->m_borders[face].brothers().size(); i++){
+        brothers_list.push_back(this->m_borders[face].brothers()[i]->pave());
     }
     return brothers_list;
 }
@@ -348,9 +298,4 @@ std::vector<ibex::Interval> Pave::rotate(const ibex::Interval &theta, const ibex
     list.push_back(xR);
     list.push_back(yR);
     return list;
-}
-
-void Pave::set_same_properties(Pave *p){
-    this->m_full = p->is_full();
-    this->m_empty = p->is_empty();
 }

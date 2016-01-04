@@ -24,6 +24,8 @@ void test(){
 //    test_CtcPaveBackward();
 
 //    test_Newton();
+
+//    test_rotation();
 }
 
 int main()
@@ -90,7 +92,7 @@ int main()
     cout << "Nb of paves = " << s.pave_list.size() << endl;
 #endif
 
-#if 0
+#if 1
     const clock_t begin_time = clock();
     vibes::beginDrawing();
 
@@ -103,7 +105,7 @@ int main()
     ibex::Function f;
     s.set_initial_pave(box, &f);
 
-    s.process_SIVIA_cycle(7, 4000, 100000);
+    s.process_SIVIA_cycle(3, 4000, 100000);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -113,7 +115,7 @@ int main()
 
 #endif
 
-#if 1
+#if 0
    test();
 #endif
     return 0;
