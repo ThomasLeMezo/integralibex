@@ -365,9 +365,9 @@ bool Utils::CtcContinuity(Pave *p){
 }
 
 bool Utils::CtcNetwonPave(Pave *p){
-    return false; // Debug
+//    return false; // Debug
 
-    if(p->is_all_brothers_full()){ // Why is it necessary ?
+    if(p->is_full()){ // Why is it necessary ?
         IntervalVector box_tmp = p->m_box;
         this->contract_newton->contract(box_tmp);
         if(!box_tmp.is_empty())
