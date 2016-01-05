@@ -116,36 +116,18 @@ void Border::set_full(){
     this->m_full = true;
 }
 
-/**
- * @brief Border::set_full_continuity
- * @return true if equal to segment_full, else false
- *
- */
-bool Border::set_full_continuity(){
-    this->m_segment_in = this->m_segment_full;
-    this->m_segment_out = this->m_segment_full;
-
-    this->m_empty = false;
-    this->m_full = true;
-
-    Interval segment = Interval::EMPTY_SET;
-    for(int i=0; i<this->m_brothers.size(); i++){
-        segment |= this->m_brothers[i]->segment_full();
-    }
-
-    if(segment == this->m_segment_full){
-        return true;
-    }
-    else{
-        return false;
-    }
+void Border::set_empty(){
+    this->m_segment_in = Interval::EMPTY_SET;
+    this->m_segment_out = Interval::EMPTY_SET;
+    this->m_empty = true;
+    this->m_full = false;
 }
 
 bool Border::is_empty(){
     if(this->m_empty){
         return true;
     }
-    else if(this->m_segment_in == Interval::EMPTY_SET && this->m_segment_out == Interval::EMPTY_SET){
+    else if(this->m_segment_in.is_empty() && this->m_segment_out.is_empty()){
         this->m_empty = true;
         return true;
     }
@@ -159,7 +141,7 @@ bool Border::is_full(){
         return false;
     }
     else{
-        if(this->m_segment_in != this->m_segment_full && this->m_segment_out != this->m_segment_full){
+        if((this->m_segment_in | this->m_segment_out) != this->m_segment_full){
             this->m_full = false;
             return false;
         }
@@ -171,6 +153,7 @@ bool Border::is_full(){
 
 void Border::set_segment_in(ibex::Interval segment_in){
     this->m_segment_in &= segment_in;
+
 }
 
 void Border::set_segment_out(ibex::Interval segment_out){

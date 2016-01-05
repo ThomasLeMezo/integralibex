@@ -40,6 +40,17 @@ Pave* Scheduler::get_pave(double x, double y){
     }
 }
 
+void Scheduler::activate_pave(double x, double y){
+    Pave *pave = get_pave(x, y);
+    pave->set_full();
+    for(int face=0; face<4; face++){
+        vector<Pave*> brothers_pave = pave->get_brothers(face);
+        for(int i=0; i<brothers_pave.size(); i++){
+            this->pave_queue.push_back(brothers_pave[i]);
+        }
+    }
+}
+
 void Scheduler::set_full(){
     for(int i=0; i<this->pave_list.size(); i++){
         this->pave_list[i]->set_full();
@@ -66,7 +77,7 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max, bool not_full_te
         if(!(tmp->m_theta[1].is_empty()))
             diam += tmp->m_theta[1].diam();
 
-        if(diam < epsilon_theta || (not_full_test && tmp->is_full())){
+        if(diam < epsilon_theta){// || (not_full_test && tmp->is_full() && diam < M_PI)){
             this->pave_list.push_back(tmp);
             iterations++;
         }
@@ -76,7 +87,9 @@ void Scheduler::SIVIA(double epsilon_theta, int iterations_max, bool not_full_te
     }
 
     for(int i=0; i<tmp_pave_list.size(); i++){
+        tmp_pave_list[i]->set_full();
         this->pave_list.push_back(tmp_pave_list[i]);
+        this->pave_queue.push_back(tmp_pave_list[i]);
     }
 }
 
@@ -89,16 +102,14 @@ void Scheduler::process(int max_iterations){
 
         bool change = this->utils.CtcContinuity(pave);
         if(change){
-            vector<bool> changeConsistency = this->utils.CtcPaveConsistency(pave);
+            this->utils.CtcPaveConsistency(pave);
 
             // Warn scheduler to process new pave
             for(int face=0; face<4; face++){
-//                if(changeConsistency[face]){
-                    vector<Pave*> brothers_pave = pave->get_brothers(face);
-                    for(int i=0; i<brothers_pave.size(); i++){
-                        this->pave_queue.push_back(brothers_pave[i]);
-                    }
-//                }
+                vector<Pave*> brothers_pave = pave->get_brothers(face);
+                for(int i=0; i<brothers_pave.size(); i++){
+                    this->pave_queue.push_back(brothers_pave[i]);
+                }
             }
         }
 
@@ -108,7 +119,7 @@ void Scheduler::process(int max_iterations){
     }
 }
 
-void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int process_iterations_max){
+void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int process_iterations_max, bool tarjan){
     if(this->pave_list.size()!=1)
         return;
 
@@ -117,30 +128,20 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
 
     if(iterations < iterations_max){
         this->SIVIA(0.0, 4, false); // Start with 4 boxes
-        this->set_full();
-        for(int i=0; i<this->pave_list.size(); i++){
-            this->pave_queue.push_back(this->pave_list[i]);
-        }
-
         this->process(process_iterations_max);
         iterations++;
     }
 
     while(this->pave_list.size()<pave_max && this->pave_list.size()!=0 && iterations < iterations_max){
         this->SIVIA(0.0, 2*this->pave_list.size(), true);
-        // Set full continuity
-        this->set_full();
-        for(int i=0; i<this->pave_list.size(); i++){
-            this->pave_queue.push_back(this->pave_list[i]);
-        }
-
+        //        this->draw(1024, true);
         // Process the backward with the subpaving
+        cout << "****** " << iterations <<  " ****** (" << this->pave_list.size() << ")" << endl;
         this->process(process_iterations_max);
 
         // Remove empty pave
         for(int i=0; i<this->pave_list.size(); i++){
-            // (this->utils.CtcNetwonPave(this->pave_list[i]))
-            if(this->pave_list[i]->is_all_brother_empty()){
+            if(this->pave_list[i]->is_empty()){
                 this->pave_list[i]->remove_from_brothers();
                 this->pave_list_empty.push_back(this->pave_list[i]);
                 this->pave_list.erase(this->pave_list.begin() + i);
@@ -149,7 +150,38 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
             }
         }
 
-        cout << "****** " << iterations <<  " ******" << endl;
+        // Compute strongly connected components
+        if(tarjan){
+            for(int i=0; i<this->pave_list.size(); i++){
+                this->pave_list[i]->tarjan_compute_successors();
+            }
+
+            int index = 1;
+            std::vector<std::vector<Pave*>> SCC;
+            std::vector<Pave*> S;
+            for(int i=0; i<this->pave_list.size(); i++){
+                if(this->pave_list[i]->m_tarjan_index == 0){
+                    this->pave_list[i]->strongconnect(index, &S, &SCC);
+                }
+            }
+
+            cout << "SCC.size()=" << SCC.size() << endl;
+
+            for(int i=0; i<SCC.size(); i++){
+                if(SCC[i].size()==1 && SCC[i][0]->get_theta_diam()<2*M_PI){
+                    SCC[i][0]->remove_from_brothers();
+                    SCC[i][0]->set_empty();
+                    this->pave_list_empty.push_back(SCC[i][0]);
+
+                    for(int j=0; j<this->pave_list.size(); j++){
+                        if(this->pave_list[j] == SCC[i][0]){
+                            this->pave_list.erase(this->pave_list.begin()+j);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         iterations++;
     }

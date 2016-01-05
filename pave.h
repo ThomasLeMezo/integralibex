@@ -12,7 +12,7 @@ class Pave
 public:
     Pave(const ibex::IntervalVector &box, ibex::Function *f);
     Pave(const Pave *p);
-    ~Pave(){}
+    ~Pave();
 
     Pave& operator&=(const Pave &p);
 
@@ -29,11 +29,10 @@ public:
     // Tests
     bool is_empty();
     bool is_full();
-    bool is_all_brother_empty(int level=1);
-    bool is_all_brothers_full(int level=1);
 
     // Setter
     void set_full();
+    void set_empty();
     void set_theta(ibex::Interval theta);
 
     // Getters
@@ -44,6 +43,9 @@ public:
     // ******** Utils functions ********
     std::vector<ibex::Interval> rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y);
 
+    // ******** Tarjan functions ********
+    void tarjan_compute_successors();
+    void strongconnect(int &index, std::vector<Pave *> *S, std::vector<std::vector<Pave *> > *SCC);
 
 /***************** Variables ******************/
 public:
@@ -52,6 +54,11 @@ public:
     std::vector<Border> m_borders;
 
     ibex::Function *m_f;
+
+    int m_tarjan_index;
+    int m_tarjan_lowlink;
+    bool m_tarjan_on_stack;
+    std::vector<Pave*> m_tarjan_successors;
 
 private:
     bool m_empty;

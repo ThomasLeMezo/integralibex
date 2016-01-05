@@ -34,16 +34,11 @@ public:
     void CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const ibex::Interval theta[], const ibex::IntervalVector &box_pave);
 
     ibex::CtcPolar contract_polar;
-    ibex::CtcNewton* contract_newton;
-    ibex::Function* vector_field_function;
 
-    vector<bool> CtcPaveForward(Pave *p);
-    vector<bool> CtcPaveBackward(Pave *p);
-    vector<bool> CtcPaveConsistency(Pave *p);
+    void CtcPaveForward(Pave *p);
+    void CtcPaveBackward(Pave *p);
+    void CtcPaveConsistency(Pave *p);
     bool CtcContinuity(Pave *p);
-
-//    void CtcPaveFlow(Pave *p);
-    bool CtcNetwonPave(Pave *p);
 
     // ***********************************************************
     // ************************ Variables ************************

@@ -153,13 +153,7 @@ void test_CtcPaveForward(){
 
     test_draw(&p, "test_before");
 
-    vector<bool> output_bool = u.CtcPaveForward(&p);
-
-    cout << "output_bool = [";
-    for(int i=0; i<output_bool.size(); i++)
-        cout << output_bool[i] << ",";
-    cout << "]" << endl;
-    cout << output_bool.size() << endl;
+    u.CtcPaveForward(&p);
 
     test_draw(&p, "test_after");
 }
@@ -181,45 +175,9 @@ void test_CtcPaveConsistency(){
 
     test_draw(&p, "test_before");
 
-    vector<bool> output_bool = u.CtcPaveConsistency(&p);
-
-    cout << "output_bool = [";
-    for(int i=0; i<output_bool.size(); i++)
-        cout << output_bool[i] << ",";
-    cout << "]" << endl;
-    cout << output_bool.size() << endl;
+    u.CtcPaveConsistency(&p);
 
     test_draw(&p, "test_after");
-}
-
-void test_Newton(){
-
-    Variable x,y;
-    Function f(x,y,Return(y, 1.0*(1-pow(x, 2))*y-x));
-    IntervalVector box(2);
-    box[0] = Interval(1.0, 3.0);
-    box[1] = Interval(0.0, 1.0);
-
-    // Build an interval Newton iteration
-    // for solving f(x)=0 where f is
-    // a vector-valued function representing
-    // the system.
-    CtcNewton newton(f, 100.0, 100.0);
-
-    /* Contract the box with Newton */
-    IntervalVector box_tmp(box);
-    newton.contract(box_tmp);
-    newton.contract(box_tmp);
-
-    if(!box_tmp.is_empty() && box_tmp[0].is_strict_subset(box[0]) && box_tmp[1].is_strict_subset(box[1])){
-        cout << "TEST OK"<< endl;
-    }
-    else{
-        cout << "TEST FAILED" << endl;
-    }
-    /* display a very small box enclosing (1,0) */
-    cout << box << endl;
-    cout << box_tmp << endl;
 }
 
 void test_rotation(){

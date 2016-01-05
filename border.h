@@ -27,7 +27,7 @@ public:
 
     // Setters
     void set_full();
-    bool set_full_continuity();
+    void set_empty();
 
     void set_segment_in(ibex::Interval segment_in);
     void set_segment_out(ibex::Interval segment_out);
