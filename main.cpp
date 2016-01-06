@@ -20,9 +20,9 @@ void test(){
 //    test_CtcPropagateFront();
 //    test_CtcPropagateSegment();
 
-//    test_CtcPaveForward();
+    test_CtcPaveForward();
 //    test_CtcPaveBackward();
-    test_CtcPaveConsistency();
+//    test_CtcPaveConsistency();
 
 //    test_Newton();
 
@@ -43,11 +43,11 @@ int main()
 
     ibex::Function f;
     s.set_initial_pave(box, &f);
-    s.SIVIA(M_PI/10.0, 3000, false);
+    s.SIVIA(s.m_global_pave_list[0], s.m_global_pave_queue[0], M_PI/10.0, 3000, false);
 
-    s.activate_pave(-4.0, 6.0);
+    s.activate_pave(s.m_global_pave_list[0], s.m_global_pave_queue[0], -4.0, 6.0);
 
-    s.process(200000, false);
+    s.process(s.m_global_pave_queue[0], 100000, false);
     s.draw(500, true);
 
 //    s.print_pave_info(2.0,0.1, "r[]");
@@ -66,7 +66,7 @@ int main()
     ibex::Function f;
     s.set_initial_pave(box, &f);
 
-    s.process_SIVIA_cycle(14, 4000, 100000, true);
+    s.process_SIVIA_cycle(1, 4000, 100000);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

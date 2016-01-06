@@ -10,6 +10,7 @@ class Border
 /***************** Functions ******************/
 public:
     Border(const ibex::IntervalVector& position, const int face, Pave *pave);
+    Border(const Border &border);
     ~Border(){}
 
     // ******** Drawing functions ********
@@ -22,24 +23,29 @@ public:
 
     // ******** Border Properties ********
     // Operations
-    Border& operator&=(const Border &p);
+    Border& operator&=(const Border &b);
     void remove_brother(int indice);
+    void diff(const Border &b);
 
     // Setters
     void set_full();
     void set_empty();
 
-    void set_segment_in(ibex::Interval segment_in);
-    void set_segment_out(ibex::Interval segment_out);
+    void set_segment_in(ibex::Interval segment_in, bool inclusion);
+    void set_segment_out(ibex::Interval segment_out, bool inclusion);
+
+    void set_pave(Pave* pave);
+    void replace_brother(Border* brother, int id_brother);
 
     // Getters
     void get_points(std::vector<double> &x, std::vector<double> &y);
     ibex::Interval segment_in() const;
     ibex::Interval segment_out() const;
     std::vector<Border *> brothers();
-    ibex::IntervalVector position();
-    Pave* pave();
-    ibex::Interval segment_full();
+    ibex::IntervalVector position() const;
+    Pave* pave() const;
+    ibex::Interval segment_full() const;
+    int face() const;
 
     // Tests
     bool is_empty();

@@ -35,10 +35,10 @@ public:
 
     ibex::CtcPolar contract_polar;
 
-    void CtcPaveForward(Pave *p);
-    void CtcPaveBackward(Pave *p);
-    void CtcPaveConsistency(Pave *p);
-    bool CtcContinuity(Pave *p);
+    void CtcPaveForward(Pave *p, bool inclusion);
+    void CtcPaveBackward(Pave *p, bool inclusion);
+    void CtcPaveConsistency(Pave *p, bool backward);
+    bool CtcContinuity(Pave *p, bool backward);
 
     // ***********************************************************
     // ************************ Variables ************************

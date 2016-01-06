@@ -251,7 +251,7 @@ ibex::IntervalVector Utils::segment2IntervalVector(const ibex::Interval &seg, co
     return intervalVectorSegment;
 }
 
-void Utils::CtcPaveBackward(Pave *p){
+void Utils::CtcPaveBackward(Pave *p, bool inclusion){
 
     Interval segment_in[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
@@ -269,11 +269,11 @@ void Utils::CtcPaveBackward(Pave *p){
     }
 
     for(int face = 0; face<4; face++){
-        p->m_borders[face].set_segment_in(segment_in[face]);
+        p->m_borders[face].set_segment_in(segment_in[face], inclusion);
     }
 }
 
-void Utils::CtcPaveForward(Pave *p){
+void Utils::CtcPaveForward(Pave *p, bool inclusion){
     Interval segment_out[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int face = 0; face < 4; face++){
@@ -294,18 +294,23 @@ void Utils::CtcPaveForward(Pave *p){
     }
 
     for(int face = 0; face<4; face++){
-        p->m_borders[face].set_segment_out(segment_out[face]);
+        p->m_borders[face].set_segment_out(segment_out[face], inclusion);
     }
 }
 
-void Utils::CtcPaveConsistency(Pave *p){
-    this->CtcPaveBackward(p);
-    Pave p2(*p);
-    this->CtcPaveForward(&p2);
-    *p &= p2;
+void Utils::CtcPaveConsistency(Pave *p, bool backward){
+    if(backward){
+        this->CtcPaveBackward(p, backward);
+        Pave p2(*p);
+        this->CtcPaveForward(&p2, backward);
+        *p &= p2;
+    }
+    else{
+        this->CtcPaveForward(p, backward);
+    }
 }
 
-bool Utils::CtcContinuity(Pave *p){
+bool Utils::CtcContinuity(Pave *p, bool backward){
     bool change = false;
 
     for(int face = 0; face < 4; face++){
@@ -317,12 +322,21 @@ bool Utils::CtcContinuity(Pave *p){
             segment_out |= p->m_borders[face].brothers()[b]->segment_out();
         }
 
-        if(p->m_borders[face].segment_in() != (segment_out & p->m_borders[face].segment_in())
-                || p->m_borders[face].segment_out() != (segment_in & p->m_borders[face].segment_out()))
-            change = true;
+        if(backward){
+            if(p->m_borders[face].segment_in() != (segment_out & p->m_borders[face].segment_in())
+                    || p->m_borders[face].segment_out() != (segment_in & p->m_borders[face].segment_out()))
+                change = true;
+            p->m_borders[face].set_segment_in(segment_out, backward);
+            p->m_borders[face].set_segment_out(segment_in, backward);
+        }
+        else{
+            if(p->m_borders[face].segment_in() != (p->m_borders[face].segment_in() | segment_out & p->m_borders[face].segment_full())){
+                change = true;
+                p->m_borders[face].set_segment_in(segment_out, backward);
+            }
+        }
 
-        p->m_borders[face].set_segment_in(segment_out);
-        p->m_borders[face].set_segment_out(segment_in);
+
     }
 
     return change;

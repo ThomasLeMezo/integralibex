@@ -13,9 +13,9 @@ Pave::Pave(const IntervalVector &box, ibex::Function *f): m_box(2)
     this->m_borders.reserve(4);
     this->m_f = f;
 
-    this->m_tarjan_index = 0;
-    this->m_tarjan_lowlink = 0;
-    this->m_tarjan_on_stack = false;
+//    this->m_tarjan_index = 0;
+//    this->m_tarjan_lowlink = 0;
+//    this->m_tarjan_on_stack = false;
 
     // Border building
     IntervalVector coordinate(2);
@@ -50,26 +50,22 @@ Pave::Pave(const IntervalVector &box, ibex::Function *f): m_box(2)
     }
 }
 
-Pave::Pave(const Pave *p): m_box(2)
+Pave::Pave(const Pave &p): m_box(2)
 {
-    this->m_box = p->m_box;    // Box corresponding to the Pave
-    this->m_f = p->m_f;
-    this->m_full = p->m_full;
-    this->m_empty = p->m_empty;
-    this->m_theta[0] = p->m_theta[0];
-    this->m_theta[2] = p->m_theta[1];
+    this->m_box = p.m_box;    // Box corresponding to the Pave
+    this->m_f = p.m_f;
+    this->m_full = p.m_full;
+    this->m_empty = p.m_empty;
+    this->m_theta[0] = p.m_theta[0];
+    this->m_theta[2] = p.m_theta[1];
 
     for(int face = 0; face< 4; face++){
-        this->m_borders.push_back(p->m_borders[face]);
+        this->m_borders.push_back(p.m_borders[face]); // Copy the border !
+        this->m_borders[face].set_pave(this);
     }
-
-    this->m_tarjan_index = 0;
-    this->m_tarjan_lowlink = 0;
-    this->m_tarjan_on_stack = false;
 }
 
 Pave::~Pave(){
-//    this->m_tarjan_successors.clear();
 }
 
 Pave& Pave::operator&=(const Pave &p){
@@ -77,6 +73,14 @@ Pave& Pave::operator&=(const Pave &p){
         this->m_borders[face] &= p.m_borders[face];
     }
     return *this;
+}
+
+void Pave::diff(const Pave &p){
+    for(int face = 0; face<4; face++){
+        this->m_borders[face].diff(p.m_borders[face]);
+    }
+    this->m_empty=false; // forces to recompute the value
+    this->m_full=true;
 }
 
 void Pave::set_theta(ibex::Interval theta){
@@ -276,55 +280,55 @@ std::vector<ibex::Interval> Pave::rotate(const ibex::Interval &theta, const ibex
     return list;
 }
 
-void Pave::tarjan_compute_successors(){
-    this->m_tarjan_index = 0;
-    this->m_tarjan_lowlink = 0;
-    this->m_tarjan_on_stack = false;
-    this->m_tarjan_successors.clear();
+//void Pave::tarjan_compute_successors(){
+//    this->m_tarjan_index = 0;
+//    this->m_tarjan_lowlink = 0;
+//    this->m_tarjan_on_stack = false;
+//    this->m_tarjan_successors.clear();
 
-    for(int face=0; face<4; face++){
-        for(int b=0; b<this->m_borders[face].brothers().size(); b++){
-            if(!(this->m_borders[face].brothers()[b]->segment_in() & this->m_borders[face].segment_out()).is_empty()){
-                this->m_tarjan_successors.push_back(this->m_borders[face].brothers()[b]->pave());
-            }
-        }
-    }
-    if(get_theta_diam()>=2*M_PI){
-        this->m_tarjan_successors.push_back(this);
-    }
-}
+//    for(int face=0; face<4; face++){
+//        for(int b=0; b<this->m_borders[face].brothers().size(); b++){
+//            if(!(this->m_borders[face].brothers()[b]->segment_in() & this->m_borders[face].segment_out()).is_empty()){
+//                this->m_tarjan_successors.push_back(this->m_borders[face].brothers()[b]->pave());
+//            }
+//        }
+//    }
+//    if(get_theta_diam()>=2*M_PI){
+//        this->m_tarjan_successors.push_back(this);
+//    }
+//}
 
-void Pave::strongconnect(int &index, std::vector<Pave*> *S,std::vector<std::vector<Pave*>> *SCC){
-    this->m_tarjan_index = index;
-    this->m_tarjan_lowlink = index;
-    index++;
-    S->push_back(this);
-    this->m_tarjan_on_stack = true;
-    Pave *v = this;
+//void Pave::strongconnect(int &index, std::vector<Pave*> *S,std::vector<std::vector<Pave*>> *SCC){
+//    this->m_tarjan_index = index;
+//    this->m_tarjan_lowlink = index;
+//    index++;
+//    S->push_back(this);
+//    this->m_tarjan_on_stack = true;
+//    Pave *v = this;
 
-    for(int i=0; i<this->m_tarjan_successors.size(); i++){
-        Pave *w = this->m_tarjan_successors[i];
-        if(w->m_tarjan_index == 0){
-            w->strongconnect(index, S, SCC);
-            v->m_tarjan_lowlink = min(v->m_tarjan_lowlink, w->m_tarjan_lowlink);
-        }
-        else if(w->m_tarjan_on_stack){
-            v->m_tarjan_lowlink = min(v->m_tarjan_lowlink, w->m_tarjan_index);
-        }
-    }
+//    for(int i=0; i<this->m_tarjan_successors.size(); i++){
+//        Pave *w = this->m_tarjan_successors[i];
+//        if(w->m_tarjan_index == 0){
+//            w->strongconnect(index, S, SCC);
+//            v->m_tarjan_lowlink = min(v->m_tarjan_lowlink, w->m_tarjan_lowlink);
+//        }
+//        else if(w->m_tarjan_on_stack){
+//            v->m_tarjan_lowlink = min(v->m_tarjan_lowlink, w->m_tarjan_index);
+//        }
+//    }
 
-    if(v->m_tarjan_index == v->m_tarjan_lowlink){
-        std::vector<Pave *> C;
-        Pave *w;
-//        cout << "NEW LIST C : v = " << v->m_tarjan_index << endl;
-        do{
-            w = S->back();
-//            cout << "Node (" << w->m_box << ") " << '\t' << "= " << w->m_tarjan_index << "," << w->m_tarjan_lowlink << " size = " << w->m_tarjan_successors.size() << endl;
-            S->pop_back();
-            w->m_tarjan_on_stack = false;
-            C.push_back(w);
-        } while(w != v);
+//    if(v->m_tarjan_index == v->m_tarjan_lowlink){
+//        std::vector<Pave *> C;
+//        Pave *w;
+////        cout << "NEW LIST C : v = " << v->m_tarjan_index << endl;
+//        do{
+//            w = S->back();
+////            cout << "Node (" << w->m_box << ") " << '\t' << "= " << w->m_tarjan_index << "," << w->m_tarjan_lowlink << " size = " << w->m_tarjan_successors.size() << endl;
+//            S->pop_back();
+//            w->m_tarjan_on_stack = false;
+//            C.push_back(w);
+//        } while(w != v);
 
-        SCC->push_back(C);
-    }
-}
+//        SCC->push_back(C);
+//    }
+//}

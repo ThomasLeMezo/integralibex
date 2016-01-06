@@ -11,10 +11,11 @@ class Pave
 /***************** Functions ******************/
 public:
     Pave(const ibex::IntervalVector &box, ibex::Function *f);
-    Pave(const Pave *p);
+    Pave(const Pave &p);
     ~Pave();
 
     Pave& operator&=(const Pave &p);
+    void diff(const Pave &p);
 
     // ******** Drawing functions ********
     void draw(bool filled, string color="black[]");
@@ -44,8 +45,8 @@ public:
     std::vector<ibex::Interval> rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y);
 
     // ******** Tarjan functions ********
-    void tarjan_compute_successors();
-    void strongconnect(int &index, std::vector<Pave *> *S, std::vector<std::vector<Pave *> > *SCC);
+//    void tarjan_compute_successors();
+//    void strongconnect(int &index, std::vector<Pave *> *S, std::vector<std::vector<Pave *> > *SCC);
 
 /***************** Variables ******************/
 public:
@@ -55,10 +56,11 @@ public:
 
     ibex::Function *m_f;
 
-    int m_tarjan_index;
-    int m_tarjan_lowlink;
-    bool m_tarjan_on_stack;
-    std::vector<Pave*> m_tarjan_successors;
+    Pave* m_copy_node;
+//    int m_tarjan_index;
+//    int m_tarjan_lowlink;
+//    bool m_tarjan_on_stack;
+//    std::vector<Pave*> m_tarjan_successors;
 
 private:
     bool m_empty;

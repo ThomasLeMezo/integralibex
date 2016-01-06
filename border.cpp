@@ -23,6 +23,18 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     this->m_full = false;
 }
 
+Border::Border(const Border &border): m_position(2)
+{
+    this->m_position = border.position();
+    this->m_face = border.face();
+    this->m_pave = border.pave();
+    this->m_segment_in = border.segment_in();
+    this->m_segment_out = border.segment_out();
+    this->m_segment_full = border.segment_full();
+    this->m_empty = false;
+    this->m_full = false;
+}
+
 void Border::draw() const{
     // Create an IntervalVector (2D) from the segment (1D)
     IntervalVector segment_in = this->m_position;
@@ -151,13 +163,22 @@ bool Border::is_full(){
     }
 }
 
-void Border::set_segment_in(ibex::Interval segment_in){
-    this->m_segment_in &= segment_in;
-
+void Border::set_segment_in(ibex::Interval segment_in, bool inclusion){
+    if(inclusion)
+        this->m_segment_in &= segment_in;
+    else
+        this->m_segment_in |= segment_in;
 }
 
-void Border::set_segment_out(ibex::Interval segment_out){
-    this->m_segment_out &= segment_out;
+void Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
+    if(inclusion)
+        this->m_segment_out &= segment_out;
+    else
+        this->m_segment_out |= segment_out;
+}
+
+void Border::set_pave(Pave* pave){
+    this->m_pave = pave;
 }
 
 ibex::Interval Border::segment_in() const{
@@ -168,28 +189,47 @@ ibex::Interval Border::segment_out() const{
     return this->m_segment_out;
 }
 
+ibex::Interval Border::segment_full() const{
+    return this->m_segment_full;
+}
+
 std::vector<Border*> Border::brothers(){
     return this->m_brothers;
 }
 
-ibex::IntervalVector Border::position(){
+ibex::IntervalVector Border::position() const{
     return this->m_position;
 }
 
-Pave* Border::pave(){
+Pave* Border::pave() const{
     return this->m_pave;
 }
 
-ibex::Interval Border::segment_full(){
-    return this->m_segment_full;
+int Border::face() const{
+    return this->m_face;
 }
 
-Border& Border::operator&=(const Border &p){
-    this->m_segment_in &= p.segment_in();
-    this->m_segment_out &= p.segment_out();
+Border& Border::operator&=(const Border &b){
+    this->m_segment_in &= b.segment_in();
+    this->m_segment_out &= b.segment_out();
     return *this;
+}
+
+void Border::diff(const Border &b){
+    Interval segment_in_r, segment_in_l;
+    this->m_segment_in.diff(b.segment_in(), segment_in_r, segment_in_l);
+    this->m_segment_in = segment_in_r | segment_in_l;
+
+    Interval segment_out_r, segment_out_l;
+    this->m_segment_out.diff(b.segment_out(), segment_out_r, segment_out_l);
+    this->m_segment_out = segment_out_r | segment_out_l;
+
 }
 
 void Border::remove_brother(int indice){
     this->m_brothers.erase(this->m_brothers.begin() + indice);
+}
+
+void Border::replace_brother(Border* brother, int id_brother){
+    this->m_brothers[id_brother] = brother;
 }
