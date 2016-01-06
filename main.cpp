@@ -32,7 +32,7 @@ void test(){
 int main()
 {
 
-#if 0
+#if 1
     vibes::beginDrawing();
 
     Scheduler s;
@@ -43,17 +43,26 @@ int main()
 
     ibex::Function f;
     s.set_initial_pave(box, &f);
-    s.SIVIA(s.m_global_pave_list[0], s.m_global_pave_queue[0], M_PI/10.0, 3000, false);
+    s.SIVIA(s.m_global_pave_list[0], s.m_global_pave_queue[0], 0.0*M_PI/10.0, 10000, false);
 
-    s.activate_pave(s.m_global_pave_list[0], s.m_global_pave_queue[0], -3.0, -1.0);
+    //s.activate_pave(s.m_global_pave_list[0], s.m_global_pave_queue[0], -1.6, -2.8);
+    //s.process(s.m_global_pave_queue[0], 100000, false);
+    //s.draw(500, true);
 
-    s.process(s.m_global_pave_queue[0], 100000, false);
+    vector<Pave*> pave_list, pave_queue;
+    s.copy_graph(pave_list, s.m_global_pave_list[0], true);
+    s.activate_pave(pave_list, pave_queue, -1.6, -2.8);
+
+    s.process(pave_queue, 100000, false);
+    s.draw(pave_list, 500, true);
     s.draw(500, true);
+
+
 
 //    s.print_pave_info(2.0,0.1, "r[]");
 #endif
 
-#if 1
+#if 0
     const clock_t begin_time = clock();
     vibes::beginDrawing();
 
@@ -66,7 +75,7 @@ int main()
     ibex::Function f;
     s.set_initial_pave(box, &f);
 
-    s.process_SIVIA_cycle(18, 4000, 100000);
+    s.process_SIVIA_cycle(10, 4000, 200000);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

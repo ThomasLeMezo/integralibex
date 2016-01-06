@@ -60,6 +60,7 @@ public:
 
     Pave* m_copy_node;
 
+    int id;
 
 private:
     bool m_empty;

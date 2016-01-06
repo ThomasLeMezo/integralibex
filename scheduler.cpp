@@ -94,6 +94,9 @@ void Scheduler::SIVIA(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_qu
         }
         else{
             tmp->bisect(tmp_pave_list);
+
+            tmp_pave_list[tmp_pave_list.size()-1]->id = tmp_pave_list.size()-1;
+            tmp_pave_list[tmp_pave_list.size()-2]->id = tmp_pave_list.size()-2;
         }
     }
 
@@ -158,6 +161,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
             cout << "****** " << iterations <<  " ****** (" << this->m_global_pave_list[nb_graph].size() << ")" << endl;
             this->process(this->m_global_pave_queue[nb_graph], process_iterations_max, true);
             this->m_global_pave_queue[nb_graph].clear();
+
             // Remove empty pave
             for(int i=0; i<this->m_global_pave_list[nb_graph].size(); i++){
                 if(this->m_global_pave_list[nb_graph][i]->is_empty()){
@@ -193,35 +197,44 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
                 if(pave_start == NULL)
                     break;
 
-                vector<Pave*> pave_list = copy_graph(nb_graph, true, pave_start); //
-                vector<Pave*> pave_queue;
+                vector<Pave*> pave_list, pave_queue;
+                copy_graph(pave_list, this->m_global_pave_list[nb_graph], true);
 
-                for(int face=0; face<4; face++){    // Warn scheduler
-                    vector<Pave*> brothers_pave = pave_start->m_copy_node->get_brothers(face);
+                Pave* copy_node = pave_start->m_copy_node;
+                copy_node->set_full();
+                for(int face=0; face<4; face++){
+                    vector<Pave*> brothers_pave = copy_node->get_brothers(face);
                     for(auto &pave : brothers_pave){
                         pave_queue.push_back(pave);
                     }
                 }
-//                if(iterations>13)
-//                    this->draw(pave_list, 1024, true);
+
+                if(iterations==iterations_max-1){
+                    this->draw(pave_list,1024,  false);
+                    this->draw(pave_queue, 1024,false);
+                    cout << "STOP" << endl;
+                }
+
+
                 this->process(pave_queue, process_iterations_max, false);
 
+                if(iterations==iterations_max-1){
+                    cout << "PAVE_START=" << pave_start->m_box << endl;
+                    this->draw(pave_list, 1024, true);
+                }
 
                 // Make the difference of the two pave_list
                 //                vector<Pave*> pave_list2 = copy_graph(nb_graph, false, NULL);
 
                 for(int i=0; i<pave_list.size(); i++){
-                    //if(this->m_global_pave_list[nb_graph][i]->is_full())
-
-                    if(this->m_global_pave_list[nb_graph][i]->inter(*(pave_list[i]))){
-                        this->m_global_pave_queue[nb_graph].push_back(this->m_global_pave_list[nb_graph][i]);
+                    if(this->m_global_pave_list[nb_graph][i]->is_full()){
+                        if(this->m_global_pave_list[nb_graph][i]->inter(*(pave_list[i]))){
+                            this->m_global_pave_queue[nb_graph].push_back(this->m_global_pave_list[nb_graph][i]);
+                        }
                     }
                     //                    pave_list2[i]->diff(*(this->m_global_pave_list[nb_graph][i]));
                 }
-                if(iterations==iterations_max-1){
-                    cout << "PAVE_START=" << pave_start->m_box << endl;
-                    this->draw(pave_list, 1024, true);
-                }
+
                 //                if(iterations > 15)
                 //                    this->draw(pave_list, 1024, true);
 
@@ -231,41 +244,37 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
                 //                this->m_global_pave_queue.push_back(pave_queue2);
 
                 // delete pave_list
-//                for(int i=0; i<pave_list.size(); i++){
-//                    delete(pave_list[i]);
-//                }
+                //                for(int i=0; i<pave_list.size(); i++){
+                //                    delete(pave_list[i]);
+                //                }
             }
-
             iterations++;
         }
+
         iterations = 0;
     }
+
 }
 
-vector<Pave*> Scheduler::copy_graph(int graph, bool empty, Pave* pave_keep){
-    vector<Pave*> pave_list;
-    for(int i=0; i<this->m_global_pave_list[graph].size(); i++){
-        Pave *p = new Pave(*(this->m_global_pave_list[graph][i]));
-        if(empty & pave_keep != this->m_global_pave_list[graph][i])
+void Scheduler::copy_graph(vector<Pave*> &pave_list_copy, vector<Pave*> &pave_list, bool empty){
+    for(int i=0; i<pave_list.size(); i++){
+        Pave *p = new Pave(*(pave_list[i]));
+        if(empty)
             p->set_empty();
-        pave_list.push_back(p);
-        this->m_global_pave_list[graph][i]->m_copy_node = p;
+        pave_list[i]->m_copy_node = p;
+        pave_list_copy.push_back(p);
     }
 
-    for(int i=0; i<this->m_global_pave_list[graph].size(); i++){
-        Pave* pave_root = this->m_global_pave_list[graph][i];
-        Pave* pave_copy = pave_list[i];
+    for(int i=0; i<pave_list.size(); i++){
+        Pave* pave_root = pave_list[i];
+        Pave* pave_copy = pave_list_copy[i];
 
         for(int face = 0; face<4; face++){
-            if(pave_root->m_borders[face].brothers().size() != pave_copy->m_borders[face].brothers().size())
-                cout << "ERROR = " << pave_root->m_borders[face].brothers().size() << pave_copy->m_borders[face].brothers().size() << endl;
             for(int j=0; j<pave_root->m_borders[face].brothers().size(); j++){
                 pave_copy->m_borders[face].brothers()[j]->set_pave(pave_root->m_borders[face].brothers()[j]->pave()->m_copy_node);
             }
         }
     }
-
-    return pave_list;
 }
 
 // ********************************************************************************
@@ -293,17 +302,17 @@ void Scheduler::draw(int size, bool filled){
 }
 
 void Scheduler::draw(vector<Pave*> pave_list, int size, bool filled){
-        stringstream ss;
-        ss << "integralIbex" << this->m_draw_nb << "- TEST";
-        vibes::newFigure(ss.str());
-        vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
+    stringstream ss;
+    ss << "integralIbex" << this->m_draw_nb << "- TEST";
+    vibes::newFigure(ss.str());
+    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
-        for(int i=0; i<pave_list.size(); i++){
-            pave_list[i]->draw(filled);
-        }
+    for(int i=0; i<pave_list.size(); i++){
+        pave_list[i]->draw(filled);
+    }
 
-        vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-        this->m_draw_nb++;
+    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+    this->m_draw_nb++;
 }
 
 // ********************************************************************************

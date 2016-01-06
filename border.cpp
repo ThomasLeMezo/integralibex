@@ -48,8 +48,10 @@ void Border::draw() const{
     segment_in[this->m_face%2] = this->m_segment_in;
     segment_out[this->m_face%2] = this->m_segment_out;
 
-    double pourcentage = min(this->m_segment_full.diam()*0.01, 0.01);
-    segment_in[(this->m_face+1)%2] += Interval(-pourcentage, pourcentage);
+    double pourcentage_in = min(this->m_segment_full.diam()*0.01, 0.01);
+    double pourcentage_out = min(this->m_segment_full.diam()*0.001, 0.001);
+    segment_in[(this->m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in);
+    segment_out[(this->m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out);
 
     vibes::drawBox(segment_in, "r[r]");
     vibes::drawBox(segment_out, "b[b]");

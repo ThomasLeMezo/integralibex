@@ -60,7 +60,7 @@ Pave::Pave(const Pave *p): m_box(2)
     this->m_in_queue = false;
 
     for(int face = 0; face < 4; face++){
-        this->m_borders.push_back(p->m_borders[face]); // Copy the border !
+        this->m_borders.push_back(new Border(p->m_borders[face])); // Copy the border !
         this->m_borders[face].set_pave(this);
     }
     this->m_copy_node = NULL;

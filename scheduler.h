@@ -23,7 +23,7 @@ public:
     Pave* get_pave(std::vector<Pave*> &pave_list, double x, double y);
     void activate_pave(std::vector<Pave*> &pave_list, std::vector<Pave *> &pave_queue, double x, double y);
 
-    vector<Pave *> copy_graph(int graph, bool empty, Pave *pave_keep);
+    void copy_graph(std::vector<Pave*> &pave_list_copy, vector<Pave *> &pave_list, bool empty);
 
     // ******** Drawing functions ********
     void draw(int size, bool filled);
