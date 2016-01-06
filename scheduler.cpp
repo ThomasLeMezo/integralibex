@@ -112,6 +112,7 @@ void Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool
         iterations++;
         Pave *pave = pave_queue.front();
         pave_queue.erase(pave_queue.begin());
+        pave->m_in_queue = false;
 
         bool change = this->m_utils.CtcContinuity(pave, backward);
         if(change){
@@ -121,7 +122,10 @@ void Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool
             for(int face=0; face<4; face++){
                 vector<Pave*> brothers_pave = pave->get_brothers(face);
                 for(int i=0; i<brothers_pave.size(); i++){
-                    pave_queue.push_back(brothers_pave[i]);
+                    if(brothers_pave[i]->m_in_queue == false){
+                        pave_queue.push_back(brothers_pave[i]);
+                        brothers_pave[i]->m_in_queue = true;
+                    }
                 }
             }
         }

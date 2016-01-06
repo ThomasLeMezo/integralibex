@@ -13,9 +13,7 @@ Pave::Pave(const IntervalVector &box, ibex::Function *f): m_box(2)
     this->m_borders.reserve(4);
     this->m_f = f;
 
-//    this->m_tarjan_index = 0;
-//    this->m_tarjan_lowlink = 0;
-//    this->m_tarjan_on_stack = false;
+    this->m_in_queue = false;
 
     // Border building
     IntervalVector coordinate(2);
@@ -58,6 +56,7 @@ Pave::Pave(const Pave &p): m_box(2)
     this->m_empty = p.m_empty;
     this->m_theta[0] = p.m_theta[0];
     this->m_theta[2] = p.m_theta[1];
+    this->m_in_queue = false;
 
     for(int face = 0; face< 4; face++){
         this->m_borders.push_back(p.m_borders[face]); // Copy the border !

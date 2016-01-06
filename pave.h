@@ -53,14 +53,12 @@ public:
     ibex::Interval m_theta[2];
     ibex::IntervalVector m_box;
     std::vector<Border> m_borders;
+    bool m_in_queue;
 
     ibex::Function *m_f;
 
     Pave* m_copy_node;
-//    int m_tarjan_index;
-//    int m_tarjan_lowlink;
-//    bool m_tarjan_on_stack;
-//    std::vector<Pave*> m_tarjan_successors;
+
 
 private:
     bool m_empty;
