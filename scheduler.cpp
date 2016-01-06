@@ -205,7 +205,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
                         pave_queue.push_back(pave);
                     }
                 }
-                if(iterations==15)
+                if(iterations>13)
                     this->draw(pave_list, 1024, true);
                 this->process(pave_queue, process_iterations_max, false);
 
@@ -214,10 +214,11 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
                 //                vector<Pave*> pave_list2 = copy_graph(nb_graph, false, NULL);
 
                 for(int i=0; i<pave_list.size(); i++){
-                    *(this->m_global_pave_list[nb_graph][i]) &= *(pave_list[i]);
+                    if(this->m_global_pave_list[nb_graph][i]->is_full())
+                        *(this->m_global_pave_list[nb_graph][i]) &= *(pave_list[i]);
                     //                    pave_list2[i]->diff(*(this->m_global_pave_list[nb_graph][i]));
                 }
-                if(iterations==15)
+                if(iterations>13)
                     this->draw(pave_list, 1024, true);
                 //                if(iterations > 15)
                 //                    this->draw(pave_list, 1024, true);
@@ -298,6 +299,7 @@ void Scheduler::draw(vector<Pave*> pave_list, int size, bool filled){
         }
 
         vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+        this->m_draw_nb++;
 }
 
 // ********************************************************************************

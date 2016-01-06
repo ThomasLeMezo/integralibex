@@ -45,7 +45,7 @@ int main()
     s.set_initial_pave(box, &f);
     s.SIVIA(s.m_global_pave_list[0], s.m_global_pave_queue[0], M_PI/10.0, 3000, false);
 
-    s.activate_pave(s.m_global_pave_list[0], s.m_global_pave_queue[0], -4.0, 6.0);
+    s.activate_pave(s.m_global_pave_list[0], s.m_global_pave_queue[0], -3.0, -1.0);
 
     s.process(s.m_global_pave_queue[0], 100000, false);
     s.draw(500, true);
