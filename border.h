@@ -24,6 +24,7 @@ public:
     // ******** Border Properties ********
     // Operations
     Border& operator&=(const Border &b);
+    bool inter(const Border &b);
     void remove_brother(int indice);
     void diff(const Border &b);
 

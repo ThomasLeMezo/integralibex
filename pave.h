@@ -15,6 +15,7 @@ public:
     ~Pave();
 
     Pave& operator&=(const Pave &p);
+    bool inter(const Pave &p);
     void diff(const Pave &p);
 
     // ******** Drawing functions ********

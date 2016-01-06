@@ -66,7 +66,7 @@ int main()
     ibex::Function f;
     s.set_initial_pave(box, &f);
 
-    s.process_SIVIA_cycle(15, 4000, 100000);
+    s.process_SIVIA_cycle(18, 4000, 100000);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

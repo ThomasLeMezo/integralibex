@@ -76,6 +76,15 @@ Pave& Pave::operator&=(const Pave &p){
     return *this;
 }
 
+bool Pave::inter(const Pave &p){
+    bool change = false;
+    for(int face = 0; face <4; face++){
+        if(this->m_borders[face].inter(p.m_borders[face]))
+            change = true;
+    }
+    return change;
+}
+
 void Pave::diff(const Pave &p){
     for(int face = 0; face<4; face++){
         this->m_borders[face].diff(p.m_borders[face]);
@@ -197,6 +206,11 @@ void Pave::bisect(vector<Pave*> &result){
     // Remove
     for(int i=0; i<4; i++){
         this->m_borders[i].update_brothers(&(pave1->m_borders[i]), &(pave2->m_borders[i]));
+    }
+
+    if(this->is_full()){
+        pave1->set_full();
+        pave2->set_full();
     }
 
     result.push_back(pave1);

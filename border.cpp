@@ -219,6 +219,18 @@ Border& Border::operator&=(const Border &b){
     return *this;
 }
 
+bool Border::inter(const Border &b){
+    bool change = false;
+    if((this->m_segment_in & b.segment_in()) != this->m_segment_in)
+        change = true;
+    if((this->m_segment_out & b.segment_out()) != this->m_segment_out)
+        change = true;
+
+    this->m_segment_in &= b.segment_in();
+    this->m_segment_out &= b.segment_out();
+    return change;
+}
+
 void Border::diff(const Border &b){
     Interval segment_in_r, segment_in_l;
     this->m_segment_in.diff(b.segment_in(), segment_in_r, segment_in_l);
