@@ -27,6 +27,7 @@ public:
 
     // ******** Drawing functions ********
     void draw(int size, bool filled);
+    void draw(vector<Pave *> pave_list, int size, bool filled);
 
     // ******** Utils functions ********
     void print_pave_info(int graph, double x, double y, string color="g[]");

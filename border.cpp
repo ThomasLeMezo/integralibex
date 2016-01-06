@@ -23,16 +23,20 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     this->m_full = false;
 }
 
-Border::Border(const Border &border): m_position(2)
+Border::Border(Border *border): m_position(2)
 {
-    this->m_position = border.position();
-    this->m_face = border.face();
-    this->m_pave = border.pave();
-    this->m_segment_in = border.segment_in();
-    this->m_segment_out = border.segment_out();
-    this->m_segment_full = border.segment_full();
+    this->m_position = border->position();
+    this->m_face = border->face();
+    this->m_pave = border->pave();
+    this->m_segment_in = border->segment_in();
+    this->m_segment_out = border->segment_out();
+    this->m_segment_full = border->segment_full();
     this->m_empty = false;
     this->m_full = false;
+
+    for(int i=0; i<border->brothers().size(); i++){
+        this->m_brothers.push_back( border->brothers()[i]);
+    }
 }
 
 void Border::draw() const{

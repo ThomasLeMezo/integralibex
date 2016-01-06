@@ -11,7 +11,7 @@ class Pave
 /***************** Functions ******************/
 public:
     Pave(const ibex::IntervalVector &box, ibex::Function *f);
-    Pave(const Pave &p);
+    Pave(const Pave *p);
     ~Pave();
 
     Pave& operator&=(const Pave &p);

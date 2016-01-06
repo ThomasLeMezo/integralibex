@@ -10,7 +10,7 @@ class Border
 /***************** Functions ******************/
 public:
     Border(const ibex::IntervalVector& position, const int face, Pave *pave);
-    Border(const Border &border);
+    Border(Border *border);
     ~Border(){}
 
     // ******** Drawing functions ********

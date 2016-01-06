@@ -143,13 +143,14 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
     int iterations = 0;
     this->set_full(this->m_global_pave_list[0]);
 
-    if(iterations < iterations_max){
-        this->SIVIA(this->m_global_pave_list[0], this->m_global_pave_queue[0], 0.0, 4, true); // Start with 4 boxes
-        this->process(this->m_global_pave_queue[0], process_iterations_max,  true);
-        iterations++;
-    }
-
     for(int nb_graph=0; nb_graph<this->m_global_pave_list.size(); nb_graph++){
+
+        if(iterations < iterations_max && this->m_global_pave_queue[nb_graph].size()<4){
+            this->SIVIA(this->m_global_pave_list[nb_graph], this->m_global_pave_queue[nb_graph], 0.0, 4, true); // Start with 4 boxes
+            this->process(this->m_global_pave_queue[nb_graph], process_iterations_max,  true);
+            iterations++;
+        }
+
         while(this->m_global_pave_list[nb_graph].size()<pave_max && this->m_global_pave_list[nb_graph].size()!=0 && iterations < iterations_max){
             this->SIVIA(this->m_global_pave_list[nb_graph], this->m_global_pave_queue[nb_graph], 0.0, 2*this->m_global_pave_list[nb_graph].size(), true);
 
@@ -167,55 +168,70 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
                         i--;
                 }
             }
-
-            if(this->m_global_pave_list[nb_graph].size()==0)
-                break;
-
-            // ***************************************************
-            // Copy graph & propagate one Pave + intersect with cycle
-            // Find the first non-full & non-empty Pave
-#if 0
-            cout << "REMOVE INSIDE" << endl;
-            Pave *pave_start;
-            for(int i=0; i<this->m_global_pave_list[nb_graph].size(); i++){
-                if(!this->m_global_pave_list[nb_graph][i]->is_empty() && !this->m_global_pave_list[nb_graph][i]->is_full()){
-                    pave_start = this->m_global_pave_list[nb_graph][i];
-                    break;
-                }
-            }
-
-            vector<Pave*> pave_list = copy_graph(nb_graph, true, pave_start); //
-            vector<Pave*> pave_queue;
-
-            for(int face=0; face<4; face++){    // Warn scheduler
-                vector<Pave*> brothers_pave = pave_start->m_copy_node->get_brothers(face);
-                for(auto &pave : brothers_pave){
-                    pave_queue.push_back(pave);
-                }
-            }
-            this->process(pave_queue, process_iterations_max, false);
-
-
-            // Make the difference of the two pave_list
-            vector<Pave*> pave_list2 = copy_graph(nb_graph, false, NULL);
-
-            for(int i=0; i<pave_list.size(); i++){
-                *(this->m_global_pave_list[nb_graph][i]) &= *(pave_list[i]);
-                pave_list2[i]->diff(*(this->m_global_pave_list[nb_graph][i]));
-            }
-
-            this->m_global_pave_list.push_back(pave_list2);
-            vector<Pave*> pave_queue2, pave_empty2;
-            this->m_global_pave_list_empty.push_back(pave_empty2);
-            this->m_global_pave_queue.push_back(pave_queue2);
-
-            // delete pave_list
-            for(int i=0; i<pave_list.size(); i++){
-                delete(pave_list[i]);
-            }
-#endif
-
             iterations++;
+
+
+            if(this->m_global_pave_list[nb_graph].size()>1){
+
+                // ***************************************************
+                // Copy graph & propagate one Pave + intersect with cycle
+                // Find the first non-full & non-empty Pave
+
+                cout << "REMOVE INSIDE" << endl;
+                Pave *pave_start;
+                for(int i=0; i<this->m_global_pave_list[nb_graph].size(); i++){
+                    if(!this->m_global_pave_list[nb_graph][i]->is_empty() && !this->m_global_pave_list[nb_graph][i]->is_full()){
+                        pave_start = this->m_global_pave_list[nb_graph][i];
+                        break;
+                    }
+                }
+                if(pave_start == NULL){
+                    for(int i=0; i<this->m_global_pave_list[nb_graph].size(); i++){
+                        if(!this->m_global_pave_list[nb_graph][i]->is_empty()){
+                            pave_start = this->m_global_pave_list[nb_graph][i];
+                            break;
+                        }
+                    }
+                }
+                if(pave_start == NULL)
+                    break;
+
+                vector<Pave*> pave_list = copy_graph(nb_graph, true, pave_start); //
+                vector<Pave*> pave_queue;
+
+                for(int face=0; face<4; face++){    // Warn scheduler
+                    vector<Pave*> brothers_pave = pave_start->m_copy_node->get_brothers(face);
+                    for(auto &pave : brothers_pave){
+                        pave_queue.push_back(pave);
+                    }
+                }
+                if(iterations==15)
+                    this->draw(pave_list, 1024, true);
+                this->process(pave_queue, process_iterations_max, false);
+
+
+                // Make the difference of the two pave_list
+                //                vector<Pave*> pave_list2 = copy_graph(nb_graph, false, NULL);
+
+                for(int i=0; i<pave_list.size(); i++){
+                    *(this->m_global_pave_list[nb_graph][i]) &= *(pave_list[i]);
+                    //                    pave_list2[i]->diff(*(this->m_global_pave_list[nb_graph][i]));
+                }
+                if(iterations==15)
+                    this->draw(pave_list, 1024, true);
+                //                if(iterations > 15)
+                //                    this->draw(pave_list, 1024, true);
+
+                //                this->m_global_pave_list.push_back(pave_list2);
+                //                vector<Pave*> pave_queue2, pave_empty2;
+                //                this->m_global_pave_list_empty.push_back(pave_empty2);
+                //                this->m_global_pave_queue.push_back(pave_queue2);
+
+                // delete pave_list
+                for(int i=0; i<pave_list.size(); i++){
+                    delete(pave_list[i]);
+                }
+            }
         }
         iterations = 0;
     }
@@ -236,6 +252,8 @@ vector<Pave*> Scheduler::copy_graph(int graph, bool empty, Pave* pave_keep){
         Pave* pave_copy = pave_list[i];
 
         for(int face = 0; face<4; face++){
+            if(pave_root->m_borders[face].brothers().size() != pave_copy->m_borders[face].brothers().size())
+                cout << "ERROR = " << pave_root->m_borders[face].brothers().size() << pave_copy->m_borders[face].brothers().size() << endl;
             for(int j=0; j<pave_root->m_borders[face].brothers().size(); j++){
                 pave_copy->m_borders[face].brothers()[j]->set_pave(pave_root->m_borders[face].brothers()[j]->pave()->m_copy_node);
             }
@@ -267,6 +285,19 @@ void Scheduler::draw(int size, bool filled){
         vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     }
     this->m_draw_nb++;
+}
+
+void Scheduler::draw(vector<Pave*> pave_list, int size, bool filled){
+        stringstream ss;
+        ss << "integralIbex" << this->m_draw_nb << "- TEST";
+        vibes::newFigure(ss.str());
+        vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
+
+        for(int i=0; i<pave_list.size(); i++){
+            pave_list[i]->draw(filled);
+        }
+
+        vibes::setFigureProperties(vibesParams("viewbox", "equal"));
 }
 
 // ********************************************************************************
