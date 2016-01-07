@@ -29,8 +29,10 @@ Pave::Pave(const IntervalVector &box, ibex::Function *f): m_box(2)
     for(int i=0; i<2; i++)
         this->m_theta[i] = Interval::EMPTY_SET;
 
-    Interval dx = box[1];
-    Interval dy = 1.0*(1-pow(box[0], 2))*box[1]-box[0];
+    IntervalVector dbox = f->eval_vector(box);
+
+    Interval dx = dbox[0];
+    Interval dy = dbox[1];
 
     Interval theta = atan2(dy, dx);
     if(theta==(-Interval::PI|Interval::PI)){

@@ -6,11 +6,11 @@
 using namespace ibex;
 using namespace std;
 
-void test_draw(Pave *p, string drawing_name){
+void test_draw(Pave *p, string drawing_name, bool full=false){
     vibes::beginDrawing();
     vibes::newFigure(drawing_name);
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
-    p->draw(false);
+    p->draw(full);
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     vibes::axisAuto();
 }
@@ -200,4 +200,25 @@ void test_rotation(){
     cout << "-----" << endl;
     cout << "Sk=" << Sk << endl;
     cout << "box=" << box << endl;
+}
+
+void test_diff(){
+    IntervalVector box(2);
+    box[0] = Interval(0,1);
+    box[1] = Interval(0,1);
+    Function f;
+
+    Pave p1(box, &f);
+    Pave p2(box, &f);
+
+    p1.m_borders[0].set_full();
+    p1.m_borders[1].set_full();
+    p2.set_full();
+
+    test_draw(&p1, "p1", true);
+    test_draw(&p2, "p2_before", true);
+
+    p2.diff(p1);
+    test_draw(&p2, "p2_after", true);
+
 }

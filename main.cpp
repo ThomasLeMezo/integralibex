@@ -20,20 +20,25 @@ void test(){
 //    test_CtcPropagateFront();
 //    test_CtcPropagateSegment();
 
-    test_CtcPaveForward();
+//    test_CtcPaveForward();
 //    test_CtcPaveBackward();
 //    test_CtcPaveConsistency();
 
 //    test_Newton();
 
 //    test_rotation();
+
+    test_diff();
 }
 
 int main()
 {
 
+
 #if 0
     vibes::beginDrawing();
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
     Scheduler s;
 
@@ -41,7 +46,6 @@ int main()
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
 
-    ibex::Function f;
     s.set_initial_pave(box, &f);
     s.SIVIA(s.m_global_pave_list[0], s.m_global_pave_queue[0], 0.0*M_PI/10.0, 5000, false);
 
@@ -63,17 +67,17 @@ int main()
 #if 1
     const clock_t begin_time = clock();
     vibes::beginDrawing();
-
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
     Scheduler s;
 
     IntervalVector box(2);
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
 
-    ibex::Function f;
     s.set_initial_pave(box, &f);
 
-    s.process_SIVIA_cycle(15, 4000, 200000);
+    s.process_SIVIA_cycle(12, 4000, 200000);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

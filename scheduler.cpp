@@ -146,15 +146,20 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
     int iterations = 0;
     this->set_full(this->m_global_pave_list[0]);
 
-    for(int nb_graph=0; nb_graph<this->m_global_pave_list.size(); nb_graph++){
 
-        if(iterations < iterations_max && this->m_global_pave_queue[nb_graph].size()<4){
-            this->SIVIA(this->m_global_pave_list[nb_graph], this->m_global_pave_queue[nb_graph], 0.0, 4, true); // Start with 4 boxes
-            this->process(this->m_global_pave_queue[nb_graph], process_iterations_max,  true);
-            iterations++;
-        }
 
-        while(this->m_global_pave_list[nb_graph].size()<pave_max && this->m_global_pave_list[nb_graph].size()!=0 && iterations < iterations_max){
+    if(iterations < iterations_max && this->m_global_pave_queue[0].size()<4){
+        this->SIVIA(this->m_global_pave_list[0], this->m_global_pave_queue[0], 0.0, 4, true); // Start with 4 boxes
+        this->process(this->m_global_pave_queue[0], process_iterations_max,  true);
+        iterations++;
+    }
+
+    while(iterations < iterations_max){
+        for(int nb_graph=0; nb_graph<this->m_global_pave_list.size(); nb_graph++){
+
+            if(this->m_global_pave_list[nb_graph].size()==0)
+                break;
+
             this->SIVIA(this->m_global_pave_list[nb_graph], this->m_global_pave_queue[nb_graph], 0.0, 2*this->m_global_pave_list[nb_graph].size(), true);
 
             // Process the backward with the subpaving
@@ -172,7 +177,24 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
                 }
             }
 
-            if(this->m_global_pave_list[nb_graph].size()>1){
+            // Test if the graph is empty
+            bool empty = true;
+            for(int i=0; i< this->m_global_pave_list[nb_graph].size(); i++){
+                if(!this->m_global_pave_list[nb_graph][i]->is_empty())
+                    empty = false;
+            }
+            if(empty){
+                m_global_pave_list.erase(m_global_pave_list.begin()+nb_graph);
+                m_global_pave_list_empty.erase(m_global_pave_list_empty.begin() + nb_graph);
+                m_global_pave_queue.erase(m_global_pave_queue.begin() + nb_graph);
+                if(nb_graph!=0)
+                    nb_graph--;
+                if(m_global_pave_list.size()==0)
+                    break;
+            }
+
+
+            if(m_global_pave_list[nb_graph].size()>0){
 
                 // ***************************************************
                 // Copy graph & propagate one Pave + intersect with cycle
@@ -197,11 +219,12 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
                 if(pave_start == NULL)
                     break;
 
-                vector<Pave*> pave_list, pave_queue;
+                vector<Pave*> pave_list, pave_queue, pave_list_diff;
                 copy_graph(pave_list, this->m_global_pave_list[nb_graph], true);
-
+                // Activate pave
                 Pave* copy_node = pave_start->m_copy_node;
                 copy_node->set_full();
+                *(copy_node) &= *(pave_start);
                 for(int face=0; face<4; face++){
                     vector<Pave*> brothers_pave = copy_node->get_brothers(face);
                     for(auto &pave : brothers_pave){
@@ -209,51 +232,39 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
                     }
                 }
 
-                if(iterations==iterations_max-1){
-                    this->draw(pave_list,1024,  false);
-                    this->draw(pave_queue, 1024,false);
-                    cout << "STOP" << endl;
-                }
-
+                copy_graph(pave_list_diff, this->m_global_pave_list[nb_graph], false);
 
                 this->process(pave_queue, process_iterations_max, false);
 
-                if(iterations==iterations_max-1){
-                    cout << "PAVE_START=" << pave_start->m_box << endl;
-                    this->draw(pave_list, 1024, true);
-                }
-
                 // Make the difference of the two pave_list
-                //                vector<Pave*> pave_list2 = copy_graph(nb_graph, false, NULL);
-
+                bool pave_list_diff_empty = true;
                 for(int i=0; i<pave_list.size(); i++){
-                    if(this->m_global_pave_list[nb_graph][i]->is_full()){
-                        if(this->m_global_pave_list[nb_graph][i]->inter(*(pave_list[i]))){
-                            this->m_global_pave_queue[nb_graph].push_back(this->m_global_pave_list[nb_graph][i]);
-                        }
+                    //if(this->m_global_pave_list[nb_graph][i]->is_full()){ // Less efficient
+                    if(this->m_global_pave_list[nb_graph][i]->inter(*(pave_list[i]))){
+                        this->m_global_pave_queue[nb_graph].push_back(this->m_global_pave_list[nb_graph][i]);
                     }
-                    //                    pave_list2[i]->diff(*(this->m_global_pave_list[nb_graph][i]));
+                    //}
+                    pave_list_diff[i]->diff(*(pave_list[i]));
+                    if(!pave_list_diff[i]->is_empty())
+                        pave_list_diff_empty = false;
                 }
 
-                //                if(iterations > 15)
-                //                    this->draw(pave_list, 1024, true);
-
-                //                this->m_global_pave_list.push_back(pave_list2);
-                //                vector<Pave*> pave_queue2, pave_empty2;
-                //                this->m_global_pave_list_empty.push_back(pave_empty2);
-                //                this->m_global_pave_queue.push_back(pave_queue2);
+                if(pave_list_diff_empty == false){
+                    this->m_global_pave_list.push_back(pave_list_diff);
+                    vector<Pave*> pave_list_diff_queue, pave_list_diff_empty;
+                    this->m_global_pave_list_empty.push_back(pave_list_diff_empty);
+                    this->m_global_pave_queue.push_back(pave_list_diff_queue);
+                }
 
                 // delete pave_list
-                //                for(int i=0; i<pave_list.size(); i++){
-                //                    delete(pave_list[i]);
-                //                }
+                for(int i=0; i<pave_list.size(); i++){
+                    delete(pave_list[i]);
+                }
             }
-            iterations++;
+
         }
-
-        iterations = 0;
+        iterations++;
     }
-
 }
 
 void Scheduler::copy_graph(vector<Pave*> &pave_list_copy, vector<Pave*> &pave_list_root, bool empty){
@@ -301,9 +312,11 @@ void Scheduler::draw(int size, bool filled){
     this->m_draw_nb++;
 }
 
-void Scheduler::draw(vector<Pave*> pave_list, int size, bool filled){
+void Scheduler::draw(vector<Pave*> pave_list, int size, bool filled, string comment){
     stringstream ss;
     ss << "integralIbex" << this->m_draw_nb << "- TEST";
+    if(comment!="")
+        ss << " " << comment;
     vibes::newFigure(ss.str());
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 

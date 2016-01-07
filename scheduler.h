@@ -27,7 +27,7 @@ public:
 
     // ******** Drawing functions ********
     void draw(int size, bool filled);
-    void draw(vector<Pave *> pave_list, int size, bool filled);
+    void draw(vector<Pave *> pave_list, int size, bool filled, string comment="");
 
     // ******** Utils functions ********
     void print_pave_info(std::vector<Pave *> &pave_list, double x, double y, string color="g[]");
