@@ -21,16 +21,16 @@ public:
     void set_full(std::vector<Pave *> &pave_list);
     void set_initial_pave(const ibex::IntervalVector &box, ibex::Function *f);
     Pave* get_pave(std::vector<Pave*> &pave_list, double x, double y);
-    void activate_pave(std::vector<Pave*> &pave_list, std::vector<Pave *> &pave_queue, double x, double y);
+    void activate_pave(std::vector<Pave *> &pave_list, std::vector<Pave *> &pave_queue, double x, double y);
 
-    void copy_graph(std::vector<Pave*> &pave_list_copy, vector<Pave *> &pave_list, bool empty);
+    void copy_graph(vector<Pave *> &pave_list_copy, vector<Pave *> &pave_list_root, bool empty);
 
     // ******** Drawing functions ********
     void draw(int size, bool filled);
     void draw(vector<Pave *> pave_list, int size, bool filled);
 
     // ******** Utils functions ********
-    void print_pave_info(int graph, double x, double y, string color="g[]");
+    void print_pave_info(std::vector<Pave *> &pave_list, double x, double y, string color="g[]");
 
 /***************** Variables ******************/
 public:

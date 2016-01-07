@@ -43,9 +43,9 @@ Pave* Scheduler::get_pave(std::vector<Pave*> &pave_list, double x, double y){
     position[0] = Interval(x);
     position[1] = Interval(y);
 
-    for(auto &pave : pave_list){
-        if(!(position & pave->m_box).is_empty()){
-            return pave;
+    for(int i=0; i<pave_list.size(); i++){
+        if(!(position & pave_list[i]->m_box).is_empty()){
+            return pave_list[i];
         }
     }
     return NULL;
@@ -256,22 +256,22 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
 
 }
 
-void Scheduler::copy_graph(vector<Pave*> &pave_list_copy, vector<Pave*> &pave_list, bool empty){
-    for(int i=0; i<pave_list.size(); i++){
-        Pave *p = new Pave(*(pave_list[i]));
+void Scheduler::copy_graph(vector<Pave*> &pave_list_copy, vector<Pave*> &pave_list_root, bool empty){
+    for(int i=0; i<pave_list_root.size(); i++){
+        Pave *p = new Pave(pave_list_root[i]);
         if(empty)
             p->set_empty();
-        pave_list[i]->m_copy_node = p;
+        pave_list_root[i]->m_copy_node = p;
         pave_list_copy.push_back(p);
     }
 
-    for(int i=0; i<pave_list.size(); i++){
-        Pave* pave_root = pave_list[i];
+    for(int i=0; i<pave_list_root.size(); i++){
+        Pave* pave_root = pave_list_root[i];
         Pave* pave_copy = pave_list_copy[i];
 
         for(int face = 0; face<4; face++){
             for(int j=0; j<pave_root->m_borders[face].brothers().size(); j++){
-                pave_copy->m_borders[face].brothers()[j]->set_pave(pave_root->m_borders[face].brothers()[j]->pave()->m_copy_node);
+                pave_copy->m_borders[face].replace_brother(&(pave_root->m_borders[face].brothers()[j]->pave()->m_copy_node->m_borders[(face+2)%4]), j);
             }
         }
     }
@@ -318,15 +318,15 @@ void Scheduler::draw(vector<Pave*> pave_list, int size, bool filled){
 // ********************************************************************************
 // ****************** TEST functions **********************************************
 
-void Scheduler::print_pave_info(int graph, double x, double y, string color){
+void Scheduler::print_pave_info(std::vector<Pave*> &pave_list, double x, double y, string color){
 
-    Pave* p = this->get_pave(this->m_global_pave_list[graph],x, y);
+    Pave* p = this->get_pave(pave_list,x, y);
     if(p==NULL){
-        p = this->get_pave(this->m_global_pave_list_empty[graph],x, y);
-        if(p==NULL){
-            cout << "PAVE NOT FOUND" << endl;
-            return;
-        }
+        //        p = this->get_pave(this->m_global_pave_list_empty[graph],x, y);
+        //        if(p==NULL){
+        cout << "PAVE NOT FOUND" << endl;
+        return;
+        //        }
     }
 
     cout << "BOX = " << p->m_box << endl;
@@ -337,9 +337,15 @@ void Scheduler::print_pave_info(int graph, double x, double y, string color){
     cout << "theta " << p->m_theta[0] << " " << p->m_theta[1] << endl;
 
     for(int i=0; i<p->m_borders.size(); i++){
-        for(int j = 0; j<p->m_borders[i].brothers().size(); j++){
-            cout << "border=" << i << " brother=" << j << " " << p->m_borders[i].brothers()[j]->pave() << endl;
+        if(p->m_borders[i].brothers().size()!=0){
+            for(int j = 0; j<p->m_borders[i].brothers().size(); j++){
+                cout << "border=" << i << " (" << &(p->m_borders[i]) << ") brother=" << j << " " << (p->m_borders[i].brothers()[j]) << " pave(" << p->m_borders[i].brothers()[j]->pave() << ")" << endl;
+            }
         }
+        else{
+            cout << "border=" << i << " (" << &(p->m_borders[i]) << ")" << endl;
+        }
+
     }
 
     double r=0.5*min(p->m_box[0].diam(), p->m_box[1].diam())/2.0;

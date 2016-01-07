@@ -301,7 +301,7 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion){
 void Utils::CtcPaveConsistency(Pave *p, bool backward){
     if(backward){
         this->CtcPaveBackward(p, backward);
-        Pave p2(*p);
+        Pave p2(p);
         this->CtcPaveForward(&p2, backward);
         *p &= p2;
     }
