@@ -55,6 +55,7 @@ public:
     ibex::Interval m_theta[2];
     ibex::IntervalVector m_box;
     std::vector<Border> m_borders;
+    std::vector<Border> m_borders_symetry;
     bool m_in_queue;
 
     ibex::Function *m_f;

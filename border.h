@@ -19,6 +19,7 @@ public:
     // ******** Graph building ********
     void add_brothers(std::vector<Border *> brother_list);
     void add_brothers(Border* brother);
+    void add_brothers_force(Border *brother);
     void update_brothers(Border* border_pave1, Border* border_pave2);
 
     // ******** Border Properties ********

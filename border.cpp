@@ -105,6 +105,10 @@ void Border::add_brothers(Border * brother){
     }
 }
 
+void Border::add_brothers_force(Border *brother){
+    this->m_brothers.push_back(brother);
+}
+
 void Border::update_brothers(Border* border_pave1, Border* border_pave2){
     vector<Border*> list_tmp;
     list_tmp.push_back(border_pave1);
@@ -173,14 +177,14 @@ void Border::set_segment_in(ibex::Interval segment_in, bool inclusion){
     if(inclusion)
         this->m_segment_in &= segment_in;
     else
-        this->m_segment_in |= segment_in;
+        this->m_segment_in |= segment_in & this->m_segment_full;
 }
 
 void Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
     if(inclusion)
         this->m_segment_out &= segment_out;
     else
-        this->m_segment_out |= segment_out;
+        this->m_segment_out |= segment_out & this->m_segment_full;
 }
 
 void Border::set_pave(Pave* pave){

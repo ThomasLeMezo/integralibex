@@ -14,10 +14,10 @@ public:
     Scheduler();
     ~Scheduler();
 
-    void process(std::vector<Pave*> &pave_queue, int max_iterations, bool backward);
+    int process(std::vector<Pave*> &pave_queue, int max_iterations, bool backward);
     void SIVIA(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_queue, double epsilon_theta, int iterations_max, bool backward, bool bisect_empty);
     void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside);
-    void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_box);
+    void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_box, int max_symetry);
 
     void set_full(std::vector<Pave *> &pave_list);
     void set_initial_pave(const ibex::IntervalVector &box, ibex::Function *f);
@@ -27,6 +27,9 @@ public:
 
 
     void copy_graph(vector<Pave *> &pave_list_copy, vector<Pave *> &pave_list_root, bool empty);
+
+
+    void graph_symetry(vector<Pave *> &pave_list, vector<Pave *> &pave_queue);
 
     // ******** Drawing functions ********
     void draw(int size, bool filled);

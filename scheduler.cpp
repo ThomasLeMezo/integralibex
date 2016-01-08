@@ -120,7 +120,7 @@ void Scheduler::SIVIA(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_qu
     }
 }
 
-void Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool backward){
+int Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool backward){
     int iterations = 0;
     while(pave_queue.size() != 0 & iterations < max_iterations){
         iterations++;
@@ -148,9 +148,11 @@ void Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool
         //            cout << iterations << endl;
         //        }
     }
+
+    return iterations;
 }
 
-void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, IntervalVector &initial_box){
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, IntervalVector &initial_box, int max_symetry){
     if(this->m_global_pave_list.size()!=1 && this->m_global_pave_list[0].size() !=1)
         return;
     int iterations = 0;
@@ -170,7 +172,6 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
             break;
         this->SIVIA(this->m_global_pave_list[nb_graph], this->m_global_pave_queue[nb_graph], 0.0, 2*this->m_global_pave_list[nb_graph].size(), false, true);
 
-
         for(auto &pave : m_global_pave_list[nb_graph]){
             pave->set_empty();
         }
@@ -178,7 +179,12 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
         // Process the backward with the subpaving
         cout << " GRAPH No "<< nb_graph << " (" << this->m_global_pave_list[nb_graph].size() << ")" << endl;
-        this->process(this->m_global_pave_queue[nb_graph], process_iterations_max, false);
+        int symetry = 0;
+        while(this->process(this->m_global_pave_queue[nb_graph], process_iterations_max, false)!=0 & symetry < max_symetry){
+            graph_symetry(this->m_global_pave_list[nb_graph], this->m_global_pave_queue[nb_graph]);
+            symetry++;
+        }
+
         this->m_global_pave_queue[nb_graph].clear();
 
         // Test if the graph is empty
@@ -428,4 +434,35 @@ void Scheduler::print_pave_info(std::vector<Pave*> &pave_list, double x, double 
     vibes::drawCircle(p->m_box[0].mid(), p->m_box[1].mid(), r, color);
 
     cout << endl;
+}
+
+void Scheduler::graph_symetry(vector<Pave*> &pave_list, vector<Pave*> &pave_queue){
+    vector<Pave*> pave_list_symetry;
+
+    IntervalVector box_symetry(2);
+    box_symetry[0] = Interval::ZERO;
+    box_symetry[1] = Interval::ALL_REALS;
+
+    for(auto &pave:pave_list){
+        if(!(pave->m_box & box_symetry).is_empty()){
+            pave_list_symetry.push_back(pave);
+        }
+    }
+
+    for(auto &pave:pave_list_symetry){
+        for(auto &pave_brother:pave_list_symetry){
+            if(!(pave->m_box[1] & -pave_brother->m_box[1]).is_empty() && pave_brother!=pave){
+                if(((pave->m_borders[3].segment_in() | -pave_brother->m_borders[3].segment_out()) & pave->m_borders[3].segment_full())
+                        != pave->m_borders[3].segment_in()){
+                    if(!pave->m_in_queue){
+                        pave_queue.push_back(pave);
+                        pave->m_in_queue = true;
+                    }
+                }
+                pave->m_borders_symetry[3].set_segment_in(-pave_brother->m_borders[3].segment_out(), false);
+//                pave->m_borders_symetry[3].set_segment_out(-pave_brother->m_borders[3].segment_in(), false);
+            }
+        }
+    }
+
 }

@@ -337,7 +337,12 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
             }
         }
 
-
+    }
+    for(int face = 0; face < 4; face++){
+        if(p->m_borders[face].segment_in() != (p->m_borders[face].segment_in() | (p->m_borders_symetry[face].segment_in() & p->m_borders[face].segment_full()))){
+            change = true;
+            p->m_borders[face].set_segment_in(p->m_borders_symetry[face].segment_in(), false);
+        }
     }
 
     return change;

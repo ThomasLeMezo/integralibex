@@ -23,6 +23,11 @@ Pave::Pave(const IntervalVector &box, ibex::Function *f): m_box(2)
     coordinate[0] = box[0]; coordinate[1] = Interval(box[1].ub()); this->m_borders.push_back(Border(coordinate, 2, this));
     coordinate[1] = box[1]; coordinate[0] = Interval(box[0].lb()); this->m_borders.push_back(Border(coordinate, 3, this));
 
+    coordinate[0] = box[0]; coordinate[1] = Interval(box[1].lb()); this->m_borders_symetry.push_back(Border(coordinate, 0, this));
+    coordinate[1] = box[1]; coordinate[0] = Interval(box[0].ub()); this->m_borders_symetry.push_back(Border(coordinate, 1, this));
+    coordinate[0] = box[0]; coordinate[1] = Interval(box[1].ub()); this->m_borders_symetry.push_back(Border(coordinate, 2, this));
+    coordinate[1] = box[1]; coordinate[0] = Interval(box[0].lb()); this->m_borders_symetry.push_back(Border(coordinate, 3, this));
+
     m_full = false;
     m_empty = false;
 
@@ -306,55 +311,3 @@ void Pave::reset_full_empty(){
     }
 }
 
-//void Pave::tarjan_compute_successors(){
-//    this->m_tarjan_index = 0;
-//    this->m_tarjan_lowlink = 0;
-//    this->m_tarjan_on_stack = false;
-//    this->m_tarjan_successors.clear();
-
-//    for(int face=0; face<4; face++){
-//        for(int b=0; b<this->m_borders[face].brothers().size(); b++){
-//            if(!(this->m_borders[face].brothers()[b]->segment_in() & this->m_borders[face].segment_out()).is_empty()){
-//                this->m_tarjan_successors.push_back(this->m_borders[face].brothers()[b]->pave());
-//            }
-//        }
-//    }
-//    if(get_theta_diam()>=2*M_PI){
-//        this->m_tarjan_successors.push_back(this);
-//    }
-//}
-
-//void Pave::strongconnect(int &index, std::vector<Pave*> *S,std::vector<std::vector<Pave*>> *SCC){
-//    this->m_tarjan_index = index;
-//    this->m_tarjan_lowlink = index;
-//    index++;
-//    S->push_back(this);
-//    this->m_tarjan_on_stack = true;
-//    Pave *v = this;
-
-//    for(int i=0; i<this->m_tarjan_successors.size(); i++){
-//        Pave *w = this->m_tarjan_successors[i];
-//        if(w->m_tarjan_index == 0){
-//            w->strongconnect(index, S, SCC);
-//            v->m_tarjan_lowlink = min(v->m_tarjan_lowlink, w->m_tarjan_lowlink);
-//        }
-//        else if(w->m_tarjan_on_stack){
-//            v->m_tarjan_lowlink = min(v->m_tarjan_lowlink, w->m_tarjan_index);
-//        }
-//    }
-
-//    if(v->m_tarjan_index == v->m_tarjan_lowlink){
-//        std::vector<Pave *> C;
-//        Pave *w;
-////        cout << "NEW LIST C : v = " << v->m_tarjan_index << endl;
-//        do{
-//            w = S->back();
-////            cout << "Node (" << w->m_box << ") " << '\t' << "= " << w->m_tarjan_index << "," << w->m_tarjan_lowlink << " size = " << w->m_tarjan_successors.size() << endl;
-//            S->pop_back();
-//            w->m_tarjan_on_stack = false;
-//            C.push_back(w);
-//        } while(w != v);
-
-//        SCC->push_back(C);
-//    }
-//}
