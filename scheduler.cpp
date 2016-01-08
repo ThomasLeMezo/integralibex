@@ -49,13 +49,29 @@ Pave* Scheduler::get_pave(std::vector<Pave*> &pave_list, double x, double y){
     return NULL;
 }
 
-void Scheduler::activate_pave(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_queue, double x, double y){
-    Pave *pave = get_pave(pave_list, x, y);
-    pave->set_full();
-    for(int face=0; face<4; face++){
-        vector<Pave*> brothers_pave = pave->get_brothers(face);
-        for(auto &pave : brothers_pave){
-            pave_queue.push_back(pave);
+std::vector<Pave*> Scheduler::get_pave(std::vector<Pave *> &pave_list, const ibex::IntervalVector &box){
+    std::vector<Pave*> pave_list_inter;
+    for(int i=0; i<pave_list.size(); i++){
+        if(!(box & pave_list[i]->m_box).is_empty()){
+            pave_list_inter.push_back(pave_list[i]);
+        }
+    }
+    return pave_list_inter;
+}
+
+void Scheduler::activate_pave(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_queue, const IntervalVector &box){
+    vector<Pave*> pave_activated = get_pave(pave_list, box);
+
+    for(auto &pave : pave_activated){
+        pave->set_full();
+        for(int face=0; face<4; face++){
+            vector<Pave*> pave_brother_list = pave->get_brothers(face);
+            for(auto &pave_brother : pave_brother_list){
+                if(!pave_brother->m_in_queue){
+                    pave_queue.push_back(pave_brother);
+                    pave_brother->m_in_queue = true;
+                }
+            }
         }
     }
 }
@@ -69,7 +85,7 @@ void Scheduler::set_full(std::vector<Pave*> &pave_list){
 // ********************************************************************************
 // ****************** Propagation functions ***************************************
 
-void Scheduler::SIVIA(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_queue, double epsilon_theta, int iterations_max, bool backward){
+void Scheduler::SIVIA(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_queue, double epsilon_theta, int iterations_max, bool backward, bool bisect_empty){
 
     int iterations = 0;
     vector<Pave *> tmp_pave_list(pave_list);
@@ -86,15 +102,12 @@ void Scheduler::SIVIA(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_qu
         if(!(tmp->m_theta[1].is_empty()))
             diam += tmp->m_theta[1].diam();
 
-        if(diam < epsilon_theta || tmp->is_empty() && backward){// || (not_full_test && tmp->is_full() && diam < M_PI)){
+        if(diam < epsilon_theta || tmp->is_empty() && bisect_empty){// || (not_full_test && tmp->is_full() && diam < M_PI)){
             pave_list.push_back(tmp);
             iterations++;
         }
         else{
             tmp->bisect(tmp_pave_list);
-
-            tmp_pave_list[tmp_pave_list.size()-1]->id = tmp_pave_list.size()-1;
-            tmp_pave_list[tmp_pave_list.size()-2]->id = tmp_pave_list.size()-2;
         }
     }
 
@@ -131,35 +144,81 @@ void Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool
             }
         }
 
-//        if(iterations%100 == 0){
-//            cout << iterations << endl;
-//        }
+        //        if(iterations%100 == 0){
+        //            cout << iterations << endl;
+        //        }
     }
 }
 
-void Scheduler::process_SIVIA_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside){
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, IntervalVector &initial_box){
+    if(this->m_global_pave_list.size()!=1 && this->m_global_pave_list[0].size() !=1)
+        return;
+    int iterations = 0;
+
+    if(iterations < iterations_max && this->m_global_pave_queue[0].size()<4){
+        this->SIVIA(this->m_global_pave_list[0], this->m_global_pave_queue[0], 0.0, 4, false, false); // Start with 4 boxes
+        this->process(this->m_global_pave_queue[0], process_iterations_max, false);
+        iterations++;
+    }
+    int nb_graph = 0;
+
+    while(iterations < iterations_max){
+        const clock_t begin_time = clock();
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+
+        if(this->m_global_pave_list[nb_graph].size()==0 || m_global_pave_list.size()==0)
+            break;
+        this->SIVIA(this->m_global_pave_list[nb_graph], this->m_global_pave_queue[nb_graph], 0.0, 2*this->m_global_pave_list[nb_graph].size(), false, true);
+
+
+        for(auto &pave : m_global_pave_list[nb_graph]){
+            pave->set_empty();
+        }
+        activate_pave(m_global_pave_list[nb_graph], m_global_pave_queue[nb_graph], initial_box);
+
+        // Process the backward with the subpaving
+        cout << " GRAPH No "<< nb_graph << " (" << this->m_global_pave_list[nb_graph].size() << ")" << endl;
+        this->process(this->m_global_pave_queue[nb_graph], process_iterations_max, false);
+        this->m_global_pave_queue[nb_graph].clear();
+
+        // Test if the graph is empty
+        bool empty = true;
+        for(int i=0; i< this->m_global_pave_list[nb_graph].size(); i++){
+            this->m_global_pave_list[nb_graph][i]->reset_full_empty();
+            if(!this->m_global_pave_list[nb_graph][i]->is_empty())
+                empty = false;
+        }
+        if(empty){
+            cout << "GRAPH EMPTY" << endl;
+            break;
+        }
+        cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        iterations++;
+    }
+}
+
+void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside){
     if(this->m_global_pave_list.size()!=1 && this->m_global_pave_list[0].size() !=1)
         return;
 
     int iterations = 0;
     this->set_full(this->m_global_pave_list[0]);
 
-
-
     if(iterations < iterations_max && this->m_global_pave_queue[0].size()<4){
-        this->SIVIA(this->m_global_pave_list[0], this->m_global_pave_queue[0], 0.0, 4, true); // Start with 4 boxes
+        this->SIVIA(this->m_global_pave_list[0], this->m_global_pave_queue[0], 0.0, 4, true, true); // Start with 4 boxes
         this->process(this->m_global_pave_queue[0], process_iterations_max,  true);
         iterations++;
     }
 
     while(iterations < iterations_max){
+        const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         for(int nb_graph=0; nb_graph<this->m_global_pave_list.size(); nb_graph++){
 
-            if(this->m_global_pave_list[nb_graph].size()==0)
+            if(this->m_global_pave_list[nb_graph].size()==0 || m_global_pave_list.size()==0)
                 break;
 
-            this->SIVIA(this->m_global_pave_list[nb_graph], this->m_global_pave_queue[nb_graph], 0.0, 2*this->m_global_pave_list[nb_graph].size(), true);
+            this->SIVIA(this->m_global_pave_list[nb_graph], this->m_global_pave_queue[nb_graph], 0.0, 2*this->m_global_pave_list[nb_graph].size(), true, true);
 
             // Process the backward with the subpaving
             cout << " GRAPH No "<< nb_graph << " (" << this->m_global_pave_list[nb_graph].size() << ")" << endl;
@@ -188,17 +247,14 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int graph_max, int proce
                 m_global_pave_queue.erase(m_global_pave_queue.begin() + nb_graph);
                 if(nb_graph!=0)
                     nb_graph--;
-                if(m_global_pave_list.size()==0)
+                if(m_global_pave_list.size()==0 || nb_graph==0)
                     break;
             }
 
-
+            // ***************************************************
+            // Copy graph & propagate one Pave + intersect with cycle
+            // Find the first non-full & non-empty Pave
             if(remove_inside && m_global_pave_list[nb_graph].size()>0 && m_global_pave_list.size() < graph_max){
-
-                // ***************************************************
-                // Copy graph & propagate one Pave + intersect with cycle
-                // Find the first non-full & non-empty Pave
-
                 cout << "REMOVE INSIDE" << endl;
                 Pave *pave_start;
                 for(int i=0; i<this->m_global_pave_list[nb_graph].size(); i++){
@@ -227,7 +283,10 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int graph_max, int proce
                 for(int face=0; face<4; face++){
                     vector<Pave*> brothers_pave = copy_node->get_brothers(face);
                     for(auto &pave : brothers_pave){
-                        pave_queue.push_back(pave);
+                        if(!pave->m_in_queue){
+                            pave_queue.push_back(pave);
+                            pave->m_in_queue = true;
+                        }
                     }
                 }
 
@@ -265,6 +324,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int graph_max, int proce
             }
 
         }
+        cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
     }
 }

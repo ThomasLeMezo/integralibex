@@ -251,3 +251,8 @@ void Border::remove_brother(int indice){
 void Border::replace_brother(Border* brother, int id_brother){
     this->m_brothers[id_brother] = brother;
 }
+
+void Border::reset_full_empty(){
+    this->m_empty = false;
+    this->m_full = false;
+}

@@ -34,8 +34,8 @@ void test(){
 int main()
 {
 
-
-#if 0
+#if 1
+    const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
@@ -45,26 +45,20 @@ int main()
     IntervalVector box(2);
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
-
     s.set_initial_pave(box, &f);
-    s.SIVIA(s.m_global_pave_list[0], s.m_global_pave_queue[0], 0.0*M_PI/10.0, 5000, false);
 
-    // ****************************************************
+    IntervalVector activated_pave(2);
+    activated_pave[0] = Interval(4.0,4.1);
+    activated_pave[1] = Interval(3.0,3.1);
 
-    vector<Pave*> pave_list, pave_queue;
-    s.copy_graph(pave_list, s.m_global_pave_list[0], true);
+    s.cameleon_propagation(15, 1000000, activated_pave);
 
-    s.activate_pave(pave_list, pave_queue, 3, 4);
-    s.process(pave_queue, 100000, false);
-    s.draw(pave_list, 500, true);
-
-//    s.activate_pave(s.m_global_pave_list[0], s.m_global_pave_queue[0], 3, 4);
-//    s.process(s.m_global_pave_queue[0], 100000, false);
-//    s.draw(500, true);
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.draw(1024, true);
 
 #endif
 
-#if 1
+#if 0
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
@@ -83,7 +77,7 @@ int main()
 
     s.set_initial_pave(box, &f);
 
-    s.process_SIVIA_cycle(100, 5, 200000, true);
+    s.cameleon_cycle(10, 5, 1000000, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

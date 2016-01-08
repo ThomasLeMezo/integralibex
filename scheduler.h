@@ -15,13 +15,16 @@ public:
     ~Scheduler();
 
     void process(std::vector<Pave*> &pave_queue, int max_iterations, bool backward);
-    void SIVIA(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_queue, double epsilon_theta, int iterations_max, bool backward);
-    void process_SIVIA_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside);
+    void SIVIA(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_queue, double epsilon_theta, int iterations_max, bool backward, bool bisect_empty);
+    void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside);
+    void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_box);
 
     void set_full(std::vector<Pave *> &pave_list);
     void set_initial_pave(const ibex::IntervalVector &box, ibex::Function *f);
     Pave* get_pave(std::vector<Pave*> &pave_list, double x, double y);
-    void activate_pave(std::vector<Pave *> &pave_list, std::vector<Pave *> &pave_queue, double x, double y);
+    std::vector<Pave*> get_pave(std::vector<Pave *> &pave_list, const ibex::IntervalVector &box);
+    void activate_pave(std::vector<Pave *> &pave_list, std::vector<Pave *> &pave_queue, const ibex::IntervalVector &box);
+
 
     void copy_graph(vector<Pave *> &pave_list_copy, vector<Pave *> &pave_list_root, bool empty);
 

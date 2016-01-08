@@ -36,6 +36,7 @@ public:
     void set_full();
     void set_empty();
     void set_theta(ibex::Interval theta);
+    void reset_full_empty();
 
     // Getters
     ibex::IntervalVector get_border_position(int face);
@@ -59,8 +60,6 @@ public:
     ibex::Function *m_f;
 
     Pave* m_copy_node;
-
-    int id;
 
 private:
     bool m_empty;

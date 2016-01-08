@@ -38,6 +38,8 @@ public:
     void set_pave(Pave* pave);
     void replace_brother(Border* brother, int id_brother);
 
+    void reset_full_empty();
+
     // Getters
     void get_points(std::vector<double> &x, std::vector<double> &y);
     ibex::Interval segment_in() const;

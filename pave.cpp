@@ -298,6 +298,14 @@ std::vector<ibex::Interval> Pave::rotate(const ibex::Interval &theta, const ibex
     return list;
 }
 
+void Pave::reset_full_empty(){
+    this->m_empty = false;
+    this->m_full = true;
+    for(auto &border: this->m_borders){
+        border.reset_full_empty();
+    }
+}
+
 //void Pave::tarjan_compute_successors(){
 //    this->m_tarjan_index = 0;
 //    this->m_tarjan_lowlink = 0;
