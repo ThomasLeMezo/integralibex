@@ -137,7 +137,7 @@ void Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool
     }
 }
 
-void Scheduler::process_SIVIA_cycle(int iterations_max, int graph_max, int process_iterations_max){
+void Scheduler::process_SIVIA_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside){
     if(this->m_global_pave_list.size()!=1 && this->m_global_pave_list[0].size() !=1)
         return;
 
@@ -193,7 +193,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int graph_max, int proce
             }
 
 
-            if(false && m_global_pave_list[nb_graph].size()>0 && m_global_pave_list.size() < graph_max){
+            if(remove_inside && m_global_pave_list[nb_graph].size()>0 && m_global_pave_list.size() < graph_max){
 
                 // ***************************************************
                 // Copy graph & propagate one Pave + intersect with cycle

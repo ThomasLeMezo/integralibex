@@ -80,7 +80,7 @@ int main()
 
     s.set_initial_pave(box, &f);
 
-    s.process_SIVIA_cycle(15, 5, 200000);
+    s.process_SIVIA_cycle(15, 5, 200000, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
