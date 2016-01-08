@@ -16,10 +16,8 @@ Scheduler::~Scheduler(){
         }
     }
 
-    for(int i=0; i<this->m_global_pave_list_empty.size(); i++){
-        for(int j=0; j<this->m_global_pave_list_empty[j].size(); j++){
-            delete(this->m_global_pave_list_empty[i][j]);
-        }
+    for(int j=0; j<this->m_global_pave_list_empty[m_global_pave_list_empty.size()-1].size(); j++){
+        delete(this->m_global_pave_list_empty[m_global_pave_list_empty.size()-1][j]);
     }
 }
 
@@ -139,7 +137,7 @@ void Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool
     }
 }
 
-void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int process_iterations_max){
+void Scheduler::process_SIVIA_cycle(int iterations_max, int graph_max, int process_iterations_max){
     if(this->m_global_pave_list.size()!=1 && this->m_global_pave_list[0].size() !=1)
         return;
 
@@ -155,6 +153,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
     }
 
     while(iterations < iterations_max){
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
         for(int nb_graph=0; nb_graph<this->m_global_pave_list.size(); nb_graph++){
 
             if(this->m_global_pave_list[nb_graph].size()==0)
@@ -163,7 +162,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
             this->SIVIA(this->m_global_pave_list[nb_graph], this->m_global_pave_queue[nb_graph], 0.0, 2*this->m_global_pave_list[nb_graph].size(), true);
 
             // Process the backward with the subpaving
-            cout << "****** " << iterations <<  " ****** (" << this->m_global_pave_list[nb_graph].size() << ")" << endl;
+            cout << " GRAPH No "<< nb_graph << " (" << this->m_global_pave_list[nb_graph].size() << ")" << endl;
             this->process(this->m_global_pave_queue[nb_graph], process_iterations_max, true);
             this->m_global_pave_queue[nb_graph].clear();
 
@@ -194,7 +193,7 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
             }
 
 
-            if(m_global_pave_list[nb_graph].size()>0){
+            if(false && m_global_pave_list[nb_graph].size()>0 && m_global_pave_list.size() < graph_max){
 
                 // ***************************************************
                 // Copy graph & propagate one Pave + intersect with cycle
@@ -252,6 +251,9 @@ void Scheduler::process_SIVIA_cycle(int iterations_max, int pave_max, int proces
                 if(pave_list_diff_empty == false){
                     this->m_global_pave_list.push_back(pave_list_diff);
                     vector<Pave*> pave_list_diff_queue, pave_list_diff_empty;
+                    for(int i=0; i<m_global_pave_list_empty[nb_graph].size(); i++){
+                        pave_list_diff_empty.push_back(m_global_pave_list_empty[nb_graph][i]);
+                    }
                     this->m_global_pave_list_empty.push_back(pave_list_diff_empty);
                     this->m_global_pave_queue.push_back(pave_list_diff_queue);
                 }

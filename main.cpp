@@ -68,7 +68,10 @@ int main()
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+
+    ibex::Function f(x, y, Return(cos(2*M_PI*y/10),cos(2*M_PI*x/10)));
+    //ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+
     Scheduler s;
 
     IntervalVector box(2);
@@ -77,7 +80,7 @@ int main()
 
     s.set_initial_pave(box, &f);
 
-    s.process_SIVIA_cycle(12, 4000, 200000);
+    s.process_SIVIA_cycle(15, 5, 200000);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

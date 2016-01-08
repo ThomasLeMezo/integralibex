@@ -324,10 +324,11 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
 
         if(backward){
             if(p->m_borders[face].segment_in() != (segment_out & p->m_borders[face].segment_in())
-                    || p->m_borders[face].segment_out() != (segment_in & p->m_borders[face].segment_out()))
+                    || p->m_borders[face].segment_out() != (segment_in & p->m_borders[face].segment_out())){
                 change = true;
-            p->m_borders[face].set_segment_in(segment_out, backward);
-            p->m_borders[face].set_segment_out(segment_in, backward);
+                p->m_borders[face].set_segment_in(segment_out, backward);
+                p->m_borders[face].set_segment_out(segment_in, backward);
+            }
         }
         else{
             if(p->m_borders[face].segment_in() != (p->m_borders[face].segment_in() | segment_out & p->m_borders[face].segment_full())){
