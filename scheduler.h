@@ -16,7 +16,7 @@ public:
 
     void process(std::vector<Pave*> &pave_queue, int max_iterations, bool backward);
     void SIVIA(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_queue, double epsilon_theta, int iterations_max, bool backward);
-    void process_SIVIA_cycle(int iterations_max, int graph_max, int process_iterations_max);
+    void process_SIVIA_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside);
 
     void set_full(std::vector<Pave *> &pave_list);
     void set_initial_pave(const ibex::IntervalVector &box, ibex::Function *f);

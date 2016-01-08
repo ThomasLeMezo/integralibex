@@ -69,8 +69,11 @@ int main()
     vibes::beginDrawing();
     Variable x, y;
 
-    ibex::Function f(x, y, Return(cos(2*M_PI*y/10),cos(2*M_PI*x/10)));
-    //ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+//    ibex::Function f(x, y, Return(y,-sin(x)-y));
+//    ibex::Function f(x, y, Return(-y-10*x*x+5*x*y+y*y,x+x*x-25*x*y));
+//    ibex::Function f(x, y, Return(cos(2*M_PI*y/10),cos(2*M_PI*x/10)));
 
     Scheduler s;
 
@@ -80,7 +83,7 @@ int main()
 
     s.set_initial_pave(box, &f);
 
-    s.process_SIVIA_cycle(15, 5, 200000, false);
+    s.process_SIVIA_cycle(100, 5, 200000, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

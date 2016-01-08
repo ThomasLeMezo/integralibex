@@ -131,9 +131,9 @@ void Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool
             }
         }
 
-        if(iterations%100 == 0){
-            cout << iterations << endl;
-        }
+//        if(iterations%100 == 0){
+//            cout << iterations << endl;
+//        }
     }
 }
 
