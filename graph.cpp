@@ -81,6 +81,7 @@ void Graph::sivia(double epsilon_theta, int iterations_max, bool backward, bool 
         }
         else{
             tmp->bisect(tmp_pave_list);
+            delete(tmp);
         }
     }
 

@@ -54,7 +54,7 @@ int main()
     activated_pave[0] = Interval(1.98);
     activated_pave[1] = Interval(-0.26);
 
-    s.cameleon_propagation(20, 1000000, activated_pave, 0);
+    s.cameleon_propagation(5, 1000000, activated_pave, 0);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
