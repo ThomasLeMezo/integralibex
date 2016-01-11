@@ -118,7 +118,7 @@ void test_CtcPropagateSegment(){
     box[1] = Interval(0.0, 1.0);
 
     int face = 3;
-    Interval theta[2] = {Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0, Interval::EMPTY_SET};
+    vector<Interval> theta = {Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0, Interval::EMPTY_SET};
     Interval seg_in = Interval(0,1);
     vector<Interval> seg_out;
     for(int j=0; j<3; j++){
@@ -169,9 +169,9 @@ void test_CtcPaveConsistency(){
 
     p.set_theta(3.0*Interval::HALF_PI/4.0 | 5.0*Interval::HALF_PI/4.0);
 
-    p.m_borders[1].set_full();
-    p.m_borders[2].set_full();
-    p.m_borders[3].set_full();
+    p.get_border(1)->set_full();
+    p.get_border(2)->set_full();
+    p.get_border(3)->set_full();
 
     test_draw(&p, "test_before");
 
@@ -211,8 +211,9 @@ void test_diff(){
     Pave p1(box, &f);
     Pave p2(box, &f);
 
-    p1.m_borders[0].set_full();
-    p1.m_borders[1].set_full();
+    p1.get_border(0)->set_full();
+    p1.get_border(1)->set_full();
+
     p2.set_full();
 
     test_draw(&p1, "p1", true);

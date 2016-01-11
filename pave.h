@@ -10,7 +10,7 @@ class Pave
 
 /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &box, ibex::Function *f);
+    Pave(const ibex::IntervalVector &position, ibex::Function *f);
     Pave(const Pave *p);
     ~Pave();
 
@@ -31,40 +31,50 @@ public:
     // Tests
     bool is_empty();
     bool is_full();
+    bool is_in_queue();
 
     // Setter
     void set_full();
     void set_empty();
     void set_theta(ibex::Interval theta);
     void reset_full_empty();
+    void set_in_queue(bool flag);
+    void set_copy_node(Pave *p);
 
     // Getters
-    ibex::IntervalVector get_border_position(int face);
-    double get_theta_diam();
-    vector<Pave*> get_brothers(int face);
+    ibex::IntervalVector        get_border_position(int face);
+    double                      get_theta_diam();
+    std::vector<Pave*>          get_brothers(int face);
+    ibex::Interval              get_theta(int i) const;
+    std::vector<ibex::Interval> get_theta();
+    ibex::IntervalVector        get_position() const;
 
-    // ******** Utils functions ********
-    std::vector<ibex::Interval> rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y);
+    std::vector<Border>         get_borders();
+    std::vector<Border>         get_borders_symetry();
 
-    // ******** Tarjan functions ********
-//    void tarjan_compute_successors();
-//    void strongconnect(int &index, std::vector<Pave *> *S, std::vector<std::vector<Pave *> > *SCC);
+    Border*                     get_border(int face);
+    const Border*               get_border_const(int face) const;
+    Border*                     get_border_symetry(int i);
+    const Border*               get_border_symetry_const(int face) const;
+
+    Pave*                       get_copy_node();
+    ibex::Function*             get_f() const;
 
 /***************** Variables ******************/
-public:
-    ibex::Interval m_theta[2];
-    ibex::IntervalVector m_box;
-    std::vector<Border> m_borders;
-    std::vector<Border> m_borders_symetry;
-    bool m_in_queue;
+private:
+    std::vector<ibex::Interval> m_theta;
+    ibex::IntervalVector        m_position;
+    std::vector<Border>         m_borders;
+    std::vector<Border>         m_borders_symetry;
 
-    ibex::Function *m_f;
-
-    Pave* m_copy_node;
+    ibex::Function              *m_f;
+    Pave*                       m_copy_node;
 
 private:
     bool m_empty;
     bool m_full;
+
+    bool m_in_queue;
 };
 
 #endif // PAVE_H

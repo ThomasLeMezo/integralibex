@@ -78,7 +78,7 @@ int main()
 
     s.set_initial_pave(box, &f);
 
-    s.cameleon_cycle(10, 5, 1000000, true);
+    s.cameleon_cycle(15, 5, 1000000, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

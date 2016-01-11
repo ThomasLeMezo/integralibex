@@ -11,77 +11,74 @@ using namespace std;
 
 Border::Border(const IntervalVector &position, const int face, Pave *pave): m_position(2)
 {
-    this->m_position = position;
-    this->m_face = face;
-    this->m_pave = pave;
-    this->m_segment_in = Interval::EMPTY_SET;
-    this->m_segment_out = Interval::EMPTY_SET;
+    m_position = position;
+    m_face = face;
+    m_pave = pave;
+    m_segment_in = Interval::EMPTY_SET;
+    m_segment_out = Interval::EMPTY_SET;
 
-    this->m_segment_full = position[face%2];
+    m_segment_full = position[face%2];
 
-    this->m_empty = false;
-    this->m_full = false;
+    m_empty = false;
+    m_full = false;
 }
 
 Border::Border(Border *border): m_position(2)
 {
-    this->m_position = border->position();
-    this->m_face = border->face();
-    this->m_pave = border->pave();
-    this->m_segment_in = border->segment_in();
-    this->m_segment_out = border->segment_out();
-    this->m_segment_full = border->segment_full();
-    this->m_empty = false;
-    this->m_full = false;
-
-    for(int i=0; i<border->brothers().size(); i++){
-        this->m_brothers.push_back( border->brothers()[i]);
-    }
+    m_position = border->get_position();
+    m_face = border->get_face();
+    m_pave = border->get_pave();
+    m_segment_in = border->get_segment_in();
+    m_segment_out = border->get_segment_out();
+    m_segment_full = border->get_segment_full();
+    m_empty = false;
+    m_full = false;
+    m_brothers = border->get_brothers();
 }
 
 void Border::draw() const{
     // Create an IntervalVector (2D) from the segment (1D)
-    IntervalVector segment_in = this->m_position;
-    IntervalVector segment_out = this->m_position;
+    IntervalVector segment_in = m_position;
+    IntervalVector segment_out = m_position;
 
     // Find the non flat dimension and complete replaced it by the segment
-    segment_in[this->m_face%2] = this->m_segment_in;
-    segment_out[this->m_face%2] = this->m_segment_out;
+    segment_in[m_face%2] = m_segment_in;
+    segment_out[m_face%2] = m_segment_out;
 
-    double pourcentage_in = min(this->m_segment_full.diam()*0.01, 0.01);
-    double pourcentage_out = min(this->m_segment_full.diam()*0.001, 0.001);
-    segment_in[(this->m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in);
-    segment_out[(this->m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out);
+    double pourcentage_in = min(m_segment_full.diam()*0.01, 0.01);
+    double pourcentage_out = min(m_segment_full.diam()*0.001, 0.001);
+    segment_in[(m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in);
+    segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out);
 
     vibes::drawBox(segment_in, "r[r]");
     vibes::drawBox(segment_out, "b[b]");
 }
 
 void Border::get_points(std::vector<double> &x, std::vector<double> &y){
-    Interval segment = this->m_segment_in | this->m_segment_out;
+    Interval segment = m_segment_in | m_segment_out;
 
     if(!segment.is_empty()){
-        if(this->m_face == 0){
+        if(m_face == 0){
             x.push_back(segment.lb());
             x.push_back(segment.ub());
-            y.push_back(this->m_position[1].lb());
-            y.push_back(this->m_position[1].ub());
+            y.push_back(m_position[1].lb());
+            y.push_back(m_position[1].ub());
         }
-        else if(this->m_face == 1){
-            x.push_back(this->m_position[0].lb());
-            x.push_back(this->m_position[0].ub());
+        else if(m_face == 1){
+            x.push_back(m_position[0].lb());
+            x.push_back(m_position[0].ub());
             y.push_back(segment.lb());
             y.push_back(segment.ub());
         }
-        else if(this->m_face == 2){
+        else if(m_face == 2){
             x.push_back(segment.ub());
             x.push_back(segment.lb());
-            y.push_back(this->m_position[1].ub());
-            y.push_back(this->m_position[1].lb());
+            y.push_back(m_position[1].ub());
+            y.push_back(m_position[1].lb());
         }
-        else if(this->m_face == 3){
-            x.push_back(this->m_position[0].ub());
-            x.push_back(this->m_position[0].lb());
+        else if(m_face == 3){
+            x.push_back(m_position[0].ub());
+            x.push_back(m_position[0].lb());
             y.push_back(segment.ub());
             y.push_back(segment.lb());
         }
@@ -94,19 +91,19 @@ void Border::get_points(std::vector<double> &x, std::vector<double> &y){
 // Add new brothers to the list
 void Border::add_brothers(std::vector<Border*> brother_list){
     for(int i=0; i<brother_list.size(); i++){
-        this->add_brothers(brother_list[i]);
+        add_brothers(brother_list[i]);
     }
 }
 
-void Border::add_brothers(Border * brother){
-    IntervalVector test = brother->m_position & this->m_position;
+void Border::add_brothers(Border *brother){
+    IntervalVector test = brother->m_position & m_position;
     if(!(test.is_empty()) && (test[0].is_degenerated() != test[1].is_degenerated())){
-        this->m_brothers.push_back(brother);
+        m_brothers.push_back(brother);
     }
 }
 
 void Border::add_brothers_force(Border *brother){
-    this->m_brothers.push_back(brother);
+    m_brothers.push_back(brother);
 }
 
 void Border::update_brothers(Border* border_pave1, Border* border_pave2){
@@ -114,17 +111,17 @@ void Border::update_brothers(Border* border_pave1, Border* border_pave2){
     list_tmp.push_back(border_pave1);
     list_tmp.push_back(border_pave2);
 
-    for(int i=0; i<this->m_brothers.size(); i++){
+    for(int i=0; i<m_brothers.size(); i++){
         // Remove reference to this border inside brothers
-        for(int j=0; j<this->m_brothers[i]->brothers().size(); j++){
-            if(this->m_brothers[i]->brothers()[j]==this){
-                this->m_brothers[i]->remove_brother(j);
+        for(int j=0; j<m_brothers[i]->get_brothers().size(); j++){
+            if(m_brothers[i]->get_brothers()[j]==this){
+                m_brothers[i]->remove_brother(j);
                 break;
             }
         }
 
         // Add reference of border_pave 1 and 2
-        this->m_brothers[i]->add_brothers(list_tmp);
+        m_brothers[i]->add_brothers(list_tmp);
     }
 }
 
@@ -132,25 +129,25 @@ void Border::update_brothers(Border* border_pave1, Border* border_pave2){
 // ****************** Other functions *********************************************
 
 void Border::set_full(){
-    this->m_segment_in = this->m_segment_full;
-    this->m_segment_out = this->m_segment_full;
-    this->m_empty = false;
-    this->m_full = true;
+    m_segment_in = m_segment_full;
+    m_segment_out = m_segment_full;
+    m_empty = false;
+    m_full = true;
 }
 
 void Border::set_empty(){
-    this->m_segment_in = Interval::EMPTY_SET;
-    this->m_segment_out = Interval::EMPTY_SET;
-    this->m_empty = true;
-    this->m_full = false;
+    m_segment_in = Interval::EMPTY_SET;
+    m_segment_out = Interval::EMPTY_SET;
+    m_empty = true;
+    m_full = false;
 }
 
 bool Border::is_empty(){
-    if(this->m_empty){
+    if(m_empty){
         return true;
     }
-    else if(this->m_segment_in.is_empty() && this->m_segment_out.is_empty()){
-        this->m_empty = true;
+    else if(m_segment_in.is_empty() && m_segment_out.is_empty()){
+        m_empty = true;
         return true;
     }
     else{
@@ -159,12 +156,12 @@ bool Border::is_empty(){
 }
 
 bool Border::is_full(){
-    if(!this->m_full){
+    if(!m_full){
         return false;
     }
     else{
-        if((this->m_segment_in | this->m_segment_out) != this->m_segment_full){
-            this->m_full = false;
+        if((m_segment_in | m_segment_out) != m_segment_full){
+            m_full = false;
             return false;
         }
         else{
@@ -175,88 +172,96 @@ bool Border::is_full(){
 
 void Border::set_segment_in(ibex::Interval segment_in, bool inclusion){
     if(inclusion)
-        this->m_segment_in &= segment_in;
+        m_segment_in &= segment_in;
     else
-        this->m_segment_in |= segment_in & this->m_segment_full;
+        m_segment_in |= segment_in & m_segment_full;
 }
 
 void Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
     if(inclusion)
-        this->m_segment_out &= segment_out;
+        m_segment_out &= segment_out;
     else
-        this->m_segment_out |= segment_out & this->m_segment_full;
+        m_segment_out |= segment_out & m_segment_full;
 }
 
 void Border::set_pave(Pave* pave){
-    this->m_pave = pave;
+    m_pave = pave;
 }
 
-ibex::Interval Border::segment_in() const{
-    return this->m_segment_in;
+ibex::Interval Border::get_segment_in() const{
+    return m_segment_in;
 }
 
-ibex::Interval Border::segment_out() const{
-    return this->m_segment_out;
+ibex::Interval Border::get_segment_out() const{
+    return m_segment_out;
 }
 
-ibex::Interval Border::segment_full() const{
-    return this->m_segment_full;
+ibex::Interval Border::get_segment_full() const{
+    return m_segment_full;
 }
 
-std::vector<Border*> Border::brothers(){
-    return this->m_brothers;
+std::vector<Border*> Border::get_brothers(){
+    return m_brothers;
 }
 
-ibex::IntervalVector Border::position() const{
-    return this->m_position;
+Border* Border::get_brother(int i){
+    if(i<m_brothers.size())
+        return m_brothers[i];
+    else
+        return NULL;
 }
 
-Pave* Border::pave() const{
-    return this->m_pave;
+ibex::IntervalVector Border::get_position() const{
+    return m_position;
 }
 
-int Border::face() const{
-    return this->m_face;
+Pave* Border::get_pave() const{
+    return m_pave;
+}
+
+int Border::get_face() const{
+    return m_face;
 }
 
 Border& Border::operator&=(const Border &b){
-    this->m_segment_in &= b.segment_in();
-    this->m_segment_out &= b.segment_out();
+    m_segment_in &= b.get_segment_in();
+    m_segment_out &= b.get_segment_out();
     return *this;
 }
 
 bool Border::inter(const Border &b){
     bool change = false;
-    if((this->m_segment_in & b.segment_in()) != this->m_segment_in)
+    if((m_segment_in & b.get_segment_in()) != m_segment_in)
         change = true;
-    if((this->m_segment_out & b.segment_out()) != this->m_segment_out)
+    if((m_segment_out & b.get_segment_out()) != m_segment_out)
         change = true;
 
-    this->m_segment_in &= b.segment_in();
-    this->m_segment_out &= b.segment_out();
+    m_segment_in &= b.get_segment_in();
+    m_segment_out &= b.get_segment_out();
     return change;
 }
 
 void Border::diff(const Border &b){
     Interval segment_in_r, segment_in_l;
-    this->m_segment_in.diff(b.segment_in(), segment_in_r, segment_in_l);
-    this->m_segment_in = segment_in_r | segment_in_l;
+    m_segment_in.diff(b.get_segment_in(), segment_in_r, segment_in_l);
+    m_segment_in = segment_in_r | segment_in_l;
 
     Interval segment_out_r, segment_out_l;
-    this->m_segment_out.diff(b.segment_out(), segment_out_r, segment_out_l);
-    this->m_segment_out = segment_out_r | segment_out_l;
+    m_segment_out.diff(b.get_segment_out(), segment_out_r, segment_out_l);
+    m_segment_out = segment_out_r | segment_out_l;
 
 }
 
 void Border::remove_brother(int indice){
-    this->m_brothers.erase(this->m_brothers.begin() + indice);
+    m_brothers.erase(m_brothers.begin() + indice);
 }
 
-void Border::replace_brother(Border* brother, int id_brother){
-    this->m_brothers[id_brother] = brother;
+void Border::set_brother(Border* brother, int id_brother){
+    if(id_brother<m_brothers.size())
+        m_brothers[id_brother] = brother;
 }
 
 void Border::reset_full_empty(){
-    this->m_empty = false;
-    this->m_full = false;
+    m_empty = false;
+    m_full = false;
 }

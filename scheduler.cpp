@@ -42,7 +42,7 @@ Pave* Scheduler::get_pave(std::vector<Pave*> &pave_list, double x, double y){
     position[1] = Interval(y);
 
     for(int i=0; i<pave_list.size(); i++){
-        if(!(position & pave_list[i]->m_box).is_empty()){
+        if(!(position & pave_list[i]->get_position()).is_empty()){
             return pave_list[i];
         }
     }
@@ -52,7 +52,7 @@ Pave* Scheduler::get_pave(std::vector<Pave*> &pave_list, double x, double y){
 std::vector<Pave*> Scheduler::get_pave(std::vector<Pave *> &pave_list, const ibex::IntervalVector &box){
     std::vector<Pave*> pave_list_inter;
     for(int i=0; i<pave_list.size(); i++){
-        if(!(box & pave_list[i]->m_box).is_empty()){
+        if(!(box & pave_list[i]->get_position()).is_empty()){
             pave_list_inter.push_back(pave_list[i]);
         }
     }
@@ -67,9 +67,9 @@ void Scheduler::activate_pave(std::vector<Pave*> &pave_list, std::vector<Pave*> 
         for(int face=0; face<4; face++){
             vector<Pave*> pave_brother_list = pave->get_brothers(face);
             for(auto &pave_brother : pave_brother_list){
-                if(!pave_brother->m_in_queue){
+                if(!pave_brother->is_in_queue()){
                     pave_queue.push_back(pave_brother);
-                    pave_brother->m_in_queue = true;
+                    pave_brother->set_in_queue(true);
                 }
             }
         }
@@ -96,11 +96,7 @@ void Scheduler::SIVIA(std::vector<Pave*> &pave_list, std::vector<Pave*> &pave_qu
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
-        double diam = 0.0;
-        if(!(tmp->m_theta[0].is_empty()))
-            diam += tmp->m_theta[0].diam();
-        if(!(tmp->m_theta[1].is_empty()))
-            diam += tmp->m_theta[1].diam();
+        double diam = tmp->get_theta_diam();
 
         if(diam < epsilon_theta || tmp->is_empty() && bisect_empty){// || (not_full_test && tmp->is_full() && diam < M_PI)){
             pave_list.push_back(tmp);
@@ -126,7 +122,7 @@ int Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool 
         iterations++;
         Pave *pave = pave_queue.front();
         pave_queue.erase(pave_queue.begin());
-        pave->m_in_queue = false;
+        pave->set_in_queue(false);
 
         bool change = this->m_utils.CtcContinuity(pave, backward);
         if(change){
@@ -136,9 +132,9 @@ int Scheduler::process(std::vector<Pave*> &pave_queue, int max_iterations, bool 
             for(int face=0; face<4; face++){
                 vector<Pave*> brothers_pave = pave->get_brothers(face);
                 for(int i=0; i<brothers_pave.size(); i++){
-                    if(brothers_pave[i]->m_in_queue == false){
+                    if(brothers_pave[i]->is_in_queue() == false){
                         pave_queue.push_back(brothers_pave[i]);
-                        brothers_pave[i]->m_in_queue = true;
+                        brothers_pave[i]->set_in_queue(true);
                     }
                 }
             }
@@ -283,15 +279,15 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 vector<Pave*> pave_list, pave_queue, pave_list_diff;
                 copy_graph(pave_list, this->m_global_pave_list[nb_graph], true);
                 // Activate pave
-                Pave* copy_node = pave_start->m_copy_node;
+                Pave* copy_node = pave_start->get_copy_node();
                 copy_node->set_full();
                 *(copy_node) &= *(pave_start);
                 for(int face=0; face<4; face++){
                     vector<Pave*> brothers_pave = copy_node->get_brothers(face);
                     for(auto &pave : brothers_pave){
-                        if(!pave->m_in_queue){
+                        if(!pave->is_in_queue()){
                             pave_queue.push_back(pave);
-                            pave->m_in_queue = true;
+                            pave->set_in_queue(true);
                         }
                     }
                 }
@@ -340,7 +336,7 @@ void Scheduler::copy_graph(vector<Pave*> &pave_list_copy, vector<Pave*> &pave_li
         Pave *p = new Pave(pave_list_root[i]);
         if(empty)
             p->set_empty();
-        pave_list_root[i]->m_copy_node = p;
+        pave_list_root[i]->set_copy_node(p);
         pave_list_copy.push_back(p);
     }
 
@@ -349,8 +345,8 @@ void Scheduler::copy_graph(vector<Pave*> &pave_list_copy, vector<Pave*> &pave_li
         Pave* pave_copy = pave_list_copy[i];
 
         for(int face = 0; face<4; face++){
-            for(int j=0; j<pave_root->m_borders[face].brothers().size(); j++){
-                pave_copy->m_borders[face].replace_brother(&(pave_root->m_borders[face].brothers()[j]->pave()->m_copy_node->m_borders[(face+2)%4]), j);
+            for(int j=0; j<pave_root->get_border(face)->get_brothers().size(); j++){
+                pave_copy->get_border(face)->set_brother(pave_root->get_border(face)->get_brothers()[j]->get_pave()->get_copy_node()->get_border((face+2)%4), j);
             }
         }
     }
@@ -410,28 +406,28 @@ void Scheduler::print_pave_info(std::vector<Pave*> &pave_list, double x, double 
         //        }
     }
 
-    cout << "BOX = " << p->m_box << endl;
+    cout << "BOX = " << p->get_position() << endl;
     cout << p << endl;
-    for(int i= 0; i<p->m_borders.size(); i++){
-        cout << "border " << i << '\t' << p->m_borders[i].position() << '\t' << p->m_borders[i].segment_in() << p->m_borders[i].segment_out()<< endl;
+    for(int i= 0; i<p->get_borders().size(); i++){
+        cout << "border " << i << '\t' << p->get_border(i)->get_position() << '\t' << p->get_border(i)->get_segment_in() << p->get_border(i)->get_segment_out()<< endl;
     }
-    cout << "theta " << p->m_theta[0] << " " << p->m_theta[1] << endl;
+    cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << endl;
 
-    for(int i=0; i<p->m_borders.size(); i++){
-        if(p->m_borders[i].brothers().size()!=0){
-            for(int j = 0; j<p->m_borders[i].brothers().size(); j++){
-                cout << "border=" << i << " (" << &(p->m_borders[i]) << ") brother=" << j << " " << (p->m_borders[i].brothers()[j]) << " pave(" << p->m_borders[i].brothers()[j]->pave() << ")" << endl;
+    for(int i=0; i<p->get_borders().size(); i++){
+        if(p->get_border(i)->get_brothers().size()!=0){
+            for(int j = 0; j<p->get_border(i)->get_brothers().size(); j++){
+                cout << "border=" << i << " (" << p->get_border(i) << ") brother=" << j << " " << p->get_border(i)->get_brother(j) << " pave(" << p->get_border(i)->get_brother(j)->get_pave() << ")" << endl;
             }
         }
         else{
-            cout << "border=" << i << " (" << &(p->m_borders[i]) << ")" << endl;
+            cout << "border=" << i << " (" << p->get_border(i) << ")" << endl;
         }
 
     }
 
-    double r=0.5*min(p->m_box[0].diam(), p->m_box[1].diam())/2.0;
+    double r=0.5*min(p->get_position()[0].diam(), p->get_position()[1].diam())/2.0;
 
-    vibes::drawCircle(p->m_box[0].mid(), p->m_box[1].mid(), r, color);
+    vibes::drawCircle(p->get_position()[0].mid(), p->get_position()[1].mid(), r, color);
 
     cout << endl;
 }
@@ -444,22 +440,22 @@ void Scheduler::graph_symetry(vector<Pave*> &pave_list, vector<Pave*> &pave_queu
     box_symetry[1] = Interval::ALL_REALS;
 
     for(auto &pave:pave_list){
-        if(!(pave->m_box & box_symetry).is_empty()){
+        if(!(pave->get_position() & box_symetry).is_empty()){
             pave_list_symetry.push_back(pave);
         }
     }
 
     for(auto &pave:pave_list_symetry){
         for(auto &pave_brother:pave_list_symetry){
-            if(!(pave->m_box[1] & -pave_brother->m_box[1]).is_empty() && pave_brother!=pave){
-                if(((pave->m_borders[3].segment_in() | -pave_brother->m_borders[3].segment_out()) & pave->m_borders[3].segment_full())
-                        != pave->m_borders[3].segment_in()){
-                    if(!pave->m_in_queue){
+            if(!(pave->get_position()[1] & -pave_brother->get_position()[1]).is_empty() && pave_brother!=pave){
+                if(((pave->get_border(3)->get_segment_in() | -pave_brother->get_border(3)->get_segment_out()) & pave->get_border(3)->get_segment_full())
+                        != pave->get_border(3)->get_segment_in()){
+                    if(!pave->is_in_queue()){
                         pave_queue.push_back(pave);
-                        pave->m_in_queue = true;
+                        pave->set_in_queue(true);
                     }
                 }
-                pave->m_borders_symetry[3].set_segment_in(-pave_brother->m_borders[3].segment_out(), false);
+                pave->get_borders_symetry()[3].set_segment_in(-pave_brother->get_border(3)->get_segment_out(), false);
 //                pave->m_borders_symetry[3].set_segment_out(-pave_brother->m_borders[3].segment_in(), false);
             }
         }

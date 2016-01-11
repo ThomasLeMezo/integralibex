@@ -32,24 +32,23 @@ public:
     // Setters
     void set_full();
     void set_empty();
-
     void set_segment_in(ibex::Interval segment_in, bool inclusion);
     void set_segment_out(ibex::Interval segment_out, bool inclusion);
-
     void set_pave(Pave* pave);
-    void replace_brother(Border* brother, int id_brother);
 
+    void set_brother(Border* brother, int id_brother);
     void reset_full_empty();
 
     // Getters
-    void get_points(std::vector<double> &x, std::vector<double> &y);
-    ibex::Interval segment_in() const;
-    ibex::Interval segment_out() const;
-    std::vector<Border *> brothers();
-    ibex::IntervalVector position() const;
-    Pave* pave() const;
-    ibex::Interval segment_full() const;
-    int face() const;
+    void                    get_points(std::vector<double> &x, std::vector<double> &y);
+    ibex::Interval          get_segment_in() const;
+    ibex::Interval          get_segment_out() const;
+    std::vector<Border *>   get_brothers();
+    Border*                 get_brother(int i);
+    ibex::IntervalVector    get_position() const;
+    Pave*                   get_pave() const;
+    ibex::Interval          get_segment_full() const;
+    int                     get_face() const;
 
     // Tests
     bool is_empty();

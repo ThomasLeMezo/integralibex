@@ -86,7 +86,7 @@ void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ib
     this->CtcPropagateRightSide(x, y, theta, box[0].ub(), box[1].ub());
 }
 
-void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const ibex::Interval theta[], const ibex::IntervalVector &box_pave){
+void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> theta, const ibex::IntervalVector &box_pave){
     // Translate and rotate the Segment
     IntervalVector box(box_pave);
     IntervalVector box_in(box_pave);
@@ -256,20 +256,20 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion){
     Interval segment_in[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int face = 0; face < 4; face++){
-        Interval seg_in = p->m_borders[face].segment_in();
+        Interval seg_in = p->get_border(face)->get_segment_in();
 
         vector<Interval> seg_out;
         for(int j=(face+1)%4; j!=face; j=(j+1)%4){
-            seg_out.push_back(p->m_borders[j].segment_out());
+            seg_out.push_back(p->get_border(j)->get_segment_out());
         }
 
-        this->CtcPropagateSegment(seg_in, seg_out, face, p->m_theta, p->m_box);
+        this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position());
 
         segment_in[face] = seg_in;
     }
 
     for(int face = 0; face<4; face++){
-        p->m_borders[face].set_segment_in(segment_in[face], inclusion);
+        p->get_border(face)->set_segment_in(segment_in[face], inclusion);
     }
 }
 
@@ -277,14 +277,14 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion){
     Interval segment_out[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int face = 0; face < 4; face++){
-        Interval seg_in = p->m_borders[face].segment_in();
+        Interval seg_in = p->get_border(face)->get_segment_in();
 
         vector<Interval> seg_out;
         for(int j=0; j<3; j++){
             seg_out.push_back(Interval::ALL_REALS);
         }
 
-        this->CtcPropagateSegment(seg_in, seg_out, face, p->m_theta, p->m_box);
+        this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position());
 
         int k=0;
         for(int i=(face+1)%4; i!=face; i=(i+1)%4){
@@ -294,7 +294,7 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion){
     }
 
     for(int face = 0; face<4; face++){
-        p->m_borders[face].set_segment_out(segment_out[face], inclusion);
+        p->get_border(face)->set_segment_out(segment_out[face], inclusion);
     }
 }
 
@@ -317,31 +317,31 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
         Interval segment_in = Interval::EMPTY_SET;
         Interval segment_out = Interval::EMPTY_SET;
 
-        for(int b = 0; b < p->m_borders[face].brothers().size(); b++){
-            segment_in |= p->m_borders[face].brothers()[b]->segment_in();
-            segment_out |= p->m_borders[face].brothers()[b]->segment_out();
+        for(int b = 0; b < p->get_border(face)->get_brothers().size(); b++){
+            segment_in |= p->get_border(face)->get_brother(b)->get_segment_in();
+            segment_out |= p->get_border(face)->get_brother(b)->get_segment_out();
         }
 
         if(backward){
-            if(p->m_borders[face].segment_in() != (segment_out & p->m_borders[face].segment_in())
-                    || p->m_borders[face].segment_out() != (segment_in & p->m_borders[face].segment_out())){
+            if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())
+                    || p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out())){
                 change = true;
-                p->m_borders[face].set_segment_in(segment_out, backward);
-                p->m_borders[face].set_segment_out(segment_in, backward);
+                p->get_border(face)->set_segment_in(segment_out, backward);
+                p->get_border(face)->set_segment_out(segment_in, backward);
             }
         }
         else{
-            if(p->m_borders[face].segment_in() != (p->m_borders[face].segment_in() | segment_out & p->m_borders[face].segment_full())){
+            if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
                 change = true;
-                p->m_borders[face].set_segment_in(segment_out, backward);
+                p->get_border(face)->set_segment_in(segment_out, backward);
             }
         }
 
     }
     for(int face = 0; face < 4; face++){
-        if(p->m_borders[face].segment_in() != (p->m_borders[face].segment_in() | (p->m_borders_symetry[face].segment_in() & p->m_borders[face].segment_full()))){
+        if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | (p->get_border_symetry(face)->get_segment_in() & p->get_border(face)->get_segment_full()))){
             change = true;
-            p->m_borders[face].set_segment_in(p->m_borders_symetry[face].segment_in(), false);
+            p->get_border(face)->set_segment_in(p->get_border_symetry(face)->get_segment_in(), false);
         }
     }
 
