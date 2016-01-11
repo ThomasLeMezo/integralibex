@@ -23,7 +23,7 @@ public:
     void draw_borders(bool filled);
 
     // ******** Graph building ********
-    void bisect(vector<Pave *> &result);
+    void bisect(vector<Pave *> &result, ibex::Function *f_inclusion_std);
     void remove_from_brothers();
     void remove_brothers(Pave* p, int face);
 
@@ -50,12 +50,8 @@ public:
     ibex::IntervalVector        get_position() const;
 
     std::vector<Border>         get_borders();
-    std::vector<Border>         get_borders_symetry();
-
     Border*                     get_border(int face);
     const Border*               get_border_const(int face) const;
-    Border*                     get_border_symetry(int i);
-    const Border*               get_border_symetry_const(int face) const;
 
     Pave*                       get_copy_node();
     ibex::Function*             get_f() const;
@@ -65,7 +61,6 @@ private:
     std::vector<ibex::Interval> m_theta;
     ibex::IntervalVector        m_position;
     std::vector<Border>         m_borders;
-    std::vector<Border>         m_borders_symetry;
 
     ibex::Function              *m_f;
     Pave*                       m_copy_node;

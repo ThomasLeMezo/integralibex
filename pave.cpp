@@ -23,11 +23,6 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f): m_position(2)
     coordinate[0] = position[0]; coordinate[1] = Interval(position[1].ub()); m_borders.push_back(Border(coordinate, 2, this));
     coordinate[1] = position[1]; coordinate[0] = Interval(position[0].lb()); m_borders.push_back(Border(coordinate, 3, this));
 
-    coordinate[0] = position[0]; coordinate[1] = Interval(position[1].lb()); m_borders_symetry.push_back(Border(coordinate, 0, this));
-    coordinate[1] = position[1]; coordinate[0] = Interval(position[0].ub()); m_borders_symetry.push_back(Border(coordinate, 1, this));
-    coordinate[0] = position[0]; coordinate[1] = Interval(position[1].ub()); m_borders_symetry.push_back(Border(coordinate, 2, this));
-    coordinate[1] = position[1]; coordinate[0] = Interval(position[0].lb()); m_borders_symetry.push_back(Border(coordinate, 3, this));
-
     m_full = false;
     m_empty = false;
 
@@ -70,7 +65,6 @@ Pave::Pave(const Pave *p): m_position(2)
     for(int face = 0; face < 4; face++){
         m_borders.push_back(*(p->get_border_const(face))); // Copy the border !
         m_borders[face].set_pave(this);
-        m_borders_symetry.push_back(*(p->get_border_symetry_const(face)));
     }
     m_copy_node = NULL;
 }
@@ -179,7 +173,7 @@ void Pave::draw_borders(bool filled){
 // ********************************************************************************
 // ****************** Paving building *********************************************
 
-void Pave::bisect(vector<Pave*> &result){
+void Pave::bisect(vector<Pave*> &result, Function* f_inclusion_std){
     // Create 4 new paves
     ibex::LargestFirst bisector(0.0, 0.5);
     std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
@@ -202,23 +196,23 @@ void Pave::bisect(vector<Pave*> &result){
 
     // Copy brothers Pave (this) to pave1 and pave2
     for(int i=0; i<4; i++){
-        if(m_borders[i].get_brothers().size()!=0){
+        if(m_borders[i].get_inclusions().size()!=0){
             if(i!=indice1){
-                pave1->get_border(i)->add_brothers(m_borders[i].get_brothers());
+                pave1->get_border(i)->add_inclusions(m_borders[i].get_inclusions());
             }
             if(i!=indice2){
-                pave2->get_border(i)->add_brothers(m_borders[i].get_brothers());
+                pave2->get_border(i)->add_inclusions(m_borders[i].get_inclusions());
             }
         }
     }
 
     // Add each other to its brother list (pave1 <-> pave2)
-    pave1->get_border(indice1)->add_brothers(pave2->get_border(indice2));
-    pave2->get_border(indice2)->add_brothers(pave1->get_border(indice1));
+    pave1->get_border(indice1)->add_inclusion(Inclusion(pave2->get_border(indice2), f_inclusion_std, indice2));
+    pave2->get_border(indice2)->add_inclusion(Inclusion(pave1->get_border(indice1), f_inclusion_std, indice1));
 
     // Remove
     for(int i=0; i<4; i++){
-        m_borders[i].update_brothers(pave1->get_border(i), pave2->get_border(i));
+        m_borders[i].update_brothers_inclusion(pave1->get_border(i), pave2->get_border(i));
     }
 
     if(is_full()){
@@ -243,8 +237,8 @@ double Pave::get_theta_diam(){
 }
 
 void Pave::remove_brothers(Pave* p, int face){
-    for(int i=0; i<m_borders[face].get_brothers().size(); i++){
-        if(m_borders[face].get_brother(i)->get_pave() == p){
+    for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
+        if(m_borders[face].get_inclusion(i).get_border()->get_pave() == p){
             m_borders[face].remove_brother(i);
             return;
         }
@@ -253,8 +247,8 @@ void Pave::remove_brothers(Pave* p, int face){
 
 void Pave::remove_from_brothers(){
     for(int face=0; face<4; face++){
-        for(int i=0; i<m_borders[face].get_brothers().size(); i++){
-            m_borders[face].get_brother(i)->get_pave()->remove_brothers(this, (face+2)%4);
+        for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
+            m_borders[face].get_inclusion(i).get_border()->get_pave()->remove_brothers(this, m_borders[face].get_inclusion(i).get_brother_face());
         }
     }
 }
@@ -293,8 +287,8 @@ bool Pave::is_full(){
 
 vector<Pave*> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
-    for(int i=0; i<m_borders[face].get_brothers().size(); i++){
-        brothers_list.push_back(m_borders[face].get_brother(i)->get_pave());
+    for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
+        brothers_list.push_back(m_borders[face].get_inclusion(i).get_border()->get_pave());
     }
     return brothers_list;
 }
@@ -338,13 +332,6 @@ const Border* Pave::get_border_const(int face) const{
         return NULL;
 }
 
-const Border* Pave::get_border_symetry_const(int face) const{
-    if(face >=0 && face < 4)
-        return &(m_borders_symetry[face]);
-    else
-        return NULL;
-}
-
 bool Pave::is_in_queue(){
     return m_in_queue;
 }
@@ -363,17 +350,6 @@ void Pave::set_copy_node(Pave *p){
 
 Pave* Pave::get_copy_node(){
     return m_copy_node;
-}
-
-std::vector<Border> Pave::get_borders_symetry(){
-    return m_borders_symetry;
-}
-
-Border* Pave::get_border_symetry(int i){
-    if(i>=0 && i < m_borders_symetry.size())
-        return &(m_borders_symetry[i]);
-    else
-        return NULL;
 }
 
 std::vector<Interval> Pave::get_theta(){

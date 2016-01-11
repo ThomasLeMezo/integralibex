@@ -3,8 +3,10 @@
 
 #include <ibex.h>
 #include <pave.h>
+#include <inclusion.h>
 
 class Pave;
+class Inclusion;
 class Border
 {
 /***************** Functions ******************/
@@ -17,10 +19,9 @@ public:
     void draw() const;
 
     // ******** Graph building ********
-    void add_brothers(std::vector<Border *> brother_list);
-    void add_brothers(Border* brother);
-    void add_brothers_force(Border *brother);
-    void update_brothers(Border* border_pave1, Border* border_pave2);
+    void add_inclusions(std::vector<const Inclusion>& brother_list);
+    void add_inclusion(const Inclusion& brother);
+    void update_brothers_inclusion(Border *border_pave1, Border *border_pave2);
 
     // ******** Border Properties ********
     // Operations
@@ -36,16 +37,16 @@ public:
     void set_segment_out(ibex::Interval segment_out, bool inclusion);
     void set_pave(Pave* pave);
 
-    void set_brother(Border* brother, int id_brother);
+    void set_inclusion(Border *border, int id_brother);
     void reset_full_empty();
 
     // Getters
     void                    get_points(std::vector<double> &x, std::vector<double> &y);
     ibex::Interval          get_segment_in() const;
     ibex::Interval          get_segment_out() const;
-    std::vector<Border *>   get_brothers();
-    Border*                 get_brother(int i);
-    ibex::IntervalVector    get_position() const;
+    std::vector<Inclusion>  get_inclusions();
+    Inclusion               get_inclusion(int i);
+    ibex::IntervalVector    get_position();
     Pave*                   get_pave() const;
     ibex::Interval          get_segment_full() const;
     int                     get_face() const;
@@ -61,7 +62,7 @@ private:
 
 private:
     int m_face;                               // Number of the face (0=bottom, 1=right, ...)
-    std::vector<Border*> m_brothers;          // Pointer to brothers Borders
+    std::vector<Inclusion> m_brothers;          // Pointer to brothers Borders
     ibex::IntervalVector m_position;          // Position of the border ([x], [y]) where one of the dimension is singleton
 
     Pave *m_pave;                             // Pointer to its container

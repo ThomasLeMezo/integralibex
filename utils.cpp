@@ -317,9 +317,9 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
         Interval segment_in = Interval::EMPTY_SET;
         Interval segment_out = Interval::EMPTY_SET;
 
-        for(int b = 0; b < p->get_border(face)->get_brothers().size(); b++){
-            segment_in |= p->get_border(face)->get_brother(b)->get_segment_in();
-            segment_out |= p->get_border(face)->get_brother(b)->get_segment_out();
+        for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
+            segment_in |= p->get_border(face)->get_inclusion(b).get_border()->get_segment_in();
+            segment_out |= p->get_border(face)->get_inclusion(b).get_border()->get_segment_out();
         }
 
         if(backward){
@@ -337,12 +337,6 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
             }
         }
 
-    }
-    for(int face = 0; face < 4; face++){
-        if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | (p->get_border_symetry(face)->get_segment_in() & p->get_border(face)->get_segment_full()))){
-            change = true;
-            p->get_border(face)->set_segment_in(p->get_border_symetry(face)->get_segment_in(), false);
-        }
     }
 
     return change;

@@ -36,6 +36,7 @@ public:
     Pave*               get_semi_full_node();
     Utils*              get_utils();
     int                 size() const;
+    ibex::Function*     get_f_inclusion_std();
 
     // Other functions
     void print_pave_info(double x, double y, string color);
@@ -50,6 +51,8 @@ private:
 
     int m_graph_id;
     int m_drawing_cpt;
+
+    ibex::Function *m_f_inclusion_std;
 };
 
 #endif // GRAPH_H

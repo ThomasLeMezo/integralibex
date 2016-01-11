@@ -10,6 +10,9 @@ Graph::Graph(const IntervalVector &box, ibex::Function *f, Utils *utils, int gra
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
     m_utils = utils;
+
+    Variable x, y;
+    m_f_inclusion_std = new Function(x, y, Return(x, y));
 }
 
 Graph::Graph(Graph* g, int graph_id){
@@ -24,8 +27,8 @@ Graph::Graph(Graph* g, int graph_id){
         Pave* pave_copy = m_node_list[i];
 
         for(int face = 0; face<4; face++){
-            for(int j=0; j<pave_root->get_border(face)->get_brothers().size(); j++){
-                pave_copy->get_border(face)->set_brother(pave_root->get_border(face)->get_brothers()[j]->get_pave()->get_copy_node()->get_border((face+2)%4), j);
+            for(int j=0; j<pave_root->get_border(face)->get_inclusions().size(); j++){
+                pave_copy->get_border(face)->set_inclusion(pave_root->get_border(face)->get_inclusion(j).get_border()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j).get_brother_face()), j);
             }
         }
     }
@@ -33,6 +36,7 @@ Graph::Graph(Graph* g, int graph_id){
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
     m_utils = g->get_utils();
+    m_f_inclusion_std = new Function(*(g->get_f_inclusion_std()));
 }
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
@@ -62,6 +66,7 @@ Graph::~Graph(){
     for(auto &node:m_node_empty_list){
         delete(node);
     }
+    delete(m_f_inclusion_std);
 }
 
 void Graph::sivia(double epsilon_theta, int iterations_max, bool backward, bool bisect_empty){
@@ -80,7 +85,7 @@ void Graph::sivia(double epsilon_theta, int iterations_max, bool backward, bool 
             iterations++;
         }
         else{
-            tmp->bisect(tmp_pave_list);
+            tmp->bisect(tmp_pave_list, m_f_inclusion_std);
             delete(tmp);
         }
     }
@@ -214,10 +219,10 @@ void Graph::print_pave_info(double x, double y, string color){
     }
     cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << endl;
 
-    for(int i=0; i<p->get_borders().size(); i++){
-        if(p->get_border(i)->get_brothers().size()!=0){
-            for(int j = 0; j<p->get_border(i)->get_brothers().size(); j++){
-                cout << "border=" << i << " (" << p->get_border(i) << ") brother=" << j << " " << p->get_border(i)->get_brother(j) << " pave(" << p->get_border(i)->get_brother(j)->get_pave() << ")" << endl;
+    for(int i=0; i<4; i++){
+        if(p->get_border(i)->get_inclusions().size()!=0){
+            for(int j = 0; j<p->get_border(i)->get_inclusions().size(); j++){
+                cout << "border=" << i << " (" << p->get_border(i) << ") brother=" << j << " " << p->get_border(i)->get_inclusion(j).get_border() << " pave(" << p->get_border(i)->get_inclusion(j).get_border()->get_pave() << ")" << endl;
             }
         }
         else{
@@ -237,36 +242,36 @@ Utils* Graph::get_utils(){
     return m_utils;
 }
 
-void Graph::set_y_symetry(){
-    vector<Pave*> pave_list_symetry;
+//void Graph::set_y_symetry(){
+//    vector<Pave*> pave_list_symetry;
 
-    IntervalVector box_symetry(2);
-    box_symetry[0] = Interval::ZERO;
-    box_symetry[1] = Interval::ALL_REALS;
+//    IntervalVector box_symetry(2);
+//    box_symetry[0] = Interval::ZERO;
+//    box_symetry[1] = Interval::ALL_REALS;
 
-    for(auto &pave:m_node_list){
-        if(!(pave->get_position() & box_symetry).is_empty()){
-            pave_list_symetry.push_back(pave);
-        }
-    }
+//    for(auto &pave:m_node_list){
+//        if(!(pave->get_position() & box_symetry).is_empty()){
+//            pave_list_symetry.push_back(pave);
+//        }
+//    }
 
-    for(auto &pave:pave_list_symetry){
-        for(auto &pave_brother:pave_list_symetry){
-            if(!(pave->get_position()[1] & -pave_brother->get_position()[1]).is_empty() && pave_brother!=pave){
-                if(((pave->get_border(3)->get_segment_in() | -pave_brother->get_border(3)->get_segment_out()) & pave->get_border(3)->get_segment_full())
-                        != pave->get_border(3)->get_segment_in()){
-                    if(!pave->is_in_queue()){
-                        m_node_queue.push_back(pave);
-                        pave->set_in_queue(true);
-                    }
-                }
-                pave->get_borders_symetry()[3].set_segment_in(-pave_brother->get_border(3)->get_segment_out(), false);
-//                pave->m_borders_symetry[3].set_segment_out(-pave_brother->m_borders[3].segment_in(), false);
-            }
-        }
-    }
+//    for(auto &pave:pave_list_symetry){
+//        for(auto &pave_brother:pave_list_symetry){
+//            if(!(pave->get_position()[1] & -pave_brother->get_position()[1]).is_empty() && pave_brother!=pave){
+//                if(((pave->get_border(3)->get_segment_in() | -pave_brother->get_border(3)->get_segment_out()) & pave->get_border(3)->get_segment_full())
+//                        != pave->get_border(3)->get_segment_in()){
+//                    if(!pave->is_in_queue()){
+//                        m_node_queue.push_back(pave);
+//                        pave->set_in_queue(true);
+//                    }
+//                }
+//                pave->get_borders_symetry()[3].set_segment_in(-pave_brother->get_border(3)->get_segment_out(), false);
+////                pave->m_borders_symetry[3].set_segment_out(-pave_brother->m_borders[3].segment_in(), false);
+//            }
+//        }
+//    }
 
-}
+//}
 
 int Graph::size() const{
     return m_node_list.size();
@@ -340,4 +345,8 @@ void Graph::set_empty(){
     for(auto &pave : m_node_list){
         pave->set_empty();
     }
+}
+
+Function* Graph::get_f_inclusion_std(){
+    return m_f_inclusion_std;
 }
