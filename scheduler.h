@@ -1,35 +1,33 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include "pave.h"
+#include "graph.h"
 #include "ibex.h"
-#include "border.h"
 #include "utils.h"
 
 class Pave;
 class Border;
 class Scheduler
 {
+/***************** Functions ******************/
 public:
-    Scheduler();
-    ~Scheduler(){}
+    Scheduler(const ibex::IntervalVector &box, ibex::Function *f);
+    ~Scheduler();
 
-    void add_to_queue(Pave* pave);
-    void draw();
-    void process(int max_iterations);
-    void SIVIA(double epsilon_theta, int iterations_max);
-    void add_segment(int id_box);
-    void add_segment(double x, double y);
-    void set_initial_pave(const ibex::IntervalVector &box);
+    void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside);
+    void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_box, int max_symetry);
 
-    Pave* get_pave(double x, double y);
-    void print_pave_info(double x, double y, string color);
+    void graph_symetry(vector<Pave *> &pave_list, vector<Pave *> &pave_queue);
 
-    Utils utils;
+    // ******** Drawing functions ********
+    void draw(int size, bool filled);
 
+
+/***************** Variables ******************/
 public:
-    std::vector<Pave*> pave_list;
-    std::vector<Pave*> pave_queue;
+    std::vector<Graph> m_graph_list;
+
+    Utils m_utils;
 };
 
 #endif // SCHEDULER_H

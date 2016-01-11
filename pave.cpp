@@ -3,122 +3,193 @@
 #include "border.h"
 
 #include "iostream"
-#include "stdlib.h"
-#include "stdio.h"
-#include <ctime>
-
-#include "utils.h"
 
 using namespace std;
 using namespace ibex;
 
-Pave::Pave(const IntervalVector &box, Scheduler *scheduler): box(2)
+Pave::Pave(const IntervalVector &position, ibex::Function *f): m_position(2)
 {
-    this->box = box;    // Box corresponding to the Pave
-    this->scheduler = scheduler;
-    this->borders.reserve(4);
+    m_position = position;    // Box corresponding to the Pave
+    m_borders.reserve(4);
+    m_f = f;
 
-    // Border creation
+    m_in_queue = false;
+    m_copy_node = NULL;
+
+    // Border building
     IntervalVector coordinate(2);
-    coordinate[0] = box[0]; coordinate[1] = Interval(box[1].lb()); this->borders.push_back(Border(coordinate, 0, this));
-    coordinate[1] = box[1]; coordinate[0] = Interval(box[0].ub()); this->borders.push_back(Border(coordinate, 1, this));
-    coordinate[0] = box[0]; coordinate[1] = Interval(box[1].ub()); this->borders.push_back(Border(coordinate, 2, this));
-    coordinate[1] = box[1]; coordinate[0] = Interval(box[0].lb()); this->borders.push_back(Border(coordinate, 3, this));
+    coordinate[0] = position[0]; coordinate[1] = Interval(position[1].lb()); m_borders.push_back(Border(coordinate, 0, this));
+    coordinate[1] = position[1]; coordinate[0] = Interval(position[0].ub()); m_borders.push_back(Border(coordinate, 1, this));
+    coordinate[0] = position[0]; coordinate[1] = Interval(position[1].ub()); m_borders.push_back(Border(coordinate, 2, this));
+    coordinate[1] = position[1]; coordinate[0] = Interval(position[0].lb()); m_borders.push_back(Border(coordinate, 3, this));
 
-    this->speed = Interval(1.0);
-    this->theta[0] = Interval::EMPTY_SET;
-    this->theta[1] = Interval::EMPTY_SET;
+    coordinate[0] = position[0]; coordinate[1] = Interval(position[1].lb()); m_borders_symetry.push_back(Border(coordinate, 0, this));
+    coordinate[1] = position[1]; coordinate[0] = Interval(position[0].ub()); m_borders_symetry.push_back(Border(coordinate, 1, this));
+    coordinate[0] = position[0]; coordinate[1] = Interval(position[1].ub()); m_borders_symetry.push_back(Border(coordinate, 2, this));
+    coordinate[1] = position[1]; coordinate[0] = Interval(position[0].lb()); m_borders_symetry.push_back(Border(coordinate, 3, this));
 
-    Interval dx = box[1];
-    Interval dy = 1.0*(1-pow(box[0], 2))*box[1]-box[0];
+    m_full = false;
+    m_empty = false;
 
-    //    Interval rho = Interval::POS_REALS;
-    //    Interval t = Interval::ZERO | 2.0*Interval::PI;
-    //    this->scheduler->contract_polar.contract(dx, dy,  rho, t);
-    //    this->theta = t;
+    for(int i=0; i<2; i++)
+        m_theta.push_back(Interval::EMPTY_SET);
+
+    IntervalVector dposition = f->eval_vector(position);
+
+    Interval dx = dposition[0];
+    Interval dy = dposition[1];
 
     Interval theta = atan2(dy, dx);
     if(theta==(-Interval::PI|Interval::PI)){
-        vector<Interval> dR = this->scheduler->utils.rotate(Interval::PI, dx, dy);
-        Interval thetaR = atan2(dR[1], dR[0]);
+        Interval thetaR = atan2(-dy, -dx); // PI rotation ({dx, dy} -> {-dx, -dy})
         if(thetaR.diam()<theta.diam()){
-            this->theta[0] = (thetaR+Interval::PI) & (-Interval::PI | Interval::PI);
-            this->theta[1] = (thetaR-Interval::PI) & (-Interval::PI | Interval::PI);
+            m_theta[0] = (thetaR+Interval::PI) & (-Interval::PI | Interval::PI);
+            m_theta[1] = (thetaR-Interval::PI) & (-Interval::PI | Interval::PI);
         }
         else{
-            this->theta[0] = theta;
+            m_theta[0] = theta;
         }
     }
     else{
-        this->theta[0] = theta;
+        m_theta[0] = theta;
     }
+}
+
+Pave::Pave(const Pave *p): m_position(2)
+{
+    m_position = p->get_position();    // Box corresponding to the Pave
+    m_f = p->get_f();
+    m_full = true; // Force to recompute results
+    m_empty = false;
+    m_in_queue = false;
+
+    for(int i=0; i<2; i++){
+        m_theta.push_back(p->get_theta(i));
+    }
+
+    for(int face = 0; face < 4; face++){
+        m_borders.push_back(*(p->get_border_const(face))); // Copy the border !
+        m_borders[face].set_pave(this);
+        m_borders_symetry.push_back(*(p->get_border_symetry_const(face)));
+    }
+    m_copy_node = NULL;
+}
+
+Pave::~Pave(){
+}
+
+Pave& Pave::operator&=(const Pave &p){
+    for(int face = 0; face <4; face++){
+        m_borders[face] &= *(p.get_border_const(face));
+    }
+    return *this;
+}
+
+bool Pave::inter(const Pave &p){
+    bool change = false;
+    for(int face = 0; face <4; face++){
+        if(m_borders[face].inter(*(p.get_border_const(face))))
+            change = true;
+    }
+    return change;
+}
+
+bool Pave::diff(const Pave &p){
+    bool change = false;
+    for(int face = 0; face<4; face++){
+        if(m_borders[face].diff(*(p.get_border_const(face)))){
+            change = true;
+        }
+    }
+    m_empty=false; // forces to recompute the value
+    m_full=true;
 }
 
 void Pave::set_theta(ibex::Interval theta){
-    this->theta[0] = Interval::EMPTY_SET;
-    this->theta[1] = Interval::EMPTY_SET;
+    m_theta[0] = Interval::EMPTY_SET;
+    m_theta[1] = Interval::EMPTY_SET;
 
     if(theta.is_subset(-Interval::PI | Interval::PI)){
-        this->theta[0] = theta;
+        m_theta[0] = theta;
     }
     else{
-        this->theta[0] = (theta & (-Interval::PI | Interval::PI));
+        m_theta[0] = (theta & (-Interval::PI | Interval::PI));
 
         if(!((theta + 2*Interval::PI) & (-Interval::PI | Interval::PI) ).is_empty())
-            this->theta[1] =(theta + 2*Interval::PI);
+            m_theta[1] =(theta + 2*Interval::PI);
         else if (!((theta - 2*Interval::PI) & (-Interval::PI | Interval::PI)).is_empty())
-            this->theta[1] = (theta - 2*Interval::PI);
+            m_theta[1] = (theta - 2*Interval::PI);
     }
 }
 
-void Pave::draw(){
+void Pave::set_full(){
+    for(int face=0; face<4; face++){
+        m_borders[face].set_full();
+    }
+    m_full = true;
+}
+
+void Pave::set_empty(){
+    for(int face=0; face<4; face++){
+        m_borders[face].set_empty();
+    }
+    m_empty = true;
+    m_full = false;
+}
+
+IntervalVector Pave::get_border_position(int face){
+    IntervalVector position_border(2);
+    position_border[0] = m_position[face%2];
+    position_border[1] = m_position[(face+1)%2];
+    return position_border;
+}
+
+// ********************************************************************************
+// ****************** Drawing functions *******************************************
+
+void Pave::draw(bool filled, string color){
     // Draw the pave
-    vibes::drawBox(this->box, "b[]");
+    vibes::drawBox(m_position, color);
 
-    // Draw the impacted segment (in option)
-//    for(int i=0; i<this->borders.size(); i++){
-//        this->borders[i].draw();
-//    }
-
-    // Draw the inside impact -> polygone (in option) ?
+    draw_borders(filled);
 
     // Draw theta
-    double size = 0.8*min(this->box[0].diam(), this->box[1].diam())/2.0;
+    double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
     for(int i=0; i<2; i++){
-         vibes::drawSector(this->box[0].mid(), this->box[1].mid(), size, size, (-this->theta[i].lb())*180.0/M_PI, (-this->theta[i].ub())*180.0/M_PI, "r[]");
+        vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta[i].lb())*180.0/M_PI, (-m_theta[i].ub())*180.0/M_PI, "r[]");
     }
-
-    // Draw Polygone
-    vector<double> x, y;
-    for(int i=0; i<this->borders.size(); i++){
-        this->borders[i].get_points(x, y);
+}
+void Pave::draw_borders(bool filled){
+    if(!filled){
+        // Draw Segments
+        for(int i=0; i<m_borders.size(); i++){
+            m_borders[i].draw();
+        }
     }
-    vibes::drawPolygon(x, y, "g[g]");
+    else{
+        // Draw Polygone
+        vector<double> x, y;
+        for(int i=0; i<m_borders.size(); i++){
+            m_borders[i].get_points(x, y);
+        }
+        vibes::drawPolygon(x, y, "g[g]");
+    }
 }
 
-void Pave::draw_borders(){
-//    for(int i=0; i<this->borders.size(); i++){
-//        this->borders[i].draw();
-//    }
-
-    vector<double> x, y;
-    for(int i=0; i<this->borders.size(); i++){
-        this->borders[i].get_points(x, y);
-    }
-    vibes::drawPolygon(x, y, "[g]");
-}
+// ********************************************************************************
+// ****************** Paving building *********************************************
 
 void Pave::bisect(vector<Pave*> &result){
     // Create 4 new paves
     ibex::LargestFirst bisector(0.0, 0.5);
-    std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(this->box);
+    std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
 
-    Pave *pave1 = new Pave(result_boxes.first, this->scheduler); // Left or Up
-    Pave *pave2 = new Pave(result_boxes.second, this->scheduler); // Right or Down
+    Pave *pave1 = new Pave(result_boxes.first, m_f); // Left or Up
+    Pave *pave2 = new Pave(result_boxes.second, m_f); // Right or Down
 
     int indice1, indice2;
 
-    if(pave1->box[0] == this->box[0]){
+    if(pave1->m_position[0] == m_position[0]){
         // Case UP/DOWN bisection
         indice1 = 2;
         indice2 = 0;
@@ -131,121 +202,198 @@ void Pave::bisect(vector<Pave*> &result){
 
     // Copy brothers Pave (this) to pave1 and pave2
     for(int i=0; i<4; i++){
-        if(this->borders[i].brothers.size()!=0){
-            if(i!=indice1)
-                pave1->borders[i].add_brothers(this->borders[i].brothers);
-            if(i!=indice2)
-                pave2->borders[i].add_brothers(this->borders[i].brothers);
+        if(m_borders[i].get_brothers().size()!=0){
+            if(i!=indice1){
+                pave1->get_border(i)->add_brothers(m_borders[i].get_brothers());
+            }
+            if(i!=indice2){
+                pave2->get_border(i)->add_brothers(m_borders[i].get_brothers());
+            }
         }
     }
 
     // Add each other to its brother list (pave1 <-> pave2)
-    pave1->borders[indice1].brothers.push_back(&pave2->borders[indice2]);
-    pave2->borders[indice2].brothers.push_back(&pave1->borders[indice1]);
+    pave1->get_border(indice1)->add_brothers(pave2->get_border(indice2));
+    pave2->get_border(indice2)->add_brothers(pave1->get_border(indice1));
 
     // Remove
     for(int i=0; i<4; i++){
-        this->borders[i].update_brothers(&(pave1->borders[i]), &(pave2->borders[i]));
+        m_borders[i].update_brothers(pave1->get_border(i), pave2->get_border(i));
+    }
+
+    if(is_full()){
+        pave1->set_full();
+        pave2->set_full();
     }
 
     result.push_back(pave1);
     result.push_back(pave2);
 }
 
-void Pave::process(){
-    // Process all new incoming valid segment (represents as borders)
+// ********************************************************************************
+// ****************** UTILS functions *********************************************
 
-    // Only take the first box in the list because the Pave is called for each new segment in the scheduler
-    Border segment = queue.front();
-    queue.erase(queue.begin());
-
-    // Add the new segment & Test if the border interesect the segment of the pave
-    vector<Interval> seg_in_list = this->borders[segment.face].add_segment(segment.segment);
-
-
-    for(int i=0; i<seg_in_list.size(); i++){
-        computePropagation(seg_in_list[i], segment.face);
+double Pave::get_theta_diam(){
+    double diam = 0.0;
+    for(int i=0; i<2; i++){
+        if(!m_theta[i].is_empty())
+            diam += m_theta[i].diam();
     }
-
-//    this->draw_borders();
+    return diam;
 }
 
-void Pave::computePropagation(Interval seg_in, int face){
-    // Translate and rotate the Segment
-    IntervalVector box = this->box;
-    IntervalVector segment(2);
-    segment[face%2] = seg_in;
-    segment[(face+1)%2] = (face == 1 | face == 2 ) ? Interval(box[(face+1)%2].ub()) : Interval(box[(face+1)%2].lb());
-
-    Interval tab_theta[4] = {Interval::ZERO, -Interval::HALF_PI, Interval::PI, Interval::HALF_PI};
-
-    this->scheduler->utils.translate_segment_and_box(segment, box, true, true);
-    this->scheduler->utils.rotate_segment_and_box(segment, tab_theta[face], box, true);
-
-    // Compute the propagation
-    Interval seg_out[3];
-
-    Interval segment_Rside[2] = {segment[0], segment[0]};
-    Interval segment_front[2] = {segment[0], segment[0]};
-    Interval segment_Lside[2] = {segment[0], segment[0]};
-
-    for(int i=0; i<2; i++){
-        this->scheduler->utils.CtcPropagateRightSide(segment_Rside[i], this->theta[i] + tab_theta[face], box);
-        this->scheduler->utils.CtcPropagateFront(segment_front[i], this->theta[i] + tab_theta[face], box);
-        this->scheduler->utils.CtcPropagateLeftSide(segment_Lside[i], this->theta[i] + tab_theta[face], box);
+void Pave::remove_brothers(Pave* p, int face){
+    for(int i=0; i<m_borders[face].get_brothers().size(); i++){
+        if(m_borders[face].get_brother(i)->get_pave() == p){
+            m_borders[face].remove_brother(i);
+            return;
+        }
     }
+}
 
-    // Translate and rotate back the Segment
-    IntervalVector segment_Rside_v(2);
-    IntervalVector segment_front_v(2);
-    IntervalVector segment_Lside_v(2);
+void Pave::remove_from_brothers(){
+    for(int face=0; face<4; face++){
+        for(int i=0; i<m_borders[face].get_brothers().size(); i++){
+            m_borders[face].get_brother(i)->get_pave()->remove_brothers(this, (face+2)%4);
+        }
+    }
+}
 
-    segment_Rside_v[1] = segment_Rside[0] | segment_Rside[1]; segment_Rside_v[0] = Interval(box[0].ub());
-    segment_front_v[0] = segment_front[0] | segment_front[1]; segment_front_v[1] = Interval(box[1].ub());
-    segment_Lside_v[1] = segment_Lside[0] | segment_Lside[1]; segment_Lside_v[0] = Interval(box[0].lb());
-
-    this->scheduler->utils.rotate_segment_and_box(segment_Rside_v, -tab_theta[face], box, false);
-    this->scheduler->utils.rotate_segment_and_box(segment_front_v, -tab_theta[face], box, false);
-    this->scheduler->utils.rotate_segment_and_box(segment_Lside_v, -tab_theta[face], box, false);
-
-    this->scheduler->utils.translate_segment_and_box(segment_Rside_v, this->box, false, false);
-    this->scheduler->utils.translate_segment_and_box(segment_front_v, this->box, false, false); // Translate back with the initial box
-    this->scheduler->utils.translate_segment_and_box(segment_Lside_v, this->box, false, false);
-
-    seg_out[0] = (segment_Rside_v[0].diam() > segment_Rside_v[1].diam()) ? segment_Rside_v[0] : segment_Rside_v[1];
-    seg_out[1] = (segment_front_v[0].diam() > segment_front_v[1].diam()) ? segment_front_v[0] : segment_front_v[1];
-    seg_out[2] = (segment_Lside_v[0].diam() > segment_Lside_v[1].diam()) ? segment_Lside_v[0] : segment_Lside_v[1];
-
-    for(int i=0; i<3; i++){
-        if(!seg_out[i].is_empty()){
-            vector<Interval> output = this->borders[(i+1+face)%4].add_segment(seg_out[i]);
-
-            if(output.size()!=0){
-                this->borders[(i+1+face)%4].publish_to_borthers(output[0]);
-                if(output.size()==2){
-                    this->borders[(i+1+face)%4].publish_to_borthers(output[1]);
-                }
+bool Pave::is_empty(){
+    if(m_empty){
+        return true;
+    }
+    else{
+        for(int i=0; i<4; i++){
+            if(!m_borders[i].is_empty()){
+                return false;
             }
         }
+
+        m_empty = true;
+        return true;
     }
 }
 
-void Pave::add_new_segment(Border &b){
-    this->queue.push_back(b);
-}
-
-void Pave::warn_scheduler(){
-    this->scheduler->add_to_queue(this);
-}
-
-void Pave::activate_pave(){
-    for(int face=0; face<4; face++){
-        Border b(this->box[face%2], face);
-        this->queue.push_back(b); this->warn_scheduler();
-        for(int i=0; i < this->borders.size(); i++){
-            this->borders[(i+1+face)%4].publish_to_borthers(this->box[i%2]);
+bool Pave::is_full(){
+    if(!m_full){
+        return false;
+    }
+    else{
+        for(int face=0; face<4; face++){
+            if(!m_borders[face].is_full()){
+                m_full = false;
+                return false;
+            }
         }
+        m_full = true;
+        return true;
     }
 }
 
+vector<Pave*> Pave::get_brothers(int face){
+    vector<Pave*> brothers_list;
+    for(int i=0; i<m_borders[face].get_brothers().size(); i++){
+        brothers_list.push_back(m_borders[face].get_brother(i)->get_pave());
+    }
+    return brothers_list;
+}
 
+//std::vector<ibex::Interval> Pave::rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y){
+//    Interval xR = x*cos(theta) - y*sin(theta);
+//    Interval yR = x*sin(theta) + y*cos(theta);
+//    vector<Interval> list;
+//    list.push_back(xR);
+//    list.push_back(yR);
+//    return list;
+//}
+
+//std::vector<ibex::Interval> Pave::rotate_PI(const ibex::Interval &x, const ibex::Interval &y){
+//    Interval xR = -x;
+//    Interval yR = -y;
+//    vector<Interval> list;
+//    list.push_back(xR);
+//    list.push_back(yR);
+//    return list;
+//}
+
+void Pave::reset_full_empty(){
+    m_empty = false;
+    m_full = true;
+    for(auto &border: m_borders){
+        border.reset_full_empty();
+    }
+}
+
+Interval Pave::get_theta(int i) const{
+    if(i==0)
+        return m_theta[0];
+    else if(i==1)
+        return m_theta[1];
+    else
+        return NULL;
+}
+
+IntervalVector Pave::get_position() const{
+    return m_position;
+}
+
+std::vector<Border> Pave::get_borders(){
+    return m_borders;
+}
+
+Border* Pave::get_border(int face){
+    if(face >=0 && face < 4)
+        return &(m_borders[face]);
+    else
+        return NULL;
+}
+
+const Border* Pave::get_border_const(int face) const{
+    if(face >=0 && face < 4)
+        return &(m_borders[face]);
+    else
+        return NULL;
+}
+
+const Border* Pave::get_border_symetry_const(int face) const{
+    if(face >=0 && face < 4)
+        return &(m_borders_symetry[face]);
+    else
+        return NULL;
+}
+
+bool Pave::is_in_queue(){
+    return m_in_queue;
+}
+
+void Pave::set_in_queue(bool flag){
+    m_in_queue = flag;
+}
+
+ibex::Function* Pave::get_f() const{
+    return m_f;
+}
+
+void Pave::set_copy_node(Pave *p){
+    m_copy_node = p;
+}
+
+Pave* Pave::get_copy_node(){
+    return m_copy_node;
+}
+
+std::vector<Border> Pave::get_borders_symetry(){
+    return m_borders_symetry;
+}
+
+Border* Pave::get_border_symetry(int i){
+    if(i>=0 && i < m_borders_symetry.size())
+        return &(m_borders_symetry[i]);
+    else
+        return NULL;
+}
+
+std::vector<Interval> Pave::get_theta(){
+    return m_theta;
+}

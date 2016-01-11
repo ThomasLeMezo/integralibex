@@ -1,81 +1,91 @@
-#include <iostream>
 #include <ibex.h>
-#include <pave.h>
 #include <vibes.h>
 
+#include <pave.h>
+#include <scheduler.h>
+
 #include <tests.h>
+
+#include <iostream>
+#include <ctime>
 
 using namespace std;
 using namespace ibex;
 
-int main()
-{
-#if 0
-    vibes::beginDrawing();
-    vibes::newFigure("integralIBEX");
-    vibes::drawSector(0.0, 0.0, 1.0, 1.0, 0.0, 359.0, "r[]");
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500, "viewbox", "equal"));
-    vibes::axisAuto();
-#endif
-
-    // *************************
-#if 0
-    Interval dx(-1.0);
-    Interval dy(-0.1,0.1);
-    Interval theta = atan2(dy, dx);
-    cout << theta << endl;
-
-    CtcPolar p;
-    Interval rho = Interval::POS_REALS;
-    Interval theta_p = Interval::ALL_REALS;
-    p.contract(dx, dy, rho, theta_p);
-
-    cout << "dx = " << dx << endl;
-    cout << "dy = " << dy << endl;
-    cout << "rho = " << rho << endl;
-    cout << "theta_p = " << theta_p << endl;
-#endif
-
-#if 1
-    vibes::beginDrawing();
-    vibes::newFigure("integralIBEX2");
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",1000,"height",1000));
-
-    Scheduler s;
-
-    IntervalVector box(2);
-    box[0] = Interval(-10.0, 10.0);
-    box[1] = Interval(-10.0, 10.0);
-
-    s.set_initial_pave(box);
-
-    s.SIVIA(M_PI/10.0, 5000);
-
-    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-
-    //s.add_segment(-1.28, 4.0);
-    //s.add_segment(1.78, -6.42);
-    s.add_segment(0.0, 0.5);
-
-    s.process(200000);
-
-    s.draw();
-
-    cout << "Nb of paves = " << s.pave_list.size() << endl;
-
-//    s.print_pave_info(2.0,0.1, "r[]");
-//    s.print_pave_info(1.9,-0.1, "g[]");
-//    s.print_pave_info(2.1,-0.1, "y[]");
-//    s.print_pave_info(-0.56,-1.96, "y[]");
-//    s.print_pave_info(0.2,3.0, "b[]");
-#else
-
+void test(){
 //    testTranslate();
 //    testRotate();
 //    test_CtcPropagateLeftSide();
 //    test_CtcPropagateRightSide();
 //    test_CtcPropagateFront();
-//    test_Propagate();
+//    test_CtcPropagateSegment();
+
+//    test_CtcPaveForward();
+//    test_CtcPaveBackward();
+//    test_CtcPaveConsistency();
+
+//    test_Newton();
+
+//    test_rotation();
+
+    test_diff();
+}
+
+int main()
+{
+
+#if 0
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x, y;
+//    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    ibex::Function f(x, y, Return(y,-10-1*y));
+
+    IntervalVector box(2);
+    box[0] = Interval(0.0, 20.0);
+    box[1] = Interval(-20.0, 20.0);
+
+    Scheduler s(box, &f);
+
+    IntervalVector activated_pave(2);
+    activated_pave[0] = Interval(15,15);
+    activated_pave[1] = Interval(0.0,0.0);
+
+    s.cameleon_propagation(20, 1000000, activated_pave, 50);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.draw(1024, true);
+
+#endif
+
+#if 1
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x, y;
+
+
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+//    ibex::Function f(x, y, Return(y,-sin(x)-y));
+//    ibex::Function f(x, y, Return(-y-10*x*x+5*x*y+y*y,x+x*x-25*x*y));
+//    ibex::Function f(x, y, Return(cos(2*M_PI*y/10),cos(2*M_PI*x/10)));
+
+    IntervalVector box(2);
+    box[0] = Interval(-10.0, 10.0);
+    box[1] = Interval(-10.0, 10.0);
+    Scheduler s(box, &f);
+
+    s.cameleon_cycle(15, 5, 1000000, true);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    s.draw(1024, true);
+
+//    s.print_pave_info(-5, 6, "r[]");
+
+#endif
+
+#if 0
+   test();
 #endif
     return 0;
 }

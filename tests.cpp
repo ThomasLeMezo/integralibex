@@ -1,10 +1,19 @@
 #include <utils.h>
 
-#include <pave.h>
+#include <scheduler.h>
 #include <vibes.h>
 
 using namespace ibex;
 using namespace std;
+
+void test_draw(Pave *p, string drawing_name, bool full=false){
+    vibes::beginDrawing();
+    vibes::newFigure(drawing_name);
+    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
+    p->draw(full);
+    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+    vibes::axisAuto();
+}
 
 void testTranslate(){
     cout << "TEST TRANSLATE" << endl;
@@ -48,7 +57,8 @@ void test_CtcPropagateLeftSide(){
     cout << "TEST CtcPropagateLeftSide" << endl;
     Utils u;
 
-    Interval Sk = Interval(0.0, 1.0);
+    Interval x = Interval(0.0, 1.0);
+    Interval y = Interval::ALL_REALS;
     IntervalVector box(2);
     box[0] = Interval(0.0, 1.0);
     box[1] = Interval(0.0, 1.0);
@@ -56,74 +66,160 @@ void test_CtcPropagateLeftSide(){
 //    Interval theta = Interval::PI/4.0 | Interval::HALF_PI;
     Interval theta = Interval::PI | 4*Interval::PI/5.0;
 
-    u.CtcPropagateLeftSide(Sk, theta, box);
+    u.CtcPropagateLeftSide(x, y, theta, box);
 
-    cout << Sk << endl;
+    cout << x << endl;
+    cout << y << endl;
 }
 
 void test_CtcPropagateRightSide(){
     cout << "TEST test_CtcPropagateRightSide" << endl;
     Utils u;
 
-    Interval Sk = Interval(0.0, 1.0);
+    Interval x = Interval(0.0, 1.0);
+    Interval y = Interval::ALL_REALS;
+
     IntervalVector box(2);
     box[0] = Interval(0.0, 1.0);
     box[1] = Interval(0.0, 1.0);
 
     Interval theta = Interval::ZERO | Interval::PI/5.0;
 
-    u.CtcPropagateRightSide(Sk, theta, box);
+    u.CtcPropagateRightSide(x, y, theta, box);
 
-    cout << Sk << endl;
+    cout << x << endl;
+    cout << y << endl;
 }
 
 void test_CtcPropagateFront(){
     cout << "TEST test_CtcPropagateFront" << endl;
     Utils u;
 
-    Interval Sk = Interval(0.0, 1.0);
+    Interval x = Interval(0.0, 1.0);
+    Interval x_front = Interval::EMPTY_SET;
     IntervalVector box(2);
     box[0] = Interval(0.0, 1.0);
     box[1] = Interval(0.0, 1.0);
 
     Interval theta = Interval::ZERO | Interval::PI/4.0;
 
-    cout << Sk << endl;
-    u.CtcPropagateFront(Sk, theta, box);
+    u.CtcPropagateFront(x, x_front, theta, box);
 
-    cout << Sk << endl;
+    cout << "x=" << x << endl;
+    cout << "x_front=" << x_front << endl;
 }
 
-void test_Propagate(){
+void test_CtcPropagateSegment(){
+    cout << "TEST test_CtcPropagateSegment" << endl;
+    Utils u;
+
     IntervalVector box(2);
-    box[0] = Interval(0.5, 1.5);
-    box[1] = Interval(1.0, 3.0);
+    box[0] = Interval(0.0, 1.0);
+    box[1] = Interval(0.0, 1.0);
 
-    Pave p(box, NULL);
+    int face = 3;
+    vector<Interval> theta = {Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0, Interval::EMPTY_SET};
+    Interval seg_in = Interval(0,1);
+    vector<Interval> seg_out;
+    for(int j=0; j<3; j++){
+        seg_out.push_back(Interval::ALL_REALS);
+    }
 
-//    Border b(Interval(0.5, 1.0), 0);
-    Border b(Interval(1.0, 3.0), 1);
-    Border b2(Interval(1.0, 1.5), 2);
-//    Border b(Interval(1.0, 3.0), 3);
+    cout << "seg_in = " << seg_in << endl;
+    cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
 
-    p.add_new_segment(b2);
-    p.add_new_segment(b);
-//    p.set_theta( (-3.88*Interval::PI/8.0 | -Interval::HALF_PI));
-//    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0));
-//    p.set_theta( (6*Interval::PI/8.0 | 7*Interval::PI/8.0) + Interval::HALF_PI);
-//    p.set_theta( (Interval::PI/8.0 | 2*Interval::PI/8.0) - 2* Interval::PI/3.0);
-    p.set_theta(-2*Interval::PI/3.0 | -3*Interval::PI/4.0);
+    u.CtcPropagateSegment(seg_in, seg_out, face, theta, box);
 
+    cout << "----------" << endl;
+    cout << "seg_in = " << seg_in << endl;
+    cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
+}
 
-    p.process();
-    p.process();
+void test_CtcPaveForward(){
+    Utils u;
+    IntervalVector box(2);
+    box[0] = Interval(0, 1);
+    box[1] = Interval(0, 1);
 
-    vibes::beginDrawing();
-    vibes::newFigure("test");
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
+    Function f;
+    Pave p(box, &f);
 
-    p.draw();
+//    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
+    p.set_theta(Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0);
 
-    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-    vibes::axisAuto();
+//    p.m_borders[0].set_full();
+//    p.m_borders[2].segment = Interval(0,1);
+//    p.m_borders[1].segment = Interval(0,1);
+
+    test_draw(&p, "test_before");
+
+    u.CtcPaveForward(&p, false);
+
+    test_draw(&p, "test_after");
+}
+
+void test_CtcPaveConsistency(){
+    Utils u;
+    IntervalVector box(2);
+    box[0] = Interval(0, 1);
+    box[1] = Interval(0, 1);
+
+    Function f;
+    Pave p(box, &f);
+
+    p.set_theta(3.0*Interval::HALF_PI/4.0 | 5.0*Interval::HALF_PI/4.0);
+
+    p.get_border(1)->set_full();
+    p.get_border(2)->set_full();
+    p.get_border(3)->set_full();
+
+    test_draw(&p, "test_before");
+
+    u.CtcPaveConsistency(&p, true);
+
+    test_draw(&p, "test_after");
+}
+
+void test_rotation(){
+    IntervalVector box(2);
+    box[0] = Interval(0,1);
+    box[1] = Interval(0,1);
+
+    IntervalVector Sk(2);
+    Sk[0] = Interval(0);
+    Sk[1] = Interval(0);
+
+    Interval theta = -Interval::PI/2.0;
+
+    cout << "Sk=" << Sk << endl;
+    cout << "box=" << box << endl;
+
+    Utils u;
+    u.rotate_segment_and_box(Sk, theta, box, true);
+
+    cout << "-----" << endl;
+    cout << "Sk=" << Sk << endl;
+    cout << "box=" << box << endl;
+}
+
+void test_diff(){
+    IntervalVector box(2);
+    box[0] = Interval(0,1);
+    box[1] = Interval(0,1);
+    Function f;
+
+    Pave p1(box, &f);
+    Pave p2(box, &f);
+
+    p1.get_border(0)->set_full();
+    p1.get_border(1)->set_full();
+
+    p2.set_full();
+
+    test_draw(&p1, "p1", true);
+    test_draw(&p2, "p2_before", true);
+
+    p2.diff(p1);
+    test_draw(&p2, "p2_after", true);
+
 }

@@ -5,115 +5,130 @@
 using namespace std;
 using namespace ibex;
 
-Scheduler::Scheduler(){
-
+Scheduler::Scheduler(const IntervalVector &box, ibex::Function *f){
+    m_graph_list.push_back(Graph(box, f, &m_utils, 0));
 }
 
-void Scheduler::set_initial_pave(const IntervalVector &box){
-    Pave *p = new Pave(box, this);
-    this->pave_list.push_back(p);
+Scheduler::~Scheduler(){    
 }
 
-void Scheduler::add_to_queue(Pave* pave){
-    this->pave_queue.push_back(pave);
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, IntervalVector &initial_box, int max_symetry){
+    if(this->m_graph_list.size()<1 && this->m_graph_list[0].size() <1)
+        return;
+    int iterations = 0;
+
+    if(iterations < iterations_max && this->m_graph_list[0].size()<4){
+        m_graph_list[0].sivia(0.0,4,false, false); // Start with 4 boxes
+        m_graph_list[0].process(process_iterations_max, false);
+        iterations++;
+    }
+    int nb_graph = 0;
+
+    while(iterations < iterations_max){
+        const clock_t begin_time = clock();
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+
+        m_graph_list[0].sivia(0.0, m_graph_list[0].size(), false, true);
+
+        for(auto &pave : m_graph_list[0].get_node_list()){
+            pave->set_empty();
+        }
+        m_graph_list[0].set_active_pave(initial_box);
+
+        // Process the forward with the subpaving
+        cout << " GRAPH No "<< nb_graph << " (" << m_graph_list[0].size() << ")" << endl;
+        int symetry = 0;
+        while(m_graph_list[0].process(process_iterations_max, false)!=0 & symetry < max_symetry){
+            m_graph_list[0].set_y_symetry();
+            symetry++;
+        }
+
+        // Test if the graph is empty
+        bool empty = true;
+        for(auto &node:m_graph_list[0].get_node_list()){
+            node->reset_full_empty();
+            if(node->is_empty())
+                empty=false;
+        }
+        if(empty){
+            cout << "GRAPH EMPTY" << endl;
+            break;
+        }
+
+        cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        iterations++;
+    }
 }
 
-void Scheduler::SIVIA(double epsilon_theta, int iterations_max){
+void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside){
+    if(this->m_graph_list.size()<1 && this->m_graph_list[0].size() <1)
+        return;
 
     int iterations = 0;
-    vector<Pave *> tmp_pave_list(this->pave_list);
+    m_graph_list[0].set_full();
 
-    this->pave_list.clear();
-
-    while(tmp_pave_list.size()!=0 & (iterations+tmp_pave_list.size())<iterations_max){
-
-
-        Pave* tmp = tmp_pave_list.front();
-        tmp_pave_list.erase(tmp_pave_list.begin());
-
-        double diam = 0.0;
-        if(!(tmp->theta[0].is_empty()))
-            diam += tmp->theta[0].diam();
-        if(!(tmp->theta[1].is_empty()))
-            diam += tmp->theta[1].diam();
-
-        if(diam < epsilon_theta){
-            this->pave_list.push_back(tmp);
-            iterations++;
-        }
-        else{
-            tmp->bisect(tmp_pave_list);
-        }
-    }
-
-    for(int i=0; i<tmp_pave_list.size(); i++){
-        this->pave_list.push_back(tmp_pave_list[i]);
-    }
-}
-
-void Scheduler::process(int max_iterations){
-    int iterations=0;
-    while(this->pave_queue.size() != 0 & iterations < max_iterations){
+    if(iterations < iterations_max && this->m_graph_list[0].size()<4){
+        m_graph_list[0].sivia(0.0,4,false, false); // Start with 4 boxes
+        m_graph_list[0].process(process_iterations_max, false);
         iterations++;
-        Pave *pave = this->pave_queue.front();
-        this->pave_queue.erase(this->pave_queue.begin());
+    }
 
-        pave->process();
+    while(iterations < iterations_max){
+        const clock_t begin_time = clock();
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+        for(int nb_graph=0; nb_graph<m_graph_list.size(); nb_graph++){
 
-        if(iterations%100 == 0){
-            cout << iterations << endl;
+            if(m_graph_list[nb_graph].size()==0 || m_graph_list.size()==0)
+                break;
+
+            m_graph_list[nb_graph].sivia(0.0, 2*m_graph_list[nb_graph].size(), true, true);
+
+            // Process the backward with the subpaving
+            cout << " GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph].size() << ")" << endl;
+            m_graph_list[nb_graph].process(process_iterations_max, true);
+
+            // Remove empty pave
+            m_graph_list[nb_graph].remove_empty_node();
+
+            // Test if the graph is empty
+            if(m_graph_list[nb_graph].is_empty()){
+                m_graph_list.erase(m_graph_list.begin()+nb_graph);
+                if(nb_graph!=0)
+                    nb_graph--;
+                break;
+            }
+
+            // ***************************************************
+            // Copy graph & propagate one Pave + intersect with cycle
+            // Find the first non-full & non-empty Pave
+            if(remove_inside && m_graph_list.size() < graph_max){
+                cout << "REMOVE INSIDE" << endl;
+                Pave *pave_start = m_graph_list[nb_graph].get_semi_full_node(); // Find a pave semi full
+                if(pave_start == NULL)
+                    break;
+
+                Graph graph_propagation = Graph(&m_graph_list[nb_graph], pave_start, true); // copy graph with 1 activated node
+                Graph graph_diff = Graph(&m_graph_list[nb_graph], m_graph_list.size());
+
+                graph_propagation.process(process_iterations_max, false); // process forward
+
+                m_graph_list[nb_graph].inter(&graph_propagation); // intersect the graph with the propagation graph
+
+                if(graph_diff.diff(&m_graph_list[nb_graph])){ // If there is an inside, add to graph_list
+                    m_graph_list.push_back(graph_diff);
+                }
+            }
         }
-    }
-//    cout << "queue size = " << this->pave_queue.size() << endl;
-}
-
-void Scheduler::draw(){
-    for(int i=0; i<this->pave_list.size(); i++){
-        this->pave_list[i]->draw();
+        cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        iterations++;
     }
 }
 
-void Scheduler::print_pave_info(double x, double y, string color){
+// ********************************************************************************
+// ****************** Drawing functions *******************************************
 
-    Pave* p = this->get_pave(x, y);
-    cout << "BOX = " << p->box << endl;
-    cout << p << endl;
-    for(int i= 0; i<p->borders.size(); i++){
-        cout << "border " << i << '\t' << p->borders[i].position << '\t' << p->borders[i].segment << endl;
-    }
-    cout << "theta " << p->theta[0] << " " << p->theta[1] << endl;
-
-    for(int i=0; i<p->borders.size(); i++){
-        for(int j = 0; j<p->borders[i].brothers.size(); j++){
-            cout << "border=" << i << " brother=" << j << " " << p->borders[i].brothers[j]->pave << endl;
-        }
-    }
-
-    double r=0.5*min(p->box[0].diam(), p->box[1].diam())/2.0;
-
-    vibes::drawCircle(p->box[0].mid(), p->box[1].mid(), r, color);
-
-    cout << endl;
-}
-
-Pave* Scheduler::get_pave(double x, double y){
-    IntervalVector position(2);
-    position[0] = Interval(x);
-    position[1] = Interval(y);
-
-    for(int i=0; i<this->pave_list.size(); i++){
-        if(!(position & this->pave_list[i]->box).is_empty()){
-            return this->pave_list[i];
-        }
+void Scheduler::draw(int size, bool filled){
+    for(auto &graph:m_graph_list){
+        graph.draw(size, filled);
     }
 }
-
-void Scheduler::add_segment(int id_box){
-    this->pave_list[id_box]->activate_pave();
-}
-
-void Scheduler::add_segment(double x, double y){
-    this->get_pave(x, y)->activate_pave();
-}
-
-
