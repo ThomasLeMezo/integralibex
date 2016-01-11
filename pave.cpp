@@ -94,9 +94,12 @@ bool Pave::inter(const Pave &p){
     return change;
 }
 
-void Pave::diff(const Pave &p){
+bool Pave::diff(const Pave &p){
+    bool change = false;
     for(int face = 0; face<4; face++){
-        m_borders[face].diff(*(p.get_border_const(face)));
+        if(m_borders[face].diff(*(p.get_border_const(face)))){
+            change = true;
+        }
     }
     m_empty=false; // forces to recompute the value
     m_full=true;

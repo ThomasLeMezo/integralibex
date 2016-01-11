@@ -16,7 +16,7 @@ public:
 
     Pave& operator&=(const Pave &p);
     bool inter(const Pave &p);
-    void diff(const Pave &p);
+    bool diff(const Pave &p);
 
     // ******** Drawing functions ********
     void draw(bool filled, string color="black[]");

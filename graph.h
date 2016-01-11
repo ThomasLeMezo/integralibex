@@ -1,0 +1,53 @@
+#ifndef GRAPH_H
+#define GRAPH_H
+
+#include <pave.h>
+#include <utils.h>
+
+class Graph
+{
+public:
+    Graph(const ibex::IntervalVector &box, ibex::Function *f, Utils *utils, int graph_id);
+    Graph(Graph* g, int graph_id);
+    Graph(Graph* g, Pave* activated_node, int graph_id);
+    ~Graph();
+
+    int process(int max_iterations, bool backward);
+    void sivia(double epsilon_theta, int iterations_max, bool backward, bool bisect_empty);
+    void remove_empty_node();
+
+    bool inter(Graph *g);
+    bool diff(Graph *g);
+
+    // Test
+    bool is_empty();
+
+    // Setter
+    void set_full();
+    void set_active_pave(const ibex::IntervalVector &box);
+    void set_y_symetry();
+
+    // Getter
+    Pave*               get_pave(double x, double y);
+    std::vector<Pave*>  get_pave(const ibex::IntervalVector &box);
+    std::vector<Pave*>  get_node_list();
+    Pave*               get_semi_full_node();
+    Utils*              get_utils();
+    int                 size();
+
+    // Other functions
+    void print_pave_info(double x, double y, string color);
+    void draw(int size, bool filled);
+
+private:
+    std::vector<Pave*> m_node_list;
+    std::vector<Pave*> m_node_empty_list;
+    std::vector<Pave*> m_node_queue;
+
+    Utils *m_utils;
+
+    int m_graph_id;
+    int m_drawing_cpt;
+};
+
+#endif // GRAPH_H

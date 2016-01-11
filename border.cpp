@@ -241,13 +241,18 @@ bool Border::inter(const Border &b){
     return change;
 }
 
-void Border::diff(const Border &b){
+bool Border::diff(const Border &b){
+    bool change = false;
     Interval segment_in_r, segment_in_l;
     m_segment_in.diff(b.get_segment_in(), segment_in_r, segment_in_l);
+    if(m_segment_in != (segment_in_r | segment_in_l))
+        change = true;
     m_segment_in = segment_in_r | segment_in_l;
 
     Interval segment_out_r, segment_out_l;
     m_segment_out.diff(b.get_segment_out(), segment_out_r, segment_out_l);
+    if(m_segment_out != (segment_out_r | segment_out_l))
+        change = true;
     m_segment_out = segment_out_r | segment_out_l;
 
 }

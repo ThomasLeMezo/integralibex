@@ -23,14 +23,16 @@ SOURCES += main.cpp \
     scheduler.cpp \
     utils.cpp \
     tests.cpp \
-    /opt/VIBES/client-api/C++/src/vibes.cpp
+    /opt/VIBES/client-api/C++/src/vibes.cpp \
+    graph.cpp
 
 HEADERS  +=     border.h \
     pave.h \
     scheduler.h \
     utils.h \
     tests.h \
-    /opt/VIBES/client-api/C++/src/vibes.h
+    /opt/VIBES/client-api/C++/src/vibes.h \
+    graph.h
 
 
 
