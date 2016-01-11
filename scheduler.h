@@ -25,7 +25,7 @@ public:
 
 /***************** Variables ******************/
 public:
-    std::vector<Graph> m_graph_list;
+    std::vector<Graph*> m_graph_list;
 
     Utils m_utils;
 };

@@ -299,24 +299,6 @@ vector<Pave*> Pave::get_brothers(int face){
     return brothers_list;
 }
 
-//std::vector<ibex::Interval> Pave::rotate(const ibex::Interval &theta, const ibex::Interval &x, const ibex::Interval &y){
-//    Interval xR = x*cos(theta) - y*sin(theta);
-//    Interval yR = x*sin(theta) + y*cos(theta);
-//    vector<Interval> list;
-//    list.push_back(xR);
-//    list.push_back(yR);
-//    return list;
-//}
-
-//std::vector<ibex::Interval> Pave::rotate_PI(const ibex::Interval &x, const ibex::Interval &y){
-//    Interval xR = -x;
-//    Interval yR = -y;
-//    vector<Interval> list;
-//    list.push_back(xR);
-//    list.push_back(yR);
-//    return list;
-//}
-
 void Pave::reset_full_empty(){
     m_empty = false;
     m_full = true;

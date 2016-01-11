@@ -12,7 +12,7 @@ Graph::Graph(const IntervalVector &box, ibex::Function *f, Utils *utils, int gra
     m_utils = utils;
 }
 
-Graph::Graph(Graph* g, int graph_id=-1){
+Graph::Graph(Graph* g, int graph_id){
     for(auto &node:g->get_node_list()){
         Pave *p = new Pave(node);
         node->set_copy_node(p);
@@ -35,8 +35,11 @@ Graph::Graph(Graph* g, int graph_id=-1){
     m_utils = g->get_utils();
 }
 
-Graph::Graph(Graph* g, Pave* activated_node, int graph_id=-1){
-    *(this) = (new Graph(g, graph_id));
+Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
+
+    for(auto &node:m_node_list){
+        node->set_empty();
+    }
 
     Pave* copy_node = activated_node->get_copy_node();
     copy_node->set_full();
@@ -173,6 +176,10 @@ std::vector<Pave*> Graph::get_node_list(){
     return m_node_list;
 }
 
+Pave* Graph::get_node_const(int i) const{
+    return m_node_list[i];
+}
+
 void Graph::draw(int size, bool filled){
 
     stringstream ss;
@@ -260,7 +267,7 @@ void Graph::set_y_symetry(){
 
 }
 
-int Graph::size(){
+int Graph::size() const{
     return m_node_list.size();
 }
 
@@ -278,6 +285,7 @@ void Graph::remove_empty_node(){
 bool Graph::is_empty(){
     bool empty = true;
     for(auto &node:m_node_list){
+        node->reset_full_empty();
         if(!node->is_empty())
             empty = false;
     }
@@ -301,11 +309,11 @@ Pave* Graph::get_semi_full_node(){
     return NULL;
 }
 
-bool Graph::diff(Graph *g){
+bool Graph::diff(const Graph &g){
     bool change = false;
-    if(this->size() == g->size()){
-        for(int i=0; i<g->size(); i++){
-            if(m_node_list[i]->diff(*(g->get_node_list()[i]))){
+    if(this->size() == g.size()){
+        for(int i=0; i<g.size(); i++){
+            if(m_node_list[i]->diff(*(g.get_node_const(i)))){
                 m_node_queue.push_back(m_node_list[i]);
                 change = true;
             }
@@ -314,15 +322,21 @@ bool Graph::diff(Graph *g){
     return change;
 }
 
-bool Graph::inter(Graph *g){
+bool Graph::inter(const Graph &g){
     bool change = false;
-    if(this->size() == g->size()){
-        for(int i=0; i<g->size(); i++){
-            if(m_node_list[i]->inter(*(g->get_node_list()[i]))){
+    if(this->size() == g.size()){
+        for(int i=0; i<g.size(); i++){
+            if(m_node_list[i]->inter(*(g.get_node_const(i)))){
                 m_node_queue.push_back(m_node_list[i]);
                 change = true;
             }
         }
     }
     return change;
+}
+
+void Graph::set_empty(){
+    for(auto &pave : m_node_list){
+        pave->set_empty();
+    }
 }

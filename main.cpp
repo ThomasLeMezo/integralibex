@@ -34,31 +34,34 @@ void test(){
 int main()
 {
 
-#if 0
+#if 1
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-//    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-    ibex::Function f(x, y, Return(y,-10-1*y));
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+//    ibex::Function f(x, y, Return(y,-10-1*y));
 
     IntervalVector box(2);
-    box[0] = Interval(0.0, 20.0);
-    box[1] = Interval(-20.0, 20.0);
+//    box[0] = Interval(0.0, 20.0);
+//    box[1] = Interval(-20.0, 20.0);
+
+    box[0] = Interval(-10.0, 10.0);
+    box[1] = Interval(-10.0, 10.0);
 
     Scheduler s(box, &f);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(15,15);
-    activated_pave[1] = Interval(0.0,0.0);
+    activated_pave[0] = Interval(1.98);
+    activated_pave[1] = Interval(-0.26);
 
-    s.cameleon_propagation(20, 1000000, activated_pave, 50);
+    s.cameleon_propagation(20, 1000000, activated_pave, 0);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
 
 #endif
 
-#if 1
+#if 0
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
