@@ -28,7 +28,9 @@ Graph::Graph(Graph* g, int graph_id){
 
         for(int face = 0; face<4; face++){
             for(int j=0; j<pave_root->get_border(face)->get_inclusions().size(); j++){
-                pave_copy->get_border(face)->set_inclusion(pave_root->get_border(face)->get_inclusion(j).get_border()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j).get_brother_face()), j);
+                pave_copy->get_border(face)->set_inclusion(
+                            pave_root->get_border(face)->get_inclusion(j).get_border()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j).get_brother_face()),
+                            j);
             }
         }
     }
@@ -85,7 +87,7 @@ void Graph::sivia(double epsilon_theta, int iterations_max, bool backward, bool 
             iterations++;
         }
         else{
-            tmp->bisect(tmp_pave_list, m_f_inclusion_std);
+            tmp->bisect(tmp_pave_list);
             delete(tmp);
         }
     }

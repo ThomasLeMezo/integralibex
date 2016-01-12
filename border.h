@@ -19,15 +19,13 @@ public:
     void draw() const;
 
     // ******** Graph building ********
-    void add_inclusions(std::vector<const Inclusion>& brother_list);
-    void add_inclusion(const Inclusion& brother);
     void update_brothers_inclusion(Border *border_pave1, Border *border_pave2);
+    void remove_inclusion(int indice);
 
     // ******** Border Properties ********
     // Operations
     Border& operator&=(const Border &b);
     bool inter(const Border &b);
-    void remove_brother(int indice);
     bool diff(const Border &b);
 
     // Setters
@@ -39,6 +37,9 @@ public:
 
     void set_inclusion(Border *border, int id_brother);
     void reset_full_empty();
+
+    void add_inclusions(std::vector<Inclusion> inclusion_list);
+    void add_inclusion(Inclusion inclusion);
 
     // Getters
     void                    get_points(std::vector<double> &x, std::vector<double> &y);
@@ -62,7 +63,7 @@ private:
 
 private:
     int m_face;                               // Number of the face (0=bottom, 1=right, ...)
-    std::vector<Inclusion> m_brothers;          // Pointer to brothers Borders
+    std::vector<Inclusion> m_inclusions;          // Pointer to brothers Borders
     ibex::IntervalVector m_position;          // Position of the border ([x], [y]) where one of the dimension is singleton
 
     Pave *m_pave;                             // Pointer to its container

@@ -9,14 +9,18 @@ class Inclusion
 {
 public:
     Inclusion(Border* border, ibex::Function *f, int face);
+    Inclusion(Border *border, int brother_face);
+    Inclusion(const Inclusion &i);
 
     ibex::Interval          get_segment_in();
     ibex::Interval          get_segment_out();
     ibex::IntervalVector    get_position() const;
-    int                     get_brother_face();
+    int                     get_brother_face() const;
+    Border*                 get_border() const;
+    ibex::Function*         get_function() const;
+    bool                    get_shortcut() const;
 
-    Border* get_border();
-
+    void                    set_function(ibex::Function *f);
     void                    set_border(Border* border);
 
 
@@ -24,6 +28,8 @@ private:
     Border* m_border;
     ibex::Function* m_f;
     int m_brother_face; // face of the brother
+
+    bool m_shortcut;
 
 };
 

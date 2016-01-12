@@ -23,7 +23,7 @@ public:
     void draw_borders(bool filled);
 
     // ******** Graph building ********
-    void bisect(vector<Pave *> &result, ibex::Function *f_inclusion_std);
+    void bisect(vector<Pave *> &result);
     void remove_from_brothers();
     void remove_brothers(Pave* p, int face);
 

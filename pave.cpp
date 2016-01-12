@@ -173,7 +173,7 @@ void Pave::draw_borders(bool filled){
 // ********************************************************************************
 // ****************** Paving building *********************************************
 
-void Pave::bisect(vector<Pave*> &result, Function* f_inclusion_std){
+void Pave::bisect(vector<Pave*> &result){
     // Create 4 new paves
     ibex::LargestFirst bisector(0.0, 0.5);
     std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
@@ -207,8 +207,8 @@ void Pave::bisect(vector<Pave*> &result, Function* f_inclusion_std){
     }
 
     // Add each other to its brother list (pave1 <-> pave2)
-    pave1->get_border(indice1)->add_inclusion(Inclusion(pave2->get_border(indice2), f_inclusion_std, indice2));
-    pave2->get_border(indice2)->add_inclusion(Inclusion(pave1->get_border(indice1), f_inclusion_std, indice1));
+    pave1->get_border(indice1)->add_inclusion(Inclusion(pave2->get_border(indice2), indice2));
+    pave2->get_border(indice2)->add_inclusion(Inclusion(pave1->get_border(indice1), indice1));
 
     // Remove
     for(int i=0; i<4; i++){
@@ -239,7 +239,7 @@ double Pave::get_theta_diam(){
 void Pave::remove_brothers(Pave* p, int face){
     for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
         if(m_borders[face].get_inclusion(i).get_border()->get_pave() == p){
-            m_borders[face].remove_brother(i);
+            m_borders[face].remove_inclusion(i);
             return;
         }
     }
