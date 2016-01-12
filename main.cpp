@@ -58,10 +58,10 @@ int main()
     activated_pave[0] = Interval(12.0);
     activated_pave[1] = Interval(-2.0);
 
-    ibex::Function f_sym(x, y, Return(x, -y-1.0));
+    ibex::Function f_sym(x, y, Return(x, -y));
     s.set_symetry(&f_sym,3);
 
-    s.cameleon_propagation(15, 1000000, activated_pave);
+    s.cameleon_propagation(5, 1000000, activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
