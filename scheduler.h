@@ -15,9 +15,11 @@ public:
     ~Scheduler();
 
     void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside);
-    void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_box, int max_symetry);
+    void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_box);
 
     void graph_symetry(vector<Pave *> &pave_list, vector<Pave *> &pave_queue);
+
+    void set_symetry(ibex::Function *f, int face);
 
     // ******** Drawing functions ********
     void draw(int size, bool filled);

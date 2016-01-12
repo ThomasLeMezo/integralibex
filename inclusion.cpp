@@ -4,10 +4,10 @@ using namespace std;
 using namespace ibex;
 
 Inclusion::Inclusion(Border *border, ibex::Function *f, int brother_face){
+    m_shortcut = false;
     m_border = border;
     m_f = f;
     m_brother_face = brother_face;
-    m_shortcut = false;
 }
 
 Inclusion::Inclusion(Border *border, int brother_face){
@@ -20,12 +20,9 @@ Inclusion::Inclusion(Border *border, int brother_face){
 Inclusion::Inclusion(const Inclusion &i){
     m_border = i.get_border();
     m_brother_face = i.get_brother_face();
+    m_shortcut = i.get_shortcut();
     if(!i.get_shortcut()){
         m_f = i.get_function();
-        m_shortcut = false;
-    }
-    else{
-        m_shortcut = true;
     }
 }
 
@@ -45,7 +42,10 @@ ibex::Interval Inclusion::get_segment_in(){
         return m_border->get_segment_in();
     }
     else{
-        return m_border->get_segment_in();
+        IntervalVector box = m_border->get_position();
+        box[m_brother_face%2] = m_border->get_segment_in();
+        IntervalVector box_out = m_f->eval_vector(box);
+        return box_out[m_brother_face%2];
     }
 }
 
@@ -54,7 +54,10 @@ ibex::Interval Inclusion::get_segment_out(){
         return m_border->get_segment_out();
     }
     else{
-        return m_border->get_segment_out();
+        IntervalVector box = m_border->get_position();
+        box[m_brother_face%2] = m_border->get_segment_out();
+        IntervalVector box_out(m_f->eval_vector(box));
+        return box_out[m_brother_face%2];
     }
 }
 
@@ -67,10 +70,9 @@ ibex::IntervalVector Inclusion::get_position() const{
         return m_border->get_position();
     }
     else{
-        return m_border->get_position();
+        IntervalVector box = m_border->get_position();
+        return m_f->eval_vector(box);
     }
-    // To Do
-    //return m_f->eval(get_border()->get_position());
 }
 
 int Inclusion::get_brother_face() const{

@@ -34,12 +34,14 @@ public:
     bool is_in_queue();
 
     // Setter
-    void set_full();
-    void set_empty();
-    void set_theta(ibex::Interval theta);
-    void reset_full_empty();
-    void set_in_queue(bool flag);
-    void set_copy_node(Pave *p);
+    void                        set_full();
+    void                        set_empty();
+    void                        set_theta(ibex::Interval theta);
+    void                        set_in_queue(bool flag);
+    void                        set_copy_node(Pave *p);
+
+    void                        reset_full_empty();
+
 
     // Getters
     ibex::IntervalVector        get_border_position(int face);

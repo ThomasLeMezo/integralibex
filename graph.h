@@ -25,7 +25,7 @@ public:
     // Setter
     void set_full();
     void set_active_pave(const ibex::IntervalVector &box);
-    void set_y_symetry();
+    void set_symetry(ibex::Function *f, int face);
     void set_empty();
 
     // Getter
@@ -51,8 +51,6 @@ private:
 
     int m_graph_id;
     int m_drawing_cpt;
-
-    ibex::Function *m_f_inclusion_std;
 };
 
 #endif // GRAPH_H

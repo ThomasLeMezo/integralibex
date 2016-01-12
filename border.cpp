@@ -201,7 +201,7 @@ ibex::Interval Border::get_segment_full() const{
     return m_segment_full;
 }
 
-std::vector<Inclusion> Border::get_inclusions(){
+std::vector<Inclusion>& Border::get_inclusions(){
     return m_inclusions;
 }
 

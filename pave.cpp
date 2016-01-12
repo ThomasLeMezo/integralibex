@@ -194,6 +194,11 @@ void Pave::bisect(vector<Pave*> &result){
         indice2 = 3;
     }
 
+    // Update brothers with pave1 & pave2
+    for(int i=0; i<4; i++){
+        m_borders[i].update_brothers_inclusion(pave1->get_border(i), pave2->get_border(i));
+    }
+
     // Copy brothers Pave (this) to pave1 and pave2
     for(int i=0; i<4; i++){
         if(m_borders[i].get_inclusions().size()!=0){
@@ -209,11 +214,6 @@ void Pave::bisect(vector<Pave*> &result){
     // Add each other to its brother list (pave1 <-> pave2)
     pave1->get_border(indice1)->add_inclusion(Inclusion(pave2->get_border(indice2), indice2));
     pave2->get_border(indice2)->add_inclusion(Inclusion(pave1->get_border(indice1), indice1));
-
-    // Remove
-    for(int i=0; i<4; i++){
-        m_borders[i].update_brothers_inclusion(pave1->get_border(i), pave2->get_border(i));
-    }
 
     if(is_full()){
         pave1->set_full();

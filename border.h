@@ -45,7 +45,7 @@ public:
     void                    get_points(std::vector<double> &x, std::vector<double> &y);
     ibex::Interval          get_segment_in() const;
     ibex::Interval          get_segment_out() const;
-    std::vector<Inclusion>  get_inclusions();
+    std::vector<Inclusion> &get_inclusions();
     Inclusion               get_inclusion(int i);
     ibex::IntervalVector    get_position();
     Pave*                   get_pave() const;

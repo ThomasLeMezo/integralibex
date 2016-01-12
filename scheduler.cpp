@@ -15,14 +15,21 @@ Scheduler::~Scheduler(){
     }
 }
 
-void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, IntervalVector &initial_box, int max_symetry){
+void Scheduler::set_symetry(Function *f, int face){
+    m_graph_list[0]->set_symetry(f, face);
+}
+
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, IntervalVector &initial_box){
     if(m_graph_list.size()!=1 && m_graph_list[0]->size() !=1)
         return;
     int iterations = 0;
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         m_graph_list[0]->sivia(0.0,4,false, false); // Start with 4 boxes
+        m_graph_list[0]->set_empty();
+        m_graph_list[0]->set_active_pave(initial_box);
         m_graph_list[0]->process(process_iterations_max, false);
+        m_graph_list[0]->remove_empty_node();
         iterations++;
     }
     int nb_graph = 0;
@@ -38,19 +45,14 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
         // Process the forward with the subpaving
         cout << " GRAPH No "<< nb_graph << " (" << m_graph_list[0]->size() << ")" << endl;
-        int symetry = 0;
-
         m_graph_list[0]->process(process_iterations_max, false);
-//        while(!=0 && symetry < max_symetry){
-//            m_graph_list[0]->set_y_symetry();
-//            symetry++;
-//        }
 
-        // Test if the graph is empty
-        if(m_graph_list[0]->is_empty()){
-            cout << "GRAPH EMPTY" << endl;
-            break;
-        }
+        // Remove empty pave & Test if the graph is empty
+        m_graph_list[nb_graph]->remove_empty_node();
+//        if(m_graph_list[0]->is_empty()){
+//            cout << "GRAPH EMPTY" << endl;
+//            break;
+//        }
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -66,7 +68,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         m_graph_list[0]->sivia(0.0,4,false, false); // Start with 4 boxes
-        m_graph_list[0]->process(process_iterations_max, false);
+        m_graph_list[0]->process(process_iterations_max, false); // ? Usefull ??? ToDo
         iterations++;
     }
 
