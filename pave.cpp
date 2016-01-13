@@ -355,3 +355,19 @@ Pave* Pave::get_copy_node(){
 std::vector<Interval> Pave::get_theta(){
     return m_theta;
 }
+
+void Pave::print(){
+    cout << "********" << endl;
+    cout << "PAVE x=" << m_position[0] << " y= " << m_position[1] << endl;
+    cout << this << endl;
+    for(int face = 0; face < 4; face++){
+        if(m_borders[face].get_inclusions().size()==0){
+            cout << "border=" << face << " " << &(m_borders[face]) << endl;
+        }
+        else{
+            for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
+                cout << "border=" << face << " " << &(m_borders[face]) << " inclusion=" << i << " *border=" << m_borders[face].get_inclusion(i).get_border() << endl;
+            }
+        }
+    }
+}

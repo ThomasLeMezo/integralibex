@@ -13,7 +13,7 @@ public:
     ~Graph();
 
     int process(int max_iterations, bool backward);
-    void sivia(double epsilon_theta, int iterations_max, bool backward, bool bisect_empty);
+    void sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_bisect_empty);
     void remove_empty_node();
 
     bool inter(const Graph &g);
@@ -40,6 +40,7 @@ public:
 
     // Other functions
     void print_pave_info(double x, double y, string color);
+    void print();
     void draw(int size, bool filled);
 
 private:

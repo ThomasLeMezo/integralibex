@@ -19,15 +19,23 @@ void Scheduler::set_symetry(Function *f, int face){
     m_graph_list[0]->set_symetry(f, face);
 }
 
-void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, IntervalVector &initial_box){
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe){
+    vector<IntervalVector> initial_boxes;
+    initial_boxes.push_back(initial_boxe);
+    cameleon_propagation(iterations_max, process_iterations_max, initial_boxes);
+}
+
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, vector<IntervalVector> &initial_boxes){
     if(m_graph_list.size()!=1 && m_graph_list[0]->size() !=1)
         return;
     int iterations = 0;
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->sivia(0.0,4,false, false); // Start with 4 boxes
         m_graph_list[0]->set_empty();
-        m_graph_list[0]->set_active_pave(initial_box);
+        for(auto &initial_box:initial_boxes)
+            m_graph_list[0]->set_active_pave(initial_box);
         m_graph_list[0]->process(process_iterations_max, false);
         m_graph_list[0]->remove_empty_node();
         iterations++;
@@ -41,7 +49,8 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         m_graph_list[0]->sivia(0.0, 2*m_graph_list[0]->size(), false, true);
 
         m_graph_list[0]->set_empty();
-        m_graph_list[0]->set_active_pave(initial_box);
+        for(auto &initial_box:initial_boxes)
+            m_graph_list[0]->set_active_pave(initial_box);
 
         // Process the forward with the subpaving
         cout << " GRAPH No "<< nb_graph << " (" << m_graph_list[0]->size() << ")" << endl;
@@ -49,10 +58,6 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
         // Remove empty pave & Test if the graph is empty
         m_graph_list[nb_graph]->remove_empty_node();
-//        if(m_graph_list[0]->is_empty()){
-//            cout << "GRAPH EMPTY" << endl;
-//            break;
-//        }
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -67,6 +72,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     m_graph_list[0]->set_full();
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->sivia(0.0,4,false, false); // Start with 4 boxes
         m_graph_list[0]->process(process_iterations_max, false); // ? Usefull ??? ToDo
         iterations++;
@@ -84,6 +90,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
             // Process the backward with the subpaving
             cout << " GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
+//            if(nb_graph==1)
+//                m_graph_list[nb_graph]->print();
             m_graph_list[nb_graph]->process(process_iterations_max, true);
 
             // Remove empty pave
@@ -110,13 +118,16 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 Graph* graph_diff = new Graph(m_graph_list[nb_graph], m_graph_list.size());
 
                 graph_propagation->process(process_iterations_max, false); // process forward
-
                 m_graph_list[nb_graph]->inter(*graph_propagation); // intersect the graph with the propagation graph
-
                 graph_diff->diff(*m_graph_list[nb_graph]);
 
                 if(!graph_diff->is_empty()){ // If there is an inside, add to graph_list
                     m_graph_list.push_back(graph_diff);
+                    cout << "ADD NEW GRAPH" << endl;
+                    //m_graph_list.back()->print();
+                }
+                else{
+                    delete(graph_diff);
                 }
                 delete(graph_propagation);
             }

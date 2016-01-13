@@ -48,10 +48,10 @@ Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
     *(copy_node) &= *(activated_node);
     for(int face=0; face<4; face++){
         vector<Pave*> brothers_pave = copy_node->get_brothers(face);
-        for(auto &pave : brothers_pave){
-            if(!pave->is_in_queue()){
-                m_node_queue.push_back(pave);
-                pave->set_in_queue(true);
+        for(int i=0; i<brothers_pave.size(); i++){
+            if(!brothers_pave[i]->is_in_queue()){
+                m_node_queue.push_back(brothers_pave[i]);
+                brothers_pave[i]->set_in_queue(true);
             }
         }
     }
@@ -66,18 +66,18 @@ Graph::~Graph(){
     }
 }
 
-void Graph::sivia(double epsilon_theta, int iterations_max, bool backward, bool bisect_empty){
+void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_bisect_empty){
     int iterations = 0;
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
 
-    while(tmp_pave_list.size()!=0 & (iterations+tmp_pave_list.size())<iterations_max){
+    while(tmp_pave_list.size()!=0 & (iterations+tmp_pave_list.size())<nb_node){
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
         double diam = tmp->get_theta_diam();
 
-        if(diam < epsilon_theta || tmp->is_empty() && bisect_empty){// || (not_full_test && tmp->is_full() && diam < M_PI)){
+        if(diam < epsilon_theta || tmp->is_empty() && do_not_bisect_empty){// || (not_full_test && tmp->is_full() && diam < M_PI)){
             m_node_list.push_back(tmp);
             iterations++;
         }
@@ -98,7 +98,7 @@ void Graph::sivia(double epsilon_theta, int iterations_max, bool backward, bool 
 
 int Graph::process(int max_iterations, bool backward){
     int iterations = 0;
-    while(m_node_queue.size() != 0 & iterations < max_iterations){
+    while(!m_node_queue.empty() & iterations < max_iterations){
         iterations++;
         Pave *pave = m_node_queue.front();
         m_node_queue.erase(m_node_queue.begin());
@@ -119,10 +119,6 @@ int Graph::process(int max_iterations, bool backward){
                 }
             }
         }
-
-        //        if(iterations%100 == 0){
-        //            cout << iterations << endl;
-        //        }
     }
 
     m_node_queue.clear();
@@ -233,6 +229,14 @@ void Graph::print_pave_info(double x, double y, string color){
     vibes::drawCircle(p->get_position()[0].mid(), p->get_position()[1].mid(), r, color);
 
     cout << endl;
+}
+
+void Graph::print(){
+    cout << "********" << endl;
+    cout << "GRAPH id= " << m_graph_id << endl;
+    for(auto &node:m_node_list){
+        node->print();
+    }
 }
 
 Utils* Graph::get_utils(){

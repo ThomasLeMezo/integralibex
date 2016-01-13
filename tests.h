@@ -23,5 +23,7 @@ void test_rotation();
 
 void test_diff();
 
+void test_copy_graph();
+
 #endif // TESTS_H
 

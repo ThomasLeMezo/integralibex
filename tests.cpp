@@ -223,3 +223,22 @@ void test_diff(){
     test_draw(&p2, "p2_after", true);
 
 }
+
+void test_copy_graph(){
+    IntervalVector box(2);
+    box[0] = Interval(0,1);
+    box[1] = Interval(0,1);
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    Utils u;
+
+    Graph g(box, &f, &u, 1);
+    g.sivia(0.0, 4, false, false);
+
+    Graph g2(&g, 2);
+    Graph g3(&g, g.get_pave(1.0, 1.0), 3);
+
+    g.print();
+    g2.print();
+    g3.print();
+}

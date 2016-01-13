@@ -28,7 +28,33 @@ void test(){
 
 //    test_rotation();
 
-    test_diff();
+//    test_diff();
+    test_copy_graph();
+}
+
+void ball(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,-10-1*y));
+
+    IntervalVector box(2);
+    box[0] = Interval(0.0, 20.0);
+    box[1] = Interval(-20.0, 20.0);
+
+    Scheduler s(box, &f);
+
+    IntervalVector activated_pave(2);
+    activated_pave[0] = Interval(12.0);
+    activated_pave[1] = Interval(-2.0);
+
+    ibex::Function f_sym(x, y, Return(x, -y));
+    s.set_symetry(&f_sym,3);
+
+    s.cameleon_propagation(15, 1000000, activated_pave);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.draw(1024, true);
 }
 
 int main()
@@ -38,30 +64,37 @@ int main()
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-//    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-    ibex::Function f(x, y, Return(y,-10-1*y));
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
     IntervalVector box(2);
-    box[0] = Interval(0.0, 20.0);
-    box[1] = Interval(-20.0, 20.0);
-
-//    box[0] = Interval(-10.0, 10.0);
-//    box[1] = Interval(-10.0, 10.0);
+    box[0] = Interval(-10.0, 10.0);
+    box[1] = Interval(-10.0, 10.0);
 
     Scheduler s(box, &f);
 
+    vector<IntervalVector> activated_paves;
     IntervalVector activated_pave(2);
-//    activated_pave[0] = Interval(1.98);
-//    activated_pave[1] = Interval(-0.26);
-//    activated_pave[0] = Interval(4.0);
-//    activated_pave[1] = Interval(4.0);
-    activated_pave[0] = Interval(12.0);
-    activated_pave[1] = Interval(-2.0);
+    activated_pave[0] = Interval(10.0);
+    activated_pave[1] = Interval(4.0);
+    activated_paves.push_back(activated_pave);
 
-    ibex::Function f_sym(x, y, Return(x, -y));
-    s.set_symetry(&f_sym,3);
+    activated_pave[0] = Interval(0.4);
+    activated_pave[1] = Interval(0.4);
+    activated_paves.push_back(activated_pave);
 
-    s.cameleon_propagation(5, 1000000, activated_pave);
+    activated_pave[0] = Interval(-0.4);
+    activated_pave[1] = Interval(0.4);
+    activated_paves.push_back(activated_pave);
+
+    activated_pave[0] = Interval(0.4);
+    activated_pave[1] = Interval(-0.4);
+    activated_paves.push_back(activated_pave);
+
+    activated_pave[0] = Interval(-0.4);
+    activated_pave[1] = Interval(-0.4);
+    activated_paves.push_back(activated_pave);
+
+    s.cameleon_propagation(15, 1000000, activated_paves);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -84,7 +117,7 @@ int main()
     box[1] = Interval(-10.0, 10.0);
     Scheduler s(box, &f);
 
-    s.cameleon_cycle(15, 5, 1000000, true);
+    s.cameleon_cycle(9, 5, 1000000, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
