@@ -29,9 +29,9 @@ public:
     void set_empty();
 
     // Getter
-    Pave*               get_pave(double x, double y);
-    std::vector<Pave*>  get_pave(const ibex::IntervalVector &box);
-    std::vector<Pave*>  get_node_list();
+    Pave*               get_pave(double x, double y) const;
+    const std::vector<Pave *>& get_pave(const ibex::IntervalVector &box) const;
+    const std::vector<Pave *>& get_node_list() const;
     Pave*               get_node_const(int i) const;
     Pave*               get_semi_full_node();
     Utils*              get_utils();
@@ -39,8 +39,8 @@ public:
     ibex::Function*     get_f_inclusion_std();
 
     // Other functions
-    void print_pave_info(double x, double y, string color);
-    void print();
+    void print_pave_info(double x, double y, string color) const;
+    void print() const;
     void draw(int size, bool filled);
 
 private:

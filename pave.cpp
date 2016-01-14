@@ -131,7 +131,7 @@ void Pave::set_empty(){
     m_full = false;
 }
 
-IntervalVector Pave::get_border_position(int face){
+const IntervalVector &Pave::get_border_position(int face) const{
     IntervalVector position_border(2);
     position_border[0] = m_position[face%2];
     position_border[1] = m_position[(face+1)%2];
@@ -285,7 +285,7 @@ bool Pave::is_full(){
     }
 }
 
-vector<Pave*> Pave::get_brothers(int face){
+const std::vector<Pave *> &Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
     for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
         brothers_list.push_back(m_borders[face].get_inclusion(i).get_border()->get_pave());
@@ -301,7 +301,7 @@ void Pave::reset_full_empty(){
     }
 }
 
-Interval Pave::get_theta(int i) const{
+const Interval &Pave::get_theta(int i) const{
     if(i==0)
         return m_theta[0];
     else if(i==1)
@@ -310,11 +310,11 @@ Interval Pave::get_theta(int i) const{
         return NULL;
 }
 
-IntervalVector Pave::get_position() const{
+const IntervalVector &Pave::get_position() const{
     return m_position;
 }
 
-std::vector<Border> Pave::get_borders(){
+const std::vector<Border> &Pave::get_borders(){
     return m_borders;
 }
 
@@ -332,7 +332,7 @@ const Border* Pave::get_border_const(int face) const{
         return NULL;
 }
 
-bool Pave::is_in_queue(){
+bool Pave::is_in_queue() const{
     return m_in_queue;
 }
 
@@ -352,7 +352,7 @@ Pave* Pave::get_copy_node(){
     return m_copy_node;
 }
 
-std::vector<Interval> Pave::get_theta(){
+const std::vector<Interval> &Pave::get_theta() const{
     return m_theta;
 }
 

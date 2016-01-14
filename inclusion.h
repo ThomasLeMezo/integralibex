@@ -12,16 +12,16 @@ public:
     Inclusion(Border *border, int brother_face);
     Inclusion(const Inclusion &i);
 
-    ibex::Interval          get_segment_in();
-    ibex::Interval          get_segment_out();
-    ibex::IntervalVector    get_position() const;
-    int                     get_brother_face() const;
-    Border*                 get_border() const;
-    ibex::Function*         get_function() const;
-    bool                    get_shortcut() const;
+    const ibex::Interval&          get_segment_in() const;
+    const ibex::Interval&          get_segment_out() const;
+    const ibex::IntervalVector&    get_position() const;
+    int                            get_brother_face() const;
+    Border*                        get_border() const;
+    ibex::Function*                get_function() const;
+    bool                           get_shortcut() const;
 
-    void                    set_function(ibex::Function *f);
-    void                    set_border(Border* border);
+    void                           set_function(ibex::Function *f);
+    void                           set_border(Border* border);
 
 
 private:

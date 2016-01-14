@@ -37,7 +37,7 @@ ibex::Function* Inclusion::get_function() const{
     return m_f;
 }
 
-ibex::Interval Inclusion::get_segment_in(){
+const Interval &Inclusion::get_segment_in() const{
     if(m_shortcut){
         return m_border->get_segment_in();
     }
@@ -49,7 +49,7 @@ ibex::Interval Inclusion::get_segment_in(){
     }
 }
 
-ibex::Interval Inclusion::get_segment_out(){
+const Interval &Inclusion::get_segment_out() const{
     if(m_shortcut){
         return m_border->get_segment_out();
     }
@@ -65,7 +65,7 @@ Border* Inclusion::get_border() const{
     return m_border;
 }
 
-ibex::IntervalVector Inclusion::get_position() const{
+const IntervalVector &Inclusion::get_position() const{
     if(m_shortcut){
         return m_border->get_position();
     }

@@ -54,7 +54,7 @@ void Border::draw() const{
     vibes::drawBox(segment_out, "b[b]");
 }
 
-void Border::get_points(std::vector<double> &x, std::vector<double> &y){
+void Border::get_points(std::vector<double> &x, std::vector<double> &y) const{
     Interval segment = m_segment_in | m_segment_out;
 
     if(!segment.is_empty()){
@@ -86,13 +86,13 @@ void Border::get_points(std::vector<double> &x, std::vector<double> &y){
 }
 
 // Add new brothers to the list
-void Border::add_inclusions(std::vector<Inclusion> inclusion_list){
+void Border::add_inclusions(const std::vector<Inclusion>& inclusion_list){
     for(int i=0; i<inclusion_list.size(); i++){
         add_inclusion(inclusion_list[i]);
     }
 }
 
-void Border::add_inclusion(Inclusion inclusion){
+void Border::add_inclusion(const Inclusion& inclusion){
     IntervalVector test = inclusion.get_position() & m_position;
     if(!(test.is_empty()) && (test[0].is_degenerated() != test[1].is_degenerated())){
         m_inclusions.push_back(inclusion);
@@ -189,27 +189,27 @@ void Border::set_pave(Pave* pave){
     m_pave = pave;
 }
 
-ibex::Interval Border::get_segment_in() const{
+const ibex::Interval& Border::get_segment_in() const{
     return m_segment_in;
 }
 
-ibex::Interval Border::get_segment_out() const{
+const ibex::Interval& Border::get_segment_out() const{
     return m_segment_out;
 }
 
-ibex::Interval Border::get_segment_full() const{
+const ibex::Interval& Border::get_segment_full() const{
     return m_segment_full;
 }
 
-std::vector<Inclusion>& Border::get_inclusions(){
+const std::vector<Inclusion>& Border::get_inclusions() const{
     return m_inclusions;
 }
 
-Inclusion Border::get_inclusion(int i){
+Inclusion &Border::get_inclusion(int i){
     return m_inclusions[i];
 }
 
-ibex::IntervalVector Border::get_position(){
+const IntervalVector &Border::get_position() const{
     return m_position;
 }
 

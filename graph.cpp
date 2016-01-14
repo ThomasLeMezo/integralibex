@@ -131,7 +131,7 @@ void Graph::set_full(){
     }
 }
 
-Pave* Graph::get_pave(double x, double y){
+Pave* Graph::get_pave(double x, double y) const{
     IntervalVector position(2);
     position[0] = Interval(x);
     position[1] = Interval(y);
@@ -144,7 +144,7 @@ Pave* Graph::get_pave(double x, double y){
     return NULL;
 }
 
-std::vector<Pave*> Graph::get_pave(const ibex::IntervalVector &box){
+const std::vector<Pave*>& Graph::get_pave(const ibex::IntervalVector &box) const{
     std::vector<Pave*> node_list_inter;
     for(auto &node:m_node_list){
         if(!(box & node->get_position()).is_empty()){
@@ -171,7 +171,7 @@ void Graph::set_active_pave(const IntervalVector &box){
     }
 }
 
-std::vector<Pave*> Graph::get_node_list(){
+const std::vector<Pave*>& Graph::get_node_list() const {
     return m_node_list;
 }
 
@@ -197,7 +197,7 @@ void Graph::draw(int size, bool filled){
     m_drawing_cpt++;
 }
 
-void Graph::print_pave_info(double x, double y, string color){
+void Graph::print_pave_info(double x, double y, string color) const{
 
     Pave* p = get_pave(x, y);
     if(p==NULL){
@@ -231,7 +231,7 @@ void Graph::print_pave_info(double x, double y, string color){
     cout << endl;
 }
 
-void Graph::print(){
+void Graph::print() const{
     cout << "********" << endl;
     cout << "GRAPH id= " << m_graph_id << endl;
     for(auto &node:m_node_list){

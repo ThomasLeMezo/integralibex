@@ -38,19 +38,19 @@ public:
     void set_inclusion(Border *border, int id_brother);
     void reset_full_empty();
 
-    void add_inclusions(std::vector<Inclusion> inclusion_list);
-    void add_inclusion(Inclusion inclusion);
+    void add_inclusions(const std::vector<Inclusion> &inclusion_list);
+    void add_inclusion(const Inclusion &inclusion);
 
     // Getters
-    void                    get_points(std::vector<double> &x, std::vector<double> &y);
-    ibex::Interval          get_segment_in() const;
-    ibex::Interval          get_segment_out() const;
-    std::vector<Inclusion> &get_inclusions();
-    Inclusion               get_inclusion(int i);
-    ibex::IntervalVector    get_position();
-    Pave*                   get_pave() const;
-    ibex::Interval          get_segment_full() const;
-    int                     get_face() const;
+    void                            get_points(std::vector<double> &x, std::vector<double> &y) const;
+    const ibex::Interval&           get_segment_in() const;
+    const ibex::Interval&           get_segment_out() const;
+    const std::vector<Inclusion>&   get_inclusions() const ;
+    Inclusion&                get_inclusion(int i);
+    const ibex::IntervalVector&     get_position() const;
+    Pave*                           get_pave() const;
+    const ibex::Interval&           get_segment_full() const;
+    int                             get_face() const;
 
     // Tests
     bool is_empty();

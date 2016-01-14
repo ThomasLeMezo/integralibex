@@ -8,7 +8,7 @@ class Border;
 class Pave
 {
 
-/***************** Functions ******************/
+    /***************** Functions ******************/
 public:
     Pave(const ibex::IntervalVector &position, ibex::Function *f);
     Pave(const Pave *p);
@@ -32,7 +32,7 @@ public:
     // Tests
     bool                        is_empty();
     bool                        is_full();
-    bool                        is_in_queue();
+    bool                        is_in_queue() const;
 
     // Setter
     void                        set_full();
@@ -44,21 +44,21 @@ public:
     void                        reset_full_empty();
 
     // Getters
-    ibex::IntervalVector        get_border_position(int face);
-    double                      get_theta_diam();
-    std::vector<Pave*>          get_brothers(int face);
-    ibex::Interval              get_theta(int i) const;
-    std::vector<ibex::Interval> get_theta();
-    ibex::IntervalVector        get_position() const;
+    const ibex::IntervalVector&         get_border_position(int face) const;
+    double                              get_theta_diam();
+    const std::vector<Pave*>&           get_brothers(int face);
+    const ibex::Interval&               get_theta(int i) const;
+    const std::vector<ibex::Interval>&  get_theta() const;
+    const ibex::IntervalVector&         get_position() const;
 
-    std::vector<Border>         get_borders();
-    Border*                     get_border(int face);
-    const Border*               get_border_const(int face) const;
+    const std::vector<Border>&          get_borders();
+    Border*                             get_border(int face);
+    const Border*                       get_border_const(int face) const;
 
-    Pave*                       get_copy_node();
-    ibex::Function*             get_f() const;
+    Pave*                               get_copy_node();
+    ibex::Function*                     get_f() const;
 
-/***************** Variables ******************/
+    /***************** Variables ******************/
 private:
     std::vector<ibex::Interval> m_theta;
     ibex::IntervalVector        m_position;
