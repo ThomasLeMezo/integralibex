@@ -93,16 +93,17 @@ void Border::add_inclusions(const std::vector<Inclusion>& inclusion_list){
 }
 
 void Border::add_inclusion(const Inclusion& inclusion){
-    IntervalVector test = inclusion.get_position() & m_position;
+    // ToDo : error with inclusion.get_position() if returning a reference !!
+    IntervalVector test = m_position & inclusion.get_position();
     if(!(test.is_empty()) && (test[0].is_degenerated() != test[1].is_degenerated())){
         m_inclusions.push_back(inclusion);
     }
 }
 
-void Border::update_brothers_inclusion(Border* border_pave1, Border* border_pave2){
+void Border::add_to_brothers_inclusion(Border* border_pave1, Border* border_pave2){
     for(int inclusion_id=0; inclusion_id<m_inclusions.size(); inclusion_id++){
 
-        // Search for "this" inside brothers
+        // Search for "this" inside brothers inclusions
         for(int j=0; j<m_inclusions[inclusion_id].get_border()->get_inclusions().size(); j++){
             if(m_inclusions[inclusion_id].get_border()->get_inclusion(j).get_border()==this){
 
@@ -189,11 +190,11 @@ void Border::set_pave(Pave* pave){
     m_pave = pave;
 }
 
-const ibex::Interval& Border::get_segment_in() const{
+const ibex::Interval Border::get_segment_in() const{
     return m_segment_in;
 }
 
-const ibex::Interval& Border::get_segment_out() const{
+const ibex::Interval Border::get_segment_out() const{
     return m_segment_out;
 }
 
@@ -209,7 +210,7 @@ Inclusion &Border::get_inclusion(int i){
     return m_inclusions[i];
 }
 
-const IntervalVector &Border::get_position() const{
+const IntervalVector& Border::get_position() const{
     return m_position;
 }
 
@@ -267,4 +268,12 @@ void Border::set_inclusion(Border* border, int id_brother){
 void Border::reset_full_empty(){
     m_empty = false;
     m_full = false;
+}
+
+int Border::size() const{
+    return m_inclusions.size();
+}
+
+Inclusion& Border::operator[](int id){
+    return m_inclusions[id];
 }

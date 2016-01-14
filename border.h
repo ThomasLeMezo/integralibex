@@ -19,7 +19,7 @@ public:
     void draw() const;
 
     // ******** Graph building ********
-    void update_brothers_inclusion(Border *border_pave1, Border *border_pave2);
+    void add_to_brothers_inclusion(Border *border_pave1, Border *border_pave2);
     void remove_inclusion(int indice);
 
     // ******** Border Properties ********
@@ -43,14 +43,16 @@ public:
 
     // Getters
     void                            get_points(std::vector<double> &x, std::vector<double> &y) const;
-    const ibex::Interval&           get_segment_in() const;
-    const ibex::Interval&           get_segment_out() const;
+    const ibex::Interval get_segment_in() const;
+    const ibex::Interval get_segment_out() const;
     const std::vector<Inclusion>&   get_inclusions() const ;
-    Inclusion&                get_inclusion(int i);
-    const ibex::IntervalVector&     get_position() const;
+    Inclusion&                      get_inclusion(int i);
+    const ibex::IntervalVector &    get_position() const;
     Pave*                           get_pave() const;
     const ibex::Interval&           get_segment_full() const;
     int                             get_face() const;
+    int size() const;
+    Inclusion& operator[](int id);
 
     // Tests
     bool is_empty();

@@ -46,9 +46,9 @@ public:
     // Getters
     const ibex::IntervalVector&         get_border_position(int face) const;
     double                              get_theta_diam();
-    const std::vector<Pave*>&           get_brothers(int face);
+    const std::vector<Pave*>            get_brothers(int face);
     const ibex::Interval&               get_theta(int i) const;
-    const std::vector<ibex::Interval>&  get_theta() const;
+    const std::vector<ibex::Interval>   get_theta() const;
     const ibex::IntervalVector&         get_position() const;
 
     const std::vector<Border>&          get_borders();
@@ -57,6 +57,8 @@ public:
 
     Pave*                               get_copy_node();
     ibex::Function*                     get_f() const;
+
+    Border& operator[](int face);
 
     /***************** Variables ******************/
 private:

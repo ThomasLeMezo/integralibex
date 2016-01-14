@@ -9,12 +9,12 @@ class Inclusion
 {
 public:
     Inclusion(Border* border, ibex::Function *f, int face);
-    Inclusion(Border *border, int brother_face);
+    Inclusion(Border* border, int brother_face);
     Inclusion(const Inclusion &i);
 
-    const ibex::Interval&          get_segment_in() const;
-    const ibex::Interval&          get_segment_out() const;
-    const ibex::IntervalVector&    get_position() const;
+    const ibex::Interval          get_segment_in() const;
+    const ibex::Interval          get_segment_out() const;
+    const ibex::IntervalVector get_position() const;
     int                            get_brother_face() const;
     Border*                        get_border() const;
     ibex::Function*                get_function() const;

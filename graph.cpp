@@ -70,6 +70,7 @@ void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_
     int iterations = 0;
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
+    m_node_list.reserve(nb_node);
 
     while(tmp_pave_list.size()!=0 & (iterations+tmp_pave_list.size())<nb_node){
         Pave* tmp = tmp_pave_list.front();
@@ -83,7 +84,7 @@ void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_
         }
         else{
             tmp->bisect(tmp_pave_list);
-            delete(tmp);
+            //delete(tmp); // ISSUE !!!!!!!!!!!!!!!!
         }
     }
 
@@ -144,7 +145,7 @@ Pave* Graph::get_pave(double x, double y) const{
     return NULL;
 }
 
-const std::vector<Pave*>& Graph::get_pave(const ibex::IntervalVector &box) const{
+const std::vector<Pave *> Graph::get_pave(const ibex::IntervalVector &box) const{
     std::vector<Pave*> node_list_inter;
     for(auto &node:m_node_list){
         if(!(box & node->get_position()).is_empty()){
@@ -171,12 +172,20 @@ void Graph::set_active_pave(const IntervalVector &box){
     }
 }
 
-const std::vector<Pave*>& Graph::get_node_list() const {
+const std::vector<Pave *> &Graph::get_node_list() const {
     return m_node_list;
+}
+
+const std::vector<Pave *> &Graph::get_node_queue() const {
+    return m_node_queue;
 }
 
 Pave* Graph::get_node_const(int i) const{
     return m_node_list[i];
+}
+
+Pave& Graph::operator[](int id){
+    return *(m_node_list[id]);
 }
 
 void Graph::draw(int size, bool filled){

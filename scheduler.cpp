@@ -36,6 +36,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
             m_graph_list[0]->set_active_pave(initial_box);
+        m_graph_list[0]->print();
         m_graph_list[0]->process(process_iterations_max, false);
         m_graph_list[0]->remove_empty_node();
         iterations++;
@@ -130,6 +131,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                     delete(graph_diff);
                 }
                 delete(graph_propagation);
+
             }
         }
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;

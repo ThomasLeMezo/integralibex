@@ -59,8 +59,9 @@ void ball(){
 
 int main()
 {
+    //ball();
 
-#if 1
+#if 0
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
@@ -101,7 +102,7 @@ int main()
 
 #endif
 
-#if 0
+#if 1
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
@@ -117,7 +118,7 @@ int main()
     box[1] = Interval(-10.0, 10.0);
     Scheduler s(box, &f);
 
-    s.cameleon_cycle(9, 5, 1000000, true);
+    s.cameleon_cycle(12, 5, 1000000, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

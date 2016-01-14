@@ -196,7 +196,7 @@ void Pave::bisect(vector<Pave*> &result){
 
     // Update brothers with pave1 & pave2
     for(int i=0; i<4; i++){
-        m_borders[i].update_brothers_inclusion(pave1->get_border(i), pave2->get_border(i));
+        m_borders[i].add_to_brothers_inclusion(pave1->get_border(i), pave2->get_border(i));
     }
 
     // Copy brothers Pave (this) to pave1 and pave2
@@ -285,7 +285,7 @@ bool Pave::is_full(){
     }
 }
 
-const std::vector<Pave *> &Pave::get_brothers(int face){
+const std::vector<Pave *> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
     for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
         brothers_list.push_back(m_borders[face].get_inclusion(i).get_border()->get_pave());
@@ -325,6 +325,10 @@ Border* Pave::get_border(int face){
         return NULL;
 }
 
+Border& Pave::operator[](int face){
+    return m_borders[face];
+}
+
 const Border* Pave::get_border_const(int face) const{
     if(face >=0 && face < 4)
         return &(m_borders[face]);
@@ -352,7 +356,7 @@ Pave* Pave::get_copy_node(){
     return m_copy_node;
 }
 
-const std::vector<Interval> &Pave::get_theta() const{
+const std::vector<Interval> Pave::get_theta() const{
     return m_theta;
 }
 
@@ -366,7 +370,11 @@ void Pave::print(){
         }
         else{
             for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
-                cout << "border=" << face << " " << &(m_borders[face]) << " inclusion=" << i << " *border=" << m_borders[face].get_inclusion(i).get_border() << endl;
+                cout << "border=" << face << " " << &(m_borders[face])
+                     << " inclusion=" << i
+                     << " *border=" << m_borders[face].get_inclusion(i).get_border()
+                     << " segment_full=" << m_borders[face].get_inclusion(i).get_border()->get_segment_full()
+                     << endl;
             }
         }
     }

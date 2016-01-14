@@ -24,6 +24,8 @@ Inclusion::Inclusion(const Inclusion &i){
     if(!i.get_shortcut()){
         m_f = i.get_function();
     }
+    if(m_border == NULL)
+        cout << "ERROR" << endl;
 }
 
 void Inclusion::set_function(ibex::Function *f){
@@ -37,7 +39,7 @@ ibex::Function* Inclusion::get_function() const{
     return m_f;
 }
 
-const Interval &Inclusion::get_segment_in() const{
+const Interval Inclusion::get_segment_in() const{
     if(m_shortcut){
         return m_border->get_segment_in();
     }
@@ -49,7 +51,7 @@ const Interval &Inclusion::get_segment_in() const{
     }
 }
 
-const Interval &Inclusion::get_segment_out() const{
+const Interval Inclusion::get_segment_out() const{
     if(m_shortcut){
         return m_border->get_segment_out();
     }
@@ -65,7 +67,8 @@ Border* Inclusion::get_border() const{
     return m_border;
 }
 
-const IntervalVector &Inclusion::get_position() const{
+const IntervalVector Inclusion::get_position() const{
+    // Do not return a reference :
     if(m_shortcut){
         return m_border->get_position();
     }
@@ -81,6 +84,8 @@ int Inclusion::get_brother_face() const{
 
 void Inclusion::set_border(Border* border){
     m_border = border;
+    if(m_border==NULL)
+        cout << "ERROR" << endl;
 }
 
 bool Inclusion::get_shortcut() const{
