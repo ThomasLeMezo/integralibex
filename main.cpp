@@ -20,9 +20,9 @@ void test(){
 //    test_CtcPropagateFront();
 //    test_CtcPropagateSegment();
 
-    test_CtcPaveForward();
+//    test_CtcPaveForward();
 //    test_CtcPaveBackward();
-//    test_CtcPaveConsistency();
+    test_CtcPaveConsistency();
 
 //    test_Newton();
 
@@ -117,7 +117,7 @@ int main()
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
 
-    Interval u = -Interval::PI/10 | Interval::PI/10;
+    Interval u = Interval::EMPTY_SET;//-Interval::PI/10 | Interval::PI/10;
     Scheduler s(box, &f, u);
 
     s.cameleon_cycle(5, 5, 1000000, false, true);
