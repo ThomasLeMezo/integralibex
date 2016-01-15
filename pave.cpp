@@ -7,11 +7,12 @@
 using namespace std;
 using namespace ibex;
 
-Pave::Pave(const IntervalVector &position, ibex::Function *f): m_position(2)
+Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u): m_position(2)
 {
     m_position = position;    // Box corresponding to the Pave
     m_borders.reserve(4);
     m_f = f;
+    m_u = u;
 
     m_in_queue = false;
     m_copy_node = NULL;
@@ -28,25 +29,26 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f): m_position(2)
 
     for(int i=0; i<2; i++)
         m_theta.push_back(Interval::EMPTY_SET);
+    if(f!=NULL){
+        IntervalVector dposition = f->eval_vector(position);
 
-    IntervalVector dposition = f->eval_vector(position);
+        Interval dx = dposition[0];
+        Interval dy = dposition[1];
 
-    Interval dx = dposition[0];
-    Interval dy = dposition[1];
-
-    Interval theta = atan2(dy, dx);
-    if(theta==(-Interval::PI|Interval::PI)){
-        Interval thetaR = atan2(-dy, -dx); // PI rotation ({dx, dy} -> {-dx, -dy})
-        if(thetaR.diam()<theta.diam()){
-            m_theta[0] = (thetaR+Interval::PI) & (-Interval::PI | Interval::PI);
-            m_theta[1] = (thetaR-Interval::PI) & (-Interval::PI | Interval::PI);
+        Interval theta = atan2(dy, dx);
+        if(theta==(-Interval::PI|Interval::PI)){
+            Interval thetaR = atan2(-dy, -dx); // PI rotation ({dx, dy} -> {-dx, -dy})
+            if(thetaR.diam()<theta.diam()){
+                m_theta[0] = (thetaR+Interval::PI) & (-Interval::PI | Interval::PI);
+                m_theta[1] = (thetaR-Interval::PI) & (-Interval::PI | Interval::PI);
+            }
+            else{
+                m_theta[0] = theta;
+            }
         }
         else{
             m_theta[0] = theta;
         }
-    }
-    else{
-        m_theta[0] = theta;
     }
 }
 
@@ -57,6 +59,7 @@ Pave::Pave(const Pave *p): m_position(2)
     m_full = true; // Force to recompute results
     m_empty = false;
     m_in_queue = false;
+    m_u = p->get_u();
 
     for(int i=0; i<2; i++){
         m_theta.push_back(p->get_theta(i));
@@ -141,19 +144,22 @@ const IntervalVector &Pave::get_border_position(int face) const{
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Pave::draw(bool filled, string color){
+void Pave::draw(bool filled, string color, bool inner){
     // Draw the pave
-    vibes::drawBox(m_position, color);
-
-    draw_borders(filled);
-
-    // Draw theta
-    double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
-    for(int i=0; i<2; i++){
-        vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta[i].lb())*180.0/M_PI, (-m_theta[i].ub())*180.0/M_PI, "r[]");
+    if(inner){
+        draw_borders(filled, "g[g]");
+    }
+    else{
+        vibes::drawBox(m_position, color);
+        draw_borders(filled);
+        // Draw theta
+        double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
+        for(int i=0; i<2; i++){
+            vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta[i].lb())*180.0/M_PI, (-m_theta[i].ub())*180.0/M_PI, "r[]");
+        }
     }
 }
-void Pave::draw_borders(bool filled){
+void Pave::draw_borders(bool filled, string color_polygon){
     if(!filled){
         // Draw Segments
         for(int i=0; i<m_borders.size(); i++){
@@ -166,7 +172,7 @@ void Pave::draw_borders(bool filled){
         for(int i=0; i<m_borders.size(); i++){
             m_borders[i].get_points(x, y);
         }
-        vibes::drawPolygon(x, y, "g[g]");
+        vibes::drawPolygon(x, y, color_polygon);
     }
 }
 
@@ -308,6 +314,10 @@ const Interval &Pave::get_theta(int i) const{
         return m_theta[1];
     else
         return NULL;
+}
+
+const ibex::Interval& Pave::get_u() const{
+    return m_u;
 }
 
 const IntervalVector &Pave::get_position() const{

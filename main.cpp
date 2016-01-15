@@ -20,7 +20,7 @@ void test(){
 //    test_CtcPropagateFront();
 //    test_CtcPropagateSegment();
 
-//    test_CtcPaveForward();
+    test_CtcPaveForward();
 //    test_CtcPaveBackward();
 //    test_CtcPaveConsistency();
 
@@ -29,7 +29,7 @@ void test(){
 //    test_rotation();
 
 //    test_diff();
-    test_copy_graph();
+//    test_copy_graph();
 }
 
 void ball(){
@@ -59,7 +59,7 @@ void ball(){
 
 int main()
 {
-    //ball();
+//    ball();
 
 #if 0
     const clock_t begin_time = clock();
@@ -102,7 +102,7 @@ int main()
 
 #endif
 
-#if 1
+#if 0
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
@@ -116,9 +116,11 @@ int main()
     IntervalVector box(2);
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
-    Scheduler s(box, &f);
 
-    s.cameleon_cycle(12, 5, 1000000, true);
+    Interval u = -Interval::PI/10 | Interval::PI/10;
+    Scheduler s(box, &f, u);
+
+    s.cameleon_cycle(5, 5, 1000000, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -127,7 +129,7 @@ int main()
 
 #endif
 
-#if 0
+#if 1
    test();
 #endif
     return 0;

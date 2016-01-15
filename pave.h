@@ -10,7 +10,7 @@ class Pave
 
     /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &position, ibex::Function *f);
+    Pave(const ibex::IntervalVector &position, ibex::Function *f, ibex::Interval u=ibex::Interval::EMPTY_SET);
     Pave(const Pave *p);
     ~Pave();
 
@@ -19,8 +19,8 @@ public:
     bool                        diff(const Pave &p);
 
     // ******** Drawing functions ********
-    void                        draw(bool filled, string color="black[]");
-    void                        draw_borders(bool filled);
+    void                        draw(bool filled, string color="black[]", bool inner=false);
+    void                        draw_borders(bool filled, string color_polygon="y[y]");
     void                        print();
 
     // ******** Graph building ********
@@ -49,6 +49,7 @@ public:
     const std::vector<Pave*>            get_brothers(int face);
     const ibex::Interval&               get_theta(int i) const;
     const std::vector<ibex::Interval>   get_theta() const;
+    const ibex::Interval&               get_u() const;
     const ibex::IntervalVector&         get_position() const;
 
     const std::vector<Border>&          get_borders();
@@ -63,6 +64,7 @@ public:
     /***************** Variables ******************/
 private:
     std::vector<ibex::Interval> m_theta;
+    ibex::Interval              m_u;
     ibex::IntervalVector        m_position;
     std::vector<Border>         m_borders;
 

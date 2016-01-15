@@ -4,8 +4,8 @@
 using namespace std;
 using namespace ibex;
 
-Graph::Graph(const IntervalVector &box, ibex::Function *f, Utils *utils, int graph_id=0){
-    Pave *p = new Pave(box, f);
+Graph::Graph(const IntervalVector &box, ibex::Function *f, Utils *utils, int graph_id=0, Interval u){
+    Pave *p = new Pave(box, f, u);
     m_node_list.push_back(p);
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
@@ -17,6 +17,8 @@ Graph::Graph(Graph* g, int graph_id){
         Pave *p = new Pave(node);
         node->set_copy_node(p);
         m_node_list.push_back(p);
+        if(node->is_in_queue())
+            m_node_queue.push_back(p);
     }
 
     for(int i=0; i<m_node_list.size(); i++){
@@ -84,7 +86,7 @@ void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_
         }
         else{
             tmp->bisect(tmp_pave_list);
-            //delete(tmp); // ISSUE !!!!!!!!!!!!!!!!
+            delete(tmp);
         }
     }
 
@@ -97,7 +99,7 @@ void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_
     }
 }
 
-int Graph::process(int max_iterations, bool backward){
+int Graph::process(int max_iterations, bool backward, bool inner){
     int iterations = 0;
     while(!m_node_queue.empty() & iterations < max_iterations){
         iterations++;
@@ -107,7 +109,7 @@ int Graph::process(int max_iterations, bool backward){
 
         bool change = m_utils->CtcContinuity(pave, backward);
         if(change){
-            m_utils->CtcPaveConsistency(pave, backward);
+            m_utils->CtcPaveConsistency(pave, backward, inner);
 
             // Warn scheduler to process new pave
             for(int face=0; face<4; face++){
@@ -176,7 +178,7 @@ const std::vector<Pave *> &Graph::get_node_list() const {
     return m_node_list;
 }
 
-const std::vector<Pave *> &Graph::get_node_queue() const {
+const std::vector<Pave *> Graph::get_node_queue() const {
     return m_node_queue;
 }
 
@@ -188,10 +190,10 @@ Pave& Graph::operator[](int id){
     return *(m_node_list[id]);
 }
 
-void Graph::draw(int size, bool filled){
+void Graph::draw(int size, bool filled, string comment){
 
     stringstream ss;
-    ss << "integralIbex" << m_graph_id<< "-" << m_drawing_cpt;
+    ss << "integralIbex" << m_graph_id<< "-" << m_drawing_cpt << " " << comment;
     vibes::newFigure(ss.str());
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
@@ -204,6 +206,12 @@ void Graph::draw(int size, bool filled){
     }
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     m_drawing_cpt++;
+}
+
+void Graph::drawInner(bool filled){
+    for(auto &node:m_node_list){
+        node->draw(filled, "[]", true);
+    }
 }
 
 void Graph::print_pave_info(double x, double y, string color) const{

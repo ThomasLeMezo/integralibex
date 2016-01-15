@@ -244,6 +244,7 @@ bool Border::diff(const Border &b){
     bool change = false;
     Interval segment_in_r, segment_in_l;
     m_segment_in.diff(b.get_segment_in(), segment_in_r, segment_in_l);
+
     if(m_segment_in != (segment_in_r | segment_in_l))
         change = true;
     m_segment_in = segment_in_r | segment_in_l;

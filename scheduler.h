@@ -11,10 +11,10 @@ class Scheduler
 {
 /***************** Functions ******************/
 public:
-    Scheduler(const ibex::IntervalVector &box, ibex::Function *f);
+    Scheduler(const ibex::IntervalVector &box, ibex::Function *f, ibex::Interval u=ibex::Interval::EMPTY_SET);
     ~Scheduler();
 
-    void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside);
+    void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner);
     void cameleon_propagation(int iterations_max, int process_iterations_max, vector<ibex::IntervalVector> &initial_boxes);
     void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe);
 
@@ -29,6 +29,7 @@ public:
 /***************** Variables ******************/
 public:
     std::vector<Graph*> m_graph_list;
+    std::vector<Graph*> m_graph_inner_list;
 
     Utils m_utils;
 };

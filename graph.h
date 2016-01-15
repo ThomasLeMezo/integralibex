@@ -7,12 +7,12 @@
 class Graph
 {
 public:
-    Graph(const ibex::IntervalVector &box, ibex::Function *f, Utils *utils, int graph_id);
+    Graph(const ibex::IntervalVector &box, ibex::Function *f, Utils *utils, int graph_id, ibex::Interval u=ibex::Interval::EMPTY_SET);
     Graph(Graph* g, int graph_id=-1);
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);
     ~Graph();
 
-    int process(int max_iterations, bool backward);
+    int process(int max_iterations, bool backward, bool inner);
     void sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_bisect_empty);
     void remove_empty_node();
 
@@ -32,7 +32,7 @@ public:
     Pave*               get_pave(double x, double y) const;
     const std::vector<Pave *> get_pave(const ibex::IntervalVector &box) const;
     const std::vector<Pave *>& get_node_list() const;
-    const std::vector<Pave *> &get_node_queue() const;
+    const std::vector<Pave *> get_node_queue() const;
     Pave*               get_node_const(int i) const;
     Pave*               get_semi_full_node();
     Utils*              get_utils();
@@ -44,7 +44,8 @@ public:
 
     void print_pave_info(double x, double y, string color) const;
     void print() const;
-    void draw(int size, bool filled);
+    void draw(int size, bool filled, string comment="");
+    void drawInner(bool filled);
 
 private:
     std::vector<Pave*> m_node_list;

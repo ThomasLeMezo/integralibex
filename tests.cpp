@@ -141,19 +141,20 @@ void test_CtcPaveForward(){
     box[0] = Interval(0, 1);
     box[1] = Interval(0, 1);
 
-    Function f;
-    Pave p(box, &f);
+    Interval command = -Interval::PI/8 | Interval::PI/8;
+//    Interval command = -Interval::PI | Interval::PI;
+    Pave p(box, NULL, command);
 
 //    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
     p.set_theta(Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0);
 
-//    p.m_borders[0].set_full();
+    p.get_border(0)->set_full();
 //    p.m_borders[2].segment = Interval(0,1);
 //    p.m_borders[1].segment = Interval(0,1);
 
     test_draw(&p, "test_before");
 
-    u.CtcPaveForward(&p, false);
+    u.CtcPaveForward(&p, false, true);
 
     test_draw(&p, "test_after");
 }
@@ -175,7 +176,7 @@ void test_CtcPaveConsistency(){
 
     test_draw(&p, "test_before");
 
-    u.CtcPaveConsistency(&p, true);
+    u.CtcPaveConsistency(&p, true, false);
 
     test_draw(&p, "test_after");
 }
