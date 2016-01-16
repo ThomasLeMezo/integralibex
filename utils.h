@@ -42,13 +42,13 @@ public:
     void CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy, const ibex::Interval &u, bool final=false);
     void CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const ibex::IntervalVector &box, const ibex::Interval &u, bool final=false);
 
-    void CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const double &dx, const double &dy, const ibex::Interval &u);
-    void CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const ibex::IntervalVector &box, const ibex::Interval &u);
+    void CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const double &dx, const double &dy, const ibex::Interval &u, bool backward);
+    void CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const ibex::IntervalVector &box, const ibex::Interval &u, bool backward);
 
     void CtcPropagateRightSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy, const ibex::Interval &u, bool final=false);
     void CtcPropagateRightSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const ibex::IntervalVector &box, const ibex::Interval &u, bool final=false);
 
-    void CtcPropagateSegmentInner(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> theta, const ibex::IntervalVector &box_pave, const ibex::Interval &u);
+    void CtcPropagateSegmentInner(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> theta, const ibex::IntervalVector &box_pave, const ibex::Interval &u, bool backward);
 
     ibex::CtcPolar contract_polar;
 

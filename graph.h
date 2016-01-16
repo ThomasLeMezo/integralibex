@@ -27,6 +27,7 @@ public:
     void set_active_pave(const ibex::IntervalVector &box);
     void set_symetry(ibex::Function *f, int face);
     void set_empty();
+    void clear_node_queue();
 
     // Getter
     Pave*               get_pave(double x, double y) const;

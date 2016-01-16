@@ -134,17 +134,10 @@ void Pave::set_empty(){
     m_full = false;
 }
 
-const IntervalVector &Pave::get_border_position(int face) const{
-    IntervalVector position_border(2);
-    position_border[0] = m_position[face%2];
-    position_border[1] = m_position[(face+1)%2];
-    return position_border;
-}
-
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Pave::draw(bool filled, string color, bool inner){
+void Pave::draw(bool filled, string color, bool inner, bool cmd_u){
     // Draw the pave
     if(inner){
         draw_borders(filled, "g[g]");
@@ -153,10 +146,29 @@ void Pave::draw(bool filled, string color, bool inner){
         vibes::drawBox(m_position, color);
         draw_borders(filled);
         // Draw theta
+
         double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
+
+        if(cmd_u && m_u!=Interval::EMPTY_SET){
+            Interval theta_lb_u = (m_theta[0] | m_theta[1]).lb() + m_u;
+            Interval theta_ub_u = (m_theta[0] | m_theta[1]).ub() + m_u;
+
+            for(int face =0; face<4; face++){
+                if(!get_border(face)->get_segment_in().is_empty()){
+                    IntervalVector segment_in = get_border(face)->get_segment_in_2D();
+
+                    vibes::drawSector(segment_in[0].lb(), segment_in[1].lb(), size*0.5, size*0.5, (-theta_ub_u.lb())*180.0/M_PI, (-theta_ub_u.ub())*180.0/M_PI, "b[]");
+                    vibes::drawSector(segment_in[0].ub(), segment_in[1].ub(), size*0.5, size*0.5, (-theta_lb_u.lb())*180.0/M_PI, (-theta_lb_u.ub())*180.0/M_PI, "b[]");
+                }
+            }
+
+        }
+
         for(int i=0; i<2; i++){
             vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta[i].lb())*180.0/M_PI, (-m_theta[i].ub())*180.0/M_PI, "r[]");
         }
+
+
     }
 }
 void Pave::draw_borders(bool filled, string color_polygon){
@@ -184,8 +196,8 @@ void Pave::bisect(vector<Pave*> &result){
     ibex::LargestFirst bisector(0.0, 0.5);
     std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
 
-    Pave *pave1 = new Pave(result_boxes.first, m_f); // Left or Up
-    Pave *pave2 = new Pave(result_boxes.second, m_f); // Right or Down
+    Pave *pave1 = new Pave(result_boxes.first, m_f, m_u); // Left or Up
+    Pave *pave2 = new Pave(result_boxes.second, m_f, m_u); // Right or Down
 
     int indice1, indice2;
 

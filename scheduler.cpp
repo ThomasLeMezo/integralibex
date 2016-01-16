@@ -1,6 +1,7 @@
 #include "scheduler.h"
 #include "vibes.h"
 #include "ibex.h"
+#include "omp.h"
 
 using namespace std;
 using namespace ibex;
@@ -75,7 +76,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->sivia(0.0,4,false, false); // Start with 4 boxes
-        m_graph_list[0]->process(process_iterations_max, false, false); // ? Usefull ??? ToDo
+        //m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
     }
 
@@ -86,25 +87,26 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
             if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)
                 break;
-
+            m_graph_list[nb_graph]->clear_node_queue();
             m_graph_list[nb_graph]->sivia(0.0, 2*m_graph_list[nb_graph]->size(), true, true);
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
-//            if(nb_graph==1)
-//                m_graph_list[nb_graph]->print();
 
-            if(inner){
+            Graph* graph_inner;
+
+            if(inner && iterations == iterations_max -1){
                 if(m_graph_inner_list.size()==m_graph_list.size()){
                     delete(m_graph_inner_list[nb_graph]);
                     m_graph_inner_list.erase(m_graph_inner_list.begin() + nb_graph);
                 }
-
-                Graph* graph_inner = new Graph(m_graph_list[nb_graph]);
-                graph_inner->process(process_iterations_max, false, true);
+                graph_inner = new Graph(m_graph_list[nb_graph]);
+                graph_inner->draw(512, false, "inner_before");
+                graph_inner->process(process_iterations_max, true, true);
+                graph_inner->draw(512, false, "inner_after");
                 m_graph_inner_list.insert(m_graph_inner_list.begin()+nb_graph, graph_inner);
-            }
 
+            }
 
             m_graph_list[nb_graph]->process(process_iterations_max, true, false);
 
@@ -113,6 +115,12 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
             // Test if the graph is empty
             if(m_graph_list[nb_graph]->is_empty()){
+                if(m_graph_inner_list.size()==m_graph_list.size()){
+                    delete(m_graph_inner_list[nb_graph]);
+                    m_graph_inner_list.erase(m_graph_inner_list.begin() + nb_graph);
+                }
+
+                delete(m_graph_list[nb_graph]);
                 m_graph_list.erase(m_graph_list.begin()+nb_graph);
                 cout << " REMOVE EMPTY GRAPH" << endl;
                 if(nb_graph!=0)
@@ -122,35 +130,34 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
 
             // ***************************************************
+            //              REMOVE INSIDE PROCEDURE
             // Copy graph & propagate one Pave + intersect with cycle
             // Find the first non-full & non-empty Pave
             if(remove_inside && m_graph_list.size() < graph_max){
-                cout << " REMOVE INSIDE" << endl;
                 Pave *pave_start = m_graph_list[nb_graph]->get_semi_full_node(); // Find a pave semi full
                 if(pave_start == NULL)
                     break;
 
                 Graph* graph_propagation = new Graph(m_graph_list[nb_graph], pave_start); // copy graph with 1 activated node (pave_start)
-                Graph* graph_diff = new Graph(m_graph_list[nb_graph], m_graph_list.size());
-
-//                m_graph_list[nb_graph]->draw(512, true, "graph_list_before");
+//                Graph* graph_diff = new Graph(m_graph_list[nb_graph], m_graph_list.size());
 
                 graph_propagation->process(process_iterations_max, false, false); // process forward
+
                 m_graph_list[nb_graph]->inter(*graph_propagation); // intersect the graph with the propagation graph
-                graph_diff->diff(*m_graph_list[nb_graph]);
+//                graph_diff->diff(*m_graph_list[nb_graph]);
 
-//                graph_diff->draw(512, true, "graph_diff");
-//                graph_propagation->draw(512, true, "graph_propagation");
-//                m_graph_list[nb_graph]->draw(512, true, "graph_list_after");
+//                if(!graph_diff->is_empty() && false){ // If there is an inside, add to graph_list
+//                    cout << " REMOVE INSIDE" << endl;
+//                    m_graph_list.push_back(graph_diff);
+//                    graph_diff->clear_node_queue();
+//                    cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
+//                    //m_graph_list.back()->print();
+//                }
+//                else{
+//                    delete(graph_diff);
+//                }
+                m_graph_list[nb_graph]->remove_empty_node();
 
-                if(!graph_diff->is_empty()){ // If there is an inside, add to graph_list
-                    m_graph_list.push_back(graph_diff);
-                    cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
-                    //m_graph_list.back()->print();
-                }
-                else{
-                    delete(graph_diff);
-                }
                 delete(graph_propagation);
 
             }

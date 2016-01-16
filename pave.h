@@ -19,7 +19,7 @@ public:
     bool                        diff(const Pave &p);
 
     // ******** Drawing functions ********
-    void                        draw(bool filled, string color="black[]", bool inner=false);
+    void                        draw(bool filled, string color="black[]", bool inner=false, bool cmd_u=false);
     void                        draw_borders(bool filled, string color_polygon="y[y]");
     void                        print();
 
@@ -44,7 +44,6 @@ public:
     void                        reset_full_empty();
 
     // Getters
-    const ibex::IntervalVector&         get_border_position(int face) const;
     double                              get_theta_diam();
     const std::vector<Pave*>            get_brothers(int face);
     const ibex::Interval&               get_theta(int i) const;

@@ -137,6 +137,16 @@ void Border::set_full(){
     m_full = true;
 }
 
+void Border::set_full_segment_in(){
+    m_segment_in = m_segment_full;
+    m_empty = false;
+}
+
+void Border::set_full_segment_out(){
+    m_segment_out = m_segment_full;
+    m_empty = false;
+}
+
 void Border::set_empty(){
     m_segment_in = Interval::EMPTY_SET;
     m_segment_out = Interval::EMPTY_SET;
@@ -192,6 +202,18 @@ void Border::set_pave(Pave* pave){
 
 const ibex::Interval Border::get_segment_in() const{
     return m_segment_in;
+}
+
+const ibex::IntervalVector Border::get_segment_in_2D() const{
+    IntervalVector segment_in = m_position;
+    segment_in[m_face%2] = m_segment_in;
+    return segment_in;
+}
+
+const ibex::IntervalVector Border::get_segment_out_2D() const{
+    IntervalVector segment_in = m_position;
+    segment_in[m_face%2] = m_segment_out;
+    return segment_in;
 }
 
 const ibex::Interval Border::get_segment_out() const{

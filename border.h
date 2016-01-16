@@ -30,6 +30,8 @@ public:
 
     // Setters
     void set_full();
+    void set_full_segment_in();
+    void set_full_segment_out();
     void set_empty();
     void set_segment_in(ibex::Interval segment_in, bool inclusion);
     void set_segment_out(ibex::Interval segment_out, bool inclusion);
@@ -43,8 +45,10 @@ public:
 
     // Getters
     void                            get_points(std::vector<double> &x, std::vector<double> &y) const;
-    const ibex::Interval get_segment_in() const;
-    const ibex::Interval get_segment_out() const;
+    const ibex::Interval            get_segment_in() const;
+    const ibex::IntervalVector      get_segment_out_2D() const;
+    const ibex::Interval            get_segment_out() const;
+    const ibex::IntervalVector      get_segment_in_2D() const;
     const std::vector<Inclusion>&   get_inclusions() const ;
     Inclusion&                      get_inclusion(int i);
     const ibex::IntervalVector &    get_position() const;

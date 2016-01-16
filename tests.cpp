@@ -10,7 +10,7 @@ void test_draw(Pave *p, string drawing_name, bool full=false){
     vibes::beginDrawing();
     vibes::newFigure(drawing_name);
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
-    p->draw(full);
+    p->draw(full, "black[]", false, true);
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     vibes::axisAuto();
 }
@@ -146,10 +146,10 @@ void test_CtcPaveForward(){
     Pave p(box, NULL, command);
 
 //    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
-    p.set_theta((Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0) - Interval::PI/3);
+    p.set_theta((Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0) + Interval::PI/3);
 //    p.set_theta(-Interval::HALF_PI | Interval::HALF_PI);
 
-    p.get_border(0)->set_segment_in(Interval(0.0, 0.5), false);
+    p.get_border(0)->set_segment_in(Interval(0.5, 0.9), false);
 //    p.m_borders[2].segment = Interval(0,1);
 //    p.m_borders[1].segment = Interval(0,1);
 
@@ -166,16 +166,19 @@ void test_CtcPaveConsistency(){
     box[0] = Interval(0, 1);
     box[1] = Interval(0, 1);
 
-    Interval command = -Interval::PI/4 | Interval::PI/4;
-//    Interval command = -Interval::PI | Interval::PI;
+//    Interval command = -Interval::PI/4 | Interval::PI/4;
+    Interval command = -Interval::PI | Interval::PI;
     Pave p(box, NULL, command);
 
-    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+Interval::HALF_PI);
+    p.set_theta(-Interval::HALF_PI | Interval::HALF_PI);
+//    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+3*Interval::PI/3);
 
-    p.get_border(0)->set_full();
-    p.get_border(1)->set_full();
-    p.get_border(2)->set_full();
-    p.get_border(3)->set_full();
+    p.get_border(0)->set_full_segment_in();
+    p.get_border(1)->set_full_segment_in();
+    p.get_border(2)->set_full_segment_in();
+    p.get_border(3)->set_full_segment_in();
+
+    p.get_border(3)->set_segment_out(Interval(0.6, 0.9), false);
 
     test_draw(&p, "test_before");
 

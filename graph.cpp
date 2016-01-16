@@ -17,8 +17,10 @@ Graph::Graph(Graph* g, int graph_id){
         Pave *p = new Pave(node);
         node->set_copy_node(p);
         m_node_list.push_back(p);
-        if(node->is_in_queue())
-            m_node_queue.push_back(p);
+    }
+    for(auto &node:g->get_node_queue()){
+        m_node_queue.push_back(node->get_copy_node());
+        node->get_copy_node()->set_in_queue(true);
     }
 
     for(int i=0; i<m_node_list.size(); i++){
@@ -66,6 +68,13 @@ Graph::~Graph(){
     for(auto &node:m_node_empty_list){
         delete(node);
     }
+}
+
+void Graph::clear_node_queue(){
+    for(auto &node:m_node_list){
+        node->set_in_queue(false);
+    }
+    m_node_queue.clear();
 }
 
 void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_bisect_empty){

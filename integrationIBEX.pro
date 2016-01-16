@@ -13,7 +13,8 @@ TEMPLATE = app
 
 INCLUDEPATH += /usr/local/include/ibex /opt/VIBES/client-api/C++/src/
 
-QMAKE_CXXFLAGS +=-I/usr/local/include/ibex -O0 -DNDEBUG -Wno-deprecated -frounding-math -std=c++11
+QMAKE_CXXFLAGS +=-I/usr/local/include/ibex -O0 -DNDEBUG -Wno-deprecated -frounding-math -std=c++11 -fopenmp
+QMAKE_LFLAGS +=  -fopenmp
 
 LIBS += -L/usr/local/include/ibex -libex -lprim
 
