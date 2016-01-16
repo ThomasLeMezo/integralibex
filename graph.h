@@ -28,6 +28,7 @@ public:
     void set_symetry(ibex::Function *f, int face);
     void set_empty();
     void clear_node_queue();
+    void add_all_to_queue();
 
     // Getter
     Pave*               get_pave(double x, double y) const;

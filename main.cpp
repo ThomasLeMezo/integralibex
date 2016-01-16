@@ -23,6 +23,8 @@ void test(){
 //    test_CtcPaveForward();
     test_CtcPaveConsistency();
 
+//    test_contractor_polar();
+
 //    test_rotation();
 
 //    test_diff();
@@ -114,10 +116,10 @@ int main()
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
 
-    Interval u = -Interval::PI | Interval::PI;
+    Interval u = -Interval::PI/6 | Interval::PI/6;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(5, 5, 1000000, false, true);
+    s.cameleon_cycle(14, 5, 1000000, true, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

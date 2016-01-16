@@ -24,6 +24,7 @@ void test_rotation();
 void test_diff();
 
 void test_copy_graph();
+void test_contractor_polar();
 
 #endif // TESTS_H
 

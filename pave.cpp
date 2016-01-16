@@ -137,6 +137,11 @@ void Pave::set_empty(){
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
+void Pave::draw_position(){
+    double size = 0.5*min(m_position[0].diam(), m_position[1].diam())/2.0;
+    vibes::drawCircle(m_position[0].mid(), m_position[1].mid(), size, "b[b]");
+}
+
 void Pave::draw(bool filled, string color, bool inner, bool cmd_u){
     // Draw the pave
     if(inner){

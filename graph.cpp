@@ -143,6 +143,13 @@ void Graph::set_full(){
     }
 }
 
+void Graph::add_all_to_queue(){
+    m_node_queue.clear();
+    for(auto &node: m_node_list){
+        m_node_queue.push_back(node);
+    }
+}
+
 Pave* Graph::get_pave(double x, double y) const{
     IntervalVector position(2);
     position[0] = Interval(x);

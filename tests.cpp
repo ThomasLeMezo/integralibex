@@ -167,24 +167,60 @@ void test_CtcPaveConsistency(){
     box[1] = Interval(0, 1);
 
 //    Interval command = -Interval::PI/4 | Interval::PI/4;
-    Interval command = -Interval::PI | Interval::PI;
+    Interval command = -Interval::HALF_PI| Interval::PI;
     Pave p(box, NULL, command);
 
-    p.set_theta(-Interval::HALF_PI | Interval::HALF_PI);
+    p.set_theta(Interval::HALF_PI | 2*Interval::PI/3);
 //    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+3*Interval::PI/3);
 
-    p.get_border(0)->set_full_segment_in();
-    p.get_border(1)->set_full_segment_in();
-    p.get_border(2)->set_full_segment_in();
-    p.get_border(3)->set_full_segment_in();
+//    p.get_border(0)->set_full_segment_in();
+    p.get_border(1)->set_segment_in(Interval(0.0, 1), false);
+//    p.get_border(2)->set_full_segment_in();
+//    p.get_border(3)->set_full_segment_in();
 
-    p.get_border(3)->set_segment_out(Interval(0.6, 0.9), false);
+    p.get_border(2)->set_segment_out(Interval(0.6, 0.9), false);
+//    p.get_border(1)->set_segment_out(Interval(0.5, 0.9), false);
 
     test_draw(&p, "test_before");
-
     u.CtcPaveConsistency(&p, true, true);
-
     test_draw(&p, "test_after");
+}
+
+void test_contractor_polar(){
+    Utils u;
+    Interval x_ub = Interval::ALL_REALS;
+    Interval y_ub = Interval::ZERO;
+    Interval rho_ub = Interval::ALL_REALS;
+    Interval theta2_ub = Interval::ALL_REALS;
+
+    cout << x_ub << y_ub << rho_ub << theta2_ub << endl;
+
+    Interval x_r, y_r;
+    x_r = sqrt(2)/2*(x_ub - y_ub);
+    y_r = sqrt(2)/2*(x_ub + y_ub);
+    theta2_ub += Interval::PI/4.0;
+    ibex::CtcAngle ctcAngle;
+    ctcAngle.contract(x_r, y_r, theta2_ub);
+
+    x_ub &= sqrt(2)/2*(x_r + y_r);
+    y_ub &= sqrt(2)/2*(-x_r + y_r);
+    theta2_ub -= Interval::PI/4.0;
+
+    cout << x_ub << y_ub << rho_ub << theta2_ub << endl;
+
+//    Interval x = Interval::ZERO;
+//    Interval y = Interval::ALL_REALS;
+//    Interval theta = Interval::ALL_REALS;
+
+//    const double d2PI   = (2*Interval::PI).ub();
+//    Interval theta_tmp = atan2(y, x);
+//    cout << theta_tmp << endl;
+//    bwd_imod(theta, theta_tmp, d2PI);
+//    cout << theta << theta_tmp << endl;
+//    theta = Interval::HALF_PI | 3*Interval::HALF_PI;
+//    bwd_angle(theta, y, x);
+
+//    cout << x << y << theta << theta_tmp << endl;
 }
 
 void test_rotation(){

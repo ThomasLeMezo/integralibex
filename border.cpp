@@ -38,15 +38,11 @@ Border::Border(Border *border): m_position(2)
 
 void Border::draw() const{
     // Create an IntervalVector (2D) from the segment (1D)
-    IntervalVector segment_in = m_position;
-    IntervalVector segment_out = m_position;
+    IntervalVector segment_in = get_segment_in_2D();
+    IntervalVector segment_out =get_segment_out_2D();
 
-    // Find the non flat dimension and complete replaced it by the segment
-    segment_in[m_face%2] = m_segment_in;
-    segment_out[m_face%2] = m_segment_out;
-
-    double pourcentage_in = min(m_segment_full.diam()*0.01, 0.01);
-    double pourcentage_out = min(m_segment_full.diam()*0.001, 0.001);
+    double pourcentage_in = min(m_segment_full.diam()*0.005, 0.005);
+    double pourcentage_out = min(m_segment_full.diam()*0.01, 0.01);
     segment_in[(m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in);
     segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out);
 

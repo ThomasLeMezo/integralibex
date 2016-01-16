@@ -34,22 +34,22 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
     Interval theta2 = theta;
 
     contract_polar.contract(Dx, Dy, rho, theta2);
-        x_front &= (x + Dx ) & X;
-        if(!(X & (x_front - Dx)).is_empty()){
-            x &= (x_front - Dx);
-        }
-        else{
-            x |= (x_front - Dx);
-        }
+    x_front &= (x + Dx ) & X;
+    if(!(X & (x_front - Dx)).is_empty()){
+        x &= (x_front - Dx);
+    }
+    else{
+        x |= (x_front - Dx);
+    }
 
-        if(!(X & (x_front + Dx)).is_empty()){
-            x &= (x_front + Dx);
-        }
-        else{
-            x |= (x_front + Dx);
-        }
+    if(!(X & (x_front + Dx)).is_empty()){
+        x &= (x_front + Dx);
+    }
+    else{
+        x |= (x_front + Dx);
+    }
 
-        x &= X;
+    x &= X;
 }
 
 void Utils::CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const double &dx, const double &dy, const ibex::Interval &u, bool backward){
@@ -95,24 +95,25 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const ibe
     this->contract_polar.contract(x, y, rho, theta2);
 }
 
-void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy, const ibex::Interval &u, bool final){
+void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy, const ibex::Interval &u, bool final, bool backward){
+    Interval theta_frame = Interval::PI - theta;
+
     Interval x_lb = Interval(x.lb()) & Interval(0.0, dx);
     Interval y_lb = y & Interval(0.0, dy);
     Interval rho_lb = Interval::POS_REALS;
-    Interval theta2_lb = (Interval::PI - theta).lb() + u;
-    this->contract_polar.contract(x_lb, y_lb, rho_lb, theta2_lb);
+    Interval theta2_lb = theta_frame.lb() + u;
+    CtcPolarCorrection(x_lb, y_lb, rho_lb, theta2_lb);
 
     Interval x_ub = Interval(x.ub()) & Interval(0.0, dx);
     Interval y_ub = y & Interval(0.0, dy);
     Interval rho_ub = Interval::POS_REALS;
-    Interval theta2_ub = (Interval::PI - theta).ub() +u;
-    this->contract_polar.contract(x_ub, y_ub, rho_ub, theta2_ub);
+    Interval theta2_ub = theta_frame.ub() + u;
+    CtcPolarCorrection(x_ub, y_ub, rho_ub, theta2_ub);
 
-    Interval y_cpy(y);
     y &= (y_lb & y_ub);
 
     if(!final){
-        this->CtcPropagateRightSideInner(y_cpy, x, Interval::PI-theta, dx, dy, u, true);
+        this->CtcPropagateRightSideInner(y, x, theta_frame, dy, dx, u, true, false);
     }
 }
 
@@ -120,8 +121,8 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const ibe
     this->CtcPropagateLeftSide(x, y, theta, box[0].ub(), box[1].ub());
 }
 
-void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const ibex::IntervalVector &box, const ibex::Interval &u, bool final){
-    this->CtcPropagateLeftSideInner(x, y, theta, box[0].ub(), box[1].ub(), u, final);
+void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const ibex::IntervalVector &box, const ibex::Interval &u, bool final, bool backward){
+    this->CtcPropagateLeftSideInner(x, y, theta, box[0].ub(), box[1].ub(), u, final, backward);
 }
 
 void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy){
@@ -136,20 +137,20 @@ void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ib
     x = Interval(dx) - x;
 }
 
-void Utils::CtcPropagateRightSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy, const ibex::Interval &u, bool final){
-    x = Interval(dx) - x;
-    Interval theta2(Interval::PI-theta);
-    Interval u2(-u);    // Because of Symetry
-    this->CtcPropagateLeftSideInner(x, y, theta2, dx, dy, u2, final);
-    x = Interval(dx) - x;
+void Utils::CtcPropagateRightSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy, const ibex::Interval &u, bool final, bool backward){
+    Interval x_frame = Interval(dx) - x;
+    Interval theta_frame(Interval::PI-theta);
+    Interval u_frame(-u);    // Because of Symetry
+    this->CtcPropagateLeftSideInner(x_frame, y, theta_frame, dx, dy, u_frame, final, backward);
+    x = Interval(dx) - x_frame;
 }
 
 void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const IntervalVector &box){
     this->CtcPropagateRightSide(x, y, theta, box[0].ub(), box[1].ub());
 }
 
-void Utils::CtcPropagateRightSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const ibex::IntervalVector &box, const ibex::Interval &u, bool final){
-    this->CtcPropagateRightSideInner(x, y, theta, box[0].ub(), box[1].ub(), u, final);
+void Utils::CtcPropagateRightSideInner(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const ibex::IntervalVector &box, const ibex::Interval &u, bool final, bool backward){
+    this->CtcPropagateRightSideInner(x, y, theta, box[0].ub(), box[1].ub(), u, final, backward);
 }
 
 void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> theta, const ibex::IntervalVector &box_pave){
@@ -249,9 +250,9 @@ void Utils::CtcPropagateSegmentInner(ibex::Interval &seg_in, std::vector<ibex::I
     }
 
     for(int i=0; i<2; i++){
-        this->CtcPropagateRightSideInner(segment_norm_in[0][i], segment_norm_out[0][i], theta[i] + tab_rotation[face], box, u);
+        this->CtcPropagateRightSideInner(segment_norm_in[0][i], segment_norm_out[0][i], theta[i] + tab_rotation[face], box, u ,false, backward);
         this->CtcPropagateFrontInner(segment_norm_in[1][i], segment_norm_out[1][i], theta[i] + tab_rotation[face], box, u, backward);
-        this->CtcPropagateLeftSideInner(segment_norm_in[2][i], segment_norm_out[2][i], theta[i] + tab_rotation[face], box, u);
+        this->CtcPropagateLeftSideInner(segment_norm_in[2][i], segment_norm_out[2][i], theta[i] + tab_rotation[face], box, u, false, backward);
     }
 
     // **************************** OUTPUT ****************************
@@ -481,5 +482,21 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
     }
 
     return change;
+}
+
+void Utils::CtcPolarCorrection(Interval &x, Interval &y, Interval &rho, Interval &theta){
+    if(x == Interval::ZERO || y == Interval::ZERO){
+        Interval x_r, y_r, theta_r;
+        x_r = sqrt(2)/2*(x - y);
+        y_r = sqrt(2)/2*(x + y);
+        theta_r += Interval::PI/4.0;
+        contract_polar.contract(x_r, y_r, rho, theta_r);
+        x &= sqrt(2)/2*(x_r + y_r);
+        y &= sqrt(2)/2*(-x_r + y_r);
+        theta -= Interval::PI/4.0;
+    }
+    else{
+        contract_polar.contract(x, y, rho, theta);
+    }
 }
 

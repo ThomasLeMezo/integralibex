@@ -21,6 +21,7 @@ public:
     // ******** Drawing functions ********
     void                        draw(bool filled, string color="black[]", bool inner=false, bool cmd_u=false);
     void                        draw_borders(bool filled, string color_polygon="y[y]");
+    void                        draw_position();
     void                        print();
 
     // ******** Graph building ********
