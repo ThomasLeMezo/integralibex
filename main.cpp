@@ -41,7 +41,8 @@ void ball(){
     box[0] = Interval(0.0, 20.0);
     box[1] = Interval(-20.0, 20.0);
 
-    Scheduler s(box, &f);
+    Interval u = Interval::ZERO;
+    Scheduler s(box, &f, u);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(12.0);
@@ -101,7 +102,7 @@ int main()
 
 #endif
 
-#if 1
+#if 0
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
@@ -116,11 +117,11 @@ int main()
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
 
-//    Interval u = -Interval::PI/6 | Interval::PI/6;
-    Interval u = Interval::EMPTY_SET;
+//    Interval u = -Interval::PI/8 | Interval::PI/8;
+    Interval u = Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(10, 5, 1000000, false, false);
+    s.cameleon_cycle(15, 5, 1000000, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -129,7 +130,7 @@ int main()
 
 #endif
 
-#if 0
+#if 1
    test();
 #endif
     return 0;

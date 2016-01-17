@@ -99,11 +99,12 @@ void Utils::CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, c
     Interval X = Interval(0.0, dx);
 
     Interval theta_lb, theta_ub;
-    if(!theta_list[1].is_empty()){
+    if(theta_list[1].is_empty()){
         theta_lb = Interval(theta_list[0].ub()) + u;
         theta_ub = Interval(theta_list[0].lb()) + u;
     }
     else{
+        cout << "CASE" << endl;
         theta_lb = Interval(theta_list[1].lb()) + u; // ToDo : to check
         theta_ub = Interval(theta_list[0].ub()) + u;
     }
@@ -138,6 +139,8 @@ void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, cons
         theta2_ub = Interval(theta_frame[0].ub()) + u;
     }
     else{
+        cout << "CASE" << endl;
+        cout << theta_frame[0] << theta_frame[1] << endl;
         theta2_lb = Interval(theta_frame[0].ub()) + u; // ToDo : to check
         theta2_ub = Interval(theta_frame[1].lb()) + u;
     }
@@ -215,9 +218,9 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
 
     if(!inner){
         for(int i=0; i<2; i++){
-            this->CtcPropagateRightSide(segment_norm_in[0][i], segment_norm_out[0][i], theta[i] + tab_rotation[face], box);
-            this->CtcPropagateFront(segment_norm_in[1][i], segment_norm_out[1][i], theta[i] + tab_rotation[face], box);
-            this->CtcPropagateLeftSide(segment_norm_in[2][i], segment_norm_out[2][i], theta[i] + tab_rotation[face], box);
+            this->CtcPropagateRightSide(segment_norm_in[0][i], segment_norm_out[0][i], theta[i] + tab_rotation[face] + u, box);
+            this->CtcPropagateFront(segment_norm_in[1][i], segment_norm_out[1][i], theta[i] + tab_rotation[face] + u, box);
+            this->CtcPropagateLeftSide(segment_norm_in[2][i], segment_norm_out[2][i], theta[i] + tab_rotation[face] + u, box);
         }
     }
     else{
@@ -422,9 +425,9 @@ ibex::IntervalVector Utils::segment2IntervalVector(const ibex::Interval &seg, co
 void Utils::CtcPaveConsistency(Pave *p, bool backward, bool inner){
     if(backward){
         this->CtcPaveBackward(p, backward, inner);
-        //        Pave p2(p);
-        //        this->CtcPaveForward(&p2, backward, inner);
-        //        *p &= p2;
+        Pave p2(p);
+        this->CtcPaveForward(&p2, backward, inner);
+        *p &= p2;
     }
     else{
         this->CtcPaveForward(p, backward, inner);

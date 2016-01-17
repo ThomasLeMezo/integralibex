@@ -166,8 +166,8 @@ void test_CtcPaveConsistency(){
     box[0] = Interval(0, 1);
     box[1] = Interval(0, 1);
 
-    Interval command = -Interval::ZERO | Interval::PI/8;
-//    Interval command = -Interval::HALF_PI| Interval::PI;
+//    Interval command = Interval::ZERO;
+    Interval command = -Interval::HALF_PI| Interval::PI;
     Pave p(box, NULL, command);
 
     p.set_theta(Interval::HALF_PI | 2*Interval::PI/3);

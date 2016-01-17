@@ -11,7 +11,7 @@ class Scheduler
 {
 /***************** Functions ******************/
 public:
-    Scheduler(const ibex::IntervalVector &box, ibex::Function *f, ibex::Interval u=ibex::Interval::EMPTY_SET);
+    Scheduler(const ibex::IntervalVector &box, ibex::Function *f, ibex::Interval u=ibex::Interval::ZERO);
     ~Scheduler();
 
     void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner);
