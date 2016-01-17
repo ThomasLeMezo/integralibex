@@ -142,9 +142,9 @@ void Pave::draw_position(){
     vibes::drawCircle(m_position[0].mid(), m_position[1].mid(), size, "b[b]");
 }
 
-void Pave::draw(bool filled, string color, bool inner, bool cmd_u){
+void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
     // Draw the pave
-    if(inner){
+    if(borders_only){
         draw_borders(filled, "g[g]");
     }
     else{
@@ -154,7 +154,7 @@ void Pave::draw(bool filled, string color, bool inner, bool cmd_u){
 
         double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
 
-        if(cmd_u && m_u!=Interval::EMPTY_SET){
+        if(cmd_u){
             Interval theta_lb_u = (m_theta[0] | m_theta[1]).lb() + m_u;
             Interval theta_ub_u = (m_theta[0] | m_theta[1]).ub() + m_u;
 

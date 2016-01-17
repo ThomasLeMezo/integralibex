@@ -206,7 +206,7 @@ Pave& Graph::operator[](int id){
     return *(m_node_list[id]);
 }
 
-void Graph::draw(int size, bool filled, string comment){
+void Graph::draw(int size, bool filled, string comment, bool inner_details){
 
     stringstream ss;
     ss << "integralIbex" << m_graph_id<< "-" << m_drawing_cpt << " " << comment;
@@ -218,7 +218,10 @@ void Graph::draw(int size, bool filled, string comment){
     }
 
     for(auto &node:m_node_list){
-        node->draw(filled);
+        if(inner_details)
+            node->draw(filled, "black[]", false, true);
+        else
+            node->draw(filled);
     }
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     m_drawing_cpt++;
