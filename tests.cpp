@@ -128,7 +128,7 @@ void test_CtcPropagateSegment(){
     cout << "seg_in = " << seg_in << endl;
     cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
 
-    u.CtcPropagateSegment(seg_in, seg_out, face, theta, box);
+    u.CtcPropagateSegment(seg_in, seg_out, face, theta, box, Interval::EMPTY_SET);
 
     cout << "----------" << endl;
     cout << "seg_in = " << seg_in << endl;
@@ -166,7 +166,7 @@ void test_CtcPaveConsistency(){
     box[0] = Interval(0, 1);
     box[1] = Interval(0, 1);
 
-    Interval command = -Interval::PI/8 | Interval::PI/8;
+    Interval command = -Interval::ZERO | Interval::PI/8;
 //    Interval command = -Interval::HALF_PI| Interval::PI;
     Pave p(box, NULL, command);
 

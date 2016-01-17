@@ -95,8 +95,6 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
             m_graph_list[nb_graph]->process(process_iterations_max, true, false);
 
-
-
             if(inner && iterations == iterations_max -1){
                 if(m_graph_inner_list.size()==m_graph_list.size()){
                     delete(m_graph_inner_list[nb_graph]);
