@@ -98,27 +98,28 @@ void Utils::CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, c
 
     Interval X = Interval(0.0, dx);
 
-    Interval theta_lb, theta_ub;
+    Interval theta2;
     if(theta_list[1].is_empty()){
-        theta_lb = Interval(theta_list[0].ub()) + u;
-        theta_ub = Interval(theta_list[0].lb()) + u;
+        theta2 = (Interval(theta_list[0].lb()) + u) & (Interval(theta_list[0].ub()) + u);
     }
     else{
-        cout << "CASE" << endl;
-        theta_lb = Interval(theta_list[1].lb()) + u; // ToDo : to check
-        theta_ub = Interval(theta_list[0].ub()) + u;
+        Interval theta2_0, theta2_1;
+        theta2_0 = (Interval(theta_list[0].lb()) + u) & (Interval(theta_list[0].ub()) + u);
+        theta2_1 = (Interval(theta_list[1].lb()) + u) & (Interval(theta_list[1].ub()) + u);
+
+        theta2 = (theta2_0 + Interval::PI) & theta2_1; // theta[0] in [-pi, 0] and theta[1] in [0, pi]
     }
 
 
     Interval Dx_lb = Interval(-dx, dx);
     Interval Dy_lb = Interval(dy);
     Interval rho_lb = Interval::POS_REALS;
-    contract_polar.contract(Dx_lb, Dy_lb, rho_lb, theta_lb);
+    contract_polar.contract(Dx_lb, Dy_lb, rho_lb, theta2);
 
     Interval Dx_ub = Interval(-dx, dx);
     Interval Dy_ub = Interval(dy);
     Interval rho_ub = Interval::POS_REALS;
-    contract_polar.contract(Dx_ub, Dy_ub, rho_ub, theta_ub);
+    contract_polar.contract(Dx_ub, Dy_ub, rho_ub, theta2);
 
     if(!backward)
         x_front &= ((Interval(x.lb()) + Dx_lb) & (Interval(x.ub()) + Dx_ub)) & X;
@@ -133,27 +134,27 @@ void Utils::CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, c
 void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, const ibex::Interval &u, bool final, bool backward){
     std::vector<ibex::Interval> theta_frame = {Interval::PI - theta_list[0], Interval::PI - theta_list[1]};
 
-    Interval theta2_lb, theta2_ub;
+    Interval theta2;
     if(theta_frame[1].is_empty()){
-        theta2_lb = Interval(theta_frame[0].lb()) + u;
-        theta2_ub = Interval(theta_frame[0].ub()) + u;
+        theta2 = (Interval(theta_frame[0].lb()) + u) & (Interval(theta_frame[0].ub()) + u);
     }
     else{
-        cout << "CASE" << endl;
-        cout << theta_frame[0] << theta_frame[1] << endl;
-        theta2_lb = Interval(theta_frame[0].ub()) + u; // ToDo : to check
-        theta2_ub = Interval(theta_frame[1].lb()) + u;
+        Interval theta2_0, theta2_1;
+        theta2_0 = (Interval(theta_frame[0].lb()) + u) & (Interval(theta_frame[0].ub()) + u);
+        theta2_1 = (Interval(theta_frame[1].lb()) + u) & (Interval(theta_frame[1].ub()) + u);
+
+        theta2 = (theta2_0 + Interval::PI) & theta2_1; // theta[0] in [-pi, 0] and theta[1] in [0, pi]
     }
 
     Interval x_lb = Interval(x.lb()) & Interval(0.0, dx);
     Interval y_lb = y & Interval(0.0, dy);
     Interval rho_lb = Interval::POS_REALS;
-    CtcPolarCorrection(x_lb, y_lb, rho_lb, theta2_lb);
+    CtcPolarCorrection(x_lb, y_lb, rho_lb, theta2);
 
     Interval x_ub = Interval(x.ub()) & Interval(0.0, dx);
     Interval y_ub = y & Interval(0.0, dy);
     Interval rho_ub = Interval::POS_REALS;
-    CtcPolarCorrection(x_ub, y_ub, rho_ub, theta2_ub);
+    CtcPolarCorrection(x_ub, y_ub, rho_ub, theta2);
 
     Interval y_cpy(y);
     y &= (y_lb & y_ub);
@@ -161,7 +162,7 @@ void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, cons
     if(!final){
         Interval x_bwd = Interval(dy) - y_cpy;
         Interval y_bwd = x;
-        vector<Interval> theta_bwd = {Interval::PI + theta_frame[0], Interval::PI + theta_frame[1]};
+        vector<Interval> theta_bwd = {- theta_frame[0], - theta_frame[1]};
         Interval u_bwd = -u;
         this->CtcPropagateRightSideInner(x_bwd, y_bwd, theta_bwd, dy, dx, u_bwd, true, false);
         x = y_bwd;

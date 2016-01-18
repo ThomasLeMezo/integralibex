@@ -155,25 +155,22 @@ void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
         double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
 
         if(cmd_u){
-            Interval theta_lb_u = (m_theta[0] | m_theta[1]).lb() + m_u;
-            Interval theta_ub_u = (m_theta[0] | m_theta[1]).ub() + m_u;
-
-            Interval theta_lb_u_bwd = Interval::PI+(m_theta[0] | m_theta[1]).lb() + m_u;
-            Interval theta_ub_u_bwd = Interval::PI+(m_theta[0] | m_theta[1]).ub() + m_u;
+            Interval theta_u = ((m_theta[0] | m_theta[1]).lb() + m_u) & ((m_theta[0] | m_theta[1]).ub() + m_u);
+            Interval theta_u_bwd = (-Interval((m_theta[0] | m_theta[1]).lb()) - m_u) & (-Interval((m_theta[0] | m_theta[1]).ub()) - m_u);
 
             for(int face =0; face<4; face++){
                 if(!get_border(face)->get_segment_in().is_empty()){
 
                     IntervalVector segment_in = get_border(face)->get_segment_in_2D();
 
-                    vibes::drawSector(segment_in[0].lb(), segment_in[1].lb(), size*0.5, size*0.5, (-theta_ub_u.lb())*180.0/M_PI, (-theta_ub_u.ub())*180.0/M_PI, "r[]");
-                    vibes::drawSector(segment_in[0].ub(), segment_in[1].ub(), size*0.5, size*0.5, (-theta_lb_u.lb())*180.0/M_PI, (-theta_lb_u.ub())*180.0/M_PI, "r[]");
+                    vibes::drawSector(segment_in[0].lb(), segment_in[1].lb(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
+                    vibes::drawSector(segment_in[0].ub(), segment_in[1].ub(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
                 }
                 if(!get_border(face)->get_segment_out().is_empty()){
                     IntervalVector segment_out = get_border(face)->get_segment_out_2D();
 
-                    vibes::drawSector(segment_out[0].lb(), segment_out[1].lb(), size*0.3, size*0.3, (-theta_ub_u_bwd.lb())*180.0/M_PI, (-theta_ub_u_bwd.ub())*180.0/M_PI, "b[]");
-                    vibes::drawSector(segment_out[0].ub(), segment_out[1].ub(), size*0.3, size*0.3, (-theta_lb_u_bwd.lb())*180.0/M_PI, (-theta_lb_u_bwd.ub())*180.0/M_PI, "b[]");
+                    vibes::drawSector(segment_out[0].lb(), segment_out[1].lb(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
+                    vibes::drawSector(segment_out[0].ub(), segment_out[1].ub(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
                 }
             }
 
