@@ -20,13 +20,13 @@ void Scheduler::set_symetry(Function *f, int face){
     m_graph_list[0]->set_symetry(f, face);
 }
 
-void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe){
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe, bool inner){
     vector<IntervalVector> initial_boxes;
     initial_boxes.push_back(initial_boxe);
-    cameleon_propagation(iterations_max, process_iterations_max, initial_boxes);
+    cameleon_propagation(iterations_max, process_iterations_max, initial_boxes, inner);
 }
 
-void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, vector<IntervalVector> &initial_boxes){
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, vector<IntervalVector> &initial_boxes, bool inner){
     if(m_graph_list.size()!=1 && m_graph_list[0]->size() !=1)
         return;
     int iterations = 0;
@@ -46,7 +46,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-
+        m_graph_list[0]->remove_empty_node();
         m_graph_list[0]->sivia(0.0, 2*m_graph_list[0]->size(), false, true);
 
         m_graph_list[0]->set_empty();
@@ -58,7 +58,19 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         m_graph_list[0]->process(process_iterations_max, false, false);
 
         // Remove empty pave & Test if the graph is empty
-        m_graph_list[nb_graph]->remove_empty_node();
+
+        if(inner && iterations == iterations_max -1){
+            if(m_graph_inner_list.size()==1){
+                delete(m_graph_inner_list[0]);
+                m_graph_inner_list.clear();
+            }
+            Graph *graph_inner = new Graph(m_graph_list[0]);
+            graph_inner->set_empty();
+            for(auto &initial_box:initial_boxes)
+                graph_inner->set_active_pave(initial_box);
+            graph_inner->process(process_iterations_max, false, true);
+            m_graph_inner_list.push_back(graph_inner);
+        }
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;

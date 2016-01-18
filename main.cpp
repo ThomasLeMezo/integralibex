@@ -63,7 +63,7 @@ int main()
 {
 //    ball();
 
-#if 0
+#if 1
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
@@ -73,38 +73,23 @@ int main()
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
 
-    Scheduler s(box, &f);
+    Interval u = -Interval::HALF_PI/2 | Interval::HALF_PI/2;
+    Scheduler s(box, &f, u);
 
     vector<IntervalVector> activated_paves;
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(10.0);
-    activated_pave[1] = Interval(4.0);
+    activated_pave[0] = Interval(-2.2);
+    activated_pave[1] = Interval(0.0);
     activated_paves.push_back(activated_pave);
 
-    activated_pave[0] = Interval(0.4);
-    activated_pave[1] = Interval(0.4);
-    activated_paves.push_back(activated_pave);
-
-    activated_pave[0] = Interval(-0.4);
-    activated_pave[1] = Interval(0.4);
-    activated_paves.push_back(activated_pave);
-
-    activated_pave[0] = Interval(0.4);
-    activated_pave[1] = Interval(-0.4);
-    activated_paves.push_back(activated_pave);
-
-    activated_pave[0] = Interval(-0.4);
-    activated_pave[1] = Interval(-0.4);
-    activated_paves.push_back(activated_pave);
-
-    s.cameleon_propagation(15, 1000000, activated_paves);
+    s.cameleon_propagation(15, 1000000, activated_paves, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
 
 #endif
 
-#if 1
+#if 0
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
