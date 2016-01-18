@@ -107,7 +107,7 @@ void Utils::CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, c
         theta2_0 = (Interval(theta_list[0].lb()) + u) & (Interval(theta_list[0].ub()) + u);
         theta2_1 = (Interval(theta_list[1].lb()) + u) & (Interval(theta_list[1].ub()) + u);
 
-        theta2 = (theta2_0 + Interval::PI) & theta2_1; // theta[0] in [-pi, 0] and theta[1] in [0, pi]
+        theta2 = theta2_0 & (theta2_1 + Interval::PI); // theta[0] in [0, pi] and theta[1] in [-pi, 0]
     }
 
 
@@ -143,7 +143,7 @@ void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, cons
         theta2_0 = (Interval(theta_frame[0].lb()) + u) & (Interval(theta_frame[0].ub()) + u);
         theta2_1 = (Interval(theta_frame[1].lb()) + u) & (Interval(theta_frame[1].ub()) + u);
 
-        theta2 = (theta2_0 + Interval::PI) & theta2_1; // theta[0] in [-pi, 0] and theta[1] in [0, pi]
+        theta2 = theta2_0 & (theta2_1 + Interval::PI); // theta[0] in [0, pi] and theta[1] in [-pi, 0]
     }
 
     Interval x_lb = Interval(x.lb()) & Interval(0.0, dx);
@@ -162,8 +162,8 @@ void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, cons
     if(!final){
         Interval x_bwd = Interval(dy) - y_cpy;
         Interval y_bwd = x;
-        vector<Interval> theta_bwd = {- theta_frame[0], - theta_frame[1]};
-        Interval u_bwd = -u;
+        vector<Interval> theta_bwd = {Interval::PI+theta_frame[0], Interval::PI+theta_frame[1]};
+        Interval u_bwd = Interval::PI + u;
         this->CtcPropagateRightSideInner(x_bwd, y_bwd, theta_bwd, dy, dx, u_bwd, true, false);
         x = y_bwd;
     }
@@ -429,6 +429,11 @@ void Utils::CtcPaveConsistency(Pave *p, bool backward, bool inner){
         Pave p2(p);
         this->CtcPaveForward(&p2, backward, inner);
         *p &= p2;
+        if(inner){
+            Pave p3(p);
+            this->CtcPaveBackward(&p3, backward, inner);
+            *p &= p3;
+        }
     }
     else{
         this->CtcPaveForward(p, backward, inner);

@@ -167,21 +167,22 @@ void test_CtcPaveConsistency(){
     box[1] = Interval(0, 1);
 
 //    Interval command = Interval::ZERO;
-//    Interval command = -Interval::HALF_PI| Interval::PI;
-    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
+    Interval command = -Interval::HALF_PI| Interval::PI;
+//    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
+//    Interval command = -Interval::PI/4 | Interval::PI/4;
 
     Pave p(box, NULL, command);
 
-    p.set_theta(49*Interval::PI/100.0 | 51*Interval::PI/100);
-//    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+3*Interval::PI/3);
+//    p.set_theta(Interval::HALF_PI + Interval::PI/4);
+    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+2*Interval::PI/3);
 
 //    p.get_border(0)->set_full_segment_in();
-    p.get_border(1)->set_segment_in(Interval(0.1, 0.9), false);
+    p.get_border(1)->set_segment_in(Interval(0.1, 1.0), false);
 //    p.get_border(2)->set_full_segment_in();
 //    p.get_border(3)->set_full_segment_in();
 
-    p.get_border(2)->set_segment_out(Interval(0.1, 0.9), false);
-//    p.get_border(1)->set_segment_out(Interval(0.5, 0.9), false);
+    p.get_border(2)->set_segment_out(Interval(0.1, 1.0), false);
+    p.get_border(3)->set_full_segment_out();
 
     test_draw(&p, "test_before");
     u.CtcPaveConsistency(&p, true, true);

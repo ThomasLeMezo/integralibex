@@ -92,21 +92,22 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
 
-            m_graph_list[nb_graph]->process(process_iterations_max, true, false);
+
 
             if(inner && iterations == iterations_max -1){
+                cout << "COMPUTE INNER" << endl;
                 if(m_graph_inner_list.size()==m_graph_list.size()){
                     delete(m_graph_inner_list[nb_graph]);
                     m_graph_inner_list.erase(m_graph_inner_list.begin() + nb_graph);
                 }
                 Graph* graph_inner;
                 graph_inner = new Graph(m_graph_list[nb_graph]);
-                graph_inner->add_all_to_queue();
-                graph_inner->draw(512, false, "before", true);
-                cout << "graph_inner process = " << graph_inner->process(process_iterations_max, true, true) << endl;
+//                graph_inner->add_all_to_queue();
+                graph_inner->process(process_iterations_max, true, true);
                 m_graph_inner_list.insert(m_graph_inner_list.begin()+nb_graph, graph_inner);
-                graph_inner->draw(512, false, "after", true);
             }
+
+            m_graph_list[nb_graph]->process(process_iterations_max, true, false);
 
             // Remove empty pave
             m_graph_list[nb_graph]->remove_empty_node();

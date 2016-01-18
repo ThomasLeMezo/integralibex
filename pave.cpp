@@ -156,7 +156,7 @@ void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
 
         if(cmd_u){
             Interval theta_u = ((m_theta[0] | m_theta[1]).lb() + m_u) & ((m_theta[0] | m_theta[1]).ub() + m_u);
-            Interval theta_u_bwd = (-Interval((m_theta[0] | m_theta[1]).lb()) - m_u) & (-Interval((m_theta[0] | m_theta[1]).ub()) - m_u);
+            Interval theta_u_bwd = Interval::PI + ((Interval((m_theta[0] | m_theta[1]).lb()) + m_u) & (Interval((m_theta[0] | m_theta[1]).ub()) + m_u));
 
             for(int face =0; face<4; face++){
                 if(!get_border(face)->get_segment_in().is_empty()){

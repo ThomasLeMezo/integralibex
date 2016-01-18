@@ -102,7 +102,7 @@ int main()
 
 #endif
 
-#if 0
+#if 1
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
@@ -117,11 +117,11 @@ int main()
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
 
-//    Interval u = -Interval::PI/8 | Interval::PI/8;
-    Interval u = Interval::ZERO;
+    Interval u = -Interval::PI/3 | Interval::PI/3;
+//    Interval u = Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(15, 5, 1000000, false, false);
+    s.cameleon_cycle(15, 5, 1000000, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -130,7 +130,7 @@ int main()
 
 #endif
 
-#if 1
+#if 0
    test();
 #endif
     return 0;

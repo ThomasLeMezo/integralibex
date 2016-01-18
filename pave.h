@@ -10,7 +10,7 @@ class Pave
 
     /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &position, ibex::Function *f, ibex::Interval u=ibex::Interval::EMPTY_SET);
+    Pave(const ibex::IntervalVector &position, ibex::Function *f, ibex::Interval u=ibex::Interval::ZERO);
     Pave(const Pave *p);
     ~Pave();
 
