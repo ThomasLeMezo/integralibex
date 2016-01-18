@@ -26,5 +26,7 @@ void test_diff();
 void test_copy_graph();
 void test_contractor_polar();
 
+void sandbox();
+
 #endif // TESTS_H
 

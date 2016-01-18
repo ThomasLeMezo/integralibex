@@ -116,8 +116,15 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
+//        if(inner){
+//            cout << "----------------------" << endl;
+//            this->draw(512, false, "inner - before", true);
+//            pave->draw_position();
+//            pave->print();
+//        }
+
         bool change = m_utils->CtcContinuity(pave, backward);
-        if(change){
+        if(change || pave->get_first_process()){
             m_utils->CtcPaveConsistency(pave, backward, inner);
 
             // Warn scheduler to process new pave
@@ -130,7 +137,20 @@ int Graph::process(int max_iterations, bool backward, bool inner){
                     }
                 }
             }
+
+            pave->set_first_process_false();
         }
+
+//        if(inner){
+//            this->draw(512, false, "inner - after", true);
+//            pave->draw_position();
+//            cout << "********"<< endl;
+//            cout << "change = " << change << endl;
+//            pave->print();
+//            if(iterations%100==0){
+//                cout << iterations << endl;
+//            }
+//        }
     }
 
     m_node_queue.clear();
@@ -357,4 +377,10 @@ void Graph::set_empty(){
 void Graph::set_symetry(Function* f, int face){
     Inclusion i(m_node_list[0]->get_border(face), f, face);
     m_node_list[0]->get_border(face)->add_inclusion(i);
+}
+
+void Graph::set_all_first_process(){
+    for(auto& node:m_node_list){
+        node->set_first_process_true();
+    }
 }

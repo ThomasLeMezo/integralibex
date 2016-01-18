@@ -41,6 +41,8 @@ public:
     void                        set_theta(ibex::Interval theta);
     void                        set_in_queue(bool flag);
     void                        set_copy_node(Pave *p);
+    void                        set_first_process_true();
+    void                        set_first_process_false();
 
     void                        reset_full_empty();
 
@@ -59,6 +61,8 @@ public:
     Pave*                               get_copy_node();
     ibex::Function*                     get_f() const;
 
+    bool                                get_first_process() const;
+
     Border& operator[](int face);
 
     /***************** Variables ******************/
@@ -76,6 +80,8 @@ private:
     bool                        m_full;
 
     bool                        m_in_queue;
+
+    bool                        m_first_process;
 };
 
 #endif // PAVE_H

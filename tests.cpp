@@ -2,6 +2,7 @@
 
 #include <scheduler.h>
 #include <vibes.h>
+#include "iomanip"
 
 using namespace ibex;
 using namespace std;
@@ -163,30 +164,38 @@ void test_CtcPaveForward(){
 void test_CtcPaveConsistency(){
     Utils u;
     IntervalVector box(2);
-    box[0] = Interval(0, 1);
-    box[1] = Interval(0, 1);
+    box[0] = Interval(5,10);
+    box[1] = Interval(0,10);
 
-//    Interval command = Interval::ZERO;
-    Interval command = -Interval::HALF_PI| Interval::PI;
+    Interval command = Interval::ZERO;
+//    Interval command = -Interval::HALF_PI| Interval::PI;
 //    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
 //    Interval command = -Interval::PI/4 | Interval::PI/4;
+//    Interval command = Interval(-1.0472, 1.0472);
 
-    Pave p(box, NULL, command);
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    Pave p(box, &f, command);
 
 //    p.set_theta(Interval::HALF_PI + Interval::PI/4);
-    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+2*Interval::PI/3);
+//    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+2*Interval::PI/3);
+//    p.set_theta(Interval(1.5708,2.67795));
 
 //    p.get_border(0)->set_full_segment_in();
-    p.get_border(1)->set_segment_in(Interval(0.1, 1.0), false);
+//    p.get_border(1)->set_segment_in(Interval(0.1, 1.0), false);
 //    p.get_border(2)->set_full_segment_in();
-//    p.get_border(3)->set_full_segment_in();
+    p.get_border(3)->set_full_segment_in();
+//    p.get_border(1)->set_segment_in(Interval(-10,0.0), false);
 
-    p.get_border(2)->set_segment_out(Interval(0.1, 1.0), false);
-    p.get_border(3)->set_full_segment_out();
+//    p.get_border(2)->set_segment_out(Interval(0.1, 1.0), false);
+    p.get_border(0)->set_full_segment_out();
+//    p.get_border(2)->set_segment_out(Interval(-10,-5), false);
 
     test_draw(&p, "test_before");
-    u.CtcPaveConsistency(&p, true, true);
+    u.CtcPaveConsistency(&p, true, false);
     test_draw(&p, "test_after");
+    cout << setprecision(80) << endl;
+    p.print();
 }
 
 void test_contractor_polar(){
@@ -287,4 +296,22 @@ void test_copy_graph(){
     g.print();
     g2.print();
     g3.print();
+}
+
+void sandbox(){
+    IntervalVector box(2);
+    box[0] = Interval(5,10);
+    box[1] = Interval(0,10);
+
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+
+    IntervalVector dposition = f.eval_vector(box);
+
+    Interval dx = dposition[0];
+    Interval dy = dposition[1];
+
+    Interval theta = atan2(dy, dx);
+    cout << setprecision(80) << theta << endl;
+    cout << Interval::HALF_PI << endl;
 }

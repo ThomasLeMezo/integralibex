@@ -3,6 +3,7 @@
 #include "border.h"
 
 #include "iostream"
+#include "iomanip"
 
 using namespace std;
 using namespace ibex;
@@ -16,6 +17,8 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u):
 
     m_in_queue = false;
     m_copy_node = NULL;
+
+    m_first_process = false;
 
     // Border building
     IntervalVector coordinate(2);
@@ -39,8 +42,14 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u):
         if(theta==(-Interval::PI|Interval::PI)){
             Interval thetaR = atan2(-dy, -dx); // PI rotation ({dx, dy} -> {-dx, -dy})
             if(thetaR.diam()<theta.diam()){
-                m_theta[0] = (thetaR+Interval::PI) & (-Interval::PI | Interval::PI); // theta in [-pi, 0]
-                m_theta[1] = (thetaR-Interval::PI) & (-Interval::PI | Interval::PI); // theta in [0, pi]
+                if(thetaR.is_subset(-Interval::PI | Interval::PI)){
+                    m_theta[0] = (thetaR + Interval::PI) & (Interval::ZERO | Interval::PI); // theta[0] in [0, pi]
+                    m_theta[1] = ((thetaR + Interval::PI) & (Interval::PI | Interval::TWO_PI)) - Interval::TWO_PI; // theta[1] in [-pi, 0]
+                }
+                else{
+                    cout << "****************** ERROR ******************" << endl;
+                }
+
             }
             else{
                 m_theta[0] = theta;
@@ -60,6 +69,7 @@ Pave::Pave(const Pave *p): m_position(2)
     m_empty = false;
     m_in_queue = false;
     m_u = p->get_u();
+    m_first_process = false;
 
     for(int i=0; i<2; i++){
         m_theta.push_back(p->get_theta(i));
@@ -206,6 +216,24 @@ void Pave::draw_borders(bool filled, string color_polygon){
 void Pave::bisect(vector<Pave*> &result){
     // Create 4 new paves
     ibex::LargestFirst bisector(0.0, 0.5);
+
+    // Compute position
+//    IntervalVector new_position = m_position;
+//    new_position[0] = Interval::EMPTY_SET;
+//    new_position[1] = Interval::EMPTY_SET;
+
+//    for(int face = 0; face < 4; face++){
+//        Interval segment_in = this->get_border(face)->get_segment_in();
+//        Interval segment_out = this->get_border(face)->get_segment_out();
+//        new_position[face%2] |= (segment_in | segment_out) & m_position[face%2];
+//    }
+
+//    if(new_position[0].is_degenerated() || new_position[1].is_degenerated() ||
+//            new_position[0].diam() > 0.9*m_position[0].diam() || new_position[1].diam() > 0.9*m_position[1].diam()){
+//        new_position = m_position;
+//    }
+//    new_position = m_position;
+
     std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
 
     Pave *pave1 = new Pave(result_boxes.first, m_f, m_u); // Left or Up
@@ -398,13 +426,19 @@ void Pave::print(){
     cout << "********" << endl;
     cout << "PAVE x=" << m_position[0] << " y= " << m_position[1] << endl;
     cout << this << endl;
+    cout << "theta[0]=" << m_theta[0] << " u=" << m_u << endl;
     for(int face = 0; face < 4; face++){
         if(m_borders[face].get_inclusions().size()==0){
-            cout << "border=" << face << " " << &(m_borders[face]) << endl;
+            cout << "border=" << face << " " << &(m_borders[face])
+                 << " segment_in=" << m_borders[face].get_segment_in()
+                 << " segment_out=" << m_borders[face].get_segment_out()
+                 << endl;
         }
         else{
             for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
                 cout << "border=" << face << " " << &(m_borders[face])
+                     << " segment_in=" << m_borders[face].get_segment_in()
+                     << " segment_out=" << m_borders[face].get_segment_out()
                      << " inclusion=" << i
                      << " *border=" << m_borders[face].get_inclusion(i).get_border()
                      << " segment_full=" << m_borders[face].get_inclusion(i).get_border()->get_segment_full()
@@ -412,4 +446,16 @@ void Pave::print(){
             }
         }
     }
+}
+
+bool Pave::get_first_process() const{
+    return m_first_process;
+}
+
+void Pave::set_first_process_true(){
+    m_first_process = true;
+}
+
+void Pave::set_first_process_false(){
+    m_first_process = false;
 }

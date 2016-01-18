@@ -29,6 +29,8 @@ void test(){
 
 //    test_diff();
 //    test_copy_graph();
+
+//    sandbox();
 }
 
 void ball(){
@@ -117,11 +119,11 @@ int main()
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
 
-    Interval u = -Interval::PI/3 | Interval::PI/3;
+    Interval u = -2*Interval::PI/3 | 2*Interval::PI/3;
 //    Interval u = Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(15, 5, 1000000, false, true);
+    s.cameleon_cycle(5, 5, 1e9, true, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

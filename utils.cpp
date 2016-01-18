@@ -104,10 +104,11 @@ void Utils::CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, c
     }
     else{
         Interval theta2_0, theta2_1;
+        // theta[0] in [0, pi]
+        // theta[1] in [-pi, 0]
         theta2_0 = (Interval(theta_list[0].lb()) + u) & (Interval(theta_list[0].ub()) + u);
-        theta2_1 = (Interval(theta_list[1].lb()) + u) & (Interval(theta_list[1].ub()) + u);
-
-        theta2 = theta2_0 & (theta2_1 + Interval::PI); // theta[0] in [0, pi] and theta[1] in [-pi, 0]
+        theta2_1 = (Interval((theta_list[1]+Interval::TWO_PI).lb()) + u) & (Interval((theta_list[1]+Interval::TWO_PI).ub()) + u);
+        theta2 = theta2_0 & theta2_1;
     }
 
 
@@ -140,10 +141,11 @@ void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, cons
     }
     else{
         Interval theta2_0, theta2_1;
+        // theta[0] in [0, pi]
+        // theta[1] in [-pi, 0]
         theta2_0 = (Interval(theta_frame[0].lb()) + u) & (Interval(theta_frame[0].ub()) + u);
-        theta2_1 = (Interval(theta_frame[1].lb()) + u) & (Interval(theta_frame[1].ub()) + u);
-
-        theta2 = theta2_0 & (theta2_1 + Interval::PI); // theta[0] in [0, pi] and theta[1] in [-pi, 0]
+        theta2_1 = (Interval((theta_frame[1]+Interval::TWO_PI).lb()) + u) & (Interval((theta_frame[1]+Interval::TWO_PI).ub()) + u);
+        theta2 = theta2_0 & theta2_1;
     }
 
     Interval x_lb = Interval(x.lb()) & Interval(0.0, dx);
