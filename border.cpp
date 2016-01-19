@@ -90,6 +90,8 @@ void Border::add_inclusions(const std::vector<Inclusion>& inclusion_list){
 
 void Border::add_inclusion(const Inclusion& inclusion){
     // ToDo : error with inclusion.get_position() if returning a reference !!
+    if(inclusion.is_empty()) // Test if the border exist
+        break;
     IntervalVector test = m_position & inclusion.get_position();
     if(!(test.is_empty()) && (test[0].is_degenerated() != test[1].is_degenerated())){
         m_inclusions.push_back(inclusion);

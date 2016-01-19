@@ -23,6 +23,8 @@ public:
     void                           set_function(ibex::Function *f);
     void                           set_border(Border* border);
 
+    bool                            is_empty();
+
 
 private:
     Border* m_border;

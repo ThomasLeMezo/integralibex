@@ -224,23 +224,6 @@ void Pave::bisect(vector<Pave*> &result){
     // Create 4 new paves
     ibex::LargestFirst bisector(0.0, 0.5);
 
-    // Compute position
-//    IntervalVector new_position = m_position;
-//    new_position[0] = Interval::EMPTY_SET;
-//    new_position[1] = Interval::EMPTY_SET;
-
-//    for(int face = 0; face < 4; face++){
-//        Interval segment_in = this->get_border(face)->get_segment_in();
-//        Interval segment_out = this->get_border(face)->get_segment_out();
-//        new_position[face%2] |= (segment_in | segment_out) & m_position[face%2];
-//    }
-
-//    if(new_position[0].is_degenerated() || new_position[1].is_degenerated() ||
-//            new_position[0].diam() > 0.9*m_position[0].diam() || new_position[1].diam() > 0.9*m_position[1].diam()){
-//        new_position = m_position;
-//    }
-//    new_position = m_position;
-
     std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
 
     Pave *pave1 = new Pave(result_boxes.first, m_f, m_u); // Left or Up
@@ -259,19 +242,19 @@ void Pave::bisect(vector<Pave*> &result){
         indice2 = 3;
     }
 
-    // Update brothers with pave1 & pave2
+    // Update pave brothers with pave1 & pave2
     for(int i=0; i<4; i++){
         m_borders[i].add_to_brothers_inclusion(pave1->get_border(i), pave2->get_border(i));
     }
 
     // Copy brothers Pave (this) to pave1 and pave2
-    for(int i=0; i<4; i++){
-        if(m_borders[i].get_inclusions().size()!=0){
-            if(i!=indice1){
-                pave1->get_border(i)->add_inclusions(m_borders[i].get_inclusions());
+    for(int face=0; face<4; face++){
+        if(m_borders[face].get_inclusions().size()!=0){
+            if(face!=indice1){
+                pave1->get_border(face)->add_inclusions(m_borders[face].get_inclusions());
             }
-            if(i!=indice2){
-                pave2->get_border(i)->add_inclusions(m_borders[i].get_inclusions());
+            if(face!=indice2){
+                pave2->get_border(face)->add_inclusions(m_borders[face].get_inclusions());
             }
         }
     }

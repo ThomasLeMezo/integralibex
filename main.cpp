@@ -103,7 +103,7 @@ void capture_attractor(){
     activated_pave[0] = Interval(2);
     activated_pave[1] = Interval(3.0);
 
-    s.cameleon_cycle(2, 5, 1e9, false, false);
+    s.cameleon_cycle(1, 5, 1e9, false, false);
 //    s.cameleon_propagation(15, 1e6, activated_pave, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;

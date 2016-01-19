@@ -92,3 +92,11 @@ bool Inclusion::get_shortcut() const{
     return m_shortcut;
 }
 
+bool Inclusion::is_empty(){
+    if(m_border == NULL){
+        return true;
+    }
+    else{
+        return false;
+    }
+}

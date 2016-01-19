@@ -94,6 +94,11 @@ void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_
             iterations++;
         }
         else{
+            Interval y = Interval(5, 10);
+            Interval x = Interval::ZERO | Interval::PI;
+            if(!(tmp->get_position()[1] & y).is_empty() && !(tmp->get_position()[0] & x).is_empty()){
+                cout << "TEST" << endl;
+            }
             tmp->bisect(tmp_pave_list);
             delete(tmp);
         }
