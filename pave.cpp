@@ -39,6 +39,7 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u):
         Interval dy = dposition[1];
 
         Interval theta = atan2(dy, dx);
+
         if(theta==(-Interval::PI|Interval::PI)){
             Interval thetaR = atan2(-dy, -dx); // PI rotation ({dx, dy} -> {-dx, -dy})
             if(thetaR.diam()<theta.diam()){
@@ -55,8 +56,14 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u):
                 m_theta[0] = theta;
             }
         }
+        else if(theta.is_empty()){
+            m_theta[0] = -Interval::PI|Interval::PI;
+        }
         else{
             m_theta[0] = theta;
+        }
+        if(m_theta[0].is_empty()){
+            cout << "ERROR - Pave "<< theta << dx << dy << m_position << endl;
         }
     }
 }
@@ -155,7 +162,7 @@ void Pave::draw_position(){
 void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
     // Draw the pave
     if(borders_only){
-        draw_borders(filled, "g[g]");
+        draw_borders(filled, "[#00FF00AA]");
     }
     else{
         vibes::drawBox(m_position, color);

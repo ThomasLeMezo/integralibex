@@ -139,20 +139,24 @@ void test_CtcPropagateSegment(){
 void test_CtcPaveForward(){
     Utils u;
     IntervalVector box(2);
-    box[0] = Interval(0, 1);
-    box[1] = Interval(0, 1);
+    box[0] = Interval(-2.03, -1.955);
+    box[1] = Interval(0.47, 0.545);
 
-    Interval command = -Interval::PI/8 | Interval::PI/8;
+//    Interval command = -Interval::PI/8 | Interval::PI/8;
+    Interval command = -Interval::PI/4 | Interval::PI/4;
 //    Interval command = -Interval::PI | Interval::PI;
-    Pave p(box, NULL, command);
+
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    Pave p(box, &f, command);
 
 //    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
-    p.set_theta((Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0) + Interval::PI/3);
+//    p.set_theta((Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0) + Interval::PI/3);
 //    p.set_theta(-Interval::HALF_PI | Interval::HALF_PI);
+    p.get_border(0)->set_full_segment_in();
+    p.get_border(3)->set_full_segment_in();
 
-    p.get_border(0)->set_segment_in(Interval(0.5, 0.9), false);
-//    p.m_borders[2].segment = Interval(0,1);
-//    p.m_borders[1].segment = Interval(0,1);
+//    p.get_border(0)->set_segment_in(Interval(0.5, 0.9), false);
 
     test_draw(&p, "test_before");
 
@@ -164,13 +168,13 @@ void test_CtcPaveForward(){
 void test_CtcPaveConsistency(){
     Utils u;
     IntervalVector box(2);
-    box[0] = Interval(5,10);
-    box[1] = Interval(0,10);
+    box[0] = Interval(0.7, 0.78);
+    box[1] = Interval(1.72, 1.8);
 
-    Interval command = Interval::ZERO;
+//    Interval command = Interval::ZERO;
 //    Interval command = -Interval::HALF_PI| Interval::PI;
 //    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
-//    Interval command = -Interval::PI/4 | Interval::PI/4;
+    Interval command = -Interval::PI/4 | Interval::PI/4;
 //    Interval command = Interval(-1.0472, 1.0472);
 
     Variable x, y;
@@ -181,14 +185,19 @@ void test_CtcPaveConsistency(){
 //    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+2*Interval::PI/3);
 //    p.set_theta(Interval(1.5708,2.67795));
 
-//    p.get_border(0)->set_full_segment_in();
-//    p.get_border(1)->set_segment_in(Interval(0.1, 1.0), false);
-//    p.get_border(2)->set_full_segment_in();
+    p.get_border(0)->set_full_segment_in();
+    p.get_border(1)->set_full_segment_in();
+    p.get_border(2)->set_full_segment_in();
     p.get_border(3)->set_full_segment_in();
+//    p.get_border(1)->set_segment_in(Interval(0.1, 1.0), false);
 //    p.get_border(1)->set_segment_in(Interval(-10,0.0), false);
 
-//    p.get_border(2)->set_segment_out(Interval(0.1, 1.0), false);
     p.get_border(0)->set_full_segment_out();
+    p.get_border(1)->set_full_segment_out();
+    p.get_border(2)->set_full_segment_out();
+    p.get_border(3)->set_full_segment_out();
+//    p.get_border(2)->set_segment_out(Interval(0.1, 1.0), false);
+
 //    p.get_border(2)->set_segment_out(Interval(-10,-5), false);
 
     test_draw(&p, "test_before");

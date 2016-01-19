@@ -25,7 +25,7 @@ public:
     // Setter
     void set_full();
     void set_active_pave(const ibex::IntervalVector &box);
-    void set_symetry(ibex::Function *f, int face);
+    void set_symetry(ibex::Function *f, int face_in, int face_out);
     void set_empty();
     void clear_node_queue();
     void add_all_to_queue();

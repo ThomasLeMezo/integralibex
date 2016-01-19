@@ -20,8 +20,8 @@ void test(){
 //    test_CtcPropagateFront();
 //    test_CtcPropagateSegment();
 
-//    test_CtcPaveForward();
-    test_CtcPaveConsistency();
+    test_CtcPaveForward();
+//    test_CtcPaveConsistency();
 
 //    test_contractor_polar();
 
@@ -31,6 +31,26 @@ void test(){
 //    test_copy_graph();
 
 //    sandbox();
+}
+
+void van_der_pol_cycle(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+
+    IntervalVector box(2);
+    box[0] = Interval(-10.0, 10.0);
+    box[1] = Interval(-10.0, 10.0);
+
+    Interval u = Interval::ZERO;
+    Scheduler s(box, &f, u);
+
+    s.cameleon_cycle(15, 5, 1e9, true, false);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    s.draw(1024, true);
 }
 
 void ball(){
@@ -51,7 +71,7 @@ void ball(){
     activated_pave[1] = Interval(-2.0);
 
     ibex::Function f_sym(x, y, Return(x, -y));
-    s.set_symetry(&f_sym,3);
+    s.set_symetry(&f_sym,3, 3);
 
     s.cameleon_propagation(15, 1000000, activated_pave);
 
@@ -59,11 +79,45 @@ void ball(){
     s.draw(1024, true);
 }
 
+void capture_attractor(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable phi, d;
+    ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
+                                    -cos(phi)));
+
+    IntervalVector box(2);
+    box[0] = -Interval::PI | Interval::PI;
+    box[1] = Interval(0, 10.0);
+
+    Interval u = Interval::ZERO;
+    Scheduler s(box, &f, u);
+
+    ibex::Function f_sym23(phi, d, Return(phi-Interval::TWO_PI, d));
+    s.set_symetry(&f_sym23,1, 3);
+
+    ibex::Function f_sym32(phi, d, Return(phi+Interval::TWO_PI, d));
+    s.set_symetry(&f_sym32,3, 1);
+
+    IntervalVector activated_pave(2);
+    activated_pave[0] = Interval(2);
+    activated_pave[1] = Interval(3.0);
+
+    s.cameleon_cycle(2, 5, 1e9, false, false);
+//    s.cameleon_propagation(15, 1e6, activated_pave, false);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    s.draw(1024, false);
+}
+
 int main()
 {
 //    ball();
+    capture_attractor();
+//    van_der_pol_cycle();
 
-#if 1
+#if 0
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
@@ -93,26 +147,22 @@ int main()
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-
-
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-//    ibex::Function f(x, y, Return(y,-sin(x)-y));
-//    ibex::Function f(x, y, Return(-y-10*x*x+5*x*y+y*y,x+x*x-25*x*y));
-//    ibex::Function f(x, y, Return(cos(2*M_PI*y/10),cos(2*M_PI*x/10)));
 
     IntervalVector box(2);
     box[0] = Interval(-10.0, 10.0);
     box[1] = Interval(-10.0, 10.0);
 
-    Interval u = -2*Interval::PI/3 | 2*Interval::PI/3;
-//    Interval u = Interval::ZERO;
+//    Interval u = -2*Interval::PI/3 | 2*Interval::PI/3;
+    Interval u = Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(5, 5, 1e9, true, true);
+    s.cameleon_cycle(10, 5, 1e9, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     s.draw(1024, true);
+
 //    s.print_pave_info(-5, 6, "r[]");
 
 #endif

@@ -18,9 +18,7 @@ public:
     void cameleon_propagation(int iterations_max, int process_iterations_max, vector<ibex::IntervalVector> &initial_boxes, bool inner=false);
     void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe, bool inner=false);
 
-    void graph_symetry(vector<Pave *> &pave_list, vector<Pave *> &pave_queue);
-
-    void set_symetry(ibex::Function *f, int face);
+    void set_symetry(ibex::Function *f, int face_in, int face_out);
 
     // ******** Drawing functions ********
     void draw(int size, bool filled);

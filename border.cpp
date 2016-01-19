@@ -46,8 +46,8 @@ void Border::draw() const{
     segment_in[(m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in);
     segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out);
 
-    vibes::drawBox(segment_in, "r[r]");
     vibes::drawBox(segment_out, "b[b]");
+    vibes::drawBox(segment_in, "r[r]");
 }
 
 void Border::get_points(std::vector<double> &x, std::vector<double> &y) const{
