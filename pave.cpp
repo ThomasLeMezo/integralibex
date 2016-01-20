@@ -243,8 +243,8 @@ void Pave::bisect(vector<Pave*> &result){
     }
 
     // Update pave brothers with pave1 & pave2
-    for(int i=0; i<4; i++){
-        m_borders[i].add_to_brothers_inclusion(pave1->get_border(i), pave2->get_border(i));
+    for(int face=0; face<4; face++){
+        m_borders[face].update_brothers_inclusion(pave1->get_border(face), pave2->get_border(face));
     }
 
     // Copy brothers Pave (this) to pave1 and pave2
@@ -260,8 +260,11 @@ void Pave::bisect(vector<Pave*> &result){
     }
 
     // Add each other to its brother list (pave1 <-> pave2)
-    pave1->get_border(indice1)->add_inclusion(Inclusion(pave2->get_border(indice2), indice2));
-    pave2->get_border(indice2)->add_inclusion(Inclusion(pave1->get_border(indice1), indice1));
+    Inclusion *inclusion_to_pave2 = new Inclusion(pave2->get_border(indice2), indice2, pave1->get_border(indice1));
+    Inclusion *inclusion_to_pave1 = new Inclusion(pave1->get_border(indice1), indice1, pave2->get_border(indice2));
+
+    pave1->get_border(indice1)->add_inclusion(inclusion_to_pave2);
+    pave2->get_border(indice2)->add_inclusion(inclusion_to_pave1);
 
     if(is_full()){
         pave1->set_full();
@@ -286,7 +289,7 @@ double Pave::get_theta_diam(){
 
 void Pave::remove_brothers(Pave* p, int face){
     for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
-        if(m_borders[face].get_inclusion(i).get_border()->get_pave() == p){
+        if(m_borders[face].get_inclusion(i)->get_border()->get_pave() == p){
             m_borders[face].remove_inclusion(i);
             return;
         }
@@ -296,7 +299,7 @@ void Pave::remove_brothers(Pave* p, int face){
 void Pave::remove_from_brothers(){
     for(int face=0; face<4; face++){
         for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
-            m_borders[face].get_inclusion(i).get_border()->get_pave()->remove_brothers(this, m_borders[face].get_inclusion(i).get_brother_face());
+            m_borders[face].get_inclusion(i)->get_border()->get_pave()->remove_brothers(this, m_borders[face].get_inclusion(i)->get_brother_face());
         }
     }
 }
@@ -336,7 +339,7 @@ bool Pave::is_full(){
 const std::vector<Pave *> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
     for(int i=0; i<m_borders[face].get_inclusions().size(); i++){
-        brothers_list.push_back(m_borders[face].get_inclusion(i).get_border()->get_pave());
+        brothers_list.push_back(m_borders[face].get_inclusion(i)->get_border()->get_pave());
     }
     return brothers_list;
 }
@@ -371,10 +374,8 @@ const std::vector<Border> &Pave::get_borders(){
 }
 
 Border* Pave::get_border(int face){
-    if(face >=0 && face < 4)
-        return &(m_borders[face]);
-    else
-        return NULL;
+    assert(face >=0 && face < 4);
+    return &(m_borders[face]);
 }
 
 Border& Pave::operator[](int face){
@@ -430,8 +431,8 @@ void Pave::print(){
                      << " segment_in=" << m_borders[face].get_segment_in()
                      << " segment_out=" << m_borders[face].get_segment_out()
                      << " inclusion=" << i
-                     << " *border=" << m_borders[face].get_inclusion(i).get_border()
-                     << " segment_full=" << m_borders[face].get_inclusion(i).get_border()->get_segment_full()
+                     << " *border=" << m_borders[face].get_inclusion(i)->get_border()
+                     << " segment_full=" << m_borders[face].get_inclusion(i)->get_border()->get_segment_full()
                      << endl;
             }
         }

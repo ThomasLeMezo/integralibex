@@ -3,6 +3,8 @@
 #include "ibex.h"
 #include "omp.h"
 
+#include "graphdot.h"
+
 using namespace std;
 using namespace ibex;
 
@@ -83,13 +85,17 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
     int iterations = 0;
     m_graph_list[0]->set_full();
+    GraphDot graphDot(m_graph_list[0]);
+    graphDot.write("test1.dot");
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(0.0,4,false, false); // Start with 4 boxes
+        m_graph_list[0]->sivia(0.0,2,false, false); // Start with 4 boxes
         //m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
     }
+
+    graphDot.write("test1.dot");
 
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
@@ -181,6 +187,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         }
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
+
+        graphDot.write("test1.dot");
     }
 }
 

@@ -30,7 +30,7 @@ Graph::Graph(Graph* g, int graph_id){
         for(int face = 0; face<4; face++){
             for(int j=0; j<pave_root->get_border(face)->get_inclusions().size(); j++){
                 pave_copy->get_border(face)->set_inclusion(
-                            pave_root->get_border(face)->get_inclusion(j).get_border()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j).get_brother_face()),
+                            pave_root->get_border(face)->get_inclusion(j)->get_border()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j)->get_brother_face()),
                             j);
             }
         }
@@ -94,11 +94,6 @@ void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_
             iterations++;
         }
         else{
-            Interval y = Interval(5, 10);
-            Interval x = Interval::ZERO | Interval::PI;
-            if(!(tmp->get_position()[1] & y).is_empty() && !(tmp->get_position()[0] & x).is_empty()){
-                cout << "TEST" << endl;
-            }
             tmp->bisect(tmp_pave_list);
             delete(tmp);
         }
@@ -276,7 +271,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
     for(int i=0; i<4; i++){
         if(p->get_border(i)->get_inclusions().size()!=0){
             for(int j = 0; j<p->get_border(i)->get_inclusions().size(); j++){
-                cout << "border=" << i << " (" << p->get_border(i) << ") brother=" << j << " " << p->get_border(i)->get_inclusion(j).get_border() << " pave(" << p->get_border(i)->get_inclusion(j).get_border()->get_pave() << ")" << endl;
+                cout << "border=" << i << " (" << p->get_border(i) << ") brother=" << j << " " << p->get_border(i)->get_inclusion(j)->get_border() << " pave(" << p->get_border(i)->get_inclusion(j)->get_border()->get_pave() << ")" << endl;
             }
         }
         else{
@@ -380,7 +375,7 @@ void Graph::set_empty(){
 }
 
 void Graph::set_symetry(Function* f, int face_in, int face_out){
-    Inclusion i(m_node_list[0]->get_border(face_in), f, face_in);
+    Inclusion *i = new Inclusion(m_node_list[0]->get_border(face_in), f, face_in, m_node_list[0]->get_border(face_out));
     m_node_list[0]->get_border(face_out)->add_inclusion(i);
 }
 

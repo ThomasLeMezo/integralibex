@@ -13,14 +13,15 @@ class Border
 public:
     Border(const ibex::IntervalVector& position, const int face, Pave *pave);
     Border(Border *border);
-    ~Border(){}
+    ~Border();
 
     // ******** Drawing functions ********
     void draw() const;
 
     // ******** Graph building ********
-    void add_to_brothers_inclusion(Border *border_pave1, Border *border_pave2);
+    void update_brothers_inclusion(Border *border_pave1, Border *border_pave2);
     void remove_inclusion(int indice);
+    void remove_inclusion(Inclusion *inclusion);
 
     // ******** Border Properties ********
     // Operations
@@ -40,8 +41,9 @@ public:
     void set_inclusion(Border *border, int id_brother);
     void reset_full_empty();
 
-    void add_inclusions(const std::vector<Inclusion> &inclusion_list);
-    void add_inclusion(const Inclusion &inclusion);
+    void add_inclusions(const std::vector<Inclusion *> &inclusion_list);
+    bool add_inclusion(Inclusion *inclusion);
+    void add_inclusion_receving(Inclusion* inclusion);
 
     // Getters
     void                            get_points(std::vector<double> &x, std::vector<double> &y) const;
@@ -49,14 +51,15 @@ public:
     const ibex::IntervalVector      get_segment_out_2D() const;
     const ibex::Interval            get_segment_out() const;
     const ibex::IntervalVector      get_segment_in_2D() const;
-    const std::vector<Inclusion>&   get_inclusions() const ;
-    Inclusion&                      get_inclusion(int i);
+    const std::vector<Inclusion *> &get_inclusions() const ;
+    const std::vector<Inclusion*>&  get_inclusions_receving() const;
+    Inclusion *get_inclusion(int i);
     const ibex::IntervalVector &    get_position() const;
     Pave*                           get_pave() const;
     const ibex::Interval&           get_segment_full() const;
     int                             get_face() const;
     int size() const;
-    Inclusion& operator[](int id);
+    Inclusion* operator[](int id);
 
     // Tests
     bool is_empty();
@@ -69,7 +72,8 @@ private:
 
 private:
     int m_face;                               // Number of the face (0=bottom, 1=right, ...)
-    std::vector<Inclusion> m_inclusions;          // Pointer to brothers Borders
+    std::vector<Inclusion*> m_inclusions;          // Pointer to brothers Borders
+    std::vector<Inclusion*> m_inclusions_receving;    // Pointer to inclusion that point to this border
     ibex::IntervalVector m_position;          // Position of the border ([x], [y]) where one of the dimension is singleton
 
     Pave *m_pave;                             // Pointer to its container

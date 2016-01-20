@@ -112,9 +112,6 @@ void capture_attractor(){
 
     s.draw(1024, false);
 
-    GraphDot graphDot(s.get_graph_list(0));
-    graphDot.write("test1.dot");
-
 }
 
 int main()
