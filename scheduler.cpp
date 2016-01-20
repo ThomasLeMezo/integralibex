@@ -195,3 +195,7 @@ void Scheduler::draw(int size, bool filled){
             m_graph_inner_list[i]->drawInner(filled);
     }
 }
+
+Graph* Scheduler::get_graph_list(int i){
+    return m_graph_list[i];
+}

@@ -41,6 +41,7 @@ public:
     Utils*              get_utils();
     int                 size() const;
     ibex::Function*     get_f_inclusion_std();
+    int                 get_graph_id();
 
     // Other functions
     Pave& operator[](int id);

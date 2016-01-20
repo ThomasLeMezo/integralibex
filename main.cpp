@@ -9,6 +9,8 @@
 #include <iostream>
 #include <ctime>
 
+#include <graphdot.h>
+
 using namespace std;
 using namespace ibex;
 
@@ -40,13 +42,13 @@ void van_der_pol_cycle(){
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
     IntervalVector box(2);
-    box[0] = Interval(-10.0, 10.0);
-    box[1] = Interval(-10.0, 10.0);
+    box[0] = Interval(-4.0, 4.0);
+    box[1] = Interval(-4.0, 4.0);
 
     Interval u = Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(15, 5, 1e9, true, false);
+    s.cameleon_cycle(12, 5, 1e9, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -109,6 +111,10 @@ void capture_attractor(){
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     s.draw(1024, false);
+
+    GraphDot graphDot(s.get_graph_list(0));
+    graphDot.write("test1.dot");
+
 }
 
 int main()
@@ -116,6 +122,7 @@ int main()
 //    ball();
     capture_attractor();
 //    van_der_pol_cycle();
+//    test();
 
 #if 0
     const clock_t begin_time = clock();
@@ -165,10 +172,6 @@ int main()
 
 //    s.print_pave_info(-5, 6, "r[]");
 
-#endif
-
-#if 0
-   test();
 #endif
     return 0;
 }

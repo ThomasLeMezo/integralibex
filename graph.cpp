@@ -389,3 +389,7 @@ void Graph::set_all_first_process(){
         node->set_first_process_true();
     }
 }
+
+int Graph::get_graph_id(){
+    return m_graph_id;
+}

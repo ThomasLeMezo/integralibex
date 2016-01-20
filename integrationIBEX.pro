@@ -26,7 +26,8 @@ SOURCES += main.cpp \
     tests.cpp \
     /opt/VIBES/client-api/C++/src/vibes.cpp \
     graph.cpp \
-    inclusion.cpp
+    inclusion.cpp \
+    graphdot.cpp
 
 HEADERS  +=     border.h \
     pave.h \
@@ -35,7 +36,8 @@ HEADERS  +=     border.h \
     tests.h \
     /opt/VIBES/client-api/C++/src/vibes.h \
     graph.h \
-    inclusion.h
+    inclusion.h \
+    graphdot.h
 
 
 

@@ -23,9 +23,12 @@ public:
     // ******** Drawing functions ********
     void draw(int size, bool filled);
 
+    // Getter
+    Graph* get_graph_list(int i);
+
 
 /***************** Variables ******************/
-public:
+private:
     std::vector<Graph*> m_graph_list;
     std::vector<Graph*> m_graph_inner_list;
 

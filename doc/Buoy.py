@@ -31,6 +31,6 @@ chemin(5.0, 5.0, 'k:')
 chemin(0, -4, 'k:')
 
 plt.axis('equal')
-plt.xlim((-3, 3))
-plt.ylim((-3, 3))
+plt.xlim((-4, 4))
+plt.ylim((-4, 4))
 plt.show()
