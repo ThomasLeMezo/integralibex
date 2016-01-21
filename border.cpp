@@ -38,9 +38,9 @@ Border::Border(Border *border): m_position(2)
 }
 
 Border::~Border(){
-    for(int i=0; i<m_inclusions.size(); i++){
-        delete(m_inclusions[i]);
-    }
+//    for(int i=0; i<m_inclusions.size(); i++){
+//        delete(m_inclusions[i]);
+//    }
 }
 
 void Border::draw() const{
