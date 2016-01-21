@@ -33,8 +33,8 @@ Border::Border(Border *border): m_position(2)
     m_segment_full = border->get_segment_full();
     m_empty = false;
     m_full = false;
-    m_inclusions = border->get_inclusions();
-    m_inclusions_receving = border->get_inclusions_receving();
+    //    m_inclusions = border->get_inclusions();
+    //    m_inclusions_receving = border->get_inclusions_receving();
 }
 
 Border::~Border(){
@@ -91,22 +91,31 @@ void Border::get_points(std::vector<double> &x, std::vector<double> &y) const{
 // Add new brothers to the list
 void Border::add_inclusions(const std::vector<Inclusion*>& inclusion_list){
     for(int i=0; i<inclusion_list.size(); i++){
-        add_inclusion(inclusion_list[i]);
+        inclusion_list[i]->get_border()->remove_inclusion_receving(inclusion_list[i]);
+        add_inclusion_copy(inclusion_list[i]);
     }
 }
 
 bool Border::add_inclusion(Inclusion *inclusion){
     // ToDo : error with inclusion.get_position() if returning a reference !!
-//    if(inclusion.is_empty()) // Test if the border exist
-//        return;
+    //    if(inclusion->get_owner()->is_empty()) // Test if the border exist
+    //        return false;
     IntervalVector test = m_position & inclusion->get_position();
     if(!(test.is_empty()) && (test[0].is_degenerated() != test[1].is_degenerated())){
         m_inclusions.push_back(inclusion);
+        inclusion->set_owner(this);
         inclusion->get_border()->add_inclusion_receving(inclusion); // Add a ref to inclusion (for removal purpose)
         return true;
     }
     else{
         return false;
+    }
+}
+
+bool Border::add_inclusion_copy(Inclusion *inclusion){
+    Inclusion *i = new Inclusion(inclusion);
+    if(!add_inclusion(i)){
+        delete(i);
     }
 }
 
@@ -124,11 +133,11 @@ void Border::update_brothers_inclusion(Border* border_pave1, Border* border_pave
         inclusion_to_pave2->set_border(border_pave2);
 
         // Add inclusion to pave 1 and pave 2, if success, add to inclusion receving of pave1/2
-        if(m_inclusions_receving[inclusion_id]->get_owner()->add_inclusion(inclusion_to_pave1)){
-            border_pave1->add_inclusion_receving(inclusion_to_pave1);
+        if(inclusion_to_pave1->get_owner()->add_inclusion(inclusion_to_pave1)){
+            //            border_pave1->add_inclusion_receving(inclusion_to_pave1);
         }
-        if(m_inclusions_receving[inclusion_id]->get_owner()->add_inclusion(inclusion_to_pave2)){
-            border_pave2->add_inclusion_receving(inclusion_to_pave2);
+        if(inclusion_to_pave2->get_owner()->add_inclusion(inclusion_to_pave2)){
+            //            border_pave2->add_inclusion_receving(inclusion_to_pave2);
         }
 
         // Remove inclusion to pave
@@ -233,7 +242,7 @@ const ibex::Interval& Border::get_segment_full() const{
     return m_segment_full;
 }
 
-const std::vector<Inclusion *>& Border::get_inclusions() const{
+const std::vector<Inclusion *> Border::get_inclusions() const{
     return m_inclusions;
 }
 
@@ -300,7 +309,20 @@ void Border::remove_inclusion(int indice){
 void Border::remove_inclusion(Inclusion *inclusion){
     for(int i=0; i<m_inclusions.size(); i++){
         if(m_inclusions[i] == inclusion){
-            m_inclusions.erase(m_inclusions.begin() + i);
+            remove_inclusion(i);
+            break;
+        }
+    }
+}
+
+void Border::remove_inclusion_receving(int indice){
+    m_inclusions_receving.erase(m_inclusions_receving.begin() + indice);
+}
+
+void Border::remove_inclusion_receving(Inclusion *inclusion){
+    for(int i=0; i<m_inclusions_receving.size(); i++){
+        if(m_inclusions_receving[i] == inclusion){
+            remove_inclusion_receving(i);
             break;
         }
     }

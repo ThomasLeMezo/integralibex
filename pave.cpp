@@ -242,12 +242,13 @@ void Pave::bisect(vector<Pave*> &result){
         indice2 = 3;
     }
 
-    // Update pave brothers with pave1 & pave2
+    // The order of tasks is important !
+    // 1) Update pave brothers with pave1 & pave2
     for(int face=0; face<4; face++){
         m_borders[face].update_brothers_inclusion(pave1->get_border(face), pave2->get_border(face));
     }
 
-    // Copy brothers Pave (this) to pave1 and pave2
+    // 2) Copy brothers Pave (this) to pave1 and pave2
     for(int face=0; face<4; face++){
         if(m_borders[face].get_inclusions().size()!=0){
             if(face!=indice1){
@@ -259,9 +260,9 @@ void Pave::bisect(vector<Pave*> &result){
         }
     }
 
-    // Add each other to its brother list (pave1 <-> pave2)
-    Inclusion *inclusion_to_pave2 = new Inclusion(pave2->get_border(indice2), indice2, pave1->get_border(indice1));
-    Inclusion *inclusion_to_pave1 = new Inclusion(pave1->get_border(indice1), indice1, pave2->get_border(indice2));
+    // 3) Add each other to its brother list (pave1 <-> pave2)
+    Inclusion *inclusion_to_pave2 = new Inclusion(pave2->get_border(indice2), indice2);
+    Inclusion *inclusion_to_pave1 = new Inclusion(pave1->get_border(indice1), indice1);
 
     pave1->get_border(indice1)->add_inclusion(inclusion_to_pave2);
     pave2->get_border(indice2)->add_inclusion(inclusion_to_pave1);

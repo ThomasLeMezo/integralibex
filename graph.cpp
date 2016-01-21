@@ -375,7 +375,7 @@ void Graph::set_empty(){
 }
 
 void Graph::set_symetry(Function* f, int face_in, int face_out){
-    Inclusion *i = new Inclusion(m_node_list[0]->get_border(face_in), f, face_in, m_node_list[0]->get_border(face_out));
+    Inclusion *i = new Inclusion(m_node_list[0]->get_border(face_in), f, face_in);
     m_node_list[0]->get_border(face_out)->add_inclusion(i);
 }
 

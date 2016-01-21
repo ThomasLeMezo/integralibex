@@ -22,6 +22,8 @@ public:
     void update_brothers_inclusion(Border *border_pave1, Border *border_pave2);
     void remove_inclusion(int indice);
     void remove_inclusion(Inclusion *inclusion);
+    void remove_inclusion_receving(int indice);
+    void remove_inclusion_receving(Inclusion *inclusion);
 
     // ******** Border Properties ********
     // Operations
@@ -43,6 +45,7 @@ public:
 
     void add_inclusions(const std::vector<Inclusion *> &inclusion_list);
     bool add_inclusion(Inclusion *inclusion);
+    bool add_inclusion_copy(Inclusion *inclusion);
     void add_inclusion_receving(Inclusion* inclusion);
 
     // Getters
@@ -51,7 +54,7 @@ public:
     const ibex::IntervalVector      get_segment_out_2D() const;
     const ibex::Interval            get_segment_out() const;
     const ibex::IntervalVector      get_segment_in_2D() const;
-    const std::vector<Inclusion *> &get_inclusions() const ;
+    const std::vector<Inclusion *>  get_inclusions() const ;
     const std::vector<Inclusion*>&  get_inclusions_receving() const;
     Inclusion *get_inclusion(int i);
     const ibex::IntervalVector &    get_position() const;

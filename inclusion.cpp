@@ -3,42 +3,40 @@
 using namespace std;
 using namespace ibex;
 
-Inclusion::Inclusion(Border *border, ibex::Function *f, int brother_face, Border *owner){
+Inclusion::Inclusion(Border *border, ibex::Function *f, int brother_face){
     m_shortcut = false;
     m_border = border;
+    m_owner = NULL;
     m_f = f;
     m_brother_face = brother_face;
-    m_owner = owner;
 }
 
-Inclusion::Inclusion(Border *border, int brother_face, Border *owner){
+Inclusion::Inclusion(Border *border, int brother_face){
     m_shortcut = true;
     m_border = border;
+    m_owner = NULL;
     m_brother_face = brother_face;
     m_f = NULL;
-    m_owner = owner;
 }
 
 Inclusion::Inclusion(const Inclusion &i){
     m_border = i.get_border();
+    m_owner = i.get_owner();
     m_brother_face = i.get_brother_face();
     m_shortcut = i.get_shortcut();
-    if(!i.get_shortcut()){
-        m_f = i.get_function();
-    }
+    m_f = i.get_function();
     if(m_border == NULL)
-        cout << "ERROR" << endl;
+        cout << "ERROR m_f=NULL" << endl;
 }
 
 Inclusion::Inclusion(Inclusion *i){
     m_border = i->get_border();
+    m_owner = i->get_owner();
     m_brother_face = i->get_brother_face();
     m_shortcut = i->get_shortcut();
-    if(!i->get_shortcut()){
-        m_f = i->get_function();
-    }
-    if(m_border == NULL)
-        cout << "ERROR" << endl;
+    m_f = i->get_function();
+    if(m_shortcut == false && m_f == NULL)
+        cout << "ERROR m_f=NULL" << endl;
 }
 
 void Inclusion::set_function(ibex::Function *f){
@@ -99,6 +97,10 @@ void Inclusion::set_border(Border* border){
     m_border = border;
 }
 
+void Inclusion::set_owner(Border* owner){
+    m_owner = owner;
+}
+
 bool Inclusion::get_shortcut() const{
     return m_shortcut;
 }
@@ -112,6 +114,6 @@ bool Inclusion::is_empty() const{
     }
 }
 
-Border* Inclusion::get_owner(){
+Border* Inclusion::get_owner() const{
     return m_owner;
 }

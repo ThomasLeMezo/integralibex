@@ -8,8 +8,8 @@ class Border;
 class Inclusion
 {
 public:
-    Inclusion(Border* border, ibex::Function *f, int face, Border *owner);
-    Inclusion(Border* border, int brother_face, Border *owner);
+    Inclusion(Border* border, ibex::Function *f, int face);
+    Inclusion(Border* border, int brother_face);
     Inclusion(const Inclusion &i);
     Inclusion(Inclusion *i);
 
@@ -20,10 +20,11 @@ public:
     Border*                         get_border() const;
     ibex::Function*                 get_function() const;
     bool                            get_shortcut() const;
-    Border*                         get_owner();
+    Border*                         get_owner() const;
 
     void                            set_function(ibex::Function *f);
     void                            set_border(Border* border);
+    void                            set_owner(Border* owner);
 
     bool                            is_empty() const;
 
