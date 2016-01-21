@@ -104,9 +104,6 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             m_graph_list[nb_graph]->clear_node_queue();
             m_graph_list[nb_graph]->sivia(0.0, 2*m_graph_list[nb_graph]->size(), true, true);
 
-//            GraphDot graphDot(m_graph_list[0]);
-//            graphDot.write("test1.dot");
-
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
 
@@ -167,6 +164,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 graph_propagation->process(process_iterations_max, false, false); // process forward
 
                 m_graph_list[nb_graph]->inter(*graph_propagation); // intersect the graph with the propagation graph
+
+
 //                graph_diff->diff(*m_graph_list[nb_graph]);
 
 //                if(!graph_diff->is_empty() && false){ // If there is an inside, add to graph_list

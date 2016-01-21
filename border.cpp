@@ -23,7 +23,7 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     m_full = false;
 }
 
-Border::Border(Border *border): m_position(2)
+Border::Border(const Border *border): m_position(2)
 {
     m_position = border->get_position();
     m_face = border->get_face();
@@ -331,6 +331,11 @@ void Border::remove_inclusion_receving(Inclusion *inclusion){
 void Border::set_inclusion(Border* border, int id_brother){
     if(id_brother<m_inclusions.size())
         m_inclusions[id_brother]->set_border(border);
+}
+
+void Border::set_inclusion_receving(Border* border, int id_brother){
+    if(id_brother<m_inclusions_receving.size())
+        m_inclusions_receving[id_brother]->set_owner(border);
 }
 
 void Border::reset_full_empty(){

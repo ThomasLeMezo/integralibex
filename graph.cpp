@@ -29,9 +29,11 @@ Graph::Graph(Graph* g, int graph_id){
 
         for(int face = 0; face<4; face++){
             for(int j=0; j<pave_root->get_border(face)->get_inclusions().size(); j++){
-                pave_copy->get_border(face)->set_inclusion(
-                            pave_root->get_border(face)->get_inclusion(j)->get_border()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j)->get_brother_face()),
-                            j);
+                Inclusion *i = new Inclusion(pave_root->get_border(face)->get_inclusion(j));
+                i->set_border(pave_root->get_border(face)->get_inclusion(j)->get_border()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j)->get_brother_face()));
+                i->set_owner(pave_root->get_border(face)->get_inclusion(j)->get_owner()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j)->get_owner()->get_face()));
+
+                pave_copy->get_border(face)->add_inclusion(i);
             }
         }
     }

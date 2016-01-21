@@ -54,7 +54,7 @@ public:
     const ibex::Interval&               get_u() const;
     const ibex::IntervalVector&         get_position() const;
 
-    const std::vector<Border>&          get_borders();
+    const std::vector<Border *> &get_borders();
     Border*                             get_border(int face);
     const Border*                       get_border_const(int face) const;
 
@@ -63,14 +63,14 @@ public:
 
     bool                                get_first_process() const;
 
-    Border& operator[](int face);
+    Border* operator[](int face);
 
     /***************** Variables ******************/
 private:
     std::vector<ibex::Interval> m_theta;
     ibex::Interval              m_u;
     ibex::IntervalVector        m_position;
-    std::vector<Border>         m_borders;
+    std::vector<Border*>         m_borders;
 
     ibex::Function              *m_f;
     Pave*                       m_copy_node;

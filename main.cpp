@@ -22,7 +22,7 @@ void test(){
 //    test_CtcPropagateFront();
 //    test_CtcPropagateSegment();
 
-    test_CtcPaveForward();
+//    test_CtcPaveForward();
 //    test_CtcPaveConsistency();
 
 //    test_contractor_polar();
@@ -48,7 +48,7 @@ void van_der_pol_cycle(){
     Interval u = Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(12, 5, 1e9, false, false);
+    s.cameleon_cycle(15, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -72,7 +72,7 @@ void ball(){
     activated_pave[0] = Interval(12.0);
     activated_pave[1] = Interval(-2.0);
 
-    ibex::Function f_sym(x, y, Return(x, -y));
+    ibex::Function f_sym(x, y, Return(x, -y-2.0));
     s.set_symetry(&f_sym,3, 3);
 
     s.cameleon_propagation(15, 1000000, activated_pave);
@@ -90,7 +90,7 @@ void capture_attractor(){
 
     IntervalVector box(2);
     box[0] = -Interval::PI | Interval::PI;
-    box[1] = Interval(0, 10.0);
+    box[1] = Interval(0.1, 10.0);
 
     Interval u = Interval::ZERO;
     Scheduler s(box, &f, u);
@@ -105,12 +105,12 @@ void capture_attractor(){
     activated_pave[0] = Interval(2);
     activated_pave[1] = Interval(3.0);
 
-    s.cameleon_cycle(2, 5, 1e9, false, false);
+    s.cameleon_cycle(16, 5, 1e9, true, false);
 //    s.cameleon_propagation(15, 1e6, activated_pave, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-    s.draw(1024, false);
+    s.draw(1024, true);
 }
 
 int main()

@@ -12,7 +12,7 @@ class Border
 /***************** Functions ******************/
 public:
     Border(const ibex::IntervalVector& position, const int face, Pave *pave);
-    Border(Border *border);
+    Border(const Border *border);
     ~Border();
 
     // ******** Drawing functions ********
@@ -40,7 +40,9 @@ public:
     void set_segment_out(ibex::Interval segment_out, bool inclusion);
     void set_pave(Pave* pave);
 
+
     void set_inclusion(Border *border, int id_brother);
+    void set_inclusion_receving(Border* border, int id_brother);
     void reset_full_empty();
 
     void add_inclusions(const std::vector<Inclusion *> &inclusion_list);

@@ -3,6 +3,7 @@
 #include <scheduler.h>
 #include <vibes.h>
 #include "iomanip"
+#include "graphdot.h"
 
 using namespace ibex;
 using namespace std;
@@ -299,12 +300,22 @@ void test_copy_graph(){
     Graph g(box, &f, &u, 1);
     g.sivia(0.0, 4, false, false);
 
+    GraphDot graphDot(&g);
+    graphDot.write("g.dot");
+
     Graph g2(&g, 2);
+
+    GraphDot graphDot2(&g2);
+    graphDot2.write("g2.dot");
+
     Graph g3(&g, g.get_pave(1.0, 1.0), 3);
 
-    g.print();
-    g2.print();
-    g3.print();
+    GraphDot graphDot3(&g3);
+    graphDot3.write("g3.dot");
+
+//    g.print();
+//    g2.print();
+//    g3.print();
 }
 
 void sandbox(){
