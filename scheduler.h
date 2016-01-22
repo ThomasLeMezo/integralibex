@@ -22,6 +22,7 @@ public:
 
     // ******** Drawing functions ********
     void draw(int size, bool filled);
+    void print_pave_info(int graph, double x, double y, string color);
 
     // Getter
     Graph* get_graph_list(int i);

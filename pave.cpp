@@ -422,7 +422,7 @@ void Pave::print(){
     cout << "********" << endl;
     cout << "PAVE x=" << m_position[0] << " y= " << m_position[1] << endl;
     cout << this << endl;
-    cout << "theta[0]=" << m_theta[0] << " u=" << m_u << endl;
+    cout << "theta[0]=" << m_theta[0] << " theta[1]=" << m_theta[1] << " u=" << m_u << endl;
     for(int face = 0; face < 4; face++){
         if(m_borders[face]->get_inclusions().size()==0){
             cout << "border=" << face << " " << &(m_borders[face])

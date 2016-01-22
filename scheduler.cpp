@@ -204,3 +204,7 @@ void Scheduler::draw(int size, bool filled){
 Graph* Scheduler::get_graph_list(int i){
     return m_graph_list[i];
 }
+
+void Scheduler::print_pave_info(int graph, double x, double y, string color){
+    m_graph_list[graph]->print_pave_info(x, y, color);
+}

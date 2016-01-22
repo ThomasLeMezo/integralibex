@@ -265,6 +265,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
 
     cout << "BOX = " << p->get_position() << endl;
     cout << p << endl;
+    cout << "Border ID" << '\t' << "Position ([x], [y])" << '\t' << "segment_in" << '\t' << "segment_out" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
         cout << "border " << i << '\t' << p->get_border(i)->get_position() << '\t' << p->get_border(i)->get_segment_in() << p->get_border(i)->get_segment_out()<< endl;
     }

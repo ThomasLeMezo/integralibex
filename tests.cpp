@@ -169,31 +169,35 @@ void test_CtcPaveForward(){
 void test_CtcPaveConsistency(){
     Utils u;
     IntervalVector box(2);
-    box[0] = Interval(0.7, 0.78);
-    box[1] = Interval(1.72, 1.8);
+    box[0] = Interval(-1.66897, -1.5708);
+    box[1] = Interval(0.0880469, 0.166094);
 
-//    Interval command = Interval::ZERO;
+    Interval command = Interval::ZERO;
 //    Interval command = -Interval::HALF_PI| Interval::PI;
 //    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
-    Interval command = -Interval::PI/4 | Interval::PI/4;
+//    Interval command = -Interval::PI/4 | Interval::PI/4;
 //    Interval command = Interval(-1.0472, 1.0472);
 
-    Variable x, y;
-    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+//    Variable x, y;
+//    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+
+    Variable phi, d;
+    ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
+                                    -cos(phi)));
     Pave p(box, &f, command);
 
 //    p.set_theta(Interval::HALF_PI + Interval::PI/4);
 //    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+2*Interval::PI/3);
 //    p.set_theta(Interval(1.5708,2.67795));
 
-    p.get_border(0)->set_full_segment_in();
-    p.get_border(1)->set_full_segment_in();
+//    p.get_border(0)->set_full_segment_in();
+//    p.get_border(1)->set_full_segment_in();
     p.get_border(2)->set_full_segment_in();
     p.get_border(3)->set_full_segment_in();
-//    p.get_border(1)->set_segment_in(Interval(0.1, 1.0), false);
+    p.get_border(1)->set_segment_in(Interval(0.157751, 0.166094), false);
 //    p.get_border(1)->set_segment_in(Interval(-10,0.0), false);
 
-    p.get_border(0)->set_full_segment_out();
+//    p.get_border(0)->set_full_segment_out();
     p.get_border(1)->set_full_segment_out();
     p.get_border(2)->set_full_segment_out();
     p.get_border(3)->set_full_segment_out();
@@ -203,6 +207,9 @@ void test_CtcPaveConsistency(){
 
     test_draw(&p, "test_before");
     u.CtcPaveConsistency(&p, true, false);
+
+    vibes::beginDrawing();
+    vibes::newFigure("drawing_name2");
     test_draw(&p, "test_after");
     cout << setprecision(80) << endl;
     p.print();
@@ -323,15 +330,18 @@ void sandbox(){
     box[0] = Interval(5,10);
     box[1] = Interval(0,10);
 
-    Variable x, y;
-    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    Interval test = Interval(0, 10);
+    cout << test.lb() << endl;
 
-    IntervalVector dposition = f.eval_vector(box);
+//    Variable x, y;
+//    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
-    Interval dx = dposition[0];
-    Interval dy = dposition[1];
+//    IntervalVector dposition = f.eval_vector(box);
 
-    Interval theta = atan2(dy, dx);
-    cout << setprecision(80) << theta << endl;
-    cout << Interval::HALF_PI << endl;
+//    Interval dx = dposition[0];
+//    Interval dy = dposition[1];
+
+//    Interval theta = atan2(dy, dx);
+//    cout << setprecision(80) << theta << endl;
+//    cout << Interval::HALF_PI << endl;
 }
