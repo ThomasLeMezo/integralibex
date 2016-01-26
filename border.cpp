@@ -132,12 +132,12 @@ void Border::update_brothers_inclusion(Border* border_pave1, Border* border_pave
         inclusion_to_pave1->set_border(border_pave1);
         inclusion_to_pave2->set_border(border_pave2);
 
-        // Add inclusion to pave 1 and pave 2, if success, add to inclusion receving of pave1/2
-        if(inclusion_to_pave1->get_owner()->add_inclusion(inclusion_to_pave1)){
-            //            border_pave1->add_inclusion_receving(inclusion_to_pave1);
+        // Add inclusion to pave 1 and pave 2, if no success delete object
+        if(!inclusion_to_pave1->get_owner()->add_inclusion(inclusion_to_pave1)){
+            delete(inclusion_to_pave1);
         }
-        if(inclusion_to_pave2->get_owner()->add_inclusion(inclusion_to_pave2)){
-            //            border_pave2->add_inclusion_receving(inclusion_to_pave2);
+        if(!inclusion_to_pave2->get_owner()->add_inclusion(inclusion_to_pave2)){
+            delete(inclusion_to_pave2);
         }
 
         // Remove inclusion to pave
