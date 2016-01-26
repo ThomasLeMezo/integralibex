@@ -35,7 +35,11 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
     Interval theta2 = theta;
 
     contract_polar.contract(Dx, Dy, rho, theta2);
-    x_front &= (x + Dx ) & X;
+    x_front &= (x + Dx) & X;
+
+//    if((x + Dx).is_empty()){
+//        x = Interval::EMPTY_SET;
+//    }
 
     if(!(X & (x_front - Dx)).is_empty()){
         x &= (x_front - Dx);

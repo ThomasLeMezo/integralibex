@@ -185,6 +185,7 @@ void test_CtcPaveConsistency(){
     ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
                                     -cos(phi)));
     Pave p(box, &f, command);
+    p.set_theta(p.get_theta()[0] + (-Interval::PI/40.0 | Interval::PI/40.0) + Interval::HALF_PI);
 
 //    p.set_theta(Interval::HALF_PI + Interval::PI/4);
 //    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+2*Interval::PI/3);
