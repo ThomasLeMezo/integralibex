@@ -2,8 +2,11 @@
 #define BORDER_H
 
 #include <ibex.h>
+#include <ppl.hh>
 #include <pave.h>
 #include <inclusion.h>
+
+namespace PPL = Parma_Polyhedra_Library;
 
 class Pave;
 class Inclusion;
@@ -11,7 +14,7 @@ class Border
 {
 /***************** Functions ******************/
 public:
-    Border(const ibex::IntervalVector& position, const int face, Pave *pave);
+    Border(const ibex::IntervalVector& position, const int face_axe, const int face_side, Pave *pave);
     Border(const Border *border);
     ~Border();
 
@@ -72,11 +75,15 @@ public:
 
 /***************** Variables ******************/
 private:
-    ibex::Interval m_segment_in, m_segment_out;
-    ibex::Interval m_segment_full;
+    PPL::C_Polyhedron *m_volume_in, *m_volume_out;
+    PPL::C_Polyhedron *m_volume_full;
 
 private:
-    int m_face;                               // Number of the face (0=bottom, 1=right, ...)
+    int m_face_axe; // normal to x = 0, normal to y = 1 etc.
+    int m_face_side; // if lb = 0, if up = 1
+    int m_dim;
+
+
     std::vector<Inclusion*> m_inclusions;          // Pointer to brothers Borders
     std::vector<Inclusion*> m_inclusions_receving;    // Pointer to inclusion that point to this border
     ibex::IntervalVector m_position;          // Position of the border ([x], [y]) where one of the dimension is singleton

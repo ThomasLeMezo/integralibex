@@ -21,14 +21,14 @@ void testTranslate(){
     cout << "TEST TRANSLATE" << endl;
     Utils u;
 
-    IntervalVector Sk(2);
-    IntervalVector box(2);
+    ibex::IntervalVector Sk(2);
+    ibex::IntervalVector box(2);
 
-    box[0] = Interval(1.0, 10.0);
-    box[1] = Interval(2.0, 10.0);
+    box[0] = ibex::Interval(1.0, 10.0);
+    box[1] = ibex::Interval(2.0, 10.0);
 
-    Sk[0] = Interval(5.0, 10.0);
-    Sk[1] = Interval(10.0);
+    Sk[0] = ibex::Interval(5.0, 10.0);
+    Sk[1] = ibex::Interval(10.0);
 
     u.translate_segment_and_box(Sk, box, true, true);
 
@@ -40,14 +40,14 @@ void testRotate(){
     cout << "TEST ROTATE" << endl;
     Utils u;
 
-    IntervalVector Sk(2);
-    IntervalVector box(2);
+    ibex::IntervalVector Sk(2);
+    ibex::IntervalVector box(2);
 
-    box[0] = Interval(0.0, 1.0);
-    box[1] = Interval(0.0, 2.0);
+    box[0] = ibex::Interval(0.0, 1.0);
+    box[1] = ibex::Interval(0.0, 2.0);
 
-    Sk[0] = Interval(0.0, 0.75);
-    Sk[1] = Interval(0.0);
+    Sk[0] = ibex::Interval(0.0, 0.75);
+    Sk[1] = ibex::Interval(0.0);
 
     u.rotate_segment_and_box(Sk, M_PI, box, true);
 
@@ -59,14 +59,14 @@ void test_CtcPropagateLeftSide(){
     cout << "TEST CtcPropagateLeftSide" << endl;
     Utils u;
 
-    Interval x = Interval(0.0, 1.0);
-    Interval y = Interval::ALL_REALS;
-    IntervalVector box(2);
-    box[0] = Interval(0.0, 1.0);
-    box[1] = Interval(0.0, 1.0);
+    ibex::Interval x = ibex::Interval(0.0, 1.0);
+    ibex::Interval y = ibex::Interval::ALL_REALS;
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(0.0, 1.0);
+    box[1] = ibex::Interval(0.0, 1.0);
 
-//    Interval theta = Interval::PI/4.0 | Interval::HALF_PI;
-    Interval theta = Interval::PI | 4*Interval::PI/5.0;
+//    ibex::Interval theta = ibex::Interval::PI/4.0 | ibex::Interval::HALF_PI;
+    ibex::Interval theta = ibex::Interval::PI | 4*ibex::Interval::PI/5.0;
 
     u.CtcPropagateLeftSide(x, y, theta, box);
 
@@ -78,14 +78,14 @@ void test_CtcPropagateRightSide(){
     cout << "TEST test_CtcPropagateRightSide" << endl;
     Utils u;
 
-    Interval x = Interval(0.0, 1.0);
-    Interval y = Interval::ALL_REALS;
+    ibex::Interval x = ibex::Interval(0.0, 1.0);
+    ibex::Interval y = ibex::Interval::ALL_REALS;
 
-    IntervalVector box(2);
-    box[0] = Interval(0.0, 1.0);
-    box[1] = Interval(0.0, 1.0);
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(0.0, 1.0);
+    box[1] = ibex::Interval(0.0, 1.0);
 
-    Interval theta = Interval::ZERO | Interval::PI/5.0;
+    ibex::Interval theta = ibex::Interval::ZERO | ibex::Interval::PI/5.0;
 
     u.CtcPropagateRightSide(x, y, theta, box);
 
@@ -97,13 +97,13 @@ void test_CtcPropagateFront(){
     cout << "TEST test_CtcPropagateFront" << endl;
     Utils u;
 
-    Interval x = Interval(0.0, 1.0);
-    Interval x_front = Interval::EMPTY_SET;
-    IntervalVector box(2);
-    box[0] = Interval(0.0, 1.0);
-    box[1] = Interval(0.0, 1.0);
+    ibex::Interval x = ibex::Interval(0.0, 1.0);
+    ibex::Interval x_front = ibex::Interval::EMPTY_SET;
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(0.0, 1.0);
+    box[1] = ibex::Interval(0.0, 1.0);
 
-    Interval theta = Interval::ZERO | Interval::PI/4.0;
+    ibex::Interval theta = ibex::Interval::ZERO | ibex::Interval::PI/4.0;
 
     u.CtcPropagateFront(x, x_front, theta, box);
 
@@ -115,22 +115,22 @@ void test_CtcPropagateSegment(){
     cout << "TEST test_CtcPropagateSegment" << endl;
     Utils u;
 
-    IntervalVector box(2);
-    box[0] = Interval(0.0, 1.0);
-    box[1] = Interval(0.0, 1.0);
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(0.0, 1.0);
+    box[1] = ibex::Interval(0.0, 1.0);
 
     int face = 3;
-    vector<Interval> theta = {Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0, Interval::EMPTY_SET};
-    Interval seg_in = Interval(0,1);
-    vector<Interval> seg_out;
+    vector<ibex::Interval> theta = {ibex::Interval::HALF_PI | 5.0*ibex::Interval::HALF_PI/4.0, ibex::Interval::EMPTY_SET};
+    ibex::Interval seg_in = ibex::Interval(0,1);
+    vector<ibex::Interval> seg_out;
     for(int j=0; j<3; j++){
-        seg_out.push_back(Interval::ALL_REALS);
+        seg_out.push_back(ibex::Interval::ALL_REALS);
     }
 
     cout << "seg_in = " << seg_in << endl;
     cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
 
-    u.CtcPropagateSegment(seg_in, seg_out, face, theta, box, Interval::EMPTY_SET);
+    u.CtcPropagateSegment(seg_in, seg_out, face, theta, box, ibex::Interval::EMPTY_SET);
 
     cout << "----------" << endl;
     cout << "seg_in = " << seg_in << endl;
@@ -139,25 +139,25 @@ void test_CtcPropagateSegment(){
 
 void test_CtcPaveForward(){
     Utils u;
-    IntervalVector box(2);
-    box[0] = Interval(-2.03, -1.955);
-    box[1] = Interval(0.47, 0.545);
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(-2.03, -1.955);
+    box[1] = ibex::Interval(0.47, 0.545);
 
-//    Interval command = -Interval::PI/8 | Interval::PI/8;
-    Interval command = -Interval::PI/4 | Interval::PI/4;
-//    Interval command = -Interval::PI | Interval::PI;
+//    ibex::Interval command = -ibex::Interval::PI/8 | ibex::Interval::PI/8;
+    ibex::Interval command = -ibex::Interval::PI/4 | ibex::Interval::PI/4;
+//    ibex::Interval command = -ibex::Interval::PI | ibex::Interval::PI;
 
-    Variable x, y;
+    ibex::Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
     Pave p(box, &f, command);
 
-//    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
-//    p.set_theta((Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0) + Interval::PI/3);
-//    p.set_theta(-Interval::HALF_PI | Interval::HALF_PI);
+//    p.set_theta(-ibex::Interval::HALF_PI/4.0 | ibex::Interval::HALF_PI/4.0);
+//    p.set_theta((ibex::Interval::HALF_PI | 5.0*ibex::Interval::HALF_PI/4.0) + ibex::Interval::PI/3);
+//    p.set_theta(-ibex::Interval::HALF_PI | ibex::Interval::HALF_PI);
     p.get_border(0)->set_full_segment_in();
     p.get_border(3)->set_full_segment_in();
 
-//    p.get_border(0)->set_segment_in(Interval(0.5, 0.9), false);
+//    p.get_border(0)->set_segment_in(ibex::Interval(0.5, 0.9), false);
 
     test_draw(&p, "test_before");
 
@@ -168,43 +168,43 @@ void test_CtcPaveForward(){
 
 void test_CtcPaveConsistency(){
     Utils u;
-    IntervalVector box(2);
-    box[0] = Interval(-1.66897, -1.5708);
-    box[1] = Interval(0.0880469, 0.166094);
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(-1.66897, -1.5708);
+    box[1] = ibex::Interval(0.0880469, 0.166094);
 
-    Interval command = Interval::ZERO;
-//    Interval command = -Interval::HALF_PI| Interval::PI;
-//    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
-//    Interval command = -Interval::PI/4 | Interval::PI/4;
-//    Interval command = Interval(-1.0472, 1.0472);
+    ibex::Interval command = ibex::Interval::ZERO;
+//    ibex::Interval command = -ibex::Interval::HALF_PI| ibex::Interval::PI;
+//    ibex::Interval command = -5*ibex::Interval::HALF_PI/6.0| 5*ibex::Interval::HALF_PI/6.0;
+//    ibex::Interval command = -ibex::Interval::PI/4 | ibex::Interval::PI/4;
+//    ibex::Interval command = ibex::Interval(-1.0472, 1.0472);
 
 //    Variable x, y;
 //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
-    Variable phi, d;
+    ibex::Variable phi, d;
     ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
                                     -cos(phi)));
     Pave p(box, &f, command);
-    p.set_theta(p.get_theta()[0] + (-Interval::PI/40.0 | Interval::PI/40.0) + Interval::HALF_PI);
+    p.set_theta(p.get_theta()[0] + (-ibex::Interval::PI/40.0 | ibex::Interval::PI/40.0) + ibex::Interval::HALF_PI);
 
-//    p.set_theta(Interval::HALF_PI + Interval::PI/4);
-//    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+2*Interval::PI/3);
-//    p.set_theta(Interval(1.5708,2.67795));
+//    p.set_theta(ibex::Interval::HALF_PI + ibex::Interval::PI/4);
+//    p.set_theta((-ibex::Interval::HALF_PI/16.0 | ibex::Interval::HALF_PI/16.0)+2*ibex::Interval::PI/3);
+//    p.set_theta(ibex::Interval(1.5708,2.67795));
 
 //    p.get_border(0)->set_full_segment_in();
 //    p.get_border(1)->set_full_segment_in();
     p.get_border(2)->set_full_segment_in();
     p.get_border(3)->set_full_segment_in();
-    p.get_border(1)->set_segment_in(Interval(0.157751, 0.166094), false);
-//    p.get_border(1)->set_segment_in(Interval(-10,0.0), false);
+    p.get_border(1)->set_segment_in(ibex::Interval(0.157751, 0.166094), false);
+//    p.get_border(1)->set_segment_in(ibex::Interval(-10,0.0), false);
 
 //    p.get_border(0)->set_full_segment_out();
     p.get_border(1)->set_full_segment_out();
     p.get_border(2)->set_full_segment_out();
     p.get_border(3)->set_full_segment_out();
-//    p.get_border(2)->set_segment_out(Interval(0.1, 1.0), false);
+//    p.get_border(2)->set_segment_out(ibex::Interval(0.1, 1.0), false);
 
-//    p.get_border(2)->set_segment_out(Interval(-10,-5), false);
+//    p.get_border(2)->set_segment_out(ibex::Interval(-10,-5), false);
 
     test_draw(&p, "test_before");
     u.CtcPaveConsistency(&p, true, false);
@@ -218,51 +218,51 @@ void test_CtcPaveConsistency(){
 
 void test_contractor_polar(){
     Utils u;
-    Interval x_ub = Interval::ALL_REALS;
-    Interval y_ub = Interval::ZERO;
-    Interval rho_ub = Interval::ALL_REALS;
-    Interval theta2_ub = Interval::ALL_REALS;
+    ibex::Interval x_ub = ibex::Interval::ALL_REALS;
+    ibex::Interval y_ub = ibex::Interval::ZERO;
+    ibex::Interval rho_ub = ibex::Interval::ALL_REALS;
+    ibex::Interval theta2_ub = ibex::Interval::ALL_REALS;
 
     cout << x_ub << y_ub << rho_ub << theta2_ub << endl;
 
-    Interval x_r, y_r;
+    ibex::Interval x_r, y_r;
     x_r = sqrt(2)/2*(x_ub - y_ub);
     y_r = sqrt(2)/2*(x_ub + y_ub);
-    theta2_ub += Interval::PI/4.0;
+    theta2_ub += ibex::Interval::PI/4.0;
     ibex::CtcAngle ctcAngle;
     ctcAngle.contract(x_r, y_r, theta2_ub);
 
     x_ub &= sqrt(2)/2*(x_r + y_r);
     y_ub &= sqrt(2)/2*(-x_r + y_r);
-    theta2_ub -= Interval::PI/4.0;
+    theta2_ub -= ibex::Interval::PI/4.0;
 
     cout << x_ub << y_ub << rho_ub << theta2_ub << endl;
 
-//    Interval x = Interval::ZERO;
-//    Interval y = Interval::ALL_REALS;
-//    Interval theta = Interval::ALL_REALS;
+//    ibex::Interval x = ibex::Interval::ZERO;
+//    ibex::Interval y = ibex::Interval::ALL_REALS;
+//    ibex::Interval theta = ibex::Interval::ALL_REALS;
 
-//    const double d2PI   = (2*Interval::PI).ub();
-//    Interval theta_tmp = atan2(y, x);
+//    const double d2PI   = (2*ibex::Interval::PI).ub();
+//    ibex::Interval theta_tmp = atan2(y, x);
 //    cout << theta_tmp << endl;
 //    bwd_imod(theta, theta_tmp, d2PI);
 //    cout << theta << theta_tmp << endl;
-//    theta = Interval::HALF_PI | 3*Interval::HALF_PI;
+//    theta = ibex::Interval::HALF_PI | 3*ibex::Interval::HALF_PI;
 //    bwd_angle(theta, y, x);
 
 //    cout << x << y << theta << theta_tmp << endl;
 }
 
 void test_rotation(){
-    IntervalVector box(2);
-    box[0] = Interval(0,1);
-    box[1] = Interval(0,1);
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(0,1);
+    box[1] = ibex::Interval(0,1);
 
-    IntervalVector Sk(2);
-    Sk[0] = Interval(0);
-    Sk[1] = Interval(0);
+    ibex::IntervalVector Sk(2);
+    Sk[0] = ibex::Interval(0);
+    Sk[1] = ibex::Interval(0);
 
-    Interval theta = -Interval::PI/2.0;
+    ibex::Interval theta = -ibex::Interval::PI/2.0;
 
     cout << "Sk=" << Sk << endl;
     cout << "box=" << box << endl;
@@ -276,9 +276,9 @@ void test_rotation(){
 }
 
 void test_diff(){
-    IntervalVector box(2);
-    box[0] = Interval(0,1);
-    box[1] = Interval(0,1);
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(0,1);
+    box[1] = ibex::Interval(0,1);
     Function f;
 
     Pave p1(box, &f);
@@ -298,10 +298,10 @@ void test_diff(){
 }
 
 void test_copy_graph(){
-    IntervalVector box(2);
-    box[0] = Interval(0,1);
-    box[1] = Interval(0,1);
-    Variable x, y;
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(0,1);
+    box[1] = ibex::Interval(0,1);
+    ibex::Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
     Utils u;
 
@@ -327,22 +327,22 @@ void test_copy_graph(){
 }
 
 void sandbox(){
-    IntervalVector box(2);
-    box[0] = Interval(5,10);
-    box[1] = Interval(0,10);
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(5,10);
+    box[1] = ibex::Interval(0,10);
 
-    Interval test = Interval(0, 10);
+    ibex::Interval test = ibex::Interval(0, 10);
     cout << test.lb() << endl;
 
 //    Variable x, y;
 //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
-//    IntervalVector dposition = f.eval_vector(box);
+//    ibex::IntervalVector dposition = f.eval_vector(box);
 
-//    Interval dx = dposition[0];
-//    Interval dy = dposition[1];
+//    ibex::Interval dx = dposition[0];
+//    ibex::Interval dy = dposition[1];
 
-//    Interval theta = atan2(dy, dx);
+//    ibex::Interval theta = atan2(dy, dx);
 //    cout << setprecision(80) << theta << endl;
-//    cout << Interval::HALF_PI << endl;
+//    cout << ibex::Interval::HALF_PI << endl;
 }

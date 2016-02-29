@@ -1,23 +1,30 @@
 #include "border.h"
-#include "ibex.h"
 #include "vibes.h"
 
 #include "iostream"
 #include "stdlib.h"
 #include "stdio.h"
 
+#include "conversion.h"
+
 using namespace ibex;
 using namespace std;
 
-Border::Border(const IntervalVector &position, const int face, Pave *pave): m_position(2)
+Border::Border(const IntervalVector &position, const int face_axe, const int face_side, Pave *pave): m_position(2)
 {
     m_position = position;
-    m_face = face;
     m_pave = pave;
-    m_segment_in = Interval::EMPTY_SET;
-    m_segment_out = Interval::EMPTY_SET;
 
-    m_segment_full = position[face%2];
+    m_face_axe = face_axe;
+    m_face_side = face_side;
+
+    m_dim = position.size();
+
+    m_volume_out = new PPL::C_Polyhedron(m_dim, PPL::EMPTY);
+    m_volume_in = new PPL::C_Polyhedron(m_dim, PPL::EMPTY);
+    m_volume_full = new PPL::C_Polyhedron(m_dim, PPL::EMPTY);
+
+    *m_volume_full = iv_2_box(position);
 
     m_empty = false;
     m_full = false;
@@ -41,6 +48,10 @@ Border::~Border(){
     for(int i=0; i<m_inclusions.size(); i++){
         delete(m_inclusions[i]);
     }
+
+    delete(m_volume_full);
+    delete(m_volume_in);
+    delete(m_volume_out);
 }
 
 void Border::draw() const{
@@ -50,15 +61,15 @@ void Border::draw() const{
 
     double pourcentage_in = min(m_segment_full.diam()*0.005, 0.005);
     double pourcentage_out = min(m_segment_full.diam()*0.01, 0.01);
-    segment_in[(m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in);
-    segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out);
+    segment_in[(m_face+1)%2] += ibex::Interval(-pourcentage_in, pourcentage_in);
+    segment_out[(m_face+1)%2] += ibex::Interval(-pourcentage_out, pourcentage_out);
 
     vibes::drawBox(segment_out, "b[b]");
     vibes::drawBox(segment_in, "r[r]");
 }
 
 void Border::get_points(std::vector<double> &x, std::vector<double> &y) const{
-    Interval segment = m_segment_in | m_segment_out;
+    ibex::Interval segment = m_segment_in | m_segment_out;
 
     if(!segment.is_empty()){
         if(m_face == 0){
@@ -166,8 +177,8 @@ void Border::set_full_segment_out(){
 }
 
 void Border::set_empty(){
-    m_segment_in = Interval::EMPTY_SET;
-    m_segment_out = Interval::EMPTY_SET;
+    m_segment_in = ibex::Interval::EMPTY_SET;
+    m_segment_out = ibex::Interval::EMPTY_SET;
     m_empty = true;
     m_full = false;
 }
@@ -286,14 +297,14 @@ bool Border::inter(const Border &b){
 
 bool Border::diff(const Border &b){
     bool change = false;
-    Interval segment_in_r, segment_in_l;
+    ibex::Interval segment_in_r, segment_in_l;
     m_segment_in.diff(b.get_segment_in(), segment_in_r, segment_in_l);
 
     if(m_segment_in != (segment_in_r | segment_in_l))
         change = true;
     m_segment_in = segment_in_r | segment_in_l;
 
-    Interval segment_out_r, segment_out_l;
+    ibex::Interval segment_out_r, segment_out_l;
     m_segment_out.diff(b.get_segment_out(), segment_out_r, segment_out_l);
     if(m_segment_out != (segment_out_r | segment_out_l))
         change = true;

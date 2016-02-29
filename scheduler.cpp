@@ -8,7 +8,7 @@
 using namespace std;
 using namespace ibex;
 
-Scheduler::Scheduler(const IntervalVector &box, ibex::Function *f, Interval u){
+Scheduler::Scheduler(const IntervalVector &box, ibex::Function *f, ibex::Interval u){
     m_graph_list.push_back(new Graph(box, f, &m_utils, 0, u));
 }
 
@@ -159,25 +159,24 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                     break;
 
                 Graph* graph_propagation = new Graph(m_graph_list[nb_graph], pave_start); // copy graph with 1 activated node (pave_start)
-//                Graph* graph_diff = new Graph(m_graph_list[nb_graph], m_graph_list.size());
+                Graph* graph_diff = new Graph(m_graph_list[nb_graph], m_graph_list.size());
 
                 graph_propagation->process(process_iterations_max, false, false); // process forward
 
                 m_graph_list[nb_graph]->inter(*graph_propagation); // intersect the graph with the propagation graph
 
 
-//                graph_diff->diff(*m_graph_list[nb_graph]);
+                graph_diff->diff(*m_graph_list[nb_graph]);
 
-//                if(!graph_diff->is_empty() && false){ // If there is an inside, add to graph_list
-//                    cout << " REMOVE INSIDE" << endl;
-//                    m_graph_list.push_back(graph_diff);
+                if(!graph_diff->is_empty() && true){ // If there is an inside, add to graph_list
+                    cout << " REMOVE INSIDE" << endl;
+                    m_graph_list.push_back(graph_diff);
 //                    graph_diff->clear_node_queue();
-//                    cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
-//                    //m_graph_list.back()->print();
-//                }
-//                else{
-//                    delete(graph_diff);
-//                }
+                    cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
+                }
+                else{
+                    delete(graph_diff);
+                }
                 m_graph_list[nb_graph]->remove_empty_node();
 
                 delete(graph_propagation);
@@ -192,9 +191,9 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Scheduler::draw(int size, bool filled){
+void Scheduler::draw(int sizeX, int sizeY, bool filled){
     for(int i=0; i<m_graph_list.size(); i++){
-        m_graph_list[i]->draw(size, filled);
+        m_graph_list[i]->draw(sizeX, sizeY, filled);
 
         if(m_graph_inner_list.size()==m_graph_list.size())
             m_graph_inner_list[i]->drawInner(filled);

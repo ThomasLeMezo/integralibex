@@ -228,12 +228,12 @@ Pave& Graph::operator[](int id){
     return *(m_node_list[id]);
 }
 
-void Graph::draw(int size, bool filled, string comment, bool inner_details){
+void Graph::draw(int sizeX, int sizeY, bool filled, string comment, bool inner_details){
 
     stringstream ss;
     ss << "integralIbex" << m_graph_id<< "-" << m_drawing_cpt << " " << comment;
     vibes::newFigure(ss.str());
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
+    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",sizeX,"height",sizeY));
 
     for(auto &node:m_node_empty_list){
         node->draw(filled, "gray[]");

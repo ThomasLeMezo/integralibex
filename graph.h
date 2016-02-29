@@ -48,7 +48,7 @@ public:
 
     void print_pave_info(double x, double y, string color) const;
     void print() const;
-    void draw(int size, bool filled, string comment="", bool inner_details=false);
+    void draw(int sizeX, int sizeY, bool filled, string comment="", bool inner_details=false);
     void drawInner(bool filled);
 
 private:

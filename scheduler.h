@@ -21,7 +21,7 @@ public:
     void set_symetry(ibex::Function *f, int face_in, int face_out);
 
     // ******** Drawing functions ********
-    void draw(int size, bool filled);
+    void draw(int sizeX, int sizeY, bool filled);
     void print_pave_info(int graph, double x, double y, string color);
 
     // Getter
