@@ -1,4 +1,6 @@
 #include <iostream>
+#include "ibex.h"
+#include "ppl.hh"
 
 using namespace std;
 namespace PPL = Parma_Polyhedra_Library;
@@ -17,4 +19,47 @@ PPL::Rational_Box iv_2_box(const ibex::IntervalVector &iv){
         }
     }
     return box;
+}
+
+std::vector<IntervalVector> get_faces(ibex::IntervalVector pave){
+    std::vector<IntervalVector> face_list;
+    for(int face=0; face<pave.size(); face++){
+        for(int side = 0; side<2; side++){
+            IntervalVector tmp_face(pave.size());
+            for(int i=0; i<pave.size(); i++){
+                if(i==face){
+                    if(side==0){
+                        tmp_face[i] = ibex::Interval(pave[i].lb());
+                    }
+                    else{
+                        tmp_face[i] = ibex::Interval(pave[i].ub());
+                    }
+                }
+                else{
+                    tmp_face[i] = pave[i];
+                }
+            }
+            face_list.push_back(tmp_face);
+        }
+    }
+    return face_list;
+}
+
+void recursive_linear_expression_from_iv(const ibex::IntervalVector &theta,
+                                         int dim,
+                                         std::vector<Linear_Expression> &linear_expression_list,
+                                         Linear_Expression &local_linear_expression){
+    if(dim > 0){
+        PPL::Variable x(dim-1);
+
+        // ToDo: case theta[dim]= +oo / -oo
+        Linear_Expression l_u = x*ceil(theta[dim-1].ub()*IBEX_PPL_PRECISION) + local_linear_expression;
+        Linear_Expression l_l = x*floor(theta[dim-1].lb()*IBEX_PPL_PRECISION) + local_linear_expression;
+
+        recursive_linear_expression_from_iv(theta, dim-1, linear_expression_list, l_u);
+        recursive_linear_expression_from_iv(theta, dim-1, linear_expression_list, l_l);
+    }
+    else{
+        linear_expression_list.push_back(local_linear_expression);
+    }
 }

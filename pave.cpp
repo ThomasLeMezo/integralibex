@@ -8,9 +8,10 @@
 using namespace std;
 using namespace ibex;
 
-Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u): m_position(2)
+Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVector u): m_position(position.size())
 {
     m_position = position;    // Box corresponding to the Pave
+    m_dim = position.size();
     m_borders.reserve(4);
     m_f = f;
     m_u = u;
@@ -21,78 +22,55 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u):
     m_first_process = false;
 
     // Border building
-    IntervalVector coordinate(2);
-    coordinate[0] = position[0]; coordinate[1] = ibex::Interval(position[1].lb()); m_borders.push_back(new Border(coordinate, 0, this));
-    coordinate[1] = position[1]; coordinate[0] = ibex::Interval(position[0].ub()); m_borders.push_back(new Border(coordinate, 1, this));
-    coordinate[0] = position[0]; coordinate[1] = ibex::Interval(position[1].ub()); m_borders.push_back(new Border(coordinate, 2, this));
-    coordinate[1] = position[1]; coordinate[0] = ibex::Interval(position[0].lb()); m_borders.push_back(new Border(coordinate, 3, this));
+    vector<IntervalVector> faces = get_faces(position);
+    for(auto &face:faces){
+        m_borders.push_back(new Border(face, this));
+    }
 
     m_full = false;
     m_empty = false;
 
-    for(int i=0; i<2; i++)
-        m_theta.push_back(ibex::Interval::EMPTY_SET);
-    if(f!=NULL){
-        IntervalVector dposition = f->eval_vector(position);
+    // Build ray for theta & for u
+    IntervalVector theta = f->eval_vector(position);
+    Linear_Expression e = Linear_Expression(0);
+    std::vector<Linear_Expression> linear_expression_list;
+    recursive_linear_expression_from_iv(theta, theta.size(), linear_expression_list,e);
+    for(auto &l:linear_expression_list){
+        m_ray_vector_field.push_back(ray(l));
+    }
 
-        ibex::Interval dx = dposition[0];
-        ibex::Interval dy = dposition[1];
-
-        ibex::Interval theta = atan2(dy, dx);
-
-        if(theta==(-ibex::Interval::PI|ibex::Interval::PI)){
-            ibex::Interval thetaR = atan2(-dy, -dx); // PI rotation ({dx, dy} -> {-dx, -dy})
-            if(thetaR.diam()<theta.diam()){
-                if(thetaR.is_subset(-ibex::Interval::PI | ibex::Interval::PI)){
-                    m_theta[0] = (thetaR + ibex::Interval::PI) & (ibex::Interval::ZERO | ibex::Interval::PI); // theta[0] in [0, pi]
-                    m_theta[1] = ((thetaR + ibex::Interval::PI) & (ibex::Interval::PI | ibex::Interval::TWO_PI)) - ibex::Interval::TWO_PI; // theta[1] in [-pi, 0]
-                }
-                else{
-                    cout << "****************** ERROR ******************" << endl;
-                }
-
-            }
-            else{
-                m_theta[0] = theta;
-            }
-        }
-        else if(theta.is_empty()){
-            m_theta[0] = -ibex::Interval::PI|ibex::Interval::PI;
-        }
-        else{
-            m_theta[0] = theta;
-        }
-        if(m_theta[0].is_empty()){
-            cout << "ERROR - Pave "<< theta << dx << dy << m_position << endl;
-        }
+    e = Linear_Expression(0);
+    linear_expression_list.clear();
+    recursive_linear_expression_from_iv(u, u.size(), linear_expression_list,e);
+    for(auto &l:linear_expression_list){
+        m_ray_command.push_back(ray(l));
     }
 }
 
-Pave::Pave(const Pave *p): m_position(2)
+Pave::Pave(const Pave *p): m_position(p->get_dim())
 {
     m_position = p->get_position();    // Box corresponding to the Pave
+    m_dim = p->get_dim();
     m_f = p->get_f();
     m_full = true; // Force to recompute results
     m_empty = false;
     m_in_queue = false;
-    m_u = p->get_u();
     m_first_process = false;
 
-    for(int i=0; i<2; i++){
-        m_theta.push_back(p->get_theta(i));
-    }
+    m_ray_command = p->get_ray_command();
+    m_ray_vector_field = p->get_ray_vector_field();
 
-    for(int face = 0; face < 4; face++){
-        Border *b = new Border(p->get_border_const(face));
-        m_borders.push_back(b); // Copy the border !
-        m_borders[face]->set_pave(this);
+    for(auto &b:m_borders){
+        Border *b_cpy = new Border(b);
+        b_cpy->set_pave(this);
+        m_borders.push_back(b_cpy);
     }
     m_copy_node = NULL;
 }
 
 Pave::~Pave(){
-    for(int face=0; face<4; face++){
-        delete(m_borders[face]);
+    for(auto &b:m_borders){
+        delete(b);
     }
 }
 
@@ -454,4 +432,12 @@ void Pave::set_first_process_true(){
 
 void Pave::set_first_process_false(){
     m_first_process = false;
+}
+
+int Pave::get_dim() const{
+    return m_dim;
+}
+
+int Pave::get_size() const{
+    return m_borders.size();
 }

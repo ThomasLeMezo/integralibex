@@ -10,7 +10,7 @@ class Pave
 
     /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &position, ibex::Function *f, ibex::Interval u=ibex::Interval::ZERO);
+    Pave(const ibex::IntervalVector &position, ibex::Function *f, ibex::IntervalVector u=ibex::Interval::ZERO);
     Pave(const Pave *p);
     ~Pave();
 
@@ -62,15 +62,19 @@ public:
     ibex::Function*                     get_f() const;
 
     bool                                get_first_process() const;
+    int                                 get_dim() const;
+    int                                 get_size() const;
 
     Border* operator[](int face);
 
     /***************** Variables ******************/
 private:
-    std::vector<ibex::Interval> m_theta;
-    ibex::Interval              m_u;
+    std::vector<PPL::Generator> m_ray_vector_field;
+    std::vector<PPL::Generator> m_ray_command;
+    int                         m_dim;
+
     ibex::IntervalVector        m_position;
-    std::vector<Border*>         m_borders;
+    std::vector<Border*>        m_borders;
 
     ibex::Function              *m_f;
     Pave*                       m_copy_node;

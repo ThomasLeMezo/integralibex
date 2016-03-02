@@ -1,5 +1,4 @@
 #include "border.h"
-#include "vibes.h"
 
 #include "iostream"
 #include "stdlib.h"
@@ -10,34 +9,35 @@
 using namespace ibex;
 using namespace std;
 
-Border::Border(const IntervalVector &position, const int face_axe, const int face_side, Pave *pave): m_position(2)
+Border::Border(const IntervalVector &position, Pave *pave):
+    m_position(position.size()),
+    m_volume_in(position.size(), PPL::EMPTY),
+    m_volume_out(position.size(), PPL::EMPTY),
+    m_volume_full(position.size(), PPL::EMPTY)
 {
     m_position = position;
     m_pave = pave;
 
-    m_face_axe = face_axe;
-    m_face_side = face_side;
-
     m_dim = position.size();
-
-    m_volume_out = new PPL::C_Polyhedron(m_dim, PPL::EMPTY);
-    m_volume_in = new PPL::C_Polyhedron(m_dim, PPL::EMPTY);
-    m_volume_full = new PPL::C_Polyhedron(m_dim, PPL::EMPTY);
-
-    *m_volume_full = iv_2_box(position);
+    m_volume_full = iv_2_box(position);
 
     m_empty = false;
     m_full = false;
 }
 
-Border::Border(const Border *border): m_position(2)
+Border::Border(const Border *border):
+    m_position(border->get_dim()),
+    m_volume_in(border->get_dim(), PPL::EMPTY),
+    m_volume_out(border->get_dim(), PPL::EMPTY),
+    m_volume_full(border->get_dim(), PPL::EMPTY)
 {
     m_position = border->get_position();
-    m_face = border->get_face();
     m_pave = border->get_pave();
-    m_segment_in = border->get_segment_in();
-    m_segment_out = border->get_segment_out();
-    m_segment_full = border->get_segment_full();
+
+    m_volume_in = border->get_volume_in();
+    m_volume_out = border->get_volume_out();
+    m_volume_full = border->get_m_volume_full();
+
     m_empty = false;
     m_full = false;
     //    m_inclusions = border->get_inclusions();
@@ -47,55 +47,6 @@ Border::Border(const Border *border): m_position(2)
 Border::~Border(){
     for(int i=0; i<m_inclusions.size(); i++){
         delete(m_inclusions[i]);
-    }
-
-    delete(m_volume_full);
-    delete(m_volume_in);
-    delete(m_volume_out);
-}
-
-void Border::draw() const{
-    // Create an IntervalVector (2D) from the segment (1D)
-    IntervalVector segment_in = get_segment_in_2D();
-    IntervalVector segment_out =get_segment_out_2D();
-
-    double pourcentage_in = min(m_segment_full.diam()*0.005, 0.005);
-    double pourcentage_out = min(m_segment_full.diam()*0.01, 0.01);
-    segment_in[(m_face+1)%2] += ibex::Interval(-pourcentage_in, pourcentage_in);
-    segment_out[(m_face+1)%2] += ibex::Interval(-pourcentage_out, pourcentage_out);
-
-    vibes::drawBox(segment_out, "b[b]");
-    vibes::drawBox(segment_in, "r[r]");
-}
-
-void Border::get_points(std::vector<double> &x, std::vector<double> &y) const{
-    ibex::Interval segment = m_segment_in | m_segment_out;
-
-    if(!segment.is_empty()){
-        if(m_face == 0){
-            x.push_back(segment.lb());
-            x.push_back(segment.ub());
-            y.push_back(m_position[1].lb());
-            y.push_back(m_position[1].ub());
-        }
-        else if(m_face == 1){
-            x.push_back(m_position[0].lb());
-            x.push_back(m_position[0].ub());
-            y.push_back(segment.lb());
-            y.push_back(segment.ub());
-        }
-        else if(m_face == 2){
-            x.push_back(segment.ub());
-            x.push_back(segment.lb());
-            y.push_back(m_position[1].ub());
-            y.push_back(m_position[1].lb());
-        }
-        else if(m_face == 3){
-            x.push_back(m_position[0].ub());
-            x.push_back(m_position[0].lb());
-            y.push_back(segment.ub());
-            y.push_back(segment.lb());
-        }
     }
 }
 
@@ -112,15 +63,18 @@ bool Border::add_inclusion(Inclusion *inclusion){
     //    if(inclusion->get_owner()->is_empty()) // Test if the border exist
     //        return false;
     IntervalVector test = m_position & inclusion->get_position();
-    if(!(test.is_empty()) && (test[0].is_degenerated() != test[1].is_degenerated())){
+    if(!test.is_empty()){
+        for(int dim=0; dim<test.size(); dim++){
+            if(test[dim].is_degenerated())
+                return false;
+        }
+
         m_inclusions.push_back(inclusion);
         inclusion->set_owner(this);
         inclusion->get_border()->add_inclusion_receving(inclusion); // Add a ref to inclusion (for removal purpose)
         return true;
     }
-    else{
-        return false;
-    }
+    return false;
 }
 
 bool Border::add_inclusion_copy(Inclusion *inclusion){
@@ -160,25 +114,25 @@ void Border::update_brothers_inclusion(Border* border_pave1, Border* border_pave
 // ****************** Other functions *********************************************
 
 void Border::set_full(){
-    m_segment_in = m_segment_full;
-    m_segment_out = m_segment_full;
+    m_volume_in = m_volume_full;
+    m_volume_out = m_volume_full;
     m_empty = false;
     m_full = true;
 }
 
-void Border::set_full_segment_in(){
-    m_segment_in = m_segment_full;
+void Border::set_full_volume_in(){
+    m_volume_in = m_volume_full;
     m_empty = false;
 }
 
-void Border::set_full_segment_out(){
-    m_segment_out = m_segment_full;
+void Border::set_full_volume_out(){
+    m_volume_out = m_volume_full;
     m_empty = false;
 }
 
 void Border::set_empty(){
-    m_segment_in = ibex::Interval::EMPTY_SET;
-    m_segment_out = ibex::Interval::EMPTY_SET;
+    m_volume_in = PPL::C_Polyhedron(m_dim, PPL::EMPTY);
+    m_volume_out = PPL::C_Polyhedron(m_dim, PPL::EMPTY);
     m_empty = true;
     m_full = false;
 }
@@ -187,7 +141,7 @@ bool Border::is_empty(){
     if(m_empty){
         return true;
     }
-    else if(m_segment_in.is_empty() && m_segment_out.is_empty()){
+    else if(m_volume_in.is_empty() && m_volume_out.is_empty()){
         m_empty = true;
         return true;
     }
@@ -201,7 +155,9 @@ bool Border::is_full(){
         return false;
     }
     else{
-        if((m_segment_in | m_segment_out) != m_segment_full){
+        C_Polyhedron ph_test(m_volume_in);
+        ph_test.upper_bound_assign(m_volume_out);
+        if(ph_test != m_segment_full){
             m_full = false;
             return false;
         }
@@ -211,46 +167,40 @@ bool Border::is_full(){
     }
 }
 
-void Border::set_segment_in(ibex::Interval segment_in, bool inclusion){
+void Border::set_volume_in(PPL::C_Polyhedron volume_in, bool inclusion){
     if(inclusion)
-        m_segment_in &= segment_in;
-    else
-        m_segment_in |= segment_in & m_segment_full;
+        m_volume_in.intersection_assign(volume_in);
+    else{
+        C_Polyhedron ph_tmp(volume_in);
+        ph_tmp.intersection_assign(m_volume_full);
+        m_volume_in.upper_bound_assign(ph_tmp);
+    }
 }
 
-void Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
+void Border::set_volume_out(PPL::C_Polyhedron volume_out, bool inclusion){
     if(inclusion)
-        m_segment_out &= segment_out;
-    else
-        m_segment_out |= segment_out & m_segment_full;
+        m_volume_out.intersection_assign(volume_out);
+    else{
+        C_Polyhedron ph_tmp(volume_out);
+        ph_tmp.intersection_assign(m_volume_full);
+        m_volume_out.upper_bound_assign(ph_tmp);
+    }
 }
 
 void Border::set_pave(Pave* pave){
     m_pave = pave;
 }
 
-const ibex::Interval Border::get_segment_in() const{
-    return m_segment_in;
+const PPL::C_Polyhedron Border::get_volume_in() const{
+    return m_volume_in;
 }
 
-const ibex::IntervalVector Border::get_segment_in_2D() const{
-    IntervalVector segment_in = m_position;
-    segment_in[m_face%2] = m_segment_in;
-    return segment_in;
+const PPL::C_Polyhedron Border::get_volume_out() const{
+    return m_volume_out;
 }
 
-const ibex::IntervalVector Border::get_segment_out_2D() const{
-    IntervalVector segment_in = m_position;
-    segment_in[m_face%2] = m_segment_out;
-    return segment_in;
-}
-
-const ibex::Interval Border::get_segment_out() const{
-    return m_segment_out;
-}
-
-const ibex::Interval& Border::get_segment_full() const{
-    return m_segment_full;
+const PPL::C_Polyhedron Border::get_volume_full() const{
+    return m_volume_full;
 }
 
 const std::vector<Inclusion *> Border::get_inclusions() const{
@@ -273,43 +223,48 @@ Pave* Border::get_pave() const{
     return m_pave;
 }
 
-int Border::get_face() const{
-    return m_face;
-}
-
 Border& Border::operator&=(const Border &b){
-    m_segment_in &= b.get_segment_in();
-    m_segment_out &= b.get_segment_out();
+    m_volume_in.intersection_assign(b.get_volume_in());
+    m_volume_out.intersection_assign(b.get_volume_out());
     return *this;
 }
 
 bool Border::inter(const Border &b){
     bool change = false;
-    if((m_segment_in & b.get_segment_in()) != m_segment_in)
-        change = true;
-    if((m_segment_out & b.get_segment_out()) != m_segment_out)
+    PPL::C_Polyhedron ph_inter_in(m_volume_in);
+    ph_inter_in.intersection_assign(b.get_volume_in());
+
+    if(ph_inter_in != m_volume_in)
         change = true;
 
-    m_segment_in &= b.get_segment_in();
-    m_segment_out &= b.get_segment_out();
+    PPL::C_Polyhedron ph_inter_out(m_volume_out);
+    ph_inter_in.intersection_assign(b.get_volume_out());
+
+    if(ph_inter_out != m_volume_out)
+        change = true;
+
+    m_volume_in = ph_inter_in;
+    m_volume_out = ph_inter_out;
+
     return change;
 }
 
 bool Border::diff(const Border &b){
     bool change = false;
-    ibex::Interval segment_in_r, segment_in_l;
-    m_segment_in.diff(b.get_segment_in(), segment_in_r, segment_in_l);
 
-    if(m_segment_in != (segment_in_r | segment_in_l))
+    C_Polyhedron ph_in_diff(m_volume_in);
+    ph_in_diff.difference_assign(b.get_volume_in());
+    if(ph_in_diff != m_volume_in)
         change = true;
-    m_segment_in = segment_in_r | segment_in_l;
+    m_volume_in = ph_in_diff;
 
-    ibex::Interval segment_out_r, segment_out_l;
-    m_segment_out.diff(b.get_segment_out(), segment_out_r, segment_out_l);
-    if(m_segment_out != (segment_out_r | segment_out_l))
+    C_Polyhedron ph_out_diff(m_volume_out);
+    ph_in_diff.difference_assign(b.get_volume_out());
+    if(ph_out_diff != m_volume_out)
         change = true;
-    m_segment_out = segment_out_r | segment_out_l;
+    m_volume_out = ph_out_diff;
 
+    return change;
 }
 
 void Border::remove_inclusion(int indice){
@@ -360,4 +315,8 @@ int Border::size() const{
 
 Inclusion* Border::operator[](int id){
     return m_inclusions[id];
+}
+
+int Border::get_dim(){
+    return m_dim;
 }

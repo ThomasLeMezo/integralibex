@@ -7,6 +7,11 @@
 #define IBEX_PPL_PRECISION 1e16
 
 Parma_Polyhedra_Library::Rational_Box iv_2_box(const ibex::IntervalVector &iv);
+std::vector<IntervalVector> get_faces(ibex::IntervalVector pave);
 
+void recursive_linear_expression_from_iv(const ibex::IntervalVector &theta,
+                                         int dim,
+                                         std::vector<Linear_Expression> &linear_expression_list,
+                                         Linear_Expression &local_linear_expression);
 
 #endif // CONVERSION
