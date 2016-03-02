@@ -3,26 +3,29 @@
 using namespace std;
 using namespace ibex;
 
-Inclusion::Inclusion(Border *border, ibex::Function *f, int brother_face){
+Inclusion::Inclusion(Border *border, ibex::Function *f, int brother_face_axis, int brother_face_side){
     m_shortcut = false;
     m_border = border;
     m_owner = NULL;
     m_f = f;
-    m_brother_face = brother_face;
+    m_brother_face_axis = brother_face_axis;
+    m_brother_face_side = brother_face_side;
 }
 
-Inclusion::Inclusion(Border *border, int brother_face){
+Inclusion::Inclusion(Border *border, int brother_face_axis, int brother_face_side){
     m_shortcut = true;
     m_border = border;
     m_owner = NULL;
-    m_brother_face = brother_face;
+    m_brother_face_axis = brother_face_axis;
+    m_brother_face_side = brother_face_side;
     m_f = NULL;
 }
 
 Inclusion::Inclusion(const Inclusion &i){
     m_border = i.get_border();
     m_owner = i.get_owner();
-    m_brother_face = i.get_brother_face();
+    m_brother_face_axis = i.get_brother_face_axis();
+    m_brother_face_side = i.get_brother_face_side();
     m_shortcut = i.get_shortcut();
     m_f = i.get_function();
     if(m_border == NULL)
@@ -32,7 +35,8 @@ Inclusion::Inclusion(const Inclusion &i){
 Inclusion::Inclusion(Inclusion *i){
     m_border = i->get_border();
     m_owner = i->get_owner();
-    m_brother_face = i->get_brother_face();
+    m_brother_face_axis = i->get_brother_face_axis();
+    m_brother_face_side = i->get_brother_face_side();
     m_shortcut = i->get_shortcut();
     m_f = i->get_function();
     if(m_shortcut == false && m_f == NULL)
@@ -50,27 +54,27 @@ ibex::Function* Inclusion::get_function() const{
     return m_f;
 }
 
-const ibex::Interval Inclusion::get_segment_in() const{
+const PPL::C_Polyhedron Inclusion::get_volume_in() const{
     if(m_shortcut){
-        return m_border->get_segment_in();
+        return m_border->get_volume_in();
     }
     else{
-        IntervalVector box = m_border->get_position();
-        box[m_brother_face%2] = m_border->get_segment_in();
+        IntervalVector box = ph_2_iv(m_border->get_volume_in());
         IntervalVector box_out = m_f->eval_vector(box);
-        return box_out[m_brother_face%2];
+        PPL::C_Polyhedron ph_out(iv_2_box(box_out));
+        return ph_out;
     }
 }
 
-const ibex::Interval Inclusion::get_segment_out() const{
+const C_Polyhedron Inclusion::get_volume_out() const{
     if(m_shortcut){
-        return m_border->get_segment_out();
+        return m_border->get_volume_out();
     }
     else{
-        IntervalVector box = m_border->get_position();
-        box[m_brother_face%2] = m_border->get_segment_out();
-        IntervalVector box_out(m_f->eval_vector(box));
-        return box_out[m_brother_face%2];
+        IntervalVector box = ph_2_iv(m_border->get_volume_out());
+        IntervalVector box_out = m_f->eval_vector(box);
+        PPL::C_Polyhedron ph_out(iv_2_box(box_out));
+        return ph_out;
     }
 }
 
@@ -89,8 +93,12 @@ const IntervalVector Inclusion::get_position() const{
     }
 }
 
-int Inclusion::get_brother_face() const{
-    return m_brother_face;
+int Inclusion::get_brother_face_axis() const{
+    return m_brother_face_axis;
+}
+
+int Inclusion::get_brother_face_side() const{
+    return m_brother_face_side;
 }
 
 void Inclusion::set_border(Border* border){

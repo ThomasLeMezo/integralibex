@@ -9,7 +9,7 @@
 using namespace ibex;
 using namespace std;
 
-Border::Border(const IntervalVector &position, Pave *pave):
+Border::Border(const IntervalVector &position, Pave *pave, int face_axis, int face_side):
     m_position(position.size()),
     m_volume_in(position.size(), PPL::EMPTY),
     m_volume_out(position.size(), PPL::EMPTY),
@@ -23,6 +23,9 @@ Border::Border(const IntervalVector &position, Pave *pave):
 
     m_empty = false;
     m_full = false;
+
+    m_face_axis = face_axis;
+    m_face_side = face_side;
 }
 
 Border::Border(const Border *border):
@@ -40,6 +43,9 @@ Border::Border(const Border *border):
 
     m_empty = false;
     m_full = false;
+
+    m_face_axis = border->get_face_axis();
+    m_face_side = border->get_face_side();
     //    m_inclusions = border->get_inclusions();
     //    m_inclusions_receving = border->get_inclusions_receving();
 }
@@ -157,7 +163,7 @@ bool Border::is_full(){
     else{
         C_Polyhedron ph_test(m_volume_in);
         ph_test.upper_bound_assign(m_volume_out);
-        if(ph_test != m_segment_full){
+        if(ph_test != m_volume_full){
             m_full = false;
             return false;
         }
@@ -319,4 +325,11 @@ Inclusion* Border::operator[](int id){
 
 int Border::get_dim(){
     return m_dim;
+}
+
+int Border::get_face_axis() const{
+    return m_face_axis;
+}
+int Border::get_face_side() const{
+    return m_face_side;
 }

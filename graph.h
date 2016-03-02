@@ -45,18 +45,12 @@ public:
 
     // Other functions
     Pave& operator[](int id);
-
-    void print_pave_info(double x, double y, string color) const;
-    void print() const;
-    void draw(int sizeX, int sizeY, bool filled, string comment="", bool inner_details=false);
-    void drawInner(bool filled);
+    void draw_vtk(string filename) const;
 
 private:
     std::vector<Pave*> m_node_list;
     std::vector<Pave*> m_node_empty_list;
     std::vector<Pave*> m_node_queue;
-
-    Utils *m_utils;
 
     int m_graph_id;
     int m_drawing_cpt;

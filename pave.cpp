@@ -5,6 +5,19 @@
 #include "iostream"
 #include "iomanip"
 
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include <vtkDelaunay3D.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkSmartPointer.h>
+#include <vtkXMLPolyDataWriter.h>
+#include <vtkXMLUnstructuredGridWriter.h>
+#include <vtkCellArray.h>
+#include <vtkDataSetSurfaceFilter.h>
+#include <vtkAppendPolyData.h>
+
+#include "conversion.h"
+
 using namespace std;
 using namespace ibex;
 
@@ -22,9 +35,11 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVect
     m_first_process = false;
 
     // Border building
-    vector<IntervalVector> faces = get_faces(position);
-    for(auto &face:faces){
-        m_borders.push_back(new Border(face, this));
+    vector< vector<IntervalVector>> faces = get_faces(position);
+    for(int face=0; face<faces.size(); face++){
+        for(int side=0; side<faces[face].size(); side++){
+            m_borders.push_back(new Border(face, this, face, side));
+        }
     }
 
     m_full = false;
@@ -60,8 +75,8 @@ Pave::Pave(const Pave *p): m_position(p->get_dim())
     m_ray_command = p->get_ray_command();
     m_ray_vector_field = p->get_ray_vector_field();
 
-    for(auto &b:m_borders){
-        Border *b_cpy = new Border(b);
+    for(int face = 0; face < m_borders.size(); face++){
+        Border *b_cpy = new Border(p->get_border_const(face));
         b_cpy->set_pave(this);
         m_borders.push_back(b_cpy);
     }
@@ -74,8 +89,8 @@ Pave::~Pave(){
     }
 }
 
-Pave& Pave::operator&=(const Pave &p){
-    for(int face = 0; face <4; face++){
+Pave& Pave::operator&=(const Pave &p){    
+    for(int face = 0; face < m_borders.size(); face++){
         *(m_borders[face]) &= *(p.get_border_const(face));
     }
     return *this;
@@ -83,7 +98,7 @@ Pave& Pave::operator&=(const Pave &p){
 
 bool Pave::inter(const Pave &p){
     bool change = false;
-    for(int face = 0; face <4; face++){
+    for(int face = 0; face <m_borders.size(); face++){
         if(m_borders[face]->inter(*(p.get_border_const(face))))
             change = true;
     }
@@ -92,7 +107,7 @@ bool Pave::inter(const Pave &p){
 
 bool Pave::diff(const Pave &p){
     bool change = false;
-    for(int face = 0; face<4; face++){
+    for(int face = 0; face<m_borders.size(); face++){
         if(m_borders[face]->diff(*(p.get_border_const(face)))){
             change = true;
         }
@@ -101,32 +116,26 @@ bool Pave::diff(const Pave &p){
     m_full=true;
 }
 
-void Pave::set_theta(ibex::Interval theta){
-    m_theta[0] = ibex::Interval::EMPTY_SET;
-    m_theta[1] = ibex::Interval::EMPTY_SET;
+void Pave::set_theta(IntervalVector theta){
+    Linear_Expression e = Linear_Expression(0);
+    std::vector<Linear_Expression> linear_expression_list;
+    recursive_linear_expression_from_iv(theta, theta.size(), linear_expression_list,e);
 
-    if(theta.is_subset(-ibex::Interval::PI | ibex::Interval::PI)){
-        m_theta[0] = theta;
-    }
-    else{
-        m_theta[0] = (theta & (-ibex::Interval::PI | ibex::Interval::PI));
-
-        if(!((theta + 2*ibex::Interval::PI) & (-ibex::Interval::PI | ibex::Interval::PI) ).is_empty())
-            m_theta[1] =(theta + 2*ibex::Interval::PI);
-        else if (!((theta - 2*ibex::Interval::PI) & (-ibex::Interval::PI | ibex::Interval::PI)).is_empty())
-            m_theta[1] = (theta - 2*ibex::Interval::PI);
+    m_ray_vector_field.clear();
+    for(auto &l:linear_expression_list){
+        m_ray_vector_field.push_back(ray(l));
     }
 }
 
 void Pave::set_full(){
-    for(int face=0; face<4; face++){
+    for(int face=0; face<m_borders.size(); face++){
         m_borders[face]->set_full();
     }
     m_full = true;
 }
 
 void Pave::set_empty(){
-    for(int face=0; face<4; face++){
+    for(int face=0; face<m_borders.size(); face++){
         m_borders[face]->set_empty();
     }
     m_empty = true;
@@ -136,74 +145,48 @@ void Pave::set_empty(){
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Pave::draw_position(){
-    double size = 0.5*min(m_position[0].diam(), m_position[1].diam())/2.0;
-    vibes::drawCircle(m_position[0].mid(), m_position[1].mid(), size, "b[b]");
-}
+vtkPolyData draw_vtk(){
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer< vtkPoints >::New();
 
-void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
-    // Draw the pave
-    if(borders_only){
-        draw_borders(filled, "[#00FF00AA]");
-    }
-    else{
-        vibes::drawBox(m_position, color);
-        draw_borders(filled);
-        // Draw theta
-
-        double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
-
-        if(cmd_u){
-            ibex::Interval theta_u = ((m_theta[0] | m_theta[1]).lb() + m_u) & ((m_theta[0] | m_theta[1]).ub() + m_u);
-            ibex::Interval theta_u_bwd = ibex::Interval::PI + ((ibex::Interval((m_theta[0] | m_theta[1]).lb()) + m_u) & (ibex::Interval((m_theta[0] | m_theta[1]).ub()) + m_u));
-
-            for(int face =0; face<4; face++){
-                if(!get_border(face)->get_segment_in().is_empty()){
-
-                    IntervalVector segment_in = get_border(face)->get_segment_in_2D();
-
-                    vibes::drawSector(segment_in[0].lb(), segment_in[1].lb(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
-                    vibes::drawSector(segment_in[0].ub(), segment_in[1].ub(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
+    for(auto &ph:ph_list){
+        for(auto &g:ph.generators()){
+            if(g.is_point()){
+                std::vector<double> coord;
+                for(int i=0; i<3; i++){
+                    PPL::Variable x(i);
+                    if(g.space_dimension()>i){
+                        coord.push_back(g.coefficient(x).get_d()/(g.divisor().get_d()*IBEX_PPL_PRECISION));
+                    }
+                    else{
+                        coord.push_back(0.0);
+                    }
                 }
-                if(!get_border(face)->get_segment_out().is_empty()){
-                    IntervalVector segment_out = get_border(face)->get_segment_out_2D();
-
-                    vibes::drawSector(segment_out[0].lb(), segment_out[1].lb(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
-                    vibes::drawSector(segment_out[0].ub(), segment_out[1].ub(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
-                }
+                points->InsertNextPoint(coord[0], coord[1], coord[2]);
             }
-
-        }
-
-        for(int i=0; i<2; i++){
-            vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta[i].lb())*180.0/M_PI, (-m_theta[i].ub())*180.0/M_PI, "r[]");
-        }
-
-
-    }
-}
-void Pave::draw_borders(bool filled, string color_polygon){
-    if(!filled){
-        // Draw Segments
-        for(int i=0; i<m_borders.size(); i++){
-            m_borders[i]->draw();
         }
     }
-    else{
-        // Draw Polygone
-        vector<double> x, y;
-        for(int i=0; i<m_borders.size(); i++){
-            m_borders[i]->get_points(x, y);
-        }
-        vibes::drawPolygon(x, y, color_polygon);
-    }
+
+    vtkSmartPointer< vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
+    polydata->SetPoints(points);
+    //polydata->SetVerts(vertices);
+
+    // Create the convex hull of the pointcloud (delaunay + outer surface)
+    vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer< vtkDelaunay3D >::New();
+    delaunay->SetInputData(polydata);
+    delaunay->Update();
+
+    vtkSmartPointer<vtkDataSetSurfaceFilter> surfaceFilter = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
+    surfaceFilter->SetInputConnection(delaunay->GetOutputPort());
+    surfaceFilter->Update();
+
+    return surfaceFilter->GetOutput();
 }
 
 // ********************************************************************************
 // ****************** Paving building *********************************************
 
 void Pave::bisect(vector<Pave*> &result){
-    // Create 4 new paves
+    // Create 2 new paves
     ibex::LargestFirst bisector(0.0, 0.5);
 
     std::pair<ibex::IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
@@ -226,12 +209,12 @@ void Pave::bisect(vector<Pave*> &result){
 
     // The order of tasks is important !
     // 1) Update pave brothers with pave1 & pave2
-    for(int face=0; face<4; face++){
+    for(int face=0; face<m_borders.size(); face++){
         m_borders[face]->update_brothers_inclusion(pave1->get_border(face), pave2->get_border(face));
     }
 
     // 2) Copy brothers Pave (this) to pave1 and pave2
-    for(int face=0; face<4; face++){
+    for(int face=0; face<m_borders.size(); face++){
         if(m_borders[face]->get_inclusions().size()!=0){
             if(face!=indice1){
                 pave1->get_border(face)->add_inclusions(m_borders[face]->get_inclusions());
@@ -261,15 +244,6 @@ void Pave::bisect(vector<Pave*> &result){
 // ********************************************************************************
 // ****************** UTILS functions *********************************************
 
-double Pave::get_theta_diam(){
-    double diam = 0.0;
-    for(int i=0; i<2; i++){
-        if(!m_theta[i].is_empty())
-            diam += m_theta[i].diam();
-    }
-    return diam;
-}
-
 void Pave::remove_brothers(Pave* p, int face){
     for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
         if(m_borders[face]->get_inclusion(i)->get_border()->get_pave() == p){
@@ -292,7 +266,7 @@ bool Pave::is_empty(){
         return true;
     }
     else{
-        for(int i=0; i<4; i++){
+        for(int i=0; i<m_borders.size(); i++){
             if(!m_borders[i]->is_empty()){
                 return false;
             }
@@ -308,7 +282,7 @@ bool Pave::is_full(){
         return false;
     }
     else{
-        for(int face=0; face<4; face++){
+        for(int face=0; face<m_borders.size(); face++){
             if(!m_borders[face]->is_full()){
                 m_full = false;
                 return false;
@@ -335,17 +309,12 @@ void Pave::reset_full_empty(){
     }
 }
 
-const ibex::Interval &Pave::get_theta(int i) const{
-    if(i==0)
-        return m_theta[0];
-    else if(i==1)
-        return m_theta[1];
-    else
-        return NULL;
+const vector<PPL::Generator> &Pave::get_ray_vector_field() const{
+    return m_ray_vector_field;
 }
 
-const ibex::Interval& Pave::get_u() const{
-    return m_u;
+const vector<PPL::Generator> &Pave::get_ray_command() const{
+    return m_ray_command;
 }
 
 const IntervalVector &Pave::get_position() const{
@@ -357,7 +326,7 @@ const std::vector<Border*> &Pave::get_borders(){
 }
 
 Border* Pave::get_border(int face){
-    assert(face >=0 && face < 4);
+    assert(face >=0 && face < m_borders.size());
     return m_borders[face];
 }
 
@@ -366,10 +335,7 @@ Border* Pave::operator[](int face){
 }
 
 const Border* Pave::get_border_const(int face) const{
-    if(face >=0 && face < 4)
-        return m_borders[face];
-    else
-        return NULL;
+    return m_borders[face];
 }
 
 bool Pave::is_in_queue() const{
@@ -392,34 +358,29 @@ Pave* Pave::get_copy_node(){
     return m_copy_node;
 }
 
-const std::vector<ibex::Interval> Pave::get_theta() const{
-    return m_theta;
-}
-
-void Pave::print(){
-    cout << "********" << endl;
-    cout << "PAVE x=" << m_position[0] << " y= " << m_position[1] << endl;
-    cout << this << endl;
-    cout << "theta[0]=" << m_theta[0] << " theta[1]=" << m_theta[1] << " u=" << m_u << endl;
-    for(int face = 0; face < 4; face++){
-        if(m_borders[face]->get_inclusions().size()==0){
-            cout << "border=" << face << " " << &(m_borders[face])
-                 << " segment_in=" << m_borders[face]->get_segment_in()
-                 << " segment_out=" << m_borders[face]->get_segment_out()
-                 << endl;
-        }
-        else{
-            for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
-                cout << "border=" << face << " " << &(m_borders[face])
-                     << " segment_in=" << m_borders[face]->get_segment_in()
-                     << " segment_out=" << m_borders[face]->get_segment_out()
-                     << " inclusion=" << i
-                     << " *border=" << m_borders[face]->get_inclusion(i)->get_border()
-                     << " segment_full=" << m_borders[face]->get_inclusion(i)->get_border()->get_segment_full()
-                     << endl;
-            }
-        }
-    }
+//void Pave::print(){
+//    cout << "********" << endl;
+//    cout << "PAVE x=" << m_position[0] << " y= " << m_position[1] << endl;
+//    cout << this << endl;
+//    for(int face = 0; face < m_borders.size(); face++){
+//        if(m_borders[face]->get_inclusions().size()==0){
+//            cout << "border=" << face << " " << &(m_borders[face])
+//                 << " segment_in=" << m_borders[face]->get_segment_in()
+//                 << " segment_out=" << m_borders[face]->get_segment_out()
+//                 << endl;
+//        }
+//        else{
+//            for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
+//                cout << "border=" << face << " " << &(m_borders[face])
+//                     << " segment_in=" << m_borders[face]->get_segment_in()
+//                     << " segment_out=" << m_borders[face]->get_segment_out()
+//                     << " inclusion=" << i
+//                     << " *border=" << m_borders[face]->get_inclusion(i)->get_border()
+//                     << " segment_full=" << m_borders[face]->get_inclusion(i)->get_border()->get_segment_full()
+//                     << endl;
+//            }
+//        }
+//    }
 }
 
 bool Pave::get_first_process() const{

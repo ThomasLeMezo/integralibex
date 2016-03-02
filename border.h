@@ -14,7 +14,7 @@ class Border
 {
 /***************** Functions ******************/
 public:
-    Border(const ibex::IntervalVector& position, Pave *pave);
+    Border(const ibex::IntervalVector& position, Pave *pave, int face_axis, int face_side);
     Border(const Border *border);
     ~Border();
 
@@ -51,6 +51,9 @@ public:
 
     // Getters
     int                             get_dim() const;
+    int                             get_face_axis() const;
+    int                             get_face_side() const;
+
     const PPL::C_Polyhedron         get_volume_in() const;
     const PPL::C_Polyhedron         get_volume_out() const;
     const PPL::C_Polyhedron         get_volume_full() const;
@@ -76,6 +79,8 @@ private:
 
 private:
     int                     m_dim;
+    int                     m_face_axis;    // x=1, y=2 etc.
+    int                     m_face_side;    // lb = 0, ub = 1
 
     std::vector<Inclusion*> m_inclusions;          // Pointer to brothers Borders
     std::vector<Inclusion*> m_inclusions_receving;    // Pointer to inclusion that point to this border

@@ -8,15 +8,17 @@ class Border;
 class Inclusion
 {
 public:
-    Inclusion(Border* border, ibex::Function *f, int face);
-    Inclusion(Border* border, int brother_face);
+    Inclusion(Border* border, ibex::Function *f, int brother_face_axis, int brother_face_side);
+    Inclusion(Border* border, int brother_face_axis, int brother_face_side);
     Inclusion(const Inclusion &i);
     Inclusion(Inclusion *i);
 
-    const ibex::Interval            get_segment_in() const;
-    const ibex::Interval            get_segment_out() const;
+    const PPL::C_Polyhedron         get_volume_in() const;
+    const PPL::C_Polyhedron         get_volume_out() const;
     const ibex::IntervalVector      get_position() const;
-    int                             get_brother_face() const;
+    int                             get_brother_face_axis() const;
+    int                             get_brother_face_side() const;
+
     Border*                         get_border() const;
     ibex::Function*                 get_function() const;
     bool                            get_shortcut() const;
@@ -33,7 +35,8 @@ private:
     Border* m_border;
     Border* m_owner;
     ibex::Function* m_f;
-    int m_brother_face; // face of the brother
+    int m_brother_face_axis; // face of the brother
+    int m_brother_face_side; // face of the brother
 
     bool m_shortcut;
 

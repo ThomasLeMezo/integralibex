@@ -21,8 +21,19 @@ PPL::Rational_Box iv_2_box(const ibex::IntervalVector &iv){
     return box;
 }
 
-std::vector<IntervalVector> get_faces(ibex::IntervalVector pave){
-    std::vector<IntervalVector> face_list;
+ibex::IntervalVector ph_2_iv(const PPL::C_Polyhedron &ph){
+    PPL::Rational_Box rb(ph);
+    IntervalVector box(ph.space_dimension());
+    for(int dim=0; dim<box.size(); dim++){
+        PPL::Variable x(dim);
+        box[dim] = Interval(rb.get_interval(x).lower().get_d()/IBEX_PPL_PRECISION,
+                            rb.get_interval(x).upper().get_d()/IBEX_PPL_PRECISION);
+    }
+    return box;
+}
+
+std::vector< vector<IntervalVector>> get_faces(ibex::IntervalVector pave){
+    std::vector< vector<IntervalVector>> face_list;
     for(int face=0; face<pave.size(); face++){
         for(int side = 0; side<2; side++){
             IntervalVector tmp_face(pave.size());

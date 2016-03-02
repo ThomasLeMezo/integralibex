@@ -3,6 +3,7 @@
 
 #include <ibex.h>
 #include <border.h>
+#include <vtkPolyData.h>
 
 class Border;
 class Pave
@@ -19,9 +20,7 @@ public:
     bool                        diff(const Pave &p);
 
     // ******** Drawing functions ********
-    void                        draw(bool filled, string color="black[]", bool borders_only=false, bool cmd_u=false);
-    void                        draw_borders(bool filled, string color_polygon="g[g]");
-    void                        draw_position();
+    vtkPolyData                 draw_vtk();
     void                        print();
 
     // ******** Graph building ********
@@ -38,7 +37,7 @@ public:
     // Setter
     void                        set_full();
     void                        set_empty();
-    void                        set_theta(ibex::Interval theta);
+    void                        set_theta(ibex::IntervalVector theta);
     void                        set_in_queue(bool flag);
     void                        set_copy_node(Pave *p);
     void                        set_first_process_true();
@@ -47,14 +46,12 @@ public:
     void                        reset_full_empty();
 
     // Getters
-    double                              get_theta_diam();
     const std::vector<Pave*>            get_brothers(int face);
-    const ibex::Interval&               get_theta(int i) const;
-    const std::vector<ibex::Interval>   get_theta() const;
-    const ibex::Interval&               get_u() const;
+    const vector<PPL::Generator>&       get_ray_vector_field() const;
+    const vector<PPL::Generator>&       get_ray_command() const;
     const ibex::IntervalVector&         get_position() const;
 
-    const std::vector<Border *> &get_borders();
+    const std::vector<Border *> &       get_borders();
     Border*                             get_border(int face);
     const Border*                       get_border_const(int face) const;
 

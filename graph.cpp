@@ -1,6 +1,10 @@
 #include "graph.h"
 #include "vibes.h"
 
+#include <vtkSmartPointer.h>
+#include <vtkXMLPolyDataWriter.h>
+#include <vtkAppendPolyData.h>
+
 using namespace std;
 using namespace ibex;
 
@@ -27,7 +31,7 @@ Graph::Graph(Graph* g, int graph_id){
         Pave* pave_root = g->get_node_list()[i];
         Pave* pave_copy = m_node_list[i];
 
-        for(int face = 0; face<4; face++){
+        for(int face = 0; face<pave_root->get_size(); face++){
             for(int j=0; j<pave_root->get_border(face)->get_inclusions().size(); j++){
                 Inclusion *i = new Inclusion(pave_root->get_border(face)->get_inclusion(j));
                 i->set_border(pave_root->get_border(face)->get_inclusion(j)->get_border()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j)->get_brother_face()));
@@ -52,7 +56,7 @@ Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
     Pave* copy_node = activated_node->get_copy_node();
     copy_node->set_full();
     *(copy_node) &= *(activated_node);
-    for(int face=0; face<4; face++){
+    for(int face=0; face<copy_node->get_size(); face++){
         vector<Pave*> brothers_pave = copy_node->get_brothers(face);
         for(int i=0; i<brothers_pave.size(); i++){
             if(!brothers_pave[i]->is_in_queue()){
@@ -118,19 +122,12 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
-//        if(inner){
-//            cout << "----------------------" << endl;
-//            this->draw(512, false, "inner - before", true);
-//            pave->draw_position();
-//            pave->print();
-//        }
-
         bool change = m_utils->CtcContinuity(pave, backward);
         if(change || pave->get_first_process()){
             m_utils->CtcPaveConsistency(pave, backward, inner);
 
             // Warn scheduler to process new pave
-            for(int face=0; face<4; face++){
+            for(int face=0; face<pave->get_size(); face++){
                 vector<Pave*> brothers_pave = pave->get_brothers(face);
                 for(int i=0; i<brothers_pave.size(); i++){
                     if(brothers_pave[i]->is_in_queue() == false){
@@ -142,17 +139,6 @@ int Graph::process(int max_iterations, bool backward, bool inner){
 
             pave->set_first_process_false();
         }
-
-//        if(inner){
-//            this->draw(512, false, "inner - after", true);
-//            pave->draw_position();
-//            cout << "********"<< endl;
-//            cout << "change = " << change << endl;
-//            pave->print();
-//            if(iterations%100==0){
-//                cout << iterations << endl;
-//            }
-//        }
     }
 
     m_node_queue.clear();
@@ -200,7 +186,7 @@ void Graph::set_active_pave(const IntervalVector &box){
 
     for(auto &pave : pave_activated){
         pave->set_full();
-        for(int face=0; face<4; face++){
+        for(int face=0; face<pave->get_size(); face++){
             vector<Pave*> pave_brother_list = pave->get_brothers(face);
             for(auto &pave_brother : pave_brother_list){
                 if(!pave_brother->is_in_queue()){
@@ -228,78 +214,19 @@ Pave& Graph::operator[](int id){
     return *(m_node_list[id]);
 }
 
-void Graph::draw(int sizeX, int sizeY, bool filled, string comment, bool inner_details){
-
-    stringstream ss;
-    ss << "integralIbex" << m_graph_id<< "-" << m_drawing_cpt << " " << comment;
-    vibes::newFigure(ss.str());
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",sizeX,"height",sizeY));
-
-    for(auto &node:m_node_empty_list){
-        node->draw(filled, "gray[]");
-    }
+void Graph::draw_vtk(string filename){
+    vtkSmartPointer<vtkAppendPolyData> polyData = vtkSmartPointer<vtkAppendPolyData>::New();
 
     for(auto &node:m_node_list){
-        if(inner_details)
-            node->draw(filled, "black[]", false, true);
-        else
-            node->draw(filled);
-    }
-    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-    m_drawing_cpt++;
-}
-
-void Graph::drawInner(bool filled){
-    for(auto &node:m_node_list){
-        node->draw(filled, "[]", true);
-    }
-}
-
-void Graph::print_pave_info(double x, double y, string color) const{
-
-    Pave* p = get_pave(x, y);
-    if(p==NULL){
-        cout << "PAVE NOT FOUND" << endl;
-        return;
+        polyData->AddInputData(node->draw(filled, "gray[]"));
     }
 
-    cout << "BOX = " << p->get_position() << endl;
-    cout << p << endl;
-    cout << "Border ID" << '\t' << "Position ([x], [y])" << '\t' << "segment_in" << '\t' << "segment_out" << endl;
-    for(int i= 0; i<p->get_borders().size(); i++){
-        cout << "border " << i << '\t' << p->get_border(i)->get_position() << '\t' << p->get_border(i)->get_segment_in() << p->get_border(i)->get_segment_out()<< endl;
-    }
-    cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << endl;
-
-    for(int i=0; i<4; i++){
-        if(p->get_border(i)->get_inclusions().size()!=0){
-            for(int j = 0; j<p->get_border(i)->get_inclusions().size(); j++){
-                cout << "border=" << i << " (" << p->get_border(i) << ") brother=" << j << " " << p->get_border(i)->get_inclusion(j)->get_border() << " pave(" << p->get_border(i)->get_inclusion(j)->get_border()->get_pave() << ")" << endl;
-            }
-        }
-        else{
-            cout << "border=" << i << " (" << p->get_border(i) << ")" << endl;
-        }
-
-    }
-
-    double r=0.5*min(p->get_position()[0].diam(), p->get_position()[1].diam())/2.0;
-
-    vibes::drawCircle(p->get_position()[0].mid(), p->get_position()[1].mid(), r, color);
-
-    cout << endl;
-}
-
-void Graph::print() const{
-    cout << "********" << endl;
-    cout << "GRAPH id= " << m_graph_id << endl;
-    for(auto &node:m_node_list){
-        node->print();
-    }
-}
-
-Utils* Graph::get_utils(){
-    return m_utils;
+    polyData->Update();
+    vtkSmartPointer<vtkXMLPolyDataWriter> outputWriter = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+    string file = filename + m_graph_id + "-" + m_drawing_cpt + ".vtp";
+    outputWriter->SetFileName(file.c_str());
+    outputWriter->SetInputData(polyData->GetOutput());
+    outputWriter->Write();
 }
 
 int Graph::size() const{
