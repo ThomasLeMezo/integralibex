@@ -21,7 +21,9 @@
 using namespace std;
 using namespace ibex;
 
-Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVector u): m_position(position.size())
+Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVector u):
+    m_position(position.size()),
+    m_u(position.size())
 {
     m_position = position;    // Box corresponding to the Pave
     m_dim = position.size();
@@ -38,14 +40,14 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVect
     vector< vector<IntervalVector>> faces = get_faces(position);
     for(int face=0; face<faces.size(); face++){
         for(int side=0; side<faces[face].size(); side++){
-            m_borders.push_back(new Border(face, this, face, side));
+            m_borders.push_back(new Border(faces[face][side], this, face, side));
         }
     }
 
     m_full = false;
     m_empty = false;
 
-    // Build ray for theta & for u
+    // Build ray for theta & for u + theta
     IntervalVector theta = f->eval_vector(position);
     Linear_Expression e = Linear_Expression(0);
     std::vector<Linear_Expression> linear_expression_list;
@@ -56,17 +58,20 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVect
 
     e = Linear_Expression(0);
     linear_expression_list.clear();
-    recursive_linear_expression_from_iv(u, u.size(), linear_expression_list,e);
+    recursive_linear_expression_from_iv(u + theta, u.size(), linear_expression_list,e);
     for(auto &l:linear_expression_list){
         m_ray_command.push_back(ray(l));
     }
 }
 
-Pave::Pave(const Pave *p): m_position(p->get_dim())
+Pave::Pave(const Pave *p):
+    m_position(p->get_dim()),
+    m_u(p->get_dim())
 {
     m_position = p->get_position();    // Box corresponding to the Pave
     m_dim = p->get_dim();
     m_f = p->get_f();
+    m_u = p->get_u();
     m_full = true; // Force to recompute results
     m_empty = false;
     m_in_queue = false;
@@ -145,25 +150,11 @@ void Pave::set_empty(){
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-vtkPolyData draw_vtk(){
+vtkPolyData* Pave::draw_vtk(){
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer< vtkPoints >::New();
 
-    for(auto &ph:ph_list){
-        for(auto &g:ph.generators()){
-            if(g.is_point()){
-                std::vector<double> coord;
-                for(int i=0; i<3; i++){
-                    PPL::Variable x(i);
-                    if(g.space_dimension()>i){
-                        coord.push_back(g.coefficient(x).get_d()/(g.divisor().get_d()*IBEX_PPL_PRECISION));
-                    }
-                    else{
-                        coord.push_back(0.0);
-                    }
-                }
-                points->InsertNextPoint(coord[0], coord[1], coord[2]);
-            }
-        }
+    for(auto &border:m_borders){
+        border->draw_vtk_get_points(points);
     }
 
     vtkSmartPointer< vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
@@ -194,18 +185,18 @@ void Pave::bisect(vector<Pave*> &result){
     Pave *pave1 = new Pave(result_boxes.first, m_f, m_u); // Left or Up
     Pave *pave2 = new Pave(result_boxes.second, m_f, m_u); // Right or Down
 
-    int indice1, indice2;
+    // Find the axe of bissection
+    int bisect_axis = 0;
+    for(int i=0; i<m_position.size(); i++){
+        if(result_boxes.first[i] != m_position[i]){
+            bisect_axis = i;
+            break;
+        }
+    }
 
-    if(pave1->m_position[0] == m_position[0]){
-        // Case UP/DOWN bisection
-        indice1 = 2;
-        indice2 = 0;
-    }
-    else{
-        // Case LEFT/RIGHT bisection
-        indice1 = 1;
-        indice2 = 3;
-    }
+    int indice1, indice2;
+    indice1 = 2*bisect_axis + 1;    // Indice of the common face with pave2
+    indice2 = 2*bisect_axis;
 
     // The order of tasks is important !
     // 1) Update pave brothers with pave1 & pave2
@@ -226,8 +217,8 @@ void Pave::bisect(vector<Pave*> &result){
     }
 
     // 3) Add each other to its brother list (pave1 <-> pave2)
-    Inclusion *inclusion_to_pave2 = new Inclusion(pave2->get_border(indice2), indice2);
-    Inclusion *inclusion_to_pave1 = new Inclusion(pave1->get_border(indice1), indice1);
+    Inclusion *inclusion_to_pave2 = new Inclusion(pave2->get_border(indice2), bisect_axis, 1);
+    Inclusion *inclusion_to_pave1 = new Inclusion(pave1->get_border(indice1), bisect_axis, 0);
 
     pave1->get_border(indice1)->add_inclusion(inclusion_to_pave2);
     pave2->get_border(indice2)->add_inclusion(inclusion_to_pave1);
@@ -381,7 +372,7 @@ Pave* Pave::get_copy_node(){
 //            }
 //        }
 //    }
-}
+//}
 
 bool Pave::get_first_process() const{
     return m_first_process;
@@ -401,4 +392,8 @@ int Pave::get_dim() const{
 
 int Pave::get_size() const{
     return m_borders.size();
+}
+
+IntervalVector Pave::get_u() const{
+    return m_u;
 }

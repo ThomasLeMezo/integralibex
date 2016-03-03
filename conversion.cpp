@@ -26,8 +26,8 @@ ibex::IntervalVector ph_2_iv(const PPL::C_Polyhedron &ph){
     IntervalVector box(ph.space_dimension());
     for(int dim=0; dim<box.size(); dim++){
         PPL::Variable x(dim);
-        box[dim] = Interval(rb.get_interval(x).lower().get_d()/IBEX_PPL_PRECISION,
-                            rb.get_interval(x).upper().get_d()/IBEX_PPL_PRECISION);
+        box[dim] = ibex::Interval(rb.get_interval(x).lower().get_d()/IBEX_PPL_PRECISION,
+                                  rb.get_interval(x).upper().get_d()/IBEX_PPL_PRECISION);
     }
     return box;
 }
@@ -35,6 +35,7 @@ ibex::IntervalVector ph_2_iv(const PPL::C_Polyhedron &ph){
 std::vector< vector<IntervalVector>> get_faces(ibex::IntervalVector pave){
     std::vector< vector<IntervalVector>> face_list;
     for(int face=0; face<pave.size(); face++){
+        std::vector<IntervalVector> side_list;
         for(int side = 0; side<2; side++){
             IntervalVector tmp_face(pave.size());
             for(int i=0; i<pave.size(); i++){
@@ -50,8 +51,9 @@ std::vector< vector<IntervalVector>> get_faces(ibex::IntervalVector pave){
                     tmp_face[i] = pave[i];
                 }
             }
-            face_list.push_back(tmp_face);
+            side_list.push_back(tmp_face);
         }
+        face_list.push_back(side_list);
     }
     return face_list;
 }

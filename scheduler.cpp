@@ -8,8 +8,9 @@
 using namespace std;
 using namespace ibex;
 
-Scheduler::Scheduler(const IntervalVector &box, ibex::Function *f, ibex::Interval u){
-    m_graph_list.push_back(new Graph(box, f, &m_utils, 0, u));
+Scheduler::Scheduler(const IntervalVector &box, ibex::Function *f, ibex::IntervalVector u){
+    m_graph_list.push_back(new Graph(box, f, u, 0));
+    m_dim = box.size();
 }
 
 Scheduler::~Scheduler(){
@@ -18,8 +19,8 @@ Scheduler::~Scheduler(){
     }
 }
 
-void Scheduler::set_symetry(Function *f, int face_in, int face_out){
-    m_graph_list[0]->set_symetry(f, face_in, face_out);
+void Scheduler::set_symetry(Function *f, int axis_in, int side_in, int axis_out, int side_out){
+    m_graph_list[0]->set_symetry(f, axis_in, side_in, axis_out, side_out);
 }
 
 void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe, bool inner){
@@ -33,9 +34,9 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         return;
     int iterations = 0;
 
-    if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
+    if(iterations < iterations_max && this->m_graph_list[0]->size()<pow(2, m_dim)){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(0.0,4,false, false); // Start with 4 boxes
+        m_graph_list[0]->sivia(0.0,pow(2, m_dim),false, false); // Start with 4 boxes
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
             m_graph_list[0]->set_active_pave(initial_box);
@@ -49,7 +50,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->remove_empty_node();
-        m_graph_list[0]->sivia(0.0, 2*m_graph_list[0]->size(), false, true);
+        m_graph_list[0]->sivia(0.0, m_dim*m_graph_list[0]->size(), false, true);
 
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
@@ -86,9 +87,9 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     int iterations = 0;
     m_graph_list[0]->set_full();
 
-    if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
+    if(iterations < iterations_max && this->m_graph_list[0]->size()<pow(2, m_dim)){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(0.0,4,false, false); // Start with 4 boxes
+        m_graph_list[0]->sivia(0.0,pow(2, m_dim),false, false); // Start with 4 boxes
 
         //m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
@@ -102,7 +103,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)
                 break;
             m_graph_list[nb_graph]->clear_node_queue();
-            m_graph_list[nb_graph]->sivia(0.0, 2*m_graph_list[nb_graph]->size(), true, true);
+            m_graph_list[nb_graph]->sivia(0.0, m_dim*m_graph_list[nb_graph]->size(), true, true);
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
@@ -191,12 +192,12 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Scheduler::draw(int sizeX, int sizeY, bool filled){
+void Scheduler::draw(){
     for(int i=0; i<m_graph_list.size(); i++){
-        m_graph_list[i]->draw(sizeX, sizeY, filled);
+        m_graph_list[i]->draw_vtk(std::to_string(i));
 
-        if(m_graph_inner_list.size()==m_graph_list.size())
-            m_graph_inner_list[i]->drawInner(filled);
+//        if(m_graph_inner_list.size()==m_graph_list.size())
+//            m_graph_inner_list[i]->drawInner(filled);
     }
 }
 
@@ -204,6 +205,6 @@ Graph* Scheduler::get_graph_list(int i){
     return m_graph_list[i];
 }
 
-void Scheduler::print_pave_info(int graph, double x, double y, string color){
-    m_graph_list[graph]->print_pave_info(x, y, color);
-}
+//void Scheduler::print_pave_info(int graph, double x, double y, string color){
+//    m_graph_list[graph]->print_pave_info(x, y, color);
+//}

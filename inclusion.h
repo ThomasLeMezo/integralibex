@@ -4,6 +4,8 @@
 #include <ibex.h>
 #include <border.h>
 
+namespace PPL = Parma_Polyhedra_Library;
+
 class Border;
 class Inclusion
 {
@@ -16,6 +18,7 @@ public:
     const PPL::C_Polyhedron         get_volume_in() const;
     const PPL::C_Polyhedron         get_volume_out() const;
     const ibex::IntervalVector      get_position() const;
+    int                             get_brother_face() const;
     int                             get_brother_face_axis() const;
     int                             get_brother_face_side() const;
 

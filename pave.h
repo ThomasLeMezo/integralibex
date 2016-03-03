@@ -5,13 +5,15 @@
 #include <border.h>
 #include <vtkPolyData.h>
 
+namespace PPL = Parma_Polyhedra_Library;
+
 class Border;
 class Pave
 {
 
     /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &position, ibex::Function *f, ibex::IntervalVector u=ibex::Interval::ZERO);
+    Pave(const ibex::IntervalVector &position, ibex::Function *f, ibex::IntervalVector u);
     Pave(const Pave *p);
     ~Pave();
 
@@ -20,7 +22,7 @@ public:
     bool                        diff(const Pave &p);
 
     // ******** Drawing functions ********
-    vtkPolyData                 draw_vtk();
+    vtkPolyData *draw_vtk();
     void                        print();
 
     // ******** Graph building ********
@@ -57,6 +59,7 @@ public:
 
     Pave*                               get_copy_node();
     ibex::Function*                     get_f() const;
+    ibex::IntervalVector                get_u() const;
 
     bool                                get_first_process() const;
     int                                 get_dim() const;
@@ -74,6 +77,7 @@ private:
     std::vector<Border*>        m_borders;
 
     ibex::Function              *m_f;
+    ibex::IntervalVector        m_u;
     Pave*                       m_copy_node;
 
 private:

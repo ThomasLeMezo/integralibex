@@ -5,6 +5,7 @@
 #include "stdio.h"
 
 #include "conversion.h"
+#include "vtkSmartPointer.h"
 
 using namespace ibex;
 using namespace std;
@@ -19,7 +20,7 @@ Border::Border(const IntervalVector &position, Pave *pave, int face_axis, int fa
     m_pave = pave;
 
     m_dim = position.size();
-    m_volume_full = iv_2_box(position);
+    m_volume_full = C_Polyhedron(iv_2_box(position));
 
     m_empty = false;
     m_full = false;
@@ -39,7 +40,7 @@ Border::Border(const Border *border):
 
     m_volume_in = border->get_volume_in();
     m_volume_out = border->get_volume_out();
-    m_volume_full = border->get_m_volume_full();
+    m_volume_full = border->get_volume_full();
 
     m_empty = false;
     m_full = false;
@@ -323,7 +324,7 @@ Inclusion* Border::operator[](int id){
     return m_inclusions[id];
 }
 
-int Border::get_dim(){
+int Border::get_dim() const{
     return m_dim;
 }
 
@@ -332,4 +333,56 @@ int Border::get_face_axis() const{
 }
 int Border::get_face_side() const{
     return m_face_side;
+}
+
+int Border::get_face() const{
+    return 2*m_face_axis + m_face_side;
+}
+
+void Border::draw_vtk_get_points(vtkSmartPointer<vtkPoints> points){
+    for(int ph_id = 0; ph_id < 2; ph_id ++){
+        C_Polyhedron ph;
+        if(ph_id==0)
+            ph = m_volume_in;
+        else
+            ph = m_volume_out;
+
+        if(ph.space_dimension()==2){
+            for(auto &g:ph.generators()){
+                if(g.is_point()){
+                    std::vector<double> coord;
+                    for(int cpt=0; cpt<2; cpt++){
+                        coord.clear();
+                        for(int i=0; i<3; i++){
+                            PPL::Variable x(i);
+                            if(i<2){
+                                coord.push_back(g.coefficient(x).get_d()/(g.divisor().get_d()*IBEX_PPL_PRECISION));
+                            }
+                            else{
+                                coord.push_back(-cpt/100.0);
+                            }
+                        }
+                        points->InsertNextPoint(coord[0], coord[1], coord[2]);
+                    }
+                }
+            }
+        }
+        else{
+            for(auto &g:ph.generators()){
+                if(g.is_point()){
+                    std::vector<double> coord;
+                    for(int i=0; i<3; i++){
+                        PPL::Variable x(i);
+                        if(g.space_dimension()>i){
+                            coord.push_back(g.coefficient(x).get_d()/(g.divisor().get_d()*IBEX_PPL_PRECISION));
+                        }
+                        else{
+                            coord.push_back(0.0);
+                        }
+                    }
+                    points->InsertNextPoint(coord[0], coord[1], coord[2]);
+                }
+            }
+        }
+    }
 }

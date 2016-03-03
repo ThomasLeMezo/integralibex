@@ -6,6 +6,9 @@
 #include <pave.h>
 #include <inclusion.h>
 
+#include "vtkSmartPointer.h"
+#include "vtkPoints.h"
+
 namespace PPL = Parma_Polyhedra_Library;
 
 class Pave;
@@ -25,6 +28,8 @@ public:
     void                            remove_inclusion_receving(int indice);
     void                            remove_inclusion_receving(Inclusion *inclusion);
 
+    void                            draw_vtk_get_points(vtkSmartPointer<vtkPoints> points);
+
     // ******** Border Properties ********
     // Operations
     Border&                         operator&=(const Border &b);
@@ -33,8 +38,8 @@ public:
 
     // Setters
     void                            set_full();
-    void                            set_full_segment_in();
-    void                            set_full_segment_out();
+    void                            set_full_volume_in();
+    void                            set_full_volume_out();
     void                            set_empty();
     void                            set_volume_in(PPL::C_Polyhedron volume_in, bool inclusion);
     void                            set_volume_out(PPL::C_Polyhedron volume_out, bool inclusion);
@@ -53,6 +58,7 @@ public:
     int                             get_dim() const;
     int                             get_face_axis() const;
     int                             get_face_side() const;
+    int                             get_face() const;
 
     const PPL::C_Polyhedron         get_volume_in() const;
     const PPL::C_Polyhedron         get_volume_out() const;

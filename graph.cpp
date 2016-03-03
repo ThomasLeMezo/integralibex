@@ -8,12 +8,11 @@
 using namespace std;
 using namespace ibex;
 
-Graph::Graph(const IntervalVector &box, ibex::Function *f, Utils *utils, int graph_id=0, Interval u){
+Graph::Graph(const IntervalVector &box, ibex::Function *f, ibex::IntervalVector u, int graph_id=0){
     Pave *p = new Pave(box, f, u);
     m_node_list.push_back(p);
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
-    m_utils = utils;
 }
 
 Graph::Graph(Graph* g, int graph_id){
@@ -44,7 +43,6 @@ Graph::Graph(Graph* g, int graph_id){
 
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
-    m_utils = g->get_utils();
 }
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
@@ -93,9 +91,7 @@ void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
-        double diam = tmp->get_theta_diam();
-
-        if(diam < epsilon_theta || tmp->is_empty() && do_not_bisect_empty){// || (not_full_test && tmp->is_full() && diam < M_PI)){
+        if(tmp->is_empty() && do_not_bisect_empty){// || (not_full_test && tmp->is_full() && diam < M_PI)){
             m_node_list.push_back(tmp);
             iterations++;
         }
@@ -122,9 +118,9 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
-        bool change = m_utils->CtcContinuity(pave, backward);
+        bool change = CtcContinuity(pave, backward);
         if(change || pave->get_first_process()){
-            m_utils->CtcPaveConsistency(pave, backward, inner);
+            CtcPaveConsistency(pave, backward, inner);
 
             // Warn scheduler to process new pave
             for(int face=0; face<pave->get_size(); face++){
@@ -160,8 +156,8 @@ void Graph::add_all_to_queue(){
 
 Pave* Graph::get_pave(double x, double y) const{
     IntervalVector position(2);
-    position[0] = Interval(x);
-    position[1] = Interval(y);
+    position[0] = ibex::Interval(x);
+    position[1] = ibex::Interval(y);
 
     for(auto &node:m_node_list){
         if(!(position & node->get_position()).is_empty()){
@@ -214,16 +210,16 @@ Pave& Graph::operator[](int id){
     return *(m_node_list[id]);
 }
 
-void Graph::draw_vtk(string filename){
+void Graph::draw_vtk(string filename) const{
     vtkSmartPointer<vtkAppendPolyData> polyData = vtkSmartPointer<vtkAppendPolyData>::New();
 
     for(auto &node:m_node_list){
-        polyData->AddInputData(node->draw(filled, "gray[]"));
+        polyData->AddInputData(node->draw_vtk());
     }
 
     polyData->Update();
     vtkSmartPointer<vtkXMLPolyDataWriter> outputWriter = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-    string file = filename + m_graph_id + "-" + m_drawing_cpt + ".vtp";
+    string file = filename + to_string(m_graph_id) + "-" + to_string(m_drawing_cpt) + ".vtp";
     outputWriter->SetFileName(file.c_str());
     outputWriter->SetInputData(polyData->GetOutput());
     outputWriter->Write();
@@ -304,9 +300,9 @@ void Graph::set_empty(){
     }
 }
 
-void Graph::set_symetry(Function* f, int face_in, int face_out){
-    Inclusion *i = new Inclusion(m_node_list[0]->get_border(face_in), f, face_in);
-    m_node_list[0]->get_border(face_out)->add_inclusion(i);
+void Graph::set_symetry(Function* f, int axis_in, int side_in, int axis_out, int side_out){
+    Inclusion *i = new Inclusion(m_node_list[0]->get_border(2*axis_in + side_in), f, axis_in, side_in);
+    m_node_list[0]->get_border(2*axis_out+side_out)->add_inclusion(i);
 }
 
 void Graph::set_all_first_process(){

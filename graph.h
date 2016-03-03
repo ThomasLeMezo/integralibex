@@ -7,7 +7,7 @@
 class Graph
 {
 public:
-    Graph(const ibex::IntervalVector &box, ibex::Function *f, Utils *utils, int graph_id, ibex::Interval u=ibex::Interval::EMPTY_SET);
+    Graph(const ibex::IntervalVector &box, ibex::Function *f, ibex::IntervalVector u, int graph_id);
     Graph(Graph* g, int graph_id=-1);
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);
     ~Graph();
@@ -25,7 +25,7 @@ public:
     // Setter
     void set_full();
     void set_active_pave(const ibex::IntervalVector &box);
-    void set_symetry(ibex::Function *f, int face_in, int face_out);
+    void set_symetry(ibex::Function *f, int axis_in, int side_in, int axis_out, int side_out);
     void set_empty();
     void clear_node_queue();
     void add_all_to_queue();
@@ -38,7 +38,6 @@ public:
     const std::vector<Pave *> get_node_queue() const;
     Pave*               get_node_const(int i) const;
     Pave*               get_semi_full_node();
-    Utils*              get_utils();
     int                 size() const;
     ibex::Function*     get_f_inclusion_std();
     int                 get_graph_id();

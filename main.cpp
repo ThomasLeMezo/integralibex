@@ -47,14 +47,15 @@ void van_der_pol_cycle(){
     box[0] = ibex::Interval(-4.0, 4.0);
     box[1] = ibex::Interval(-4.0, 4.0);
 
-    ibex::Interval u = ibex::Interval::ZERO;
+    ibex::IntervalVector u(1);
+    u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
     s.cameleon_cycle(12, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-    s.draw(1024, 1024, true);
+    s.draw();
 }
 
 void ball(){
@@ -67,7 +68,8 @@ void ball(){
     box[0] = ibex::Interval(0.0, 20.0);
     box[1] = ibex::Interval(-20.0, 20.0);
 
-    ibex::Interval u = ibex::Interval::ZERO;
+    ibex::IntervalVector u(1);
+    u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
     IntervalVector activated_pave(2);
@@ -75,12 +77,12 @@ void ball(){
     activated_pave[1] = ibex::Interval(-2.0);
 
     ibex::Function f_sym(x, y, Return(x, -y));
-    s.set_symetry(&f_sym,3, 3);
+    s.set_symetry(&f_sym,1, 0, 1, 0);
 
     s.cameleon_propagation(15, 1000000, activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-    s.draw(1024, 1024, true);
+    s.draw();
 }
 
 void integration(){
@@ -93,7 +95,8 @@ void integration(){
     box[0] = ibex::Interval(-10.0, 10.0);
     box[1] = ibex::Interval(-10.0, 10.0);
 
-    ibex::Interval u = ibex::Interval::ZERO;
+    ibex::IntervalVector u(1);
+    u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
     IntervalVector activated_pave(2);
@@ -106,7 +109,7 @@ void integration(){
     s.cameleon_propagation(15, 1000000, activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-    s.draw(1024, 1024*5/12, true);
+    s.draw();
     vibes::axisLimits(0.0, 12.0, -1.0, 4.0);
 }
 
@@ -121,14 +124,15 @@ void capture_attractor(){
     box[0] = -ibex::Interval::PI | ibex::Interval::PI;
     box[1] = ibex::Interval(0.01, 10.0);
 
-    ibex::Interval u = ibex::Interval::ZERO;
+    ibex::IntervalVector u(1);
+    u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
     ibex::Function f_sym23(phi, d, Return(phi-ibex::Interval::TWO_PI, d));
-    s.set_symetry(&f_sym23,1, 3);
+    s.set_symetry(&f_sym23,1, 1, 1, 0);
 
     ibex::Function f_sym32(phi, d, Return(phi+ibex::Interval::TWO_PI, d));
-    s.set_symetry(&f_sym32,3, 1);
+    s.set_symetry(&f_sym32,1, 0, 1, 1);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = ibex::Interval(2);
@@ -139,8 +143,7 @@ void capture_attractor(){
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-    s.draw(1024, 1024, true);
-    s.print_pave_info(0, -1.64,0.11,"b[b]");
+    s.draw();
 }
 
 int main()

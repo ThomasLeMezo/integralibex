@@ -1,4 +1,5 @@
 #include "inclusion.h"
+#include "conversion.h"
 
 using namespace std;
 using namespace ibex;
@@ -99,6 +100,10 @@ int Inclusion::get_brother_face_axis() const{
 
 int Inclusion::get_brother_face_side() const{
     return m_brother_face_side;
+}
+
+int Inclusion::get_brother_face() const{
+    return 2*m_brother_face_axis + m_brother_face_side;
 }
 
 void Inclusion::set_border(Border* border){
