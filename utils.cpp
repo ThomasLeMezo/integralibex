@@ -12,12 +12,17 @@ using namespace ibex;
 
 void CtcPropagateSegment(const PPL::C_Polyhedron &volume_in, Pave *pave, vector<PPL::C_Polyhedron> list_volume_out, const std::vector<PPL::Generator>& ray_theta_list, const std::vector<PPL::Generator>& ray_command_list){
     C_Polyhedron ph_projection(volume_in);
+    if(volume_in.is_empty())
+        return;
     for(auto &ray:ray_theta_list){
-        ph_projection.add_generator(ray);
+        if(ray.is_ray())
+            ph_projection.add_generator(ray);
+        else
+            cout << "RAY IS NOT A RAY : " << ray.type() << endl;
     }
-    for(auto &ray:ray_command_list){
-        ph_projection.add_generator(ray);
-    }
+//    for(auto &ray:ray_command_list){
+//        ph_projection.add_generator(ray);
+//    }
 
     list_volume_out.clear();
     for(int i=0; i<pow(2, pave->get_dim()); i++){

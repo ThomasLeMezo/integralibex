@@ -4,11 +4,14 @@
 #include "stdlib.h"
 #include "stdio.h"
 
+#include <ppl.hh>
+
 #include "conversion.h"
 #include "vtkSmartPointer.h"
 
 using namespace ibex;
 using namespace std;
+using namespace Parma_Polyhedra_Library::IO_Operators;
 
 Border::Border(const IntervalVector &position, Pave *pave, int face_axis, int face_side):
     m_position(position.size()),
@@ -71,10 +74,13 @@ bool Border::add_inclusion(Inclusion *inclusion){
     //        return false;
     IntervalVector test = m_position & inclusion->get_position();
     if(!test.is_empty()){
+        int dim_degenerated = 0;
         for(int dim=0; dim<test.size(); dim++){
             if(test[dim].is_degenerated())
-                return false;
+                dim_degenerated++;
         }
+        if(dim_degenerated!=1)
+            return false;
 
         m_inclusions.push_back(inclusion);
         inclusion->set_owner(this);

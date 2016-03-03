@@ -56,12 +56,12 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVect
         m_ray_vector_field.push_back(ray(l));
     }
 
-    e = Linear_Expression(0);
-    linear_expression_list.clear();
-    recursive_linear_expression_from_iv(u + theta, u.size(), linear_expression_list,e);
-    for(auto &l:linear_expression_list){
-        m_ray_command.push_back(ray(l));
-    }
+//    e = Linear_Expression(0);
+//    linear_expression_list.clear();
+//    recursive_linear_expression_from_iv(u + theta, theta.size(), linear_expression_list,e);
+//    for(auto &l:linear_expression_list){
+//        m_ray_command.push_back(ray(l));
+//    }
 }
 
 Pave::Pave(const Pave *p):

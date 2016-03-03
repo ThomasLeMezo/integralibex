@@ -24,14 +24,12 @@ void test(){
 //    test_CtcPropagateSegment();
 
 //    test_CtcPaveForward();
-    test_CtcPaveConsistency();
+//    test_CtcPaveConsistency();
 
 //    test_contractor_polar();
 
-//    test_rotation();
-
 //    test_diff();
-//    test_copy_graph();
+    test_copy_graph();
 
 //    sandbox();
 }
@@ -106,7 +104,7 @@ void integration(){
 //    ibex::Function f_sym(x, y, Return(x, -y));
 //    s.set_symetry(&f_sym,3, 3);
 
-    s.cameleon_propagation(15, 1000000, activated_pave);
+    s.cameleon_propagation(1, 1000000, activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw();
@@ -148,10 +146,10 @@ void capture_attractor(){
 
 int main()
 {
-//    integration();
+    integration();
 //    ball();
 //    capture_attractor();
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 //    test();
 
 #if 0

@@ -128,15 +128,15 @@ void test_copy_graph(){
     GraphDot graphDot(&g);
     graphDot.write("g.dot");
 
-    Graph g2(&g, 2);
+//    Graph g2(&g, 2);
 
-    GraphDot graphDot2(&g2);
-    graphDot2.write("g2.dot");
+//    GraphDot graphDot2(&g2);
+//    graphDot2.write("g2.dot");
 
-    Graph g3(&g, g.get_pave(1.0, 1.0), 3);
+//    Graph g3(&g, g.get_pave(1.0, 1.0), 3);
 
-    GraphDot graphDot3(&g3);
-    graphDot3.write("g3.dot");
+//    GraphDot graphDot3(&g3);
+//    graphDot3.write("g3.dot");
 
 //    g.print();
 //    g2.print();
