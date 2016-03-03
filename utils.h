@@ -4,7 +4,7 @@
 #include "ibex.h"
 #include "pave.h"
 
-void CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta, const ibex::IntervalVector &box_pave, const ibex::Interval &u, bool inner=false, bool inner_backward=false);
+void CtcPropagateSegment(const C_Polyhedron &volume_in, Pave *pave, vector<PPL::C_Polyhedron> list_volume_out, const std::vector<Generator> &ray_theta_list, const std::vector<Generator> &ray_command_list);
 
 void CtcPaveForward(Pave *p, bool inclusion, bool inner);
 void CtcPaveBackward(Pave *p, bool inclusion, bool inner);

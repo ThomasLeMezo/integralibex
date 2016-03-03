@@ -26,7 +26,7 @@ void test_CtcPropagateSegment(){
     cout << "seg_in = " << seg_in << endl;
     cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
 
-    CtcPropagateSegment(seg_in, seg_out, face, theta, box, ibex::Interval::EMPTY_SET);
+//    CtcPropagateSegment(seg_in, seg_out, face, theta, box, ibex::Interval::EMPTY_SET);
 
     cout << "----------" << endl;
     cout << "seg_in = " << seg_in << endl;

@@ -64,13 +64,22 @@ void recursive_linear_expression_from_iv(const ibex::IntervalVector &theta,
                                          Linear_Expression &local_linear_expression){
     if(dim > 0){
         PPL::Variable x(dim-1);
+        Linear_Expression l_b = local_linear_expression;
+        Linear_Expression l_u = local_linear_expression;
 
-        // ToDo: case theta[dim]= +oo / -oo
-        Linear_Expression l_u = x*ceil(theta[dim-1].ub()*IBEX_PPL_PRECISION) + local_linear_expression;
-        Linear_Expression l_l = x*floor(theta[dim-1].lb()*IBEX_PPL_PRECISION) + local_linear_expression;
+        // ToDo: case theta[dim] -> lb=+oo | ub=-oo
+        if(std::isinf(theta[dim-1].ub()))
+            linear_expression_list.push_back(Linear_Expression(x));
+        else
+            l_u += x*ceil(theta[dim-1].ub()*IBEX_PPL_PRECISION);
+
+        if(std::isinf(theta[dim-1].lb()))
+            linear_expression_list.push_back(Linear_Expression(-x));
+        else
+            l_b += x*floor(theta[dim-1].lb()*IBEX_PPL_PRECISION);
 
         recursive_linear_expression_from_iv(theta, dim-1, linear_expression_list, l_u);
-        recursive_linear_expression_from_iv(theta, dim-1, linear_expression_list, l_l);
+        recursive_linear_expression_from_iv(theta, dim-1, linear_expression_list, l_b);
     }
     else{
         linear_expression_list.push_back(local_linear_expression);
