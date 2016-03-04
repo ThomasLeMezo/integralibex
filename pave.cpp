@@ -6,7 +6,9 @@
 #include "iomanip"
 
 #include <vtkPoints.h>
+#include <vtkPointData.h>
 #include <vtkPolyData.h>
+#include <vtkCellData.h>
 #include <vtkDelaunay3D.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkSmartPointer.h>
@@ -20,6 +22,7 @@
 
 using namespace std;
 using namespace ibex;
+using namespace Parma_Polyhedra_Library::IO_Operators;
 
 Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVector u):
     m_position(position.size()),
@@ -53,7 +56,8 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVect
     std::vector<Linear_Expression> linear_expression_list;
     recursive_linear_expression_from_iv(theta, theta.size(), linear_expression_list,e);
     for(auto &l:linear_expression_list){
-        m_ray_vector_field.push_back(ray(l));
+        if(!l.all_homogeneous_terms_are_zero()) // Case {0, 0, ...}
+            m_ray_vector_field.push_back(ray(l));
     }
 
 //    e = Linear_Expression(0);
@@ -137,6 +141,7 @@ void Pave::set_full(){
         m_borders[face]->set_full();
     }
     m_full = true;
+    m_empty = false;
 }
 
 void Pave::set_empty(){
@@ -150,19 +155,30 @@ void Pave::set_empty(){
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData){
-    if(is_empty())
-        return;
+void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData, bool hull){
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer< vtkPoints >::New();
 
     for(auto &border:m_borders){
-        border->draw_vtk_get_points(points);
+        border->draw_vtk_get_points(points, hull);
     }
+    if(points->GetNumberOfPoints() == 0)
+        return;
 
+    // ********** Points **************
     vtkSmartPointer< vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
     polydata->SetPoints(points);
     //polydata->SetVerts(vertices);
 
+    // ********** Color **************
+    //// NOT WORKING
+//    unsigned char red[3] = {255, 0, 0};
+//    vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
+//    colors->SetNumberOfComponents(3);
+//    colors->SetName("Colors");
+//    colors->InsertNextTupleValue(red);
+//    polydata->GetPointData()->SetScalars(colors);
+
+    // ********** Surface **************
     // Create the convex hull of the pointcloud (delaunay + outer surface)
     vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer< vtkDelaunay3D >::New();
     delaunay->SetInputData(polydata);
@@ -172,6 +188,7 @@ void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData){
     surfaceFilter->SetInputConnection(delaunay->GetOutputPort());
     surfaceFilter->Update();
 
+    // ********** Append results **************
     polyData->AddInputData(surfaceFilter->GetOutput());
 }
 

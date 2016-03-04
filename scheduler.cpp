@@ -36,7 +36,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<pow(2, m_dim)){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(0.0,pow(2, m_dim),false, false); // Start with 4 boxes
+        m_graph_list[0]->sivia(0.0,pow(2, m_dim),false, false); // Start with 2^n boxes
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
             m_graph_list[0]->set_active_pave(initial_box);
@@ -50,10 +50,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->remove_empty_node();
-        cout << "wanted size = " << m_dim*m_graph_list[0]->size() << endl;
-        m_graph_list[0]->sivia(0.0, m_dim*m_graph_list[0]->size(), false, true);
-        cout << "performed size = " << m_graph_list[0]->size() << endl;
-
+        m_graph_list[0]->sivia(0.0, m_dim*m_graph_list[0]->size(), false, false);
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
             m_graph_list[0]->set_active_pave(initial_box);

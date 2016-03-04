@@ -9,28 +9,28 @@ using namespace ibex;
 using namespace std;
 
 void test_CtcPropagateSegment(){
-    cout << "TEST test_CtcPropagateSegment" << endl;
+//    cout << "TEST test_CtcPropagateSegment" << endl;
 
-    ibex::IntervalVector box(2);
-    box[0] = ibex::Interval(0.0, 1.0);
-    box[1] = ibex::Interval(0.0, 1.0);
+//    ibex::IntervalVector box(2);
+//    box[0] = ibex::Interval(0.0, 1.0);
+//    box[1] = ibex::Interval(0.0, 1.0);
 
-    int face = 3;
-    vector<ibex::Interval> theta = {ibex::Interval::HALF_PI | 5.0*ibex::Interval::HALF_PI/4.0, ibex::Interval::EMPTY_SET};
-    ibex::Interval seg_in = ibex::Interval(0,1);
-    vector<ibex::Interval> seg_out;
-    for(int j=0; j<3; j++){
-        seg_out.push_back(ibex::Interval::ALL_REALS);
-    }
+//    int face = 3;
+//    vector<ibex::Interval> theta = {ibex::Interval::HALF_PI | 5.0*ibex::Interval::HALF_PI/4.0, ibex::Interval::EMPTY_SET};
+//    ibex::Interval seg_in = ibex::Interval(0,1);
+//    vector<ibex::Interval> seg_out;
+//    for(int j=0; j<3; j++){
+//        seg_out.push_back(ibex::Interval::ALL_REALS);
+//    }
 
-    cout << "seg_in = " << seg_in << endl;
-    cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
+//    cout << "seg_in = " << seg_in << endl;
+//    cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
 
-//    CtcPropagateSegment(seg_in, seg_out, face, theta, box, ibex::Interval::EMPTY_SET);
+////    CtcPropagateSegment(seg_in, seg_out, face, theta, box, ibex::Interval::EMPTY_SET);
 
-    cout << "----------" << endl;
-    cout << "seg_in = " << seg_in << endl;
-    cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
+//    cout << "----------" << endl;
+//    cout << "seg_in = " << seg_in << endl;
+//    cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
 }
 
 void test_CtcPaveForward(){
@@ -113,17 +113,21 @@ void test_CtcPaveConsistency(){
 }
 
 void test_copy_graph(){
-    ibex::IntervalVector box(2);
+    ibex::IntervalVector box(3);
     box[0] = ibex::Interval(0,1);
     box[1] = ibex::Interval(0,1);
-    ibex::Variable x, y;
-    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    box[2] = ibex::Interval(0,1);
 
-    ibex::IntervalVector u(1);
+    ibex::Variable x, y, z;
+    ibex::Function f(x, y, z, Return(x, y, z));
+
+    ibex::IntervalVector u(3);
     u[0] = ibex::Interval::ZERO;
+    u[1] = ibex::Interval::ZERO;
+    u[2] = ibex::Interval::ZERO;
 
     Graph g(box, &f, u, 1);
-    g.sivia(0.0, 4, false, false);
+    g.sivia(0.0, 8, false, false);
 
     GraphDot graphDot(&g);
     graphDot.write("g.dot");

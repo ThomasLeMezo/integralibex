@@ -10,19 +10,19 @@ using namespace ibex;
 // ********************************************************************************
 // ****************** Contractors Global functions ********************************
 
-void CtcPropagateSegment(const PPL::C_Polyhedron &volume_in, Pave *pave, vector<PPL::C_Polyhedron> list_volume_out, const std::vector<PPL::Generator>& ray_theta_list, const std::vector<PPL::Generator>& ray_command_list){
+void CtcPropagateSegment(const PPL::C_Polyhedron &volume_in, Pave *pave, vector<PPL::C_Polyhedron> list_volume_out, const std::vector<PPL::Generator>& ray_vector_field_list, const std::vector<PPL::Generator>& ray_command_list){
     C_Polyhedron ph_projection(volume_in);
     if(volume_in.is_empty())
         return;
-    for(auto &ray:ray_theta_list){
+    for(auto &ray:ray_vector_field_list){
         if(ray.is_ray())
             ph_projection.add_generator(ray);
         else
             cout << "RAY IS NOT A RAY : " << ray.type() << endl;
     }
-//    for(auto &ray:ray_command_list){
-//        ph_projection.add_generator(ray);
-//    }
+    //    for(auto &ray:ray_command_list){
+    //        ph_projection.add_generator(ray);
+    //    }
 
     list_volume_out.clear();
     for(int i=0; i<2*pave->get_dim(); i++){
@@ -110,33 +110,35 @@ bool CtcContinuity(Pave *p, bool backward){
     bool change = false;
 
     for(int face = 0; face < 4; face++){
-        PPL::C_Polyhedron volume_in(p->get_dim(), PPL::EMPTY);
-        PPL::C_Polyhedron volume_out(p->get_dim(), PPL::EMPTY);
+        if(p->get_border(face)->get_inclusions().size() > 0){
+            PPL::C_Polyhedron volume_in(p->get_dim(), PPL::EMPTY);
+            PPL::C_Polyhedron volume_out(p->get_dim(), PPL::EMPTY);
 
-        for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
-            volume_in.poly_hull_assign(p->get_border(face)->get_inclusion(b)->get_volume_in());
-            volume_out.poly_hull_assign(p->get_border(face)->get_inclusion(b)->get_volume_out());
-        }
-
-        if(backward){
-            PPL::C_Polyhedron volume_inter_out(volume_out), volume_inter_in(volume_in);
-            volume_inter_out.intersection_assign(p->get_border(face)->get_volume_in());
-            volume_inter_in.intersection_assign(p->get_border(face)->get_volume_out());
-
-            if(p->get_border(face)->get_volume_in() != volume_inter_out || p->get_border(face)->get_volume_out() != volume_inter_in){
-                change = true;
-                p->get_border(face)->set_volume_in(volume_out, backward);
-                p->get_border(face)->set_volume_out(volume_in, backward);
+            for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
+                volume_in.poly_hull_assign(p->get_border(face)->get_inclusion(b)->get_volume_in());
+                volume_out.poly_hull_assign(p->get_border(face)->get_inclusion(b)->get_volume_out());
             }
-        }
-        else{
-            PPL::C_Polyhedron volume_test(p->get_border(face)->get_volume_in());
-            volume_test.poly_hull_assign(volume_out);
-            volume_test.intersection_assign(p->get_border(face)->get_volume_full());
 
-            if(p->get_border(face)->get_volume_in() != volume_test){
-                change = true;
-                p->get_border(face)->set_volume_in(volume_out, backward);
+            if(backward){
+                PPL::C_Polyhedron volume_inter_out(volume_out), volume_inter_in(volume_in);
+                volume_inter_out.intersection_assign(p->get_border(face)->get_volume_in());
+                volume_inter_in.intersection_assign(p->get_border(face)->get_volume_out());
+
+                if(p->get_border(face)->get_volume_in() != volume_inter_out || p->get_border(face)->get_volume_out() != volume_inter_in){
+                    change = true;
+                    p->get_border(face)->set_volume_in(volume_out, backward);
+                    p->get_border(face)->set_volume_out(volume_in, backward);
+                }
+            }
+            else{
+                PPL::C_Polyhedron volume_test(p->get_border(face)->get_volume_in());
+                volume_test.poly_hull_assign(volume_out);
+                volume_test.intersection_assign(p->get_border(face)->get_volume_full());
+
+                if(p->get_border(face)->get_volume_in() != volume_test){
+                    change = true;
+                    p->get_border(face)->set_volume_in(volume_out, backward);
+                }
             }
         }
 

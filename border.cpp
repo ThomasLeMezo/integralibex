@@ -73,7 +73,7 @@ bool Border::add_inclusion(Inclusion *inclusion){
     //    if(inclusion->get_owner()->is_empty()) // Test if the border exist
     //        return false;
     IntervalVector test = m_position & inclusion->get_position();
-    if(!test.is_empty()){
+//    if(!test.is_empty()){
         int dim_degenerated = 0;
         for(int dim=0; dim<test.size(); dim++){
             if(test[dim].is_degenerated())
@@ -86,8 +86,8 @@ bool Border::add_inclusion(Inclusion *inclusion){
         inclusion->set_owner(this);
         inclusion->get_border()->add_inclusion_receving(inclusion); // Add a ref to inclusion (for removal purpose)
         return true;
-    }
-    return false;
+//    }
+//    return false;
 }
 
 bool Border::add_inclusion_copy(Inclusion *inclusion){
@@ -346,13 +346,17 @@ int Border::get_face() const{
     return 2*m_face_axis + m_face_side;
 }
 
-void Border::draw_vtk_get_points(vtkSmartPointer<vtkPoints> &points){
+void Border::draw_vtk_get_points(vtkSmartPointer<vtkPoints> &points, bool hull){
     for(int ph_id = 0; ph_id < 2; ph_id ++){
+        if(hull)
+            ph_id = 2;
         C_Polyhedron *ph;
         if(ph_id==0)
             ph = &m_volume_in;
-        else
+        else if(ph_id==1)
             ph = &m_volume_out;
+        else
+            ph = &m_volume_full;
 
 //        cout << "volume_full = " << m_volume_full.generators() << endl;
 //        cout << "volume_in = " << m_volume_in.generators() << endl;

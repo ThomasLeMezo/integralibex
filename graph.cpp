@@ -8,7 +8,7 @@
 using namespace std;
 using namespace ibex;
 
-Graph::Graph(const IntervalVector &box, ibex::Function *f, ibex::IntervalVector u, int graph_id=0){
+Graph::Graph(const IntervalVector &box, ibex::Function *f, const ibex::IntervalVector &u, int graph_id=0){
     Pave *p = new Pave(box, f, u);
     m_node_list.push_back(p);
     m_graph_id = graph_id;
@@ -137,6 +137,7 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         }
     }
 
+    cout << "ITERATIONS = " << iterations << endl;
     m_node_queue.clear();
     return iterations;
 }
@@ -217,14 +218,13 @@ void Graph::draw_vtk(string filename){
     }
 
     vtkSmartPointer<vtkAppendPolyData> polyData = vtkSmartPointer<vtkAppendPolyData>::New();
-
-    int cpt = 0;
     for(auto &node:m_node_list){
-        if(!node->is_empty()){
-            node->draw_vtk(polyData);
-        }
+//        if(!node->is_empty()){
+            node->draw_vtk(polyData, true);
+//        }
     }
-//    cout << "cpt = " << cpt << endl;
+//    cout << "SIZE NOT EMPTY = " << m_node_list.size() << endl;
+//    cout << "SIZE EMPTY = " << m_node_empty_list.size() << endl;
 
     polyData->Update();
     vtkSmartPointer<vtkXMLPolyDataWriter> outputWriter = vtkSmartPointer<vtkXMLPolyDataWriter>::New();

@@ -40,7 +40,7 @@ void GraphDot::parse_node_definition(Pave *p, ofstream &file, int node_id){
 }
 
 void GraphDot::parse_node_link(Pave *p, ofstream &file){
-    for(int face = 0; face < 4; face++){
+    for(int face = 0; face < 2*p->get_dim(); face++){
         for(int i=0; i<p->get_border(face)->get_inclusions().size(); i++){
             file << "\"" << p << "\"" << ":\"" << p->get_border(face) << "\"" << " -> \"" << p->get_border(face)->get_inclusion(i)->get_border()->get_pave() << "\"" << ":\"" << p->get_border(face)->get_inclusion(i)->get_border() << "\" ;" << endl;
         }
