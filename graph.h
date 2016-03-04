@@ -44,7 +44,7 @@ public:
 
     // Other functions
     Pave& operator[](int id);
-    void draw_vtk(string filename) const;
+    void draw_vtk(string filename);
 
 private:
     std::vector<Pave*> m_node_list;

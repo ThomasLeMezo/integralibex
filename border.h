@@ -28,7 +28,7 @@ public:
     void                            remove_inclusion_receving(int indice);
     void                            remove_inclusion_receving(Inclusion *inclusion);
 
-    void                            draw_vtk_get_points(vtkSmartPointer<vtkPoints> points);
+    void                            draw_vtk_get_points(vtkSmartPointer<vtkPoints> &points);
 
     // ******** Border Properties ********
     // Operations

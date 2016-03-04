@@ -210,12 +210,21 @@ Pave& Graph::operator[](int id){
     return *(m_node_list[id]);
 }
 
-void Graph::draw_vtk(string filename) const{
+void Graph::draw_vtk(string filename){
+    if(is_empty()){
+        cout << "Graph is empty" << endl;
+        return;
+    }
+
     vtkSmartPointer<vtkAppendPolyData> polyData = vtkSmartPointer<vtkAppendPolyData>::New();
 
+    int cpt = 0;
     for(auto &node:m_node_list){
-        polyData->AddInputData(node->draw_vtk());
+        if(!node->is_empty()){
+            node->draw_vtk(polyData);
+        }
     }
+//    cout << "cpt = " << cpt << endl;
 
     polyData->Update();
     vtkSmartPointer<vtkXMLPolyDataWriter> outputWriter = vtkSmartPointer<vtkXMLPolyDataWriter>::New();

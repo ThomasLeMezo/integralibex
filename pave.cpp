@@ -150,7 +150,9 @@ void Pave::set_empty(){
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-vtkPolyData* Pave::draw_vtk(){
+void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData){
+    if(is_empty())
+        return;
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer< vtkPoints >::New();
 
     for(auto &border:m_borders){
@@ -170,7 +172,7 @@ vtkPolyData* Pave::draw_vtk(){
     surfaceFilter->SetInputConnection(delaunay->GetOutputPort());
     surfaceFilter->Update();
 
-    return surfaceFilter->GetOutput();
+    polyData->AddInputData(surfaceFilter->GetOutput());
 }
 
 // ********************************************************************************

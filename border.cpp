@@ -129,6 +129,7 @@ void Border::update_brothers_inclusion(Border* border_pave1, Border* border_pave
 void Border::set_full(){
     m_volume_in = m_volume_full;
     m_volume_out = m_volume_full;
+
     m_empty = false;
     m_full = true;
 }
@@ -345,16 +346,21 @@ int Border::get_face() const{
     return 2*m_face_axis + m_face_side;
 }
 
-void Border::draw_vtk_get_points(vtkSmartPointer<vtkPoints> points){
+void Border::draw_vtk_get_points(vtkSmartPointer<vtkPoints> &points){
     for(int ph_id = 0; ph_id < 2; ph_id ++){
-        C_Polyhedron ph;
+        C_Polyhedron *ph;
         if(ph_id==0)
-            ph = m_volume_in;
+            ph = &m_volume_in;
         else
-            ph = m_volume_out;
+            ph = &m_volume_out;
 
-        if(ph.space_dimension()==2){
-            for(auto &g:ph.generators()){
+//        cout << "volume_full = " << m_volume_full.generators() << endl;
+//        cout << "volume_in = " << m_volume_in.generators() << endl;
+//        cout << "volume_out = " << m_volume_out.generators() << endl;
+
+        if(ph->space_dimension()==2){
+//            cout << ph->generators() << endl;
+            for(auto &g:ph->generators()){
                 if(g.is_point()){
                     std::vector<double> coord;
                     for(int cpt=0; cpt<2; cpt++){
@@ -374,7 +380,7 @@ void Border::draw_vtk_get_points(vtkSmartPointer<vtkPoints> points){
             }
         }
         else{
-            for(auto &g:ph.generators()){
+            for(auto &g:ph->generators()){
                 if(g.is_point()){
                     std::vector<double> coord;
                     for(int i=0; i<3; i++){

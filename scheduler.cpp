@@ -52,6 +52,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         m_graph_list[0]->remove_empty_node();
         cout << "wanted size = " << m_dim*m_graph_list[0]->size() << endl;
         m_graph_list[0]->sivia(0.0, m_dim*m_graph_list[0]->size(), false, true);
+        cout << "performed size = " << m_graph_list[0]->size() << endl;
 
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)

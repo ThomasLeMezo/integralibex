@@ -25,7 +25,7 @@ void CtcPropagateSegment(const PPL::C_Polyhedron &volume_in, Pave *pave, vector<
 //    }
 
     list_volume_out.clear();
-    for(int i=0; i<pow(2, pave->get_dim()); i++){
+    for(int i=0; i<2*pave->get_dim(); i++){
         C_Polyhedron ph_face(ph_projection);
         ph_face.intersection_assign(pave->get_border(i)->get_volume_full());
         list_volume_out.push_back(ph_face);
@@ -58,7 +58,7 @@ void CtcPaveBackward(Pave *p, bool inclusion, bool inner){
 }
 
 void CtcPaveForward(Pave *p, bool inclusion, bool inner){
-    int nb_face = pow(2, p->get_dim());
+    int nb_face = 2*p->get_dim();
 
     vector<PPL::C_Polyhedron> list_volume_out;
     for(int face=0; face<nb_face; face++){

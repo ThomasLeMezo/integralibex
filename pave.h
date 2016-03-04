@@ -3,7 +3,8 @@
 
 #include <ibex.h>
 #include <border.h>
-#include <vtkPolyData.h>
+#include <vtkAppendPolyData.h>
+#include <vtkSmartPointer.h>
 
 namespace PPL = Parma_Polyhedra_Library;
 
@@ -22,7 +23,7 @@ public:
     bool                        diff(const Pave &p);
 
     // ******** Drawing functions ********
-    vtkPolyData *draw_vtk();
+    void                        draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData);
     void                        print();
 
     // ******** Graph building ********

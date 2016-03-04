@@ -86,29 +86,30 @@ void ball(){
 void integration(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
-    ibex::Variable x, y;
-    ibex::Function f(x, y, Return(-2.0*sin(y), -2.0*cos(x)));
+    ibex::Variable x, y, z;
+    ibex::Function f(x, y, z, Return(-2.0*sin(y), -2.0*cos(x), z));
 
-    IntervalVector box(2);
+    IntervalVector box(3);
     box[0] = ibex::Interval(-10.0, 10.0);
     box[1] = ibex::Interval(-10.0, 10.0);
+    box[2] = ibex::Interval(-10.0, 10.0);
 
     ibex::IntervalVector u(1);
     u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    IntervalVector activated_pave(2);
-    activated_pave[0] = ibex::Interval(0.0);
-    activated_pave[1] = ibex::Interval(0.0);
+    IntervalVector activated_pave(3);
+    activated_pave[0] = ibex::Interval(1.0);
+    activated_pave[1] = ibex::Interval(1.0);
+    activated_pave[2] = ibex::Interval(1.0);
 
 //    ibex::Function f_sym(x, y, Return(x, -y));
 //    s.set_symetry(&f_sym,3, 3);
 
-    s.cameleon_propagation(1, 1000000, activated_pave);
+    s.cameleon_propagation(10, 1000000, activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw();
-    vibes::axisLimits(0.0, 12.0, -1.0, 4.0);
 }
 
 void capture_attractor(){
