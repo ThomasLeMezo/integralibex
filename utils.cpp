@@ -10,7 +10,7 @@ using namespace ibex;
 // ********************************************************************************
 // ****************** Contractors Global functions ********************************
 
-void CtcPropagateSegment(const PPL::C_Polyhedron &volume_in, Pave *pave, vector<PPL::C_Polyhedron> list_volume_out, const std::vector<PPL::Generator>& ray_vector_field_list, const std::vector<PPL::Generator>& ray_command_list){
+void CtcPropagateSegment(const PPL::C_Polyhedron &volume_in, Pave *pave, vector<PPL::C_Polyhedron> &list_volume_out, const std::vector<PPL::Generator>& ray_vector_field_list, const std::vector<PPL::Generator>& ray_command_list){
     C_Polyhedron ph_projection(volume_in);
     if(volume_in.is_empty())
         return;
@@ -67,17 +67,20 @@ void CtcPaveForward(Pave *p, bool inclusion, bool inner){
 
     for(int face = 0; face<nb_face; face++){
         PPL::C_Polyhedron volume_in(p->get_border(face)->get_volume_in());
-        vector<PPL::C_Polyhedron> list_volume_out_tmp(list_volume_out);
-        if(!inner){
-            CtcPropagateSegment(volume_in, p, list_volume_out_tmp, p->get_ray_vector_field(), p->get_ray_command());
-        }
-        else{
-            // ToDo !!!
-            CtcPropagateSegment(volume_in, p, list_volume_out_tmp, p->get_ray_vector_field(), p->get_ray_command());
-        }
+        vector<PPL::C_Polyhedron> list_volume_out_tmp;
+        //        if(!inner){
+        CtcPropagateSegment(volume_in, p, list_volume_out_tmp, p->get_ray_vector_field(), p->get_ray_command());
+        if(list_volume_out_tmp.size() != 0){
 
-        for(int face_update = 0; face_update < nb_face; face_update++){
-            list_volume_out[face_update].poly_hull_assign(list_volume_out_tmp[face_update]);
+            //        }
+            //        else{
+            //            // ToDo !!!
+            //            CtcPropagateSegment(volume_in, p, list_volume_out_tmp, p->get_ray_vector_field(), p->get_ray_command());
+            //        }
+
+            for(int face_update = 0; face_update < nb_face; face_update++){
+                list_volume_out[face_update].poly_hull_assign(list_volume_out_tmp[face_update]);
+            }
         }
     }
 

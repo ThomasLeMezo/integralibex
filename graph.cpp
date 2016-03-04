@@ -219,12 +219,10 @@ void Graph::draw_vtk(string filename){
 
     vtkSmartPointer<vtkAppendPolyData> polyData = vtkSmartPointer<vtkAppendPolyData>::New();
     for(auto &node:m_node_list){
-//        if(!node->is_empty()){
-            node->draw_vtk(polyData, true);
-//        }
+        if(!node->is_empty()){
+            node->draw_vtk(polyData, false);
+        }
     }
-//    cout << "SIZE NOT EMPTY = " << m_node_list.size() << endl;
-//    cout << "SIZE EMPTY = " << m_node_empty_list.size() << endl;
 
     polyData->Update();
     vtkSmartPointer<vtkXMLPolyDataWriter> outputWriter = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
