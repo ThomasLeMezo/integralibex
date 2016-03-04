@@ -68,13 +68,17 @@ void recursive_linear_expression_from_iv(const ibex::IntervalVector &theta,
         Linear_Expression l_u = local_linear_expression;
 
         // ToDo: case theta[dim] -> lb=+oo | ub=-oo
-        if(std::isinf(theta[dim-1].ub()))
+        if(std::isinf(theta[dim-1].ub())){
             linear_expression_list.push_back(Linear_Expression(x));
+            cout << "INFINITY" << endl;
+        }
         else
             l_u += x*ceil(theta[dim-1].ub()*IBEX_PPL_PRECISION);
 
-        if(std::isinf(theta[dim-1].lb()))
+        if(std::isinf(theta[dim-1].lb())){
             linear_expression_list.push_back(Linear_Expression(-x));
+            cout << "INFINITY" << endl;
+        }
         else
             l_b += x*floor(theta[dim-1].lb()*IBEX_PPL_PRECISION);
 
