@@ -212,24 +212,63 @@ Pave& Graph::operator[](int id){
 }
 
 void Graph::draw_vtk(string filename){
-    if(is_empty()){
-        cout << "Graph is empty" << endl;
-        return;
-    }
+    bool polygon = false;
+    bool box_empty = false;
 
-    vtkSmartPointer<vtkAppendPolyData> polyData = vtkSmartPointer<vtkAppendPolyData>::New();
-    for(auto &node:m_node_list){
-        if(!node->is_empty()){
-            node->draw_vtk(polyData, false);
+    if(m_node_list.size()>0)
+        polygon = true;
+    if(m_node_empty_list.size()>0)
+        box_empty = true;
+
+    vtkSmartPointer<vtkAppendPolyData> polyData_polygon = vtkSmartPointer<vtkAppendPolyData>::New();
+    vtkSmartPointer<vtkAppendPolyData> polyData_box_active = vtkSmartPointer<vtkAppendPolyData>::New();
+    vtkSmartPointer<vtkAppendPolyData> polyData_box_empty = vtkSmartPointer<vtkAppendPolyData>::New();
+
+    if(polygon){
+        for(auto &node:m_node_list){
+            if(!node->is_empty()){
+                node->draw_vtk(polyData_polygon, false);
+            }
         }
+        polyData_polygon->Update();
+
+
+        for(auto &node:m_node_list){
+                node->draw_box(polyData_box_active);
+        }
+        polyData_box_active->Update();
     }
 
-    polyData->Update();
+    if(box_empty){
+        for(auto &node:m_node_empty_list){
+                node->draw_box(polyData_box_empty);
+        }
+        polyData_box_empty->Update();
+    }
+
+
     vtkSmartPointer<vtkXMLPolyDataWriter> outputWriter = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-    string file = filename + to_string(m_graph_id) + "-" + to_string(m_drawing_cpt) + ".vtp";
-    outputWriter->SetFileName(file.c_str());
-    outputWriter->SetInputData(polyData->GetOutput());
-    outputWriter->Write();
+    string file = filename + to_string(m_graph_id) + "-" + to_string(m_drawing_cpt);
+
+    string filePolygon = file + "polygon.vtp";
+    string fileBox_active = file + "box_active.vtp";
+    string fileBox_empty = file + "box_empty.vtp";
+
+    if(polygon){
+        outputWriter->SetFileName(filePolygon.c_str());
+        outputWriter->SetInputData(polyData_polygon->GetOutput());
+        outputWriter->Write();
+
+        outputWriter->SetFileName(fileBox_active.c_str());
+        outputWriter->SetInputData(polyData_box_active->GetOutput());
+        outputWriter->Write();
+    }
+
+    if(box_empty){
+        outputWriter->SetFileName(fileBox_empty.c_str());
+        outputWriter->SetInputData(polyData_box_empty->GetOutput());
+        outputWriter->Write();
+    }
 }
 
 int Graph::size() const{

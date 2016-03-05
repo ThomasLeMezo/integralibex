@@ -17,6 +17,7 @@
 #include <vtkCellArray.h>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkAppendPolyData.h>
+#include <vtkCubeSource.h>
 
 #include "conversion.h"
 
@@ -190,6 +191,19 @@ void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData, bool hull){
 
     // ********** Append results **************
     polyData->AddInputData(surfaceFilter->GetOutput());
+}
+
+void Pave::draw_box(vtkSmartPointer<vtkAppendPolyData> polyData){
+    vtkSmartPointer<vtkCubeSource> cubedata = vtkSmartPointer<vtkCubeSource>::New();
+    double bounds[6];
+    for(int i=0; i<3; i++){
+        bounds[2*i] = m_position[i].lb();
+        bounds[2*i+1] = m_position[i].ub();
+    }
+
+    cubedata->SetBounds(bounds);
+    cubedata->Update();
+    polyData->AddInputData(cubedata->GetOutput());
 }
 
 // ********************************************************************************

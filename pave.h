@@ -24,6 +24,7 @@ public:
 
     // ******** Drawing functions ********
     void                        draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData, bool hull=false);
+    void                        draw_box(vtkSmartPointer<vtkAppendPolyData> polyData);
     void                        print();
 
     // ******** Graph building ********

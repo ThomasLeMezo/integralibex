@@ -148,12 +148,12 @@ void test_copy_graph(){
 }
 
 void sandbox(){
-    ibex::IntervalVector box(2);
-    box[0] = ibex::Interval(5,10);
-    box[1] = ibex::Interval(0,10);
+//    ibex::IntervalVector box(2);
+//    box[0] = ibex::Interval(5,10);
+//    box[1] = ibex::Interval(0,10);
 
-    ibex::Interval test = ibex::Interval(0, 10);
-    cout << test.lb() << endl;
+//    ibex::Interval test = ibex::Interval(0, 10);
+//    cout << test.lb() << endl;
 
 //    Variable x, y;
 //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
@@ -166,4 +166,14 @@ void sandbox(){
 //    ibex::Interval theta = atan2(dy, dx);
 //    cout << setprecision(80) << theta << endl;
 //    cout << ibex::Interval::HALF_PI << endl;
+
+    ibex::IntervalVector box(3);
+    box[0] = ibex::Interval(0, 1);
+    box[1] = ibex::Interval(0, 1);
+    box[2] = ibex::Interval(0, 2);
+    ibex::LargestFirst bisector(0.0, 0.5);
+
+    std::pair<ibex::IntervalVector, IntervalVector> result_boxes = bisector.bisect(box);
+    cout << result_boxes.first << endl;
+    cout << result_boxes.second << endl;
 }
