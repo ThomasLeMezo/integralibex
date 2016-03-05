@@ -1,3 +1,4 @@
+#include "conversion.h"
 #include <iostream>
 #include "ibex.h"
 #include "ppl.hh"
@@ -5,8 +6,6 @@
 using namespace std;
 namespace PPL = Parma_Polyhedra_Library;
 using namespace ibex;
-
-#define IBEX_PPL_PRECISION 1e16
 
 PPL::Rational_Box iv_2_box(const ibex::IntervalVector &iv){
     Rational_Box box(iv.size());

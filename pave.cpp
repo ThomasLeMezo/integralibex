@@ -66,12 +66,12 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVect
             m_ray_vector_field.push_back(ray(l));
     }
 
-//    e = Linear_Expression(0);
-//    linear_expression_list.clear();
-//    recursive_linear_expression_from_iv(u + theta, theta.size(), linear_expression_list,e);
-//    for(auto &l:linear_expression_list){
-//        m_ray_command.push_back(ray(l));
-//    }
+    //    e = Linear_Expression(0);
+    //    linear_expression_list.clear();
+    //    recursive_linear_expression_from_iv(u + theta, theta.size(), linear_expression_list,e);
+    //    for(auto &l:linear_expression_list){
+    //        m_ray_command.push_back(ray(l));
+    //    }
 }
 
 Pave::Pave(const Pave *p):
@@ -163,7 +163,7 @@ void Pave::set_empty(){
 // ****************** Drawing functions *******************************************
 
 void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData){
-    vtkSmartPointer<vtkPoints> points = vtkSmartPointer< vtkPoints >::New();
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
     for(auto &border:m_borders){
         border->draw_vtk_get_points(points);
@@ -172,14 +172,14 @@ void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData){
         return;
 
     // ********** Points **************
-    vtkSmartPointer< vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
-    polydata->SetPoints(points);
+    vtkSmartPointer< vtkPolyData> pointsCollection = vtkSmartPointer<vtkPolyData>::New();
+    pointsCollection->SetPoints(points);
     //polydata->SetVerts(vertices);
 
     // ********** Surface **************
     // Create the convex hull of the pointcloud (delaunay + outer surface)
     vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer< vtkDelaunay3D >::New();
-    delaunay->SetInputData(polydata);
+    delaunay->SetInputData(pointsCollection);
     delaunay->Update();
 
     vtkSmartPointer<vtkDataSetSurfaceFilter> surfaceFilter = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
@@ -194,8 +194,14 @@ void Pave::draw_box(vtkSmartPointer<vtkAppendPolyData> polyData){
     vtkSmartPointer<vtkCubeSource> cubedata = vtkSmartPointer<vtkCubeSource>::New();
     double bounds[6];
     for(int i=0; i<3; i++){
-        bounds[2*i] = m_position[i].lb();
-        bounds[2*i+1] = m_position[i].ub();
+        if(m_position.size()>i){
+            bounds[2*i] = m_position[i].lb();
+            bounds[2*i+1] = m_position[i].ub();
+        }
+        else{
+            bounds[2*i] = 0.0;
+            bounds[2*i+1] = 0.0;
+        }
     }
 
     cubedata->SetBounds(bounds);
@@ -204,48 +210,50 @@ void Pave::draw_box(vtkSmartPointer<vtkAppendPolyData> polyData){
 }
 
 void Pave::draw_vector_field(vtkSmartPointer<vtkAppendPolyData> polyData){
+    if(m_position.size()>=3){
+        vector< vector<double>> list_point = get_points_from_iv(m_theta);
 
-    vector< vector<double>> list_point = get_points_from_iv(m_theta);
+        double norm_theta = max(max(max(fabs(m_theta[0].lb()), fabs(m_theta[0].ub())),
+                max(fabs(m_theta[1].lb()), fabs(m_theta[1].ub()))),
+                max(fabs(m_theta[2].lb()), fabs(m_theta[2].ub())));
+        if(norm_theta==0)
+            norm_theta = 1;
+        double min_size_box = min(min(m_position[0].diam(), m_position[1].diam()), m_position[2].diam())/2.0;
+        double ratio = min_size_box * 0.8 / norm_theta;
 
-    double norm_theta = max(max(max(fabs(m_theta[0].lb()), fabs(m_theta[0].ub())),
-                         max(fabs(m_theta[1].lb()), fabs(m_theta[1].ub()))),
-                         max(fabs(m_theta[2].lb()), fabs(m_theta[2].ub())));
-    double min_size_box = min(min(m_position[0].diam(), m_position[1].diam()), m_position[2].diam())/2.0;
-    double ratio = min_size_box * 0.8 / norm_theta;
+        vtkSmartPointer<vtkPoints> points = vtkSmartPointer< vtkPoints >::New();
+        double factor = 0.01;
+        // Build a starter little box
+        //// TODO : improve the building
+        points->InsertNextPoint(m_position[0].mid(), m_position[1].mid(), m_position[2].mid());
+        points->InsertNextPoint(m_position[0].mid()+factor*min_size_box, m_position[1].mid(), m_position[2].mid());
+        points->InsertNextPoint(m_position[0].mid(), m_position[1].mid()+factor*min_size_box, m_position[2].mid());
+        points->InsertNextPoint(m_position[0].mid(), m_position[1].mid(), m_position[2].mid()+factor*min_size_box);
+        points->InsertNextPoint(m_position[0].mid(), m_position[1].mid()+factor*min_size_box, m_position[2].mid()+factor*min_size_box);
+        points->InsertNextPoint(m_position[0].mid()+factor*min_size_box, m_position[1].mid()+factor*min_size_box, m_position[2].mid());
+        points->InsertNextPoint(m_position[0].mid()+factor*min_size_box, m_position[1].mid(), m_position[2].mid()+factor*min_size_box);
+        points->InsertNextPoint(m_position[0].mid()+factor*min_size_box, m_position[1].mid()+factor*min_size_box, m_position[2].mid()+factor*min_size_box);
 
-    vtkSmartPointer<vtkPoints> points = vtkSmartPointer< vtkPoints >::New();
-    double factor = 0.01;
-    // Build a starter little box
-    //// TODO : improve the building
-    points->InsertNextPoint(m_position[0].mid(), m_position[1].mid(), m_position[2].mid());
-    points->InsertNextPoint(m_position[0].mid()+factor*min_size_box, m_position[1].mid(), m_position[2].mid());
-    points->InsertNextPoint(m_position[0].mid(), m_position[1].mid()+factor*min_size_box, m_position[2].mid());
-    points->InsertNextPoint(m_position[0].mid(), m_position[1].mid(), m_position[2].mid()+factor*min_size_box);
-    points->InsertNextPoint(m_position[0].mid(), m_position[1].mid()+factor*min_size_box, m_position[2].mid()+factor*min_size_box);
-    points->InsertNextPoint(m_position[0].mid()+factor*min_size_box, m_position[1].mid()+factor*min_size_box, m_position[2].mid());
-    points->InsertNextPoint(m_position[0].mid()+factor*min_size_box, m_position[1].mid(), m_position[2].mid()+factor*min_size_box);
-    points->InsertNextPoint(m_position[0].mid()+factor*min_size_box, m_position[1].mid()+factor*min_size_box, m_position[2].mid()+factor*min_size_box);
+        for(auto &pt:list_point){
+            points->InsertNextPoint(pt[0]*ratio+m_position[0].mid(), pt[1]*ratio+m_position[1].mid(), pt[2]*ratio+m_position[2].mid());
+        }
 
-    cout << "** Next Pave" << endl;
-    for(auto &pt:list_point){
-        points->InsertNextPoint(pt[0]*ratio+m_position[0].mid(), pt[1]*ratio+m_position[1].mid(), pt[2]*ratio+m_position[2].mid());
+        vtkSmartPointer< vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
+        polydata->SetPoints(points);
+
+        // ********** Surface **************
+        // Create the convex hull of the pointcloud (delaunay + outer surface)
+        vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer< vtkDelaunay3D >::New();
+        delaunay->SetInputData(polydata);
+        delaunay->Update();
+
+        vtkSmartPointer<vtkDataSetSurfaceFilter> surfaceFilter = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
+        surfaceFilter->SetInputConnection(delaunay->GetOutputPort());
+        surfaceFilter->Update();
+
+        // ********** Append results **************
+        polyData->AddInputData(surfaceFilter->GetOutput());
     }
-
-    vtkSmartPointer< vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
-    polydata->SetPoints(points);
-
-    // ********** Surface **************
-    // Create the convex hull of the pointcloud (delaunay + outer surface)
-    vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer< vtkDelaunay3D >::New();
-    delaunay->SetInputData(polydata);
-    delaunay->Update();
-
-    vtkSmartPointer<vtkDataSetSurfaceFilter> surfaceFilter = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
-    surfaceFilter->SetInputConnection(delaunay->GetOutputPort());
-    surfaceFilter->Update();
-
-    // ********** Append results **************
-    polyData->AddInputData(surfaceFilter->GetOutput());
 }
 
 // ********************************************************************************
