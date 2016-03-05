@@ -227,21 +227,21 @@ void Graph::draw_vtk(string filename){
     if(polygon){
         for(auto &node:m_node_list){
             if(!node->is_empty()){
-                node->draw_vtk(polyData_polygon, false);
+                node->draw_vtk(polyData_polygon);
             }
         }
         polyData_polygon->Update();
 
 
         for(auto &node:m_node_list){
-                node->draw_box(polyData_box_active);
+            node->draw_box(polyData_box_active);
         }
         polyData_box_active->Update();
     }
 
     if(box_empty){
         for(auto &node:m_node_empty_list){
-                node->draw_box(polyData_box_empty);
+            node->draw_box(polyData_box_empty);
         }
         polyData_box_empty->Update();
     }

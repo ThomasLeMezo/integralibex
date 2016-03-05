@@ -156,11 +156,11 @@ void Pave::set_empty(){
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData, bool hull){
+void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData){
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer< vtkPoints >::New();
 
     for(auto &border:m_borders){
-        border->draw_vtk_get_points(points, hull);
+        border->draw_vtk_get_points(points);
     }
     if(points->GetNumberOfPoints() == 0)
         return;
@@ -169,15 +169,6 @@ void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData, bool hull){
     vtkSmartPointer< vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
     polydata->SetPoints(points);
     //polydata->SetVerts(vertices);
-
-    // ********** Color **************
-    //// NOT WORKING
-//    unsigned char red[3] = {255, 0, 0};
-//    vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
-//    colors->SetNumberOfComponents(3);
-//    colors->SetName("Colors");
-//    colors->InsertNextTupleValue(red);
-//    polydata->GetPointData()->SetScalars(colors);
 
     // ********** Surface **************
     // Create the convex hull of the pointcloud (delaunay + outer surface)

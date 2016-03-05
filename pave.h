@@ -23,7 +23,7 @@ public:
     bool                        diff(const Pave &p);
 
     // ******** Drawing functions ********
-    void                        draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData, bool hull=false);
+    void                        draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData);
     void                        draw_box(vtkSmartPointer<vtkAppendPolyData> polyData);
     void                        print();
 
