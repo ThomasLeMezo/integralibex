@@ -16,4 +16,11 @@ void recursive_linear_expression_from_iv(const ibex::IntervalVector &theta,
 
 ibex::IntervalVector ph_2_iv(const Parma_Polyhedra_Library::C_Polyhedron &ph);
 
+void recursive_get_points(int dim,
+                          const std::vector<double> &pt,
+                          std::vector< std::vector<double>> &list,
+                          const ibex::IntervalVector &iv);
+
+std::vector< std::vector<double>> get_points_from_iv(const ibex::IntervalVector &iv);
+
 #endif // CONVERSION

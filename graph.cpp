@@ -212,6 +212,7 @@ Pave& Graph::operator[](int id){
 }
 
 void Graph::draw_vtk(string filename){
+    cout << "************ DRAWING ************" << endl;
     bool polygon = false;
     bool box_empty = false;
 
@@ -223,8 +224,10 @@ void Graph::draw_vtk(string filename){
     vtkSmartPointer<vtkAppendPolyData> polyData_polygon = vtkSmartPointer<vtkAppendPolyData>::New();
     vtkSmartPointer<vtkAppendPolyData> polyData_box_active = vtkSmartPointer<vtkAppendPolyData>::New();
     vtkSmartPointer<vtkAppendPolyData> polyData_box_empty = vtkSmartPointer<vtkAppendPolyData>::New();
+    vtkSmartPointer<vtkAppendPolyData> polyData_vector_field = vtkSmartPointer<vtkAppendPolyData>::New();
 
     if(polygon){
+        cout << "m_node_list.size() = " << m_node_list.size() << endl;
         for(auto &node:m_node_list){
             if(!node->is_empty()){
                 node->draw_vtk(polyData_polygon);
@@ -237,9 +240,15 @@ void Graph::draw_vtk(string filename){
             node->draw_box(polyData_box_active);
         }
         polyData_box_active->Update();
+
+        for(auto &node:m_node_list){
+            node->draw_vector_field(polyData_vector_field);
+        }
+        polyData_vector_field->Update();
     }
 
     if(box_empty){
+        cout << "m_node_empty_list.size() = " << m_node_empty_list.size() << endl;
         for(auto &node:m_node_empty_list){
             node->draw_box(polyData_box_empty);
         }
@@ -253,6 +262,7 @@ void Graph::draw_vtk(string filename){
     string filePolygon = file + "polygon.vtp";
     string fileBox_active = file + "box_active.vtp";
     string fileBox_empty = file + "box_empty.vtp";
+    string fileVectorField = file + "vector_field.vtp";
 
     if(polygon){
         outputWriter->SetFileName(filePolygon.c_str());
@@ -261,6 +271,10 @@ void Graph::draw_vtk(string filename){
 
         outputWriter->SetFileName(fileBox_active.c_str());
         outputWriter->SetInputData(polyData_box_active->GetOutput());
+        outputWriter->Write();
+
+        outputWriter->SetFileName(fileVectorField.c_str());
+        outputWriter->SetInputData(polyData_vector_field->GetOutput());
         outputWriter->Write();
     }
 

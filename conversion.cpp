@@ -89,3 +89,27 @@ void recursive_linear_expression_from_iv(const ibex::IntervalVector &theta,
         linear_expression_list.push_back(local_linear_expression);
     }
 }
+
+void recursive_get_points(int dim,
+                          const std::vector<double> &pt,
+                          std::vector< std::vector<double>> &list,
+                          const ibex::IntervalVector &iv){
+    if(dim > 0){
+        std::vector<double> pt_lb(pt), pt_ub(pt);
+        pt_lb.push_back(iv[dim-1].lb());
+        pt_ub.push_back(iv[dim-1].ub());
+        recursive_get_points(dim-1, pt_lb, list,iv);
+        recursive_get_points(dim-1, pt_ub, list,iv);
+    }
+    else{
+        list.push_back(pt);
+    }
+}
+
+std::vector< std::vector<double>> get_points_from_iv(const ibex::IntervalVector &iv){
+
+    std::vector< std::vector<double>> list;
+    std::vector<double> point;
+    recursive_get_points(iv.size(), point, list,iv);
+    return list;
+}

@@ -25,6 +25,7 @@ public:
     // ******** Drawing functions ********
     void                        draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData);
     void                        draw_box(vtkSmartPointer<vtkAppendPolyData> polyData);
+    void                        draw_vector_field(vtkSmartPointer<vtkAppendPolyData> polyData);
     void                        print();
 
     // ******** Graph building ********
@@ -73,6 +74,7 @@ public:
 private:
     std::vector<PPL::Generator> m_ray_vector_field;
     std::vector<PPL::Generator> m_ray_command;
+
     int                         m_dim;
 
     ibex::IntervalVector        m_position;
@@ -80,6 +82,7 @@ private:
 
     ibex::Function              *m_f;
     ibex::IntervalVector        m_u;
+    ibex::IntervalVector        m_theta;
     Pave*                       m_copy_node;
 
 private:
