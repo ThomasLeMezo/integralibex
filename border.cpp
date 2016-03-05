@@ -346,15 +346,13 @@ int Border::get_face() const{
     return 2*m_face_axis + m_face_side;
 }
 
-void Border::draw_vtk_get_points(vtkSmartPointer<vtkPoints> points){
+void Border::draw_vtk_get_points(vtkSmartPointer<vtkPoints> &points){
     for(int ph_id = 0; ph_id < 2; ph_id++){
         C_Polyhedron *ph;
         if(ph_id==0)
             ph = &m_volume_in;
-        else if(ph_id==1)
-            ph = &m_volume_out;
         else
-            ph = &m_volume_full;
+            ph = &m_volume_out;
 
         if(ph->space_dimension()==2){
 //            cout << ph->generators() << endl;

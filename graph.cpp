@@ -235,7 +235,6 @@ void Graph::draw_vtk(string filename){
         }
         polyData_polygon->Update();
 
-
         for(auto &node:m_node_list){
             node->draw_box(polyData_box_active);
         }

@@ -6,22 +6,15 @@
 #include "iomanip"
 
 #include <vtkPoints.h>
-#include <vtkPointData.h>
 #include <vtkPolyData.h>
-#include <vtkCellData.h>
 #include <vtkDelaunay3D.h>
-#include <vtkUnstructuredGrid.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataWriter.h>
-#include <vtkXMLUnstructuredGridWriter.h>
+
 #include <vtkCellArray.h>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkAppendPolyData.h>
 #include <vtkCubeSource.h>
-#include <vtkGlyph3D.h>
-#include <vtkArrowSource.h>
-#include <vtkVector.h>
-#include <vtkConeSource.h>
 
 #include "conversion.h"
 
@@ -162,7 +155,7 @@ void Pave::set_empty(){
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData){
+void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> &polyData){
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
     for(auto &border:m_borders){
@@ -190,7 +183,7 @@ void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData){
     polyData->AddInputData(surfaceFilter->GetOutput());
 }
 
-void Pave::draw_box(vtkSmartPointer<vtkAppendPolyData> polyData){
+void Pave::draw_box(vtkSmartPointer<vtkAppendPolyData> &polyData){
     vtkSmartPointer<vtkCubeSource> cubedata = vtkSmartPointer<vtkCubeSource>::New();
     double bounds[6];
     for(int i=0; i<3; i++){
@@ -209,7 +202,7 @@ void Pave::draw_box(vtkSmartPointer<vtkAppendPolyData> polyData){
     polyData->AddInputData(cubedata->GetOutput());
 }
 
-void Pave::draw_vector_field(vtkSmartPointer<vtkAppendPolyData> polyData){
+void Pave::draw_vector_field(vtkSmartPointer<vtkAppendPolyData> &polyData){
     if(m_position.size()>=3){
         vector< vector<double>> list_point = get_points_from_iv(m_theta);
 

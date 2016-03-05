@@ -23,10 +23,10 @@ public:
     bool                        diff(const Pave &p);
 
     // ******** Drawing functions ********
-    void                        draw_vtk(vtkSmartPointer<vtkAppendPolyData> polyData);
-    void                        draw_box(vtkSmartPointer<vtkAppendPolyData> polyData);
-    void                        draw_vector_field(vtkSmartPointer<vtkAppendPolyData> polyData);
-    void                        print();
+    void                        draw_vtk(vtkSmartPointer<vtkAppendPolyData> &polyData);
+    void                        draw_box(vtkSmartPointer<vtkAppendPolyData> &polyData);
+    void                        draw_vector_field(vtkSmartPointer<vtkAppendPolyData> &polyData);
+//    void                        print();
 
     // ******** Graph building ********
     void                        bisect(vector<Pave *> &result);
