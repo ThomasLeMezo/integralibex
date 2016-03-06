@@ -89,7 +89,8 @@ void integration(){
     vibes::beginDrawing();
     ibex::Variable x, y, z;
 //    ibex::Function f(x, y, z, Return(10.0*(y-x), 28.0*x-y-x*z, x*y-8.0/3.0*z));
-    ibex::Function f(x, y, z, Return(1.0+0.0*x, -sin(x)+cos(y), 0.0+0.0*z));
+//    ibex::Function f(x, y, z, Return(1.0+0.0*x, -sin(x)+cos(y), 0.0+0.0*z));
+    ibex::Function f(x, y, z, Return(1.0+0.0*x, 0.0*y, -sin(x)+cos(z)));
 
     IntervalVector box(dim);
     box[0] = ibex::Interval(-20.0, 20.0);
@@ -108,7 +109,7 @@ void integration(){
 //    ibex::Function f_sym(x, y, Return(x, -y));
 //    s.set_symetry(&f_sym,3, 3);
 
-    s.cameleon_propagation(15, 100000, activated_pave);
+    s.cameleon_propagation(16, 100000, activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw();

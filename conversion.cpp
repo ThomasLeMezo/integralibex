@@ -93,12 +93,12 @@ void recursive_get_points(int dim,
                           const std::vector<double> &pt,
                           std::vector< std::vector<double>> &list,
                           const ibex::IntervalVector &iv){
-    if(dim > 0){
+    if(dim < iv.size()){
         std::vector<double> pt_lb(pt), pt_ub(pt);
-        pt_lb.push_back(iv[dim-1].lb());
-        pt_ub.push_back(iv[dim-1].ub());
-        recursive_get_points(dim-1, pt_lb, list,iv);
-        recursive_get_points(dim-1, pt_ub, list,iv);
+        pt_lb.push_back(iv[dim].lb());
+        pt_ub.push_back(iv[dim].ub());
+        recursive_get_points(dim+1, pt_lb, list,iv);
+        recursive_get_points(dim+1, pt_ub, list,iv);
     }
     else{
         list.push_back(pt);
@@ -109,6 +109,6 @@ std::vector< std::vector<double>> get_points_from_iv(const ibex::IntervalVector 
 
     std::vector< std::vector<double>> list;
     std::vector<double> point;
-    recursive_get_points(iv.size(), point, list,iv);
+    recursive_get_points(0, point, list,iv);
     return list;
 }

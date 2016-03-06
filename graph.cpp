@@ -8,6 +8,8 @@
 using namespace std;
 using namespace ibex;
 
+using namespace Parma_Polyhedra_Library::IO_Operators;
+
 Graph::Graph(const IntervalVector &box, ibex::Function *f, const ibex::IntervalVector &u, int graph_id=0){
     Pave *p = new Pave(box, f, u);
     m_node_list.push_back(p);
@@ -229,6 +231,7 @@ void Graph::draw_vtk(string filename){
     if(polygon){
         cout << "m_node_list.size() = " << m_node_list.size() << endl;
         for(auto &node:m_node_list){
+            node->reset_full_empty();
             if(!node->is_empty()){
                 node->draw_vtk(polyData_polygon);
             }

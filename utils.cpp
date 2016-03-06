@@ -111,8 +111,9 @@ void CtcPaveConsistency(Pave *p, bool backward, bool inner){
 
 bool CtcContinuity(Pave *p, bool backward){
     bool change = false;
+    int nb_face = 2*p->get_dim();
 
-    for(int face = 0; face < 4; face++){
+    for(int face = 0; face < nb_face; face++){
         if(p->get_border(face)->get_inclusions().size() > 0){
             PPL::C_Polyhedron volume_in(p->get_dim(), PPL::EMPTY);
             PPL::C_Polyhedron volume_out(p->get_dim(), PPL::EMPTY);
