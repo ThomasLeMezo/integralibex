@@ -139,7 +139,7 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         }
     }
 
-    cout << "ITERATIONS = " << iterations << endl;
+    cout << "ITERATIONS = " << iterations << " / " << max_iterations << endl;
     m_node_queue.clear();
     return iterations;
 }
