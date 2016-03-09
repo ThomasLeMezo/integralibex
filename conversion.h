@@ -4,7 +4,7 @@
 #include <ppl.hh>
 #include <ibex.h>
 
-#define IBEX_PPL_PRECISION 1e16
+#define IBEX_PPL_PRECISION 1e14
 
 Parma_Polyhedra_Library::Rational_Box iv_2_box(const ibex::IntervalVector &iv);
 std::vector< vector<ibex::IntervalVector>> get_faces(ibex::IntervalVector pave);
