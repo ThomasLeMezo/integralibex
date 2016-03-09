@@ -59,6 +59,14 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVect
             m_ray_vector_field.push_back(ray(l));
     }
 
+    Linear_Expression e_bwd = Linear_Expression(0);
+    std::vector<Linear_Expression> linear_expression_list_backward;
+    recursive_linear_expression_from_iv(-m_theta, m_theta.size(), linear_expression_list_backward, e_bwd);
+    for(auto &l:linear_expression_list_backward){
+        if(!l.all_homogeneous_terms_are_zero()) // Case {0, 0, ...}
+            m_ray_vector_field_backward.push_back(ray(l));
+    }
+
     //    e = Linear_Expression(0);
     //    linear_expression_list.clear();
     //    recursive_linear_expression_from_iv(u + theta, theta.size(), linear_expression_list,e);
@@ -378,6 +386,10 @@ void Pave::reset_full_empty(){
 
 const vector<PPL::Generator> &Pave::get_ray_vector_field() const{
     return m_ray_vector_field;
+}
+
+const vector<PPL::Generator> &Pave::get_ray_vector_backward_field() const{
+    return m_ray_vector_field_backward;
 }
 
 const vector<PPL::Generator> &Pave::get_ray_command() const{

@@ -53,6 +53,7 @@ public:
     // Getters
     const std::vector<Pave*>            get_brothers(int face);
     const vector<PPL::Generator>&       get_ray_vector_field() const;
+    const vector<PPL::Generator> &      get_ray_vector_backward_field() const;
     const vector<PPL::Generator>&       get_ray_command() const;
     const ibex::IntervalVector&         get_position() const;
 
@@ -73,6 +74,7 @@ public:
     /***************** Variables ******************/
 private:
     std::vector<PPL::Generator> m_ray_vector_field;
+    std::vector<PPL::Generator> m_ray_vector_field_backward;
     std::vector<PPL::Generator> m_ray_command;
 
     int                         m_dim;
