@@ -92,7 +92,7 @@ Pave::Pave(const Pave *p):
     m_ray_command = p->get_ray_command();
     m_ray_vector_field = p->get_ray_vector_field();
 
-    for(int face = 0; face < m_borders.size(); face++){
+    for(int face = 0; face < 2*p->get_dim(); face++){
         Border *b_cpy = new Border(p->get_border_const(face));
         b_cpy->set_pave(this);
         m_borders.push_back(b_cpy);
