@@ -77,6 +77,7 @@ void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *pave, const
                 else
                     cout << "RAY IS NOT A RAY : " << ray.type() << endl;
             }
+            ph_projection.intersection_assign(volume_in);
             volume_in_tmp.poly_hull_assign(ph_projection);
         }
     }
@@ -86,12 +87,13 @@ void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *pave, const
 void CtcPaveBackward(Pave *p, bool inclusion, bool inner){
     vector<PPL::C_Polyhedron> list_volume_in;
 
-    vector<PPL::C_Polyhedron> list_volume_out;
     for(auto &b:p->get_borders()){
-        list_volume_out.push_back(b->get_volume_out());
-    }
+        vector<PPL::C_Polyhedron> list_volume_out;
+        for(auto &b_tmp:p->get_borders()){
+            if(b_tmp != b)
+                list_volume_out.push_back(b_tmp->get_volume_out());
+        }
 
-    for(auto &b:p->get_borders()){
         PPL::C_Polyhedron volume_in(b->get_volume_in());
         CtcPropagateSegmentBackward(volume_in, p, list_volume_out, p->get_ray_vector_backward_field(), p->get_ray_command());
         list_volume_in.push_back(volume_in);
@@ -127,7 +129,6 @@ bool CtcContinuity(Pave *p, bool backward){
     int nb_face = 2*p->get_dim();
 
     for(int face = 0; face < nb_face; face++){
-        //        if(p->get_border(face)->get_inclusions().size() > 0){
         PPL::C_Polyhedron volume_in(p->get_dim(), PPL::EMPTY);
         PPL::C_Polyhedron volume_out(p->get_dim(), PPL::EMPTY);
 
@@ -157,8 +158,6 @@ bool CtcContinuity(Pave *p, bool backward){
                 p->get_border(face)->set_volume_in(volume_out, backward);
             }
         }
-        //        }
-
     }
 
     return change;

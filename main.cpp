@@ -49,7 +49,7 @@ void van_der_pol_cycle(){
     u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(5, 5, 1e9, false, false);
+    s.cameleon_cycle(4, 5, 1e9, false, false);
 //    s.cameleon_cycle(12, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
