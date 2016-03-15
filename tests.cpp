@@ -167,13 +167,25 @@ void sandbox(){
 //    cout << setprecision(80) << theta << endl;
 //    cout << ibex::Interval::HALF_PI << endl;
 
-    ibex::IntervalVector box(3);
-    box[0] = ibex::Interval(0, 1);
-    box[1] = ibex::Interval(0, 1);
-    box[2] = ibex::Interval(0, 2);
-    ibex::LargestFirst bisector(0.0, 0.5);
+//    ibex::IntervalVector box(3);
+//    box[0] = ibex::Interval(0, 1);
+//    box[1] = ibex::Interval(0, 1);
+//    box[2] = ibex::Interval(0, 2);
+//    ibex::LargestFirst bisector(0.0, 0.5);
 
-    std::pair<ibex::IntervalVector, IntervalVector> result_boxes = bisector.bisect(box);
-    cout << result_boxes.first << endl;
-    cout << result_boxes.second << endl;
+//    std::pair<ibex::IntervalVector, IntervalVector> result_boxes = bisector.bisect(box);
+//    cout << result_boxes.first << endl;
+//    cout << result_boxes.second << endl;
+
+    PPL::C_Polyhedron test(3, PPL::EMPTY);
+    cout << test.is_empty() << endl;
+
+    PPL::Variable x(0), y(1), z(2);
+    test.add_generator(PPL::point());
+    test.add_generator(PPL::point(x));
+    test.add_generator(PPL::point(y));
+
+    cout << test.is_discrete() << endl;
+    cout << test.is_topologically_closed() << endl;
+
 }

@@ -155,7 +155,7 @@ bool Border::is_empty(){
     if(m_empty){
         return true;
     }
-    else if(m_volume_in.is_empty() && m_volume_out.is_empty()){
+    else if(m_volume_in.is_discrete() && m_volume_out.is_discrete()){
         m_empty = true;
         return true;
     }
