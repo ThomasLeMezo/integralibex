@@ -177,15 +177,36 @@ void sandbox(){
 //    cout << result_boxes.first << endl;
 //    cout << result_boxes.second << endl;
 
-    PPL::C_Polyhedron test(3, PPL::EMPTY);
-    cout << test.is_empty() << endl;
+//    PPL::C_Polyhedron test(3, PPL::EMPTY);
+//    cout << test.is_empty() << endl;
 
-    PPL::Variable x(0), y(1), z(2);
-    test.add_generator(PPL::point());
-    test.add_generator(PPL::point(x));
-    test.add_generator(PPL::point(y));
+//    PPL::Variable x(0), y(1), z(2);
+//    test.add_generator(PPL::point());
+//    test.add_generator(PPL::point(x));
+//    test.add_generator(PPL::point(y));
 
-    cout << test.is_discrete() << endl;
-    cout << test.is_topologically_closed() << endl;
+//    cout << test.is_discrete() << endl;
+//    cout << test.is_topologically_closed() << endl;
+
+    /// ***************************************************** ///
+
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(0,1);
+    box[1] = ibex::Interval(0,1);
+
+    ibex::Variable x, y;
+    ibex::Function f(x, y, Return(1.0+0.0*x, x));
+
+    ibex::IntervalVector u(2);
+
+    Graph g(box, &f, u);
+
+    g.get_node_list()[0]->get_border(0)->set_full();
+    g.get_node_list()[0]->get_border(2)->set_full();
+    g.add_all_to_queue();
+
+    g.process(5, false, false);
+
+    g.draw_vtk("test");
 
 }

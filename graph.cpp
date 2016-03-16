@@ -10,7 +10,7 @@ using namespace ibex;
 
 using namespace Parma_Polyhedra_Library::IO_Operators;
 
-Graph::Graph(const IntervalVector &box, ibex::Function *f, const ibex::IntervalVector &u, int graph_id=0){
+Graph::Graph(const IntervalVector &box, ibex::Function *f, const ibex::IntervalVector &u, int graph_id){
     Pave *p = new Pave(box, f, u);
     m_node_list.push_back(p);
     m_graph_id = graph_id;

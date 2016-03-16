@@ -155,8 +155,8 @@ int main()
 //    integration();
 //    ball();
 //    capture_attractor();
-    van_der_pol_cycle();
-//    test();
+//    van_der_pol_cycle();
+    test();
 
 #if 0
     const clock_t begin_time = clock();

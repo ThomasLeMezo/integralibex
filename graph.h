@@ -7,7 +7,7 @@
 class Graph
 {
 public:
-    Graph(const ibex::IntervalVector &box, ibex::Function *f, const ibex::IntervalVector &u, int graph_id);
+    Graph(const ibex::IntervalVector &box, ibex::Function *f, const ibex::IntervalVector &u, int graph_id=0);
     Graph(Graph* g, int graph_id=-1);
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);
     ~Graph();
