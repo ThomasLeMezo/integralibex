@@ -4,112 +4,80 @@
 #include <vibes.h>
 #include "iomanip"
 #include "graphdot.h"
+#include "conversion.h"
 
 using namespace ibex;
 using namespace std;
 
 void test_CtcPropagateSegment(){
-//    cout << "TEST test_CtcPropagateSegment" << endl;
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(0,1);
+    box[1] = ibex::Interval(0,1);
 
-//    ibex::IntervalVector box(2);
-//    box[0] = ibex::Interval(0.0, 1.0);
-//    box[1] = ibex::Interval(0.0, 1.0);
+    ibex::Variable x, y;
+    ibex::Function f(x, y, Return(1.0+0.0*x, x*x+0.1));
 
-//    int face = 3;
-//    vector<ibex::Interval> theta = {ibex::Interval::HALF_PI | 5.0*ibex::Interval::HALF_PI/4.0, ibex::Interval::EMPTY_SET};
-//    ibex::Interval seg_in = ibex::Interval(0,1);
-//    vector<ibex::Interval> seg_out;
-//    for(int j=0; j<3; j++){
-//        seg_out.push_back(ibex::Interval::ALL_REALS);
-//    }
+    ibex::IntervalVector u(2);
 
-//    cout << "seg_in = " << seg_in << endl;
-//    cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
+    Graph g(box, &f, u);
 
-////    CtcPropagateSegment(seg_in, seg_out, face, theta, box, ibex::Interval::EMPTY_SET);
+//    g.get_node_list()[0]->get_border(0)->set_full();
 
-//    cout << "----------" << endl;
-//    cout << "seg_in = " << seg_in << endl;
-//    cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
+    PPL::C_Polyhedron p(2, PPL::EMPTY);
+    PPL::Variable x_p(0), y_p(1);
+    p.add_generator(PPL::point(0.1*IBEX_PPL_PRECISION*y_p));
+    p.add_generator(PPL::point(0.9*IBEX_PPL_PRECISION*y_p));
+    g.get_node_list()[0]->get_border(0)->set_volume_in(p, false);
+
+    g.add_all_to_queue();
+    g.set_all_first_process();
+
+    g.process(5, false, false);
+
+    g.draw_vtk("test");
+}
+
+void test_CtcPropagateSegmentBackward(){
+    ibex::IntervalVector box(2);
+    box[0] = ibex::Interval(0,1);
+    box[1] = ibex::Interval(0,1);
+
+    ibex::Variable x, y;
+    ibex::Function f(x, y, Return(1.0+0.0*x, x));
+
+    ibex::IntervalVector u(2);
+
+    Graph g(box, &f, u);
+
+//    g.get_node_list()[0]->get_border(0)->set_full_volume_in();
+//    g.get_node_list()[0]->get_border(1)->set_full_volume_in();
+//    g.get_node_list()[0]->get_border(2)->set_full_volume_in();
+//    g.get_node_list()[0]->get_border(3)->set_full_volume_in();
+
+//    g.get_node_list()[0]->get_border(0)->set_full_volume_out();
+//    g.get_node_list()[0]->get_border(1)->set_full_volume_out();
+//    g.get_node_list()[0]->get_border(2)->set_full_volume_out();
+//    g.get_node_list()[0]->get_border(3)->set_full_volume_out();
+
+    g.get_node_list()[0]->set_full();
+
+//    PPL::Variable x_p(0), y_p(1);
+
+//    PPL::C_Polyhedron p(2, PPL::EMPTY);
+//    p.add_generator(PPL::point(0.0  *IBEX_PPL_PRECISION*x_p   + 0.1 *IBEX_PPL_PRECISION*y_p));
+//    p.add_generator(PPL::point(0.0  *IBEX_PPL_PRECISION*x_p   + 0.9 *IBEX_PPL_PRECISION*y_p));
+//    g.get_node_list()[0]->get_border(0)->set_volume_in(p, false);
+
+    g.add_all_to_queue();
+    g.set_all_first_process();
+
+    g.process(5, true, false);
+
+    g.draw_vtk("test");
 }
 
 void test_CtcPaveForward(){
-//    Utils u;
-//    ibex::IntervalVector box(2);
-//    box[0] = ibex::Interval(-2.03, -1.955);
-//    box[1] = ibex::Interval(0.47, 0.545);
 
-////    ibex::Interval command = -ibex::Interval::PI/8 | ibex::Interval::PI/8;
-//    ibex::Interval command = -ibex::Interval::PI/4 | ibex::Interval::PI/4;
-////    ibex::Interval command = -ibex::Interval::PI | ibex::Interval::PI;
-
-//    ibex::Variable x, y;
-//    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-//    Pave p(box, &f, command);
-
-////    p.set_theta(-ibex::Interval::HALF_PI/4.0 | ibex::Interval::HALF_PI/4.0);
-////    p.set_theta((ibex::Interval::HALF_PI | 5.0*ibex::Interval::HALF_PI/4.0) + ibex::Interval::PI/3);
-////    p.set_theta(-ibex::Interval::HALF_PI | ibex::Interval::HALF_PI);
-//    p.get_border(0)->set_full_segment_in();
-//    p.get_border(3)->set_full_segment_in();
-
-////    p.get_border(0)->set_segment_in(ibex::Interval(0.5, 0.9), false);
-
-//    test_draw(&p, "test_before");
-
-//    u.CtcPaveForward(&p, false, true);
-
-//    test_draw(&p, "test_after");
-}
-
-void test_CtcPaveConsistency(){
-//    Utils u;
-//    ibex::IntervalVector box(2);
-//    box[0] = ibex::Interval(-1.66897, -1.5708);
-//    box[1] = ibex::Interval(0.0880469, 0.166094);
-
-//    ibex::Interval command = ibex::Interval::ZERO;
-////    ibex::Interval command = -ibex::Interval::HALF_PI| ibex::Interval::PI;
-////    ibex::Interval command = -5*ibex::Interval::HALF_PI/6.0| 5*ibex::Interval::HALF_PI/6.0;
-////    ibex::Interval command = -ibex::Interval::PI/4 | ibex::Interval::PI/4;
-////    ibex::Interval command = ibex::Interval(-1.0472, 1.0472);
-
-////    Variable x, y;
-////    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-
-//    ibex::Variable phi, d;
-//    ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
-//                                    -cos(phi)));
-//    Pave p(box, &f, command);
-//    p.set_theta(p.get_theta()[0] + (-ibex::Interval::PI/40.0 | ibex::Interval::PI/40.0) + ibex::Interval::HALF_PI);
-
-////    p.set_theta(ibex::Interval::HALF_PI + ibex::Interval::PI/4);
-////    p.set_theta((-ibex::Interval::HALF_PI/16.0 | ibex::Interval::HALF_PI/16.0)+2*ibex::Interval::PI/3);
-////    p.set_theta(ibex::Interval(1.5708,2.67795));
-
-////    p.get_border(0)->set_full_segment_in();
-////    p.get_border(1)->set_full_segment_in();
-//    p.get_border(2)->set_full_segment_in();
-//    p.get_border(3)->set_full_segment_in();
-//    p.get_border(1)->set_segment_in(ibex::Interval(0.157751, 0.166094), false);
-////    p.get_border(1)->set_segment_in(ibex::Interval(-10,0.0), false);
-
-////    p.get_border(0)->set_full_segment_out();
-//    p.get_border(1)->set_full_segment_out();
-//    p.get_border(2)->set_full_segment_out();
-//    p.get_border(3)->set_full_segment_out();
-////    p.get_border(2)->set_segment_out(ibex::Interval(0.1, 1.0), false);
-
-////    p.get_border(2)->set_segment_out(ibex::Interval(-10,-5), false);
-
-//    test_draw(&p, "test_before");
-//    u.CtcPaveConsistency(&p, true, false);
-
-//    vibes::beginDrawing();
-//    vibes::newFigure("drawing_name2");
-//    test_draw(&p, "test_after");
-//    cout << setprecision(80) << endl;
-//    p.print();
 }
 
 void test_copy_graph(){
@@ -187,26 +155,5 @@ void sandbox(){
 
 //    cout << test.is_discrete() << endl;
 //    cout << test.is_topologically_closed() << endl;
-
-    /// ***************************************************** ///
-
-    ibex::IntervalVector box(2);
-    box[0] = ibex::Interval(0,1);
-    box[1] = ibex::Interval(0,1);
-
-    ibex::Variable x, y;
-    ibex::Function f(x, y, Return(1.0+0.0*x, x));
-
-    ibex::IntervalVector u(2);
-
-    Graph g(box, &f, u);
-
-    g.get_node_list()[0]->get_border(0)->set_full();
-    g.get_node_list()[0]->get_border(2)->set_full();
-    g.add_all_to_queue();
-
-    g.process(5, false, false);
-
-    g.draw_vtk("test");
 
 }

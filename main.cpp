@@ -16,22 +16,12 @@ using namespace ibex;
 namespace PPL = Parma_Polyhedra_Library;
 
 void test(){
-//    testTranslate();
-//    testRotate();
-//    test_CtcPropagateLeftSide();
-//    test_CtcPropagateRightSide();
-//    test_CtcPropagateFront();
+
 //    test_CtcPropagateSegment();
+    test_CtcPropagateSegmentBackward();
 
-//    test_CtcPaveForward();
-//    test_CtcPaveConsistency();
-
-//    test_contractor_polar();
-
-//    test_diff();
 //    test_copy_graph();
-
-    sandbox();
+//    sandbox();
 }
 
 void van_der_pol_cycle(){
@@ -155,8 +145,8 @@ int main()
 //    integration();
 //    ball();
 //    capture_attractor();
-    van_der_pol_cycle();
-//    test();
+//    van_der_pol_cycle();
+    test();
 
 #if 0
     const clock_t begin_time = clock();

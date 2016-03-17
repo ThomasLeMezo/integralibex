@@ -87,18 +87,21 @@ void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *pave, const
 void CtcPaveBackward(Pave *p, bool inclusion, bool inner){
     vector<PPL::C_Polyhedron> list_volume_in;
 
-    for(auto &b:p->get_borders()){
+    for(auto &b:p->get_borders()){ // For each volume IN
+        PPL::C_Polyhedron volume_in(b->get_volume_in());
         vector<PPL::C_Polyhedron> list_volume_out;
+
+        // Make a list of volume OUT
         for(auto &b_tmp:p->get_borders()){
-            if(b_tmp != b)
+            if(b_tmp != b) // Do not project on the same border
                 list_volume_out.push_back(b_tmp->get_volume_out());
         }
 
-        PPL::C_Polyhedron volume_in(b->get_volume_in());
         CtcPropagateSegmentBackward(volume_in, p, list_volume_out, p->get_ray_vector_backward_field(), p->get_ray_command());
-        list_volume_in.push_back(volume_in);
+        list_volume_in.push_back(volume_in); // Save temporary the result
     }
 
+    // Write the results to the pave's borders
     for(auto &b:p->get_borders()){
         b->set_volume_in(list_volume_in[b->get_face()], inclusion);
     }
