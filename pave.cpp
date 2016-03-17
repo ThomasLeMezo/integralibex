@@ -12,6 +12,8 @@
 #include <vtkDelaunay3D.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataWriter.h>
+#include <vtkVertex.h>
+#include <vtkVertexGlyphFilter.h>
 
 #include <vtkCellArray.h>
 #include <vtkDataSetSurfaceFilter.h>
@@ -184,7 +186,7 @@ void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> &polyData){
     Colors->SetNumberOfComponents ( 3 );
     Colors->SetName ( "RGB" );
     for(int i=0; i<points->GetNumberOfPoints(); i++)
-        Colors->InsertNextTuple3(0,255,0);
+        Colors->InsertNextTuple3(i,i,0);
     pointsCollection->GetPointData()->SetVectors(Colors);
 
     // ********** Surface **************
@@ -245,63 +247,27 @@ void Pave::draw_vector_field(vtkSmartPointer<vtkAppendPolyData> &polyData){
 
     vector< vector<double>> list_point = get_points_from_iv(theta);
 
-//    double norm_theta = max(max(max(fabs(theta[0].lb()), fabs(theta[0].ub())),
-//            max(fabs(theta[1].lb()), fabs(theta[1].ub()))),
-//            max(fabs(theta[2].lb()), fabs(theta[2].ub())));
-//    if(norm_theta==0)
-//        norm_theta = 1;
-//    double min_size_box = min(min(position[0].diam(), position[1].diam()), position[2].diam())/2.0;
-//    double ratio = min_size_box * 0.8 / norm_theta;
-
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer< vtkPoints >::New();
-//    double factor = 0.01;
-//    // Build a starter little box
-//    //// TODO : improve the building
-//    points->InsertNextPoint(position[0].mid(), position[1].mid(), position[2].mid());
-//    points->InsertNextPoint(position[0].mid()+factor*min_size_box, position[1].mid(), position[2].mid());
-//    points->InsertNextPoint(position[0].mid(), position[1].mid()+factor*min_size_box, position[2].mid());
-//    points->InsertNextPoint(position[0].mid(), position[1].mid(), position[2].mid()+factor*min_size_box);
-//    points->InsertNextPoint(position[0].mid(), position[1].mid()+factor*min_size_box, position[2].mid()+factor*min_size_box);
-//    points->InsertNextPoint(position[0].mid()+factor*min_size_box, position[1].mid()+factor*min_size_box, position[2].mid());
-//    points->InsertNextPoint(position[0].mid()+factor*min_size_box, position[1].mid(), position[2].mid()+factor*min_size_box);
-//    points->InsertNextPoint(position[0].mid()+factor*min_size_box, position[1].mid()+factor*min_size_box, position[2].mid()+factor*min_size_box);
+    vtkSmartPointer<vtkFloatArray> field = vtkSmartPointer<vtkFloatArray>::New();
+    field->SetNumberOfComponents(3);
+    field->SetName("Glyph");
 
-//    for(auto &pt:list_point){
-//        points->InsertNextPoint(pt[0]*ratio+position[0].mid(), pt[1]*ratio+position[1].mid(), pt[2]*ratio+position[2].mid());
-//    }
+    for(auto &vect:list_point){
+        points->InsertNextPoint(position[0].mid(), position[1].mid(), position[2].mid());
+        field->InsertNextTuple3(vect[0], vect[1], vect[2]);
+    }
 
-//    vtkSmartPointer< vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
-//    polydata->SetPoints(points);
+    vtkSmartPointer< vtkPolyData> dataObject = vtkSmartPointer<vtkPolyData>::New();
+    dataObject->SetPoints(points);
+    dataObject->GetPointData()->SetVectors(field);
 
-//    // ********** Surface **************
-//    // Create the convex hull of the pointcloud (delaunay + outer surface)
-//    vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer< vtkDelaunay3D >::New();
-//    delaunay->SetInputData(polydata);
-//    delaunay->Update();
-
-//    vtkSmartPointer<vtkDataSetSurfaceFilter> surfaceFilter = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
-//    surfaceFilter->SetInputConnection(delaunay->GetOutputPort());
-//    surfaceFilter->Update();
-
-    // ---------------------------------------------------------------------------
-    // Test
-
-    points->InsertNextPoint(position[0].mid(), position[1].mid(), position[2].mid());
-    vtkSmartPointer<vtkFloatArray> vectors = vtkSmartPointer<vtkFloatArray>::New();
-    vectors->SetNumberOfComponents(3);
-    vectors->SetNumberOfTuples(3);
-
-    vectors->InsertNextTuple3(1.0,1.0,1.0);
-    vectors->InsertNextTuple3(0.0,0.0,1.0);
-    vectors->InsertNextTuple3(1.0,0.0,1.0);
-
-    vtkSmartPointer< vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
-    polydata->SetPoints(points);
-    polydata->GetPointData()->SetVectors(vectors);
+    // Transform points (array) in vertex objects
+    vtkSmartPointer<vtkVertexGlyphFilter> vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
+    vertexFilter->SetInputData(dataObject);
+    vertexFilter->Update();
 
     // ********** Append results **************
-//    polyData->AddInputData(surfaceFilter->GetOutput());
-    polyData->AddInputData(polydata);
+    polyData->AddInputData(vertexFilter->GetOutput());
 }
 
 // ********************************************************************************

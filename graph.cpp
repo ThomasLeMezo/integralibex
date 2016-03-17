@@ -237,16 +237,19 @@ void Graph::draw_vtk(string filename){
             }
         }
         polyData_polygon->Update();
+        cout << "polyData_polygon = " << polyData_polygon->GetNumberOfInputPorts() << endl;
 
         for(auto &node:m_node_list){
             node->draw_box(polyData_box_active);
         }
         polyData_box_active->Update();
+        cout << "polyData_box_active = " << polyData_box_active->GetNumberOfInputPorts()<< endl;
 
         for(auto &node:m_node_list){
             node->draw_vector_field(polyData_vector_field);
         }
         polyData_vector_field->Update();
+        cout << "polyData_vector_field = " << polyData_vector_field->GetNumberOfInputPorts() << endl;
     }
 
     if(box_empty){
