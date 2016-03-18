@@ -42,6 +42,7 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVect
     m_copy_node = NULL;
 
     m_first_process = false;
+    m_continuity = true;
 
     // Border building
     vector< vector<IntervalVector>> faces = get_faces(position);
@@ -93,6 +94,7 @@ Pave::Pave(const Pave *p):
     m_empty = false;
     m_in_queue = false;
     m_first_process = false;
+    m_continuity = true;
 
     m_ray_command = p->get_ray_command();
     m_ray_vector_field = p->get_ray_vector_field();
@@ -397,6 +399,10 @@ void Pave::reset_full_empty(){
     }
 }
 
+void Pave::disable_continuity(){
+    m_continuity = false;
+}
+
 const vector<PPL::Generator> &Pave::get_ray_vector_field() const{
     return m_ray_vector_field;
 }
@@ -497,4 +503,8 @@ int Pave::get_size() const{
 
 IntervalVector Pave::get_u() const{
     return m_u;
+}
+
+bool Pave::get_continuity() const{
+    return m_continuity;
 }

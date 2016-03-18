@@ -9,6 +9,8 @@
 using namespace ibex;
 using namespace std;
 
+using namespace Parma_Polyhedra_Library::IO_Operators;
+
 void test_CtcPropagateSegment(){
     ibex::IntervalVector box(2);
     box[0] = ibex::Interval(0,1);
@@ -50,24 +52,23 @@ void test_CtcPropagateSegmentBackward(){
     Graph g(box, &f, u);
 
 //    g.get_node_list()[0]->get_border(0)->set_full_volume_in();
-//    g.get_node_list()[0]->get_border(1)->set_full_volume_in();
-//    g.get_node_list()[0]->get_border(2)->set_full_volume_in();
-//    g.get_node_list()[0]->get_border(3)->set_full_volume_in();
+    g.get_node_list()[0]->get_border(1)->set_full_volume_in();
+    g.get_node_list()[0]->get_border(2)->set_full_volume_in();
+    g.get_node_list()[0]->get_border(3)->set_full_volume_in();
 
 //    g.get_node_list()[0]->get_border(0)->set_full_volume_out();
 //    g.get_node_list()[0]->get_border(1)->set_full_volume_out();
 //    g.get_node_list()[0]->get_border(2)->set_full_volume_out();
 //    g.get_node_list()[0]->get_border(3)->set_full_volume_out();
 
-    g.get_node_list()[0]->set_full();
+    PPL::Variable x_p(0), y_p(1);
+    PPL::C_Polyhedron p(2, PPL::EMPTY);
+    p.add_generator(PPL::point(1.0  *IBEX_PPL_PRECISION*x_p   + 0.4 *IBEX_PPL_PRECISION*y_p));
+    p.add_generator(PPL::point(1.0  *IBEX_PPL_PRECISION*x_p   + 0.5 *IBEX_PPL_PRECISION*y_p));
+    g.get_node_list()[0]->get_border(1)->set_volume_out(p, false);
 
-//    PPL::Variable x_p(0), y_p(1);
 
-//    PPL::C_Polyhedron p(2, PPL::EMPTY);
-//    p.add_generator(PPL::point(0.0  *IBEX_PPL_PRECISION*x_p   + 0.1 *IBEX_PPL_PRECISION*y_p));
-//    p.add_generator(PPL::point(0.0  *IBEX_PPL_PRECISION*x_p   + 0.9 *IBEX_PPL_PRECISION*y_p));
-//    g.get_node_list()[0]->get_border(0)->set_volume_in(p, false);
-
+    g.get_node_list()[0]->disable_continuity();
     g.add_all_to_queue();
     g.set_all_first_process();
 

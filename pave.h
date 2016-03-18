@@ -49,6 +49,7 @@ public:
     void                        set_first_process_false();
 
     void                        reset_full_empty();
+    void                        disable_continuity();
 
     // Getters
     const std::vector<Pave*>            get_brothers(int face);
@@ -68,6 +69,7 @@ public:
     bool                                get_first_process() const;
     int                                 get_dim() const;
     int                                 get_size() const;
+    bool                                get_continuity() const;
 
     Border* operator[](int face);
 
@@ -94,6 +96,7 @@ private:
     bool                        m_in_queue;
 
     bool                        m_first_process;
+    bool                        m_continuity;
 };
 
 #endif // PAVE_H
