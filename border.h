@@ -41,8 +41,8 @@ public:
     void                            set_full_volume_in();
     void                            set_full_volume_out();
     void                            set_empty();
-    void                            set_volume_in(PPL::C_Polyhedron volume_in, bool inclusion);
-    void                            set_volume_out(PPL::C_Polyhedron volume_out, bool inclusion);
+    void                            set_volume_in(const PPL::C_Polyhedron &volume_in, bool inclusion);
+    void                            set_volume_out(const PPL::C_Polyhedron &volume_out, bool inclusion);
     void                            set_pave(Pave* pave);
 
     void                            set_inclusion(Border *border, int id_brother);

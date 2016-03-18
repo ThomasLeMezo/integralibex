@@ -41,11 +41,12 @@ void test_CtcPropagateSegment(){
 
 void test_CtcPropagateSegmentBackward(){
     ibex::IntervalVector box(2);
-    box[0] = ibex::Interval(0,1);
-    box[1] = ibex::Interval(0,1);
+    box[0] = ibex::Interval(-2.125, -2);
+    box[1] = ibex::Interval(1.75,2);
 
     ibex::Variable x, y;
-    ibex::Function f(x, y, Return(1.0+0.0*x, x));
+//    ibex::Function f(x, y, Return(-1.0+0.0*x, -x));
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
     ibex::IntervalVector u(2);
 
@@ -54,18 +55,18 @@ void test_CtcPropagateSegmentBackward(){
 //    g.get_node_list()[0]->get_border(0)->set_full_volume_in();
     g.get_node_list()[0]->get_border(1)->set_full_volume_in();
     g.get_node_list()[0]->get_border(2)->set_full_volume_in();
-    g.get_node_list()[0]->get_border(3)->set_full_volume_in();
+//    g.get_node_list()[0]->get_border(3)->set_full_volume_in();
 
 //    g.get_node_list()[0]->get_border(0)->set_full_volume_out();
-//    g.get_node_list()[0]->get_border(1)->set_full_volume_out();
-//    g.get_node_list()[0]->get_border(2)->set_full_volume_out();
+    g.get_node_list()[0]->get_border(1)->set_full_volume_out();
+    g.get_node_list()[0]->get_border(2)->set_full_volume_out();
 //    g.get_node_list()[0]->get_border(3)->set_full_volume_out();
 
-    PPL::Variable x_p(0), y_p(1);
-    PPL::C_Polyhedron p(2, PPL::EMPTY);
-    p.add_generator(PPL::point(1.0  *IBEX_PPL_PRECISION*x_p   + 0.4 *IBEX_PPL_PRECISION*y_p));
-    p.add_generator(PPL::point(1.0  *IBEX_PPL_PRECISION*x_p   + 0.5 *IBEX_PPL_PRECISION*y_p));
-    g.get_node_list()[0]->get_border(1)->set_volume_out(p, false);
+//    PPL::Variable x_p(0), y_p(1);
+//    PPL::C_Polyhedron p(2, PPL::EMPTY);
+//    p.add_generator(PPL::point(1.0  *IBEX_PPL_PRECISION*x_p   + 0.4 *IBEX_PPL_PRECISION*y_p));
+//    p.add_generator(PPL::point(1.0  *IBEX_PPL_PRECISION*x_p   + 0.5 *IBEX_PPL_PRECISION*y_p));
+//    g.get_node_list()[0]->get_border(1)->set_volume_out(p, false);
 
 
     g.get_node_list()[0]->disable_continuity();

@@ -181,23 +181,21 @@ bool Border::is_full(){
     }
 }
 
-void Border::set_volume_in(PPL::C_Polyhedron volume_in, bool inclusion){
+void Border::set_volume_in(const PPL::C_Polyhedron &volume_in, bool inclusion){
     if(inclusion)
         m_volume_in.intersection_assign(volume_in);
     else{
-        C_Polyhedron ph_tmp(volume_in);
-        ph_tmp.intersection_assign(m_volume_full);
-        m_volume_in.upper_bound_assign(ph_tmp);
+        m_volume_in.upper_bound_assign(volume_in);
+        m_volume_in.intersection_assign(m_volume_full);
     }
 }
 
-void Border::set_volume_out(PPL::C_Polyhedron volume_out, bool inclusion){
+void Border::set_volume_out(const PPL::C_Polyhedron &volume_out, bool inclusion){
     if(inclusion)
         m_volume_out.intersection_assign(volume_out);
     else{
-        C_Polyhedron ph_tmp(volume_out);
-        ph_tmp.intersection_assign(m_volume_full);
-        m_volume_out.upper_bound_assign(ph_tmp);
+        m_volume_out.upper_bound_assign(volume_out);
+        m_volume_out.intersection_assign(m_volume_full);
     }
 }
 
