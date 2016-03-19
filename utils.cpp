@@ -81,7 +81,7 @@ void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *pave, const
             volume_in_tmp.poly_hull_assign(ph_projection);
         }
     }
-    volume_in.intersection_assign(volume_in_tmp);
+    volume_in = volume_in_tmp;
 }
 
 void CtcPaveBackward(Pave *p, bool inclusion, bool inner){
@@ -129,10 +129,9 @@ void CtcPaveConsistency(Pave *p, bool backward, bool inner){
 
 bool CtcContinuity(Pave *p, bool backward){
     bool change = false;
-    int nb_face = 2*p->get_dim();
 
     if(p->get_continuity()){
-        for(int face = 0; face < nb_face; face++){
+        for(int face = 0; face < p->get_borders().size(); face++){
             PPL::C_Polyhedron volume_in(p->get_dim(), PPL::EMPTY);
             PPL::C_Polyhedron volume_out(p->get_dim(), PPL::EMPTY);
 
@@ -148,8 +147,8 @@ bool CtcContinuity(Pave *p, bool backward){
 
                 if(p->get_border(face)->get_volume_in() != volume_inter_out || p->get_border(face)->get_volume_out() != volume_inter_in){
                     change = true;
-                    p->get_border(face)->set_volume_in(volume_out, backward);
-                    p->get_border(face)->set_volume_out(volume_in, backward);
+                    p->get_border(face)->set_volume_in(volume_inter_out, backward);
+                    p->get_border(face)->set_volume_out(volume_inter_in, backward);
                 }
             }
             else{

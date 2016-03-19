@@ -41,8 +41,8 @@ void test_CtcPropagateSegment(){
 
 void test_CtcPropagateSegmentBackward(){
     ibex::IntervalVector box(2);
-    box[0] = ibex::Interval(-2.125, -2);
-    box[1] = ibex::Interval(1.75,2);
+    box[0] = ibex::Interval(-3, -2);
+    box[1] = ibex::Interval(1, 2);
 
     ibex::Variable x, y;
 //    ibex::Function f(x, y, Return(-1.0+0.0*x, -x));
@@ -68,18 +68,15 @@ void test_CtcPropagateSegmentBackward(){
 //    p.add_generator(PPL::point(1.0  *IBEX_PPL_PRECISION*x_p   + 0.5 *IBEX_PPL_PRECISION*y_p));
 //    g.get_node_list()[0]->get_border(1)->set_volume_out(p, false);
 
-
     g.get_node_list()[0]->disable_continuity();
     g.add_all_to_queue();
     g.set_all_first_process();
 
+    cout << g.get_node_list()[0]->get_theta() << endl;
+
     g.process(5, true, false);
 
     g.draw_vtk("test");
-}
-
-void test_CtcPaveForward(){
-
 }
 
 void test_copy_graph(){

@@ -505,6 +505,10 @@ IntervalVector Pave::get_u() const{
     return m_u;
 }
 
+IntervalVector Pave::get_theta() const{
+    return m_theta;
+}
+
 bool Pave::get_continuity() const{
     return m_continuity;
 }

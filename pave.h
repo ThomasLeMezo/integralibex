@@ -65,6 +65,7 @@ public:
     Pave*                               get_copy_node();
     ibex::Function*                     get_f() const;
     ibex::IntervalVector                get_u() const;
+    ibex::IntervalVector                get_theta() const;
 
     bool                                get_first_process() const;
     int                                 get_dim() const;

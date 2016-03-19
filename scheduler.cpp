@@ -88,9 +88,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<pow(2, m_dim)){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(0.0,pow(2, m_dim),false, false); // Start with 4 boxes
-
-        //m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
+        m_graph_list[0]->sivia(0.0,pow(2, m_dim),true, false); // Start with 4 boxes
+        m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
     }
 
