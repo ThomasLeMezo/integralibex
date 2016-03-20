@@ -40,17 +40,8 @@ void van_der_pol_cycle(){
     u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(5, 5, 1e9, false, false);
+    s.cameleon_cycle(8, 5, 1e9, false, false);
 //    s.cameleon_cycle(12, 5, 1e9, true, false);
-
-    cout << "VOLUME IN / OUT, border 0" << endl;
-    Pave *p = s.get_graph_list(0)->get_pave(-2.5, -0.5);
-    cout << p->get_position() << endl;
-    for(int i=0; i<4; i++){
-        cout << "i = " << i << " - " << p->get_border(i)->get_position() << endl;
-        cout << "IN = " << p->get_border(i)->get_volume_in().generators() << endl;
-        cout << "OUT = " << p->get_border(i)->get_volume_out().generators() << endl;
-    }
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

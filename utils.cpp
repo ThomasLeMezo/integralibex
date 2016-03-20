@@ -119,32 +119,10 @@ void CtcPaveBackward(Pave *p, bool inclusion, bool inner){
 
 void CtcPaveConsistency(Pave *p, bool backward, bool inner){
     if(backward){
-        IntervalVector position(2);
-        position[0] = ibex::Interval(-3, -2);
-        position[1] = ibex::Interval(-1, 0);
-
-        if(p->get_position() == position){
-            for(int i=0; i<4; i++){
-                cout << "i = " << i << endl;
-                cout << "volume_in = " << p->get_border(i)->get_volume_in().generators() << endl;
-                cout << "volume_out = " << p->get_border(i)->get_volume_out().generators() << endl;
-                cout << endl;
-            }
-        }
-
         CtcPaveBackward(p, true, inner);
         Pave p2(p);
         CtcPaveForward(&p2, true, inner);
         *p &= p2;
-
-        if(p->get_position() == position){
-            for(int i=0; i<4; i++){
-                cout << "i = " << i << endl;
-                cout << "volume_in = " << p->get_border(i)->get_volume_in().generators() << endl;
-                cout << "volume_out = " << p->get_border(i)->get_volume_out().generators() << endl;
-                cout << endl;
-            }
-        }
 
         if(inner){
             Pave p3(p);

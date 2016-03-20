@@ -120,14 +120,6 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
-        IntervalVector position(2);
-        position[0] = ibex::Interval(-3, -2);
-        position[1] = ibex::Interval(-1, 0);
-
-        if(pave->get_position() == position){
-            cout << endl << ">>>> TEST  position = " << pave->get_position() << endl;
-        }
-
         bool change = CtcContinuity(pave, backward);
         if(change || pave->get_first_process()){
             CtcPaveConsistency(pave, backward, inner);
