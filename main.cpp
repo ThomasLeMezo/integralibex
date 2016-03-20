@@ -27,7 +27,7 @@ void test(){
 
 void van_der_pol_cycle(){
     const clock_t begin_time = clock();
-    vibes::beginDrawing();
+//    vibes::beginDrawing();
     ibex::Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 //    ibex::Function f(x, y, Return(-0.9*sin(y), -0.9*cos(x)));
@@ -40,7 +40,29 @@ void van_der_pol_cycle(){
     u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(8, 5, 1e9, false, false);
+    s.cameleon_cycle(8, 5, 1e6, false, false);
+//    s.cameleon_cycle(12, 5, 1e9, true, false);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    s.draw();
+}
+
+void lorenz_attractor(){
+    const clock_t begin_time = clock();
+    ibex::Variable x, y, z;
+    ibex::Function f(x, y, z, Return(10.0*(y-x), 28.0*x-y-x*z, x*y-8.0/3.0*z));
+
+    IntervalVector box(3);
+    box[0] = ibex::Interval(-30.0, 30.0);
+    box[1] = ibex::Interval(-30.0, 30.0);
+    box[2] = ibex::Interval(-30.0, 30.0);
+
+    ibex::IntervalVector u(1);
+    u[0] = ibex::Interval::ZERO;
+    Scheduler s(box, &f, u);
+
+    s.cameleon_cycle(8, 5, 1e6, false, false);
 //    s.cameleon_cycle(12, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -146,7 +168,8 @@ int main()
 //    integration();
 //    ball();
 //    capture_attractor();
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
+    lorenz_attractor();
 //    test();
 
 #if 0
