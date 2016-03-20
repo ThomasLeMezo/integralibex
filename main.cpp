@@ -14,6 +14,7 @@
 using namespace std;
 using namespace ibex;
 namespace PPL = Parma_Polyhedra_Library;
+using namespace Parma_Polyhedra_Library::IO_Operators;
 
 void test(){
 
@@ -41,6 +42,12 @@ void van_der_pol_cycle(){
 
     s.cameleon_cycle(5, 5, 1e9, false, false);
 //    s.cameleon_cycle(12, 5, 1e9, true, false);
+
+    s.get_graph_list(0)->print_pave_info(-2.5, -0.5);
+
+    cout << "VOLUME IN / OUT, border 0" << endl;
+    cout << s.get_graph_list(0)->get_pave(-2.5, -0.5)->get_border(2)->get_volume_in().generators() << endl;
+    cout << s.get_graph_list(0)->get_pave(-2.5, -0.5)->get_border(2)->get_volume_out().generators() << endl;
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -145,8 +152,8 @@ int main()
 //    integration();
 //    ball();
 //    capture_attractor();
-//    van_der_pol_cycle();
-    test();
+    van_der_pol_cycle();
+//    test();
 
 #if 0
     const clock_t begin_time = clock();

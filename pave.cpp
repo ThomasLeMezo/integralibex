@@ -184,12 +184,12 @@ void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> &polyData){
     pointsCollection->SetPoints(points);
     //polydata->SetVerts(vertices);
 
-//    vtkSmartPointer<vtkUnsignedCharArray> Colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
-//    Colors->SetNumberOfComponents ( 3 );
-//    Colors->SetName ( "RGB" );
-//    for(int i=0; i<points->GetNumberOfPoints(); i++)
-//        Colors->InsertNextTuple3(i,i,0);
-//    pointsCollection->GetPointData()->SetVectors(Colors);
+    //    vtkSmartPointer<vtkUnsignedCharArray> Colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    //    Colors->SetNumberOfComponents ( 3 );
+    //    Colors->SetName ( "RGB" );
+    //    for(int i=0; i<points->GetNumberOfPoints(); i++)
+    //        Colors->InsertNextTuple3(i,i,0);
+    //    pointsCollection->GetPointData()->SetVectors(Colors);
 
     // ********** Surface **************
     // Create the convex hull of the pointcloud (delaunay + outer surface)
@@ -204,7 +204,7 @@ void Pave::draw_vtk(vtkSmartPointer<vtkAppendPolyData> &polyData){
     // ********** Append results **************
     polyData->AddInputData(surfaceFilter->GetOutput());
 
-//    polyData->GetOutput()->GetPointData()->SetScalars(Colors);
+    //    polyData->GetOutput()->GetPointData()->SetScalars(Colors);
 }
 
 void Pave::draw_box(vtkSmartPointer<vtkAppendPolyData> &polyData){
@@ -322,9 +322,17 @@ void Pave::bisect(vector<Pave*> &result){
     pave1->get_border(indice1)->add_inclusion(inclusion_to_pave2);
     pave2->get_border(indice2)->add_inclusion(inclusion_to_pave1);
 
+
+    // Intersect initial pave Polyhedron with pave1 & pave2
+    // Union of volume IN & OUT is MANDATORY to work !!!
     if(is_full()){
         pave1->set_full();
         pave2->set_full();
+    }
+    else{
+        PPL::C_Polyhedron volume_in_out(get_volume_in_out());
+        pave1->set_volume_in_out(volume_in_out);
+        pave2->set_volume_in_out(volume_in_out);
     }
 
     result.push_back(pave1);
@@ -512,3 +520,45 @@ IntervalVector Pave::get_theta() const{
 bool Pave::get_continuity() const{
     return m_continuity;
 }
+
+const C_Polyhedron Pave::get_volume_in() const{
+    PPL::C_Polyhedron volume_in(m_dim, PPL::EMPTY);
+    for(auto &b:m_borders){
+        volume_in.poly_hull_assign(b->get_volume_in());
+    }
+    return volume_in;
+}
+
+const C_Polyhedron Pave::get_volume_out() const{
+    PPL::C_Polyhedron volume_out(m_dim, PPL::EMPTY);
+    for(auto &b:m_borders){
+        volume_out.poly_hull_assign(b->get_volume_out());
+    }
+    return volume_out;
+}
+
+const C_Polyhedron Pave::get_volume_in_out() const{
+    PPL::C_Polyhedron volume_in_out(m_dim, PPL::EMPTY);
+    volume_in_out.poly_hull_assign(get_volume_in());
+    volume_in_out.poly_hull_assign(get_volume_out());
+    return volume_in_out;
+}
+
+void Pave::set_volume_in(const C_Polyhedron &volume_in){
+    for(auto &b:m_borders){
+        b->set_volume_in(volume_in, false);
+    }
+}
+
+void Pave::set_volume_out(const C_Polyhedron &volume_out){
+    for(auto &b:m_borders){
+        b->set_volume_out(volume_out, false);
+    }
+}
+
+void Pave::set_volume_in_out(const PPL::C_Polyhedron& volume_in_out){
+    set_volume_in(volume_in_out);
+    set_volume_out(volume_in_out);
+}
+
+

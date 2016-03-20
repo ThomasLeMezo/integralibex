@@ -7,6 +7,7 @@
 
 using namespace std;
 using namespace ibex;
+using namespace Parma_Polyhedra_Library::IO_Operators;
 
 Scheduler::Scheduler(const IntervalVector &box, ibex::Function *f, ibex::IntervalVector u){
     m_graph_list.push_back(new Graph(box, f, u, 0));
@@ -36,7 +37,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<pow(2, m_dim)){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(0.0,pow(2, m_dim),false, false); // Start with 2^n boxes
+        m_graph_list[0]->sivia(pow(2, m_dim),false, false); // Start with 2^n boxes
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
             m_graph_list[0]->set_active_pave(initial_box);
@@ -50,7 +51,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->remove_empty_node();
-        m_graph_list[0]->sivia(0.0, 2*m_graph_list[0]->size(), false, true);
+        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), false, true);
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
             m_graph_list[0]->set_active_pave(initial_box);
@@ -88,7 +89,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<pow(2, m_dim)){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(0.0,pow(2, m_dim),true, false); // Start with 4 boxes
+        m_graph_list[0]->sivia(pow(2, m_dim),true, false); // Start with 4 boxes
         m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
     }
@@ -101,13 +102,13 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)
                 break;
             m_graph_list[nb_graph]->clear_node_queue();
-            m_graph_list[nb_graph]->sivia(0.0, m_dim*m_graph_list[nb_graph]->size(), true, true);
+            m_graph_list[nb_graph]->sivia(m_dim*m_graph_list[nb_graph]->size(), true, true);
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
 
             int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true, false);
-            cout << "--> processing outer = " << graph_list_process_cpt << endl;
+//            cout << "--> processing outer = " << graph_list_process_cpt << endl;
 
             if(inner && iterations>0){
                 cout << "COMPUTE INNER" << endl;
@@ -129,6 +130,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 //                }
             }
 
+
             // Remove empty pave
             m_graph_list[nb_graph]->remove_empty_node();
 
@@ -146,7 +148,6 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                     nb_graph--;
                 break;
             }
-
 
             // ***************************************************
             //              REMOVE INSIDE PROCEDURE
@@ -181,6 +182,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 delete(graph_propagation);
 
             }
+
         }
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;

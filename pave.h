@@ -48,6 +48,10 @@ public:
     void                        set_first_process_true();
     void                        set_first_process_false();
 
+    void                        set_volume_in(const PPL::C_Polyhedron& volume_in);
+    void                        set_volume_out(const PPL::C_Polyhedron& volume_out);
+    void                        set_volume_in_out(const PPL::C_Polyhedron& volume_in_out);
+
     void                        reset_full_empty();
     void                        disable_continuity();
 
@@ -57,6 +61,9 @@ public:
     const vector<PPL::Generator> &      get_ray_vector_backward_field() const;
     const vector<PPL::Generator>&       get_ray_command() const;
     const ibex::IntervalVector&         get_position() const;
+    const C_Polyhedron                  get_volume_in() const;
+    const C_Polyhedron                  get_volume_out() const;
+    const C_Polyhedron                  get_volume_in_out() const;
 
     const std::vector<Border *> &       get_borders();
     Border*                             get_border(int face);

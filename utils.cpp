@@ -89,16 +89,23 @@ void CtcPaveBackward(Pave *p, bool inclusion, bool inner){
 
     for(auto &b:p->get_borders()){ // For each volume IN
         PPL::C_Polyhedron volume_in(b->get_volume_in());
-        vector<PPL::C_Polyhedron> list_volume_out;
+        if(!volume_in.is_discrete()){ // Avoid single point IN
+            vector<PPL::C_Polyhedron> list_volume_out;
 
-        // Make a list of volume OUT
-        for(auto &b_tmp:p->get_borders()){
-            if(b_tmp != b) // Do not project on the same border
-                list_volume_out.push_back(b_tmp->get_volume_out());
+            // Make a list of volume OUT
+            for(auto &b_tmp:p->get_borders()){
+                if(b_tmp != b){ // Do not project on the same border
+                    if(!b_tmp->get_volume_out().is_discrete()) // Do not keep single point
+                        list_volume_out.push_back(b_tmp->get_volume_out());
+                }
+            }
+
+            CtcPropagateSegmentBackward(volume_in, p, list_volume_out, p->get_ray_vector_backward_field(), p->get_ray_command());
         }
-
-        CtcPropagateSegmentBackward(volume_in, p, list_volume_out, p->get_ray_vector_backward_field(), p->get_ray_command());
-        list_volume_in.push_back(volume_in); // Save temporary the result
+        if(!volume_in.is_discrete()) // Do not add a single point volume IN
+            list_volume_in.push_back(volume_in); // Save temporary the result
+        else
+            list_volume_in.push_back(PPL::C_Polyhedron(p->get_dim(), PPL::EMPTY));
     }
 
     // Write the results to the pave's borders
@@ -116,6 +123,7 @@ void CtcPaveConsistency(Pave *p, bool backward, bool inner){
         Pave p2(p);
         CtcPaveForward(&p2, backward, inner);
         *p &= p2;
+
         if(inner){
             Pave p3(p);
             CtcPaveBackward(&p3, backward, inner);

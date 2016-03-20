@@ -12,39 +12,40 @@ public:
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);
     ~Graph();
 
-    int     process(int max_iterations, bool backward, bool inner);
-    void    sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_bisect_empty);
-    void    remove_empty_node();
+    int                             process(int max_iterations, bool backward, bool inner);
+    void                            sivia(int nb_node, bool backward, bool do_not_bisect_empty);
+    void                            remove_empty_node();
 
-    bool    inter(const Graph &g);
-    bool    diff(const Graph &g);
+    bool                            inter(const Graph &g);
+    bool                            diff(const Graph &g);
 
     // Test
-    bool    is_empty();
+    bool                            is_empty();
 
     // Setter
-    void    set_full();
-    void    set_active_pave(const ibex::IntervalVector &box);
-    void    set_symetry(ibex::Function *f, int axis_in, int side_in, int axis_out, int side_out);
-    void    set_empty();
-    void    clear_node_queue();
-    void    add_all_to_queue();
-    void    set_all_first_process();
+    void                            set_full();
+    void                            set_active_pave(const ibex::IntervalVector &box);
+    void                            set_symetry(ibex::Function *f, int axis_in, int side_in, int axis_out, int side_out);
+    void                            set_empty();
+    void                            clear_node_queue();
+    void                            add_all_to_queue();
+    void                            set_all_first_process();
 
     // Getter
-    Pave*               get_pave(double x, double y) const;
-    const std::vector<Pave *> get_pave(const ibex::IntervalVector &box) const;
-    const std::vector<Pave *>& get_node_list() const;
-    const std::vector<Pave *> get_node_queue() const;
-    Pave*               get_node_const(int i) const;
-    Pave*               get_semi_full_node();
-    int                 size() const;
-    ibex::Function*     get_f_inclusion_std();
-    int                 get_graph_id();
+    Pave*                           get_pave(double x, double y) const;
+    const std::vector<Pave *>       get_pave(const ibex::IntervalVector &box) const;
+    const std::vector<Pave *>&      get_node_list() const;
+    const std::vector<Pave *>       get_node_queue() const;
+    Pave*                           get_node_const(int i) const;
+    Pave*                           get_semi_full_node();
+    int                             size() const;
+    ibex::Function*                 get_f_inclusion_std();
+    int                             get_graph_id();
 
     // Other functions
-    Pave&               operator[](int id);
-    void                draw_vtk(string filename);
+    Pave&                           operator[](int id);
+    void                            draw_vtk(string filename);
+    void                            print_pave_info(double x, double y) const;
 
 private:
     std::vector<Pave*> m_node_list;

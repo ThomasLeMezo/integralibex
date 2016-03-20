@@ -83,7 +83,7 @@ void Graph::clear_node_queue(){
     m_node_queue.clear();
 }
 
-void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_bisect_empty){
+void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty){
     int iterations = 0;
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
@@ -105,7 +105,7 @@ void Graph::sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_
 
     for(int i=0; i<tmp_pave_list.size(); i++){
         if(backward){
-            tmp_pave_list[i]->set_full();
+//            tmp_pave_list[i]->set_full();
             m_node_queue.push_back(tmp_pave_list[i]);
         }
         m_node_list.push_back(tmp_pave_list[i]);
@@ -120,8 +120,25 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
+        //[-2.25, -2] ; [1.5, 2]
+        IntervalVector position(2);
+        position[0] = ibex::Interval(-4, -3);
+        position[1] = ibex::Interval(-1, 0);
+        if(pave->get_position() == position){
+            cout << endl << ">>>> TEST position = " << position << endl;
+        }
+
         bool change = CtcContinuity(pave, backward);
         if(change || pave->get_first_process()){
+            if(pave->get_position() == position){
+                cout << "change = true" << endl;
+                cout << "in = " << pave->get_volume_in().generators() << endl;
+                cout << "out = " << pave->get_volume_out().generators() << endl;
+                cout << backward << " " << inner << endl;
+                cout << pave->get_theta() << endl;
+                cout << endl;
+            }
+
             CtcPaveConsistency(pave, backward, inner);
 
             // Warn scheduler to process new pave
@@ -378,4 +395,20 @@ void Graph::set_all_first_process(){
 
 int Graph::get_graph_id(){
     return m_graph_id;
+}
+
+
+void Graph::print_pave_info(double x, double y) const{
+    Pave *p = get_pave(x, y);
+    if(p!=NULL){
+        cout << "*****" << endl;
+        cout << "pave = " << p->get_position() << endl;
+        cout << "volume_in = " << p->get_volume_in().generators() << endl;
+        cout << "volume_out = " << p->get_volume_out().generators() << endl;
+
+        cout << "theta = " << p->get_theta() << endl;
+    }
+    else{
+        cout << "pave not found" << endl;
+    }
 }

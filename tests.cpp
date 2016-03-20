@@ -41,8 +41,9 @@ void test_CtcPropagateSegment(){
 
 void test_CtcPropagateSegmentBackward(){
     ibex::IntervalVector box(2);
-    box[0] = ibex::Interval(-3, -2);
-    box[1] = ibex::Interval(1, 2);
+    box[0] = ibex::Interval(-2.25, -2);
+    box[1] = ibex::Interval(1.5, 2);
+    // [-2.25, -2] ; [1.5, 2]
 
     ibex::Variable x, y;
 //    ibex::Function f(x, y, Return(-1.0+0.0*x, -x));
@@ -74,7 +75,9 @@ void test_CtcPropagateSegmentBackward(){
 
     cout << g.get_node_list()[0]->get_theta() << endl;
 
+    g.print_pave_info(-2.125, 1.75);
     g.process(5, true, false);
+    g.print_pave_info(-2.125, 1.75);
 
     g.draw_vtk("test");
 }
@@ -94,7 +97,7 @@ void test_copy_graph(){
     u[2] = ibex::Interval::ZERO;
 
     Graph g(box, &f, u, 1);
-    g.sivia(0.0, 8, false, false);
+    g.sivia(8, false, false);
 
     GraphDot graphDot(&g);
     graphDot.write("g.dot");
