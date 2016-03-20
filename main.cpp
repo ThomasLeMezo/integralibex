@@ -43,11 +43,14 @@ void van_der_pol_cycle(){
     s.cameleon_cycle(5, 5, 1e9, false, false);
 //    s.cameleon_cycle(12, 5, 1e9, true, false);
 
-    s.get_graph_list(0)->print_pave_info(-2.5, -0.5);
-
     cout << "VOLUME IN / OUT, border 0" << endl;
-    cout << s.get_graph_list(0)->get_pave(-2.5, -0.5)->get_border(2)->get_volume_in().generators() << endl;
-    cout << s.get_graph_list(0)->get_pave(-2.5, -0.5)->get_border(2)->get_volume_out().generators() << endl;
+    Pave *p = s.get_graph_list(0)->get_pave(-2.5, -0.5);
+    cout << p->get_position() << endl;
+    for(int i=0; i<4; i++){
+        cout << "i = " << i << " - " << p->get_border(i)->get_position() << endl;
+        cout << "IN = " << p->get_border(i)->get_volume_in().generators() << endl;
+        cout << "OUT = " << p->get_border(i)->get_volume_out().generators() << endl;
+    }
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -87,8 +90,8 @@ void integration(){
     vibes::beginDrawing();
     ibex::Variable x, y, z;
 //    ibex::Function f(x, y, z, Return(10.0*(y-x), 28.0*x-y-x*z, x*y-8.0/3.0*z));
-    ibex::Function f(x, y, z, Return(1.0+0.0*x, -sin(x)+cos(y), 1.0+0.0*z));
-//    ibex::Function f(x, y, z, Return(1.0+0.0*x, 0.0*y, -sin(x)+cos(z)));
+//    ibex::Function f(x, y, z, Return(1.0+0.0*x, -sin(x)+cos(y), 1.0+0.0*z));
+    ibex::Function f(x, y, z, Return(1.0+0.0*x, 0.0*y, -sin(x)));
 //    ibex::Function f(x, y, v, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
     IntervalVector box(dim);
@@ -108,7 +111,7 @@ void integration(){
 //    ibex::Function f_sym(x, y, Return(x, -y));
 //    s.set_symetry(&f_sym,3, 3);
 
-    s.cameleon_propagation(15, 100000, activated_pave);
+    s.cameleon_propagation(8, 100000, activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw();

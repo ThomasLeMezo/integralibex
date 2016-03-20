@@ -120,25 +120,16 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
-        //[-2.25, -2] ; [1.5, 2]
         IntervalVector position(2);
-        position[0] = ibex::Interval(-4, -3);
+        position[0] = ibex::Interval(-3, -2);
         position[1] = ibex::Interval(-1, 0);
+
         if(pave->get_position() == position){
-            cout << endl << ">>>> TEST position = " << position << endl;
+            cout << endl << ">>>> TEST  position = " << pave->get_position() << endl;
         }
 
         bool change = CtcContinuity(pave, backward);
         if(change || pave->get_first_process()){
-            if(pave->get_position() == position){
-                cout << "change = true" << endl;
-                cout << "in = " << pave->get_volume_in().generators() << endl;
-                cout << "out = " << pave->get_volume_out().generators() << endl;
-                cout << backward << " " << inner << endl;
-                cout << pave->get_theta() << endl;
-                cout << endl;
-            }
-
             CtcPaveConsistency(pave, backward, inner);
 
             // Warn scheduler to process new pave

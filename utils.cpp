@@ -13,21 +13,17 @@ using namespace Parma_Polyhedra_Library::IO_Operators;
 
 void CtcPropagateSegment(const PPL::C_Polyhedron &volume_in, Pave *pave, vector<PPL::C_Polyhedron> &list_volume_out, const std::vector<PPL::Generator>& ray_vector_field_list, const std::vector<PPL::Generator>& ray_command_list){
     C_Polyhedron ph_projection(volume_in);
-    if(volume_in.is_empty())
-        return;
-    for(auto &ray:ray_vector_field_list){
-        if(ray.is_ray())
-            ph_projection.add_generator(ray);
-        else
-            cout << "RAY IS NOT A RAY : " << ray.type() << endl;
+    if(!volume_in.is_discrete()){
+        for(auto &ray:ray_vector_field_list){
+            if(ray.is_ray())
+                ph_projection.add_generator(ray);
+            else
+                cout << "RAY IS NOT A RAY : " << ray.type() << endl;
+        }
     }
 
-    list_volume_out.clear();
-    for(int i=0; i<2*pave->get_dim(); i++){
-        C_Polyhedron ph_face(ph_projection);
-        ph_face.intersection_assign(pave->get_border(i)->get_volume_full());
-        list_volume_out.push_back(ph_face);
-    }
+    for(int i=0; i<list_volume_out.size(); i++)
+        list_volume_out[i].intersection_assign(ph_projection);
 }
 
 void CtcPaveForward(Pave *p, bool inclusion, bool inner){
@@ -41,11 +37,15 @@ void CtcPaveForward(Pave *p, bool inclusion, bool inner){
     for(int face = 0; face<nb_face; face++){
         PPL::C_Polyhedron volume_in(p->get_border(face)->get_volume_in());
         vector<PPL::C_Polyhedron> list_volume_out_tmp;
+        for(int i=0; i<nb_face; i++){
+            list_volume_out_tmp.push_back(p->get_border(i)->get_volume_full());
+        }
+
         CtcPropagateSegment(volume_in, p, list_volume_out_tmp, p->get_ray_vector_field(), p->get_ray_command());
-        if(list_volume_out_tmp.size() != 0){
-            for(int face_update = 0; face_update < nb_face; face_update++){
-                list_volume_out[face_update].poly_hull_assign(list_volume_out_tmp[face_update]);
-            }
+
+        for(int i=0; i<nb_face; i++){
+            if(i!=face)
+                list_volume_out[i].poly_hull_assign(list_volume_out_tmp[i]);
         }
     }
 
@@ -119,14 +119,36 @@ void CtcPaveBackward(Pave *p, bool inclusion, bool inner){
 
 void CtcPaveConsistency(Pave *p, bool backward, bool inner){
     if(backward){
-        CtcPaveBackward(p, backward, inner);
+        IntervalVector position(2);
+        position[0] = ibex::Interval(-3, -2);
+        position[1] = ibex::Interval(-1, 0);
+
+        if(p->get_position() == position){
+            for(int i=0; i<4; i++){
+                cout << "i = " << i << endl;
+                cout << "volume_in = " << p->get_border(i)->get_volume_in().generators() << endl;
+                cout << "volume_out = " << p->get_border(i)->get_volume_out().generators() << endl;
+                cout << endl;
+            }
+        }
+
+        CtcPaveBackward(p, true, inner);
         Pave p2(p);
-        CtcPaveForward(&p2, backward, inner);
+        CtcPaveForward(&p2, true, inner);
         *p &= p2;
+
+        if(p->get_position() == position){
+            for(int i=0; i<4; i++){
+                cout << "i = " << i << endl;
+                cout << "volume_in = " << p->get_border(i)->get_volume_in().generators() << endl;
+                cout << "volume_out = " << p->get_border(i)->get_volume_out().generators() << endl;
+                cout << endl;
+            }
+        }
 
         if(inner){
             Pave p3(p);
-            CtcPaveBackward(&p3, backward, inner);
+            CtcPaveBackward(&p3, false, inner);
             *p &= p3;
         }
     }
