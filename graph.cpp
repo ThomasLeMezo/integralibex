@@ -83,7 +83,7 @@ void Graph::clear_node_queue(){
     m_node_queue.clear();
 }
 
-void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty){
+void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full){
     int iterations = 0;
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
@@ -93,7 +93,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty){
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
-        if(do_not_bisect_empty && (tmp->is_empty() || tmp->is_full())){// || (not_full_test && tmp->is_full() && diam < M_PI)){
+        if((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full())){// || (not_full_test && tmp->is_full() && diam < M_PI)){
             m_node_list.push_back(tmp);
 //            iterations++;
         }
