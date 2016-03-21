@@ -318,7 +318,7 @@ void Border::set_inclusion_receving(Border* border, int id_brother){
 
 void Border::reset_full_empty(){
     m_empty = false;
-    m_full = false;
+    m_full = true;
 }
 
 int Border::size() const{

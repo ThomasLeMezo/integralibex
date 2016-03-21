@@ -43,6 +43,17 @@ void van_der_pol_cycle(){
     s.cameleon_cycle(8, 5, 1e6, false, false);
 //    s.cameleon_cycle(12, 5, 1e9, true, false);
 
+    s.get_graph_list(0)->reset_full_empty();
+    int cpt=0, cpt_not=0;
+    for(auto &p:s.get_graph_list(0)->get_node_list()){
+        if(p->is_full())
+            cpt++;
+        else
+            cpt_not++;
+    }
+    cout << "cpt = " << cpt << endl;
+    cout << "cpt_not = " << cpt_not << endl;
+
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     s.draw();
