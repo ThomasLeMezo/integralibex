@@ -93,9 +93,11 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
+        if(do_not_bisect_empty)
+            tmp->reset_full_empty();
         if((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full())){// || (not_full_test && tmp->is_full() && diam < M_PI)){
             m_node_list.push_back(tmp);
-//            iterations++;
+            //            iterations++;
         }
         else{
             tmp->bisect(tmp_pave_list);
@@ -105,7 +107,6 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
 
     for(int i=0; i<tmp_pave_list.size(); i++){
         if(backward){
-//            tmp_pave_list[i]->set_full();
             m_node_queue.push_back(tmp_pave_list[i]);
         }
         m_node_list.push_back(tmp_pave_list[i]);
@@ -134,11 +135,12 @@ int Graph::process(int max_iterations, bool backward, bool inner){
                     }
                 }
             }
-
             pave->set_first_process_false();
         }
-//        if(iterations%10==0)
-//            cout << '\r' << "ITERATIONS = " << iterations << " / " << max_iterations << flush;
+
+        if(iterations%100==0)
+            cout << '\r' << "ITERATIONS = " << iterations << " / " << max_iterations
+                 << " " << "node queue size = " << m_node_queue.size() << "/" << m_node_list.size() << flush;
     }
 
     cout << '\r' << "ITERATIONS = " << iterations << " / " << max_iterations << endl;

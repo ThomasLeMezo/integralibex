@@ -4,8 +4,8 @@
 #include "ibex.h"
 #include "pave.h"
 
-void CtcPropagateSegment(const C_Polyhedron &volume_in, Pave *pave, vector<C_Polyhedron> &list_volume_out, const std::vector<Generator> &ray_vector_field_list, const std::vector<Generator> &ray_command_list);
-void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *pave, const vector<PPL::C_Polyhedron> &list_volume_out, const std::vector<PPL::Generator>& ray_vector_field_backward_list, const std::vector<PPL::Generator>& ray_command_list);
+void CtcPropagateSegment(const C_Polyhedron &volume_in, Pave *p, vector<C_Polyhedron> &list_volume_out, const std::vector<Generator> &ray_vector_field_list, const std::vector<Generator> &ray_command_list);
+void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *p, const vector<PPL::C_Polyhedron> &list_volume_out, const std::vector<PPL::Generator>& ray_vector_field_backward_list, const std::vector<PPL::Generator>& ray_command_list);
 
 void CtcPaveForward(Pave *p, bool inclusion, bool inner);
 void CtcPaveBackward(Pave *p, bool inclusion, bool inner);

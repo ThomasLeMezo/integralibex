@@ -83,7 +83,10 @@ public:
     bool                                get_continuity() const;
     ibex::IntervalVector                get_compute_zone() const;
 
+    const PPL::C_Polyhedron&            get_volume_universe() const;
+
     ibex::IntervalVector                get_bounding_box() const;
+    bool                                is_on_border() const;
 
     Border* operator[](int face);
 
@@ -112,6 +115,8 @@ private:
 
     bool                        m_first_process;
     bool                        m_continuity;
+
+    PPL::C_Polyhedron           m_volume_universe;
 };
 
 #endif // PAVE_H

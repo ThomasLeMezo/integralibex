@@ -63,6 +63,7 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVect
     update_ray_vector(-m_theta, m_ray_vector_field_backward);
 
     //update_ray_vector(m_u+m_theta, m_ray_command);
+    m_volume_universe = PPL::C_Polyhedron(m_dim, PPL::UNIVERSE);
 }
 
 Pave::Pave(const Pave *p):
@@ -92,6 +93,8 @@ Pave::Pave(const Pave *p):
         m_borders.push_back(b_cpy);
     }
     m_copy_node = NULL;
+
+    m_volume_universe = PPL::C_Polyhedron(m_dim, PPL::UNIVERSE);
 }
 
 Pave::~Pave(){
@@ -579,4 +582,17 @@ void Pave::update_ray_vector(const ibex::IntervalVector &theta, std::vector<PPL:
         if(!l.all_homogeneous_terms_are_zero()) // Case {0, 0, ...}
             ray_vector_list.push_back(ray(l));
     }
+}
+
+bool Pave::is_on_border() const{
+    for(auto &b:m_borders){
+        if(b->get_inclusions().size()==0){
+            return true;
+        }
+    }
+    return false;
+}
+
+const PPL::C_Polyhedron& Pave::get_volume_universe() const{
+    return m_volume_universe;
 }

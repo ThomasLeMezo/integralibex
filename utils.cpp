@@ -11,7 +11,7 @@ using namespace Parma_Polyhedra_Library::IO_Operators;
 // ********************************************************************************
 // ****************** Contractors Global functions ********************************
 
-void CtcPropagateSegment(const PPL::C_Polyhedron &volume_in, Pave *pave, vector<PPL::C_Polyhedron> &list_volume_out, const std::vector<PPL::Generator>& ray_vector_field_list, const std::vector<PPL::Generator>& ray_command_list){
+void CtcPropagateSegment(const PPL::C_Polyhedron &volume_in, Pave *p, vector<PPL::C_Polyhedron> &list_volume_out, const std::vector<PPL::Generator>& ray_vector_field_list, const std::vector<PPL::Generator>& ray_command_list){
     C_Polyhedron ph_projection(volume_in);
     if(!volume_in.is_discrete()){
         for(auto &ray:ray_vector_field_list){
@@ -28,11 +28,10 @@ void CtcPropagateSegment(const PPL::C_Polyhedron &volume_in, Pave *pave, vector<
 
 void CtcPaveForward(Pave *p, bool inclusion, bool inner){
     int nb_face = 2*p->get_dim();
-    PPL::C_Polyhedron universe(p->get_dim(), PPL::UNIVERSE);
 
     vector<PPL::C_Polyhedron> list_volume_out;
     for(int face=0; face<nb_face; face++){
-        list_volume_out.push_back(PPL::C_Polyhedron(p->get_dim(), PPL::EMPTY));
+        list_volume_out.push_back(p->get_volume_universe());
     }
 
     for(int face = 0; face<nb_face; face++){
@@ -47,7 +46,7 @@ void CtcPaveForward(Pave *p, bool inclusion, bool inner){
         for(int i=0; i<nb_face; i++){
             if(i!=face){
                 list_volume_out[i].poly_hull_assign(list_volume_out_tmp[i]);
-                list_volume_out[i].simplify_using_context_assign(universe);
+                list_volume_out[i].simplify_using_context_assign(p->get_volume_universe());
             }
         }
     }
@@ -65,11 +64,10 @@ void CtcPaveForward(Pave *p, bool inclusion, bool inner){
 /// \param ray_vector_field_list
 /// \param ray_command_list
 ///
-void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *pave, const vector<PPL::C_Polyhedron> &list_volume_out, const std::vector<PPL::Generator>& ray_vector_field_backward_list, const std::vector<PPL::Generator>& ray_command_list){
+void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *p, const vector<PPL::C_Polyhedron> &list_volume_out, const std::vector<PPL::Generator>& ray_vector_field_backward_list, const std::vector<PPL::Generator>& ray_command_list){
     if(volume_in.is_empty())
         return;
-    C_Polyhedron volume_in_tmp(pave->get_dim(), PPL::EMPTY);
-    PPL::C_Polyhedron universe(pave->get_dim(), PPL::UNIVERSE);
+    C_Polyhedron volume_in_tmp(p->get_dim(), PPL::EMPTY);
 
     for(auto &ph:list_volume_out){
         if(!ph.is_empty()){
@@ -81,10 +79,10 @@ void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *pave, const
                     cout << "RAY IS NOT A RAY : " << ray.type() << endl;
             }
 
-            ph_projection.simplify_using_context_assign(universe);
+            ph_projection.simplify_using_context_assign(p->get_volume_universe());
             ph_projection.intersection_assign(volume_in);
             volume_in_tmp.poly_hull_assign(ph_projection);
-//            volume_in_tmp.simplify_using_context_assign(universe);
+            volume_in_tmp.simplify_using_context_assign(p->get_volume_universe());
         }
     }
     volume_in = volume_in_tmp;
@@ -92,6 +90,7 @@ void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *pave, const
 
 void CtcPaveBackward(Pave *p, bool inclusion, bool inner){
     vector<PPL::C_Polyhedron> list_volume_in;
+    list_volume_in.reserve(p->get_borders().size());
 
     for(auto &b:p->get_borders()){ // For each volume IN
         PPL::C_Polyhedron volume_in(b->get_volume_in());

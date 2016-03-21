@@ -51,7 +51,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->remove_empty_node();
-        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), false, true);
+        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), false, true, false);
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
             m_graph_list[0]->set_active_pave(initial_box);
