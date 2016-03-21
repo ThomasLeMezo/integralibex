@@ -102,7 +102,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)
                 break;
             m_graph_list[nb_graph]->clear_node_queue();
-            m_graph_list[nb_graph]->sivia(m_dim*m_graph_list[nb_graph]->size(), true, true);
+            m_graph_list[nb_graph]->sivia(m_dim*m_graph_list[nb_graph]->size(), true, true, false);
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
@@ -185,6 +185,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
         }
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        m_graph_list[0]->draw_vtk(std::to_string(iterations));
         iterations++;
     }
 }
@@ -194,7 +195,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
 void Scheduler::draw(){
     for(int i=0; i<m_graph_list.size(); i++){
-        m_graph_list[i]->draw_vtk(std::to_string(i));
+        m_graph_list[i]->draw_vtk("");
 
 //        if(m_graph_inner_list.size()==m_graph_list.size())
 //            m_graph_inner_list[i]->drawInner(filled);

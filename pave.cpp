@@ -30,9 +30,11 @@ using namespace Parma_Polyhedra_Library::IO_Operators;
 Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVector u):
     m_position(position.size()),
     m_u(position.size()),
-    m_theta(position.size())
+    m_theta(position.size()),
+    m_compute_zone(position.size())
 {
     m_position = position;    // Box corresponding to the Pave
+    m_compute_zone = position;
     m_dim = position.size();
     m_borders.reserve(4);
     m_f = f;
@@ -57,36 +59,20 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::IntervalVect
 
     // Build ray for theta & for u + theta
     m_theta = f->eval_vector(position);
-    Linear_Expression e = Linear_Expression(0);
-    std::vector<Linear_Expression> linear_expression_list;
-    recursive_linear_expression_from_iv(m_theta, m_theta.size(), linear_expression_list,e);
-    for(auto &l:linear_expression_list){
-        if(!l.all_homogeneous_terms_are_zero()) // Case {0, 0, ...}
-            m_ray_vector_field.push_back(ray(l));
-    }
+    update_ray_vector(m_theta, m_ray_vector_field);
+    update_ray_vector(-m_theta, m_ray_vector_field_backward);
 
-    Linear_Expression e_bwd = Linear_Expression(0);
-    std::vector<Linear_Expression> linear_expression_list_backward;
-    recursive_linear_expression_from_iv(-m_theta, m_theta.size(), linear_expression_list_backward, e_bwd);
-    for(auto &l:linear_expression_list_backward){
-        if(!l.all_homogeneous_terms_are_zero()) // Case {0, 0, ...}
-            m_ray_vector_field_backward.push_back(ray(l));
-    }
-
-    //    e = Linear_Expression(0);
-    //    linear_expression_list.clear();
-    //    recursive_linear_expression_from_iv(u + theta, theta.size(), linear_expression_list,e);
-    //    for(auto &l:linear_expression_list){
-    //        m_ray_command.push_back(ray(l));
-    //    }
+    //update_ray_vector(m_u+m_theta, m_ray_command);
 }
 
 Pave::Pave(const Pave *p):
     m_position(p->get_dim()),
     m_u(p->get_dim()),
-    m_theta(p->get_dim())
+    m_theta(p->get_dim()),
+    m_compute_zone(p->get_dim())
 {
     m_position = p->get_position();    // Box corresponding to the Pave
+    m_compute_zone = p->get_compute_zone();
     m_dim = p->get_dim();
     m_f = p->get_f();
     m_u = p->get_u();
@@ -95,6 +81,7 @@ Pave::Pave(const Pave *p):
     m_in_queue = false;
     m_first_process = false;
     m_continuity = true;
+    m_theta = p->get_theta();
 
     m_ray_command = p->get_ray_command();
     m_ray_vector_field = p->get_ray_vector_field();
@@ -277,17 +264,22 @@ void Pave::draw_vector_field(vtkSmartPointer<vtkAppendPolyData> &polyData){
 
 void Pave::bisect(vector<Pave*> &result){
     // Create 2 new paves
+    IntervalVector position(get_bounding_box());
+    if(position.is_flat()){
+        position = m_position;
+    }
+
     ibex::LargestFirst bisector(0.0, 0.5);
 
-    std::pair<ibex::IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
+    std::pair<ibex::IntervalVector, IntervalVector> result_boxes = bisector.bisect(position);
 
     Pave *pave1 = new Pave(result_boxes.first, m_f, m_u); // Left or Up
     Pave *pave2 = new Pave(result_boxes.second, m_f, m_u); // Right or Down
 
     // Find the axe of bissection
     int bisect_axis = 0;
-    for(int i=0; i<m_position.size(); i++){
-        if(result_boxes.first[i] != m_position[i]){
+    for(int i=0; i<position.size(); i++){
+        if(result_boxes.first[i] != position[i]){
             bisect_axis = i;
             break;
         }
@@ -561,4 +553,30 @@ void Pave::set_volume_in_out(const PPL::C_Polyhedron& volume_in_out){
     set_volume_out(volume_in_out);
 }
 
+ibex::IntervalVector Pave::get_bounding_box() const{
+    return ph_2_iv(get_volume_in_out());
+}
 
+void Pave::update_theta(){
+    IntervalVector compute_zone(ph_2_iv(get_volume_in_out()));
+    if(compute_zone != m_compute_zone){
+        m_theta = m_f->eval_vector(compute_zone);
+        update_ray_vector(m_theta, m_ray_vector_field);
+        m_compute_zone = compute_zone;
+    }
+}
+
+ibex::IntervalVector Pave::get_compute_zone() const{
+    return m_compute_zone;
+}
+
+void Pave::update_ray_vector(const ibex::IntervalVector &theta, std::vector<PPL::Generator> &ray_vector_list){
+    ray_vector_list.clear();
+    Linear_Expression e = Linear_Expression(0);
+    std::vector<Linear_Expression> linear_expression_list;
+    recursive_linear_expression_from_iv(theta, theta.size(), linear_expression_list,e);
+    for(auto &l:linear_expression_list){
+        if(!l.all_homogeneous_terms_are_zero()) // Case {0, 0, ...}
+            ray_vector_list.push_back(ray(l));
+    }
+}

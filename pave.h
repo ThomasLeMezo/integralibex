@@ -55,6 +55,9 @@ public:
     void                        reset_full_empty();
     void                        disable_continuity();
 
+    void                        update_theta();
+    void                        update_ray_vector(const ibex::IntervalVector &theta, std::vector<Generator> &ray_vector_list);
+
     // Getters
     const std::vector<Pave*>            get_brothers(int face);
     const vector<PPL::Generator>&       get_ray_vector_field() const;
@@ -78,6 +81,9 @@ public:
     int                                 get_dim() const;
     int                                 get_size() const;
     bool                                get_continuity() const;
+    ibex::IntervalVector                get_compute_zone() const;
+
+    ibex::IntervalVector                get_bounding_box() const;
 
     Border* operator[](int face);
 
@@ -90,6 +96,7 @@ private:
     int                         m_dim;
 
     ibex::IntervalVector        m_position;
+    ibex::IntervalVector        m_compute_zone;
     std::vector<Border*>        m_borders;
 
     ibex::Function              *m_f;

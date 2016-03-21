@@ -119,6 +119,7 @@ void CtcPaveBackward(Pave *p, bool inclusion, bool inner){
 
 void CtcPaveConsistency(Pave *p, bool backward, bool inner){
     if(backward){
+        p->update_theta();
         CtcPaveBackward(p, true, inner);
         Pave p2(p);
         CtcPaveForward(&p2, true, inner);
