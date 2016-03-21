@@ -380,8 +380,8 @@ bool Pave::is_full(){
         return false;
     }
     else{
-        for(int face=0; face<m_borders.size(); face++){
-            if(!m_borders[face]->is_full()){
+        for(auto &b:m_borders){
+            if(!b->is_full()){
                 m_full = false;
                 return false;
             }

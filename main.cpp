@@ -168,8 +168,8 @@ int main()
 //    integration();
 //    ball();
 //    capture_attractor();
-//    van_der_pol_cycle();
-    lorenz_attractor();
+    van_der_pol_cycle();
+//    lorenz_attractor();
 //    test();
 
 #if 0

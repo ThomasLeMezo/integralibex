@@ -93,9 +93,9 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty){
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
-        if(tmp->is_empty() && do_not_bisect_empty){// || (not_full_test && tmp->is_full() && diam < M_PI)){
+        if(do_not_bisect_empty && (tmp->is_empty() || tmp->is_full())){// || (not_full_test && tmp->is_full() && diam < M_PI)){
             m_node_list.push_back(tmp);
-            iterations++;
+//            iterations++;
         }
         else{
             tmp->bisect(tmp_pave_list);
@@ -390,5 +390,11 @@ void Graph::print_pave_info(double x, double y) const{
     }
     else{
         cout << "pave not found" << endl;
+    }
+}
+
+void Graph::reset_full_empty(){
+    for(auto &p:m_node_list){
+        p->reset_full_empty();
     }
 }
