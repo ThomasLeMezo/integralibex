@@ -160,16 +160,45 @@ void sandbox(){
 
     //////////////////////////////////////////
 
-//    PPL::C_Polyhedron test(3, PPL::EMPTY);
-//    PPL::Variable x(0), y(1), z(2);
 
-//    test.add_generator(point());
-//    test.add_generator(point(2*x));
-//    test.add_generator(point(x));
+    PPL::Variable x(0), y(1), z(2);
 
-//    cout << test.generators() << endl;
-//    PPL::C_Polyhedron full(3, PPL::UNIVERSE);
-//    test.simplify_using_context_assign(full);
-//    cout << test.generators() << endl;
+    PPL::C_Polyhedron test(3, PPL::EMPTY);
+    test.add_generator(point(1*x));
+    test.add_generator(point(1*y));
+    test.add_generator(point(1*x+2*y));
+    test.add_generator(point(2*x+1*y));
+
+    PPL::C_Polyhedron simplifier(3, PPL::UNIVERSE);
+
+    cout << test.generators() << endl;
+    test.simplify_using_context_assign(simplifier);
+    cout << test.generators() << endl;
+    int cpt = 0;
+    for(auto &g:test.generators())
+        cpt ++;
+    cout << cpt << endl;
+
+    PPL::C_Polyhedron test2(3, PPL::EMPTY);
+    test2.add_generator(point());
+    test2.add_generator(point(2*y));
+    test2.add_generator(point(2*x));
+    test2.add_generator(point(2*x+2*y));
+
+    cout << test2.poly_hull_assign_if_exact(test) << endl;
+    cout << test2.generators() << endl;
+    test2.simplify_using_context_assign(simplifier);
+    cout << test2.generators() << endl;
+
+    PPL::C_Polyhedron test3(3, PPL::EMPTY);
+    test3.add_generator(point(x+y));
+    test3.add_generator(point(3*x+4*y));
+    test3.add_generator(point(4*x+3*y));
+
+    test2.intersection_assign(test3);
+    cout << "test3 = " << test3.generators() << endl;
+    cout << "test2 = " << test2.generators() << endl;
+    test2.simplify_using_context_assign(simplifier);
+    cout << "test2 = " << test2.generators() << endl;
 
 }

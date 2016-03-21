@@ -30,8 +30,9 @@ void CtcPaveForward(Pave *p, bool inclusion, bool inner){
     int nb_face = 2*p->get_dim();
 
     vector<PPL::C_Polyhedron> list_volume_out;
+    PPL::C_Polyhedron ph_empty(p->get_dim(), PPL::EMPTY);
     for(int face=0; face<nb_face; face++){
-        list_volume_out.push_back(p->get_volume_universe());
+        list_volume_out.push_back(ph_empty);
     }
 
     for(int face = 0; face<nb_face; face++){
@@ -153,26 +154,31 @@ bool CtcContinuity(Pave *p, bool backward){
                 volume_in.poly_hull_assign(p->get_border(face)->get_inclusion(b)->get_volume_in());
                 volume_out.poly_hull_assign(p->get_border(face)->get_inclusion(b)->get_volume_out());
             }
+            volume_in.simplify_using_context_assign(p->get_volume_universe());
+            volume_out.simplify_using_context_assign(p->get_volume_universe());
 
             if(backward){
                 PPL::C_Polyhedron volume_inter_out(volume_out), volume_inter_in(volume_in);
                 volume_inter_out.intersection_assign(p->get_border(face)->get_volume_in());
+                volume_inter_out.simplify_using_context_assign(p->get_volume_universe());
                 volume_inter_in.intersection_assign(p->get_border(face)->get_volume_out());
+                volume_inter_in.simplify_using_context_assign(p->get_volume_universe());
 
                 if(p->get_border(face)->get_volume_in() != volume_inter_out || p->get_border(face)->get_volume_out() != volume_inter_in){
                     change = true;
-                    p->get_border(face)->set_volume_in(volume_inter_out, backward);
-                    p->get_border(face)->set_volume_out(volume_inter_in, backward);
+                    p->get_border(face)->set_volume_in(volume_inter_out, true);
+                    p->get_border(face)->set_volume_out(volume_inter_in, true);
                 }
             }
             else{
                 PPL::C_Polyhedron volume_test(p->get_border(face)->get_volume_in());
                 volume_test.poly_hull_assign(volume_out);
                 volume_test.intersection_assign(p->get_border(face)->get_volume_full());
+                volume_test.simplify_using_context_assign(p->get_volume_universe());
 
                 if(p->get_border(face)->get_volume_in() != volume_test){
                     change = true;
-                    p->get_border(face)->set_volume_in(volume_out, backward);
+                    p->get_border(face)->set_volume_in(volume_out, false);
                 }
             }
         }
