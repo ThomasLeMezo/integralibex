@@ -19,10 +19,10 @@ using namespace Parma_Polyhedra_Library::IO_Operators;
 void test(){
 
 //    test_CtcPropagateSegment();
-    test_CtcPropagateSegmentBackward();
+//    test_CtcPropagateSegmentBackward();
 
 //    test_copy_graph();
-//    sandbox();
+    sandbox();
 }
 
 void van_der_pol_cycle(){
@@ -40,7 +40,7 @@ void van_der_pol_cycle(){
     u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(12, 5, 1e6, false, false);
+    s.cameleon_cycle(10, 5, 1e6, false, false);
 //    s.cameleon_cycle(12, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;

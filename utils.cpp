@@ -79,6 +79,7 @@ void CtcPropagateSegmentBackward(PPL::C_Polyhedron &volume_in, Pave *pave, const
             }
             ph_projection.intersection_assign(volume_in);
             volume_in_tmp.poly_hull_assign(ph_projection);
+            volume_in_tmp.simplify_using_context_assign(PPL::C_Polyhedron(pave->get_dim(), PPL::UNIVERSE));
         }
     }
     volume_in = volume_in_tmp;

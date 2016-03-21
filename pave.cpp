@@ -559,7 +559,7 @@ ibex::IntervalVector Pave::get_bounding_box() const{
 
 void Pave::update_theta(){
     IntervalVector compute_zone(ph_2_iv(get_volume_in_out()));
-    if(compute_zone != m_compute_zone){
+    if(!compute_zone.is_empty() && compute_zone != m_compute_zone){
         m_theta = m_f->eval_vector(compute_zone);
         update_ray_vector(m_theta, m_ray_vector_field);
         m_compute_zone = compute_zone;

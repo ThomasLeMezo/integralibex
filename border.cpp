@@ -50,6 +50,8 @@ Border::Border(const Border *border):
 
     m_face_axis = border->get_face_axis();
     m_face_side = border->get_face_side();
+
+    m_dim = border->get_dim();
     //    m_inclusions = border->get_inclusions();
     //    m_inclusions_receving = border->get_inclusions_receving();
 }
@@ -188,15 +190,18 @@ void Border::set_volume_in(const PPL::C_Polyhedron &volume_in, bool inclusion){
         m_volume_in.upper_bound_assign(volume_in);
         m_volume_in.intersection_assign(m_volume_full);
     }
+    m_volume_in.simplify_using_context_assign(PPL::C_Polyhedron(m_dim, PPL::UNIVERSE));
 }
 
 void Border::set_volume_out(const PPL::C_Polyhedron &volume_out, bool inclusion){
-    if(inclusion)
+    if(inclusion){
         m_volume_out.intersection_assign(volume_out);
+    }
     else{
         m_volume_out.upper_bound_assign(volume_out);
         m_volume_out.intersection_assign(m_volume_full);
     }
+    m_volume_out.simplify_using_context_assign(PPL::C_Polyhedron(m_dim, PPL::UNIVERSE));
 }
 
 void Border::set_pave(Pave* pave){

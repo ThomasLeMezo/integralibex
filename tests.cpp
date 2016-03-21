@@ -158,4 +158,15 @@ void sandbox(){
 //    cout << test.is_discrete() << endl;
 //    cout << test.is_topologically_closed() << endl;
 
+    PPL::C_Polyhedron test(3, PPL::EMPTY);
+    PPL::Variable x(0), y(1), z(2);
+
+    test.add_generator(point());
+    test.add_generator(point(2*x));
+    test.add_generator(point(x));
+
+    cout << test.generators() << endl;
+    PPL::C_Polyhedron full(3, PPL::UNIVERSE);
+    test.simplify_using_context_assign(full);
+    cout << test.generators() << endl;
 }
