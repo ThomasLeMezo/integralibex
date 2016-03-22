@@ -267,10 +267,13 @@ void Pave::draw_vector_field(vtkSmartPointer<vtkAppendPolyData> &polyData){
 
 void Pave::bisect(vector<Pave*> &result){
     // Create 2 new paves
-    IntervalVector position(get_bounding_box());
-    if(position.is_flat()){
-        position = m_position;
-    }
+    IntervalVector position(m_position);
+
+    /// Contraction of m_position leads to not issue with convergence ... ?!
+//    IntervalVector position(get_bounding_box());
+//    if(position.is_flat()){
+//        position = m_position;
+//    }
 
     ibex::LargestFirst bisector(0.0, 0.5);
 

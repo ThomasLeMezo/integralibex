@@ -138,7 +138,7 @@ void CtcPaveConsistency(Pave *p, bool backward, bool inner){
         }
     }
     else{
-        CtcPaveForward(p, backward, inner);
+        CtcPaveForward(p, false, inner);
     }
 }
 
@@ -178,7 +178,7 @@ bool CtcContinuity(Pave *p, bool backward){
 
                 if(p->get_border(face)->get_volume_in() != volume_test){
                     change = true;
-                    p->get_border(face)->set_volume_in(volume_out, false);
+                    p->get_border(face)->set_volume_in(volume_test, false);
                 }
             }
         }

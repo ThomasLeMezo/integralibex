@@ -50,7 +50,6 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->remove_empty_node();
         m_graph_list[0]->sivia(2*m_graph_list[0]->size(), false, true, false);
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
@@ -58,7 +57,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[0]->size() << ")" << endl;
-        m_graph_list[0]->process(process_iterations_max, false, false);
+        int nb_iterations_process = m_graph_list[0]->process(process_iterations_max, false, false);
 
         // Remove empty pave & Test if the graph is empty
 
@@ -77,6 +76,9 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         m_graph_list[0]->draw_vtk(std::to_string(iterations));
+
+        if(nb_iterations_process<process_iterations_max)
+            m_graph_list[0]->remove_empty_node();
         iterations++;
     }
 }

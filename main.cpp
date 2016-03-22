@@ -102,30 +102,32 @@ void integration(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     ibex::Variable x, y, z;
-//    ibex::Function f(x, y, z, Return(10.0*(y-x), 28.0*x-y-x*z, x*y-8.0/3.0*z));
+    ibex::Function f(x, y, z, Return(10.0*(y-x), 28.0*x-y-x*z, x*y-8.0/30*z));
 //    ibex::Function f(x, y, z, Return(1.0+0.0*x, -sin(x)+cos(y), 1.0+0.0*z));
 //    ibex::Function f(x, y, z, Return(1.0+0.0*x, 0.0*y, -sin(x)));
 //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-    ibex::Function f(x, y, z, Return(y,1.0*(1.0-pow(x, 2))*y-x, sqrt(pow(y, 2)+pow(1.0*(1.0-pow(x, 2))*y-x, 2))+0.1));
+
+//    ibex::Function f(x, y, z, Return(y,1.0*(1.0-pow(x, 2))*y-x, sqrt(pow(y, 2)+pow(1.0*(1.0-pow(x, 2))*y-x, 2))+0.1));
+//    ibex::Function f(x, y, z, Return(y,1.0*(1.0-pow(x, 2))*y-x, 1+0.0*x));
 
     IntervalVector box(dim);
-    box[0] = ibex::Interval(-4.0, 4.0);
-    box[1] = ibex::Interval(-4.0, 4.0);
-    box[2] = ibex::Interval(0.0, 8.0);
+    box[0] = ibex::Interval(-30.0, 30.0);
+    box[1] = ibex::Interval(-30.0, 30.0);
+    box[2] = ibex::Interval(0.0, 40.0);
 
     ibex::IntervalVector u(1);
     u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
     IntervalVector activated_pave(dim);
-    activated_pave[0] = ibex::Interval(3.0);
-    activated_pave[1] = ibex::Interval(3.0);
-    activated_pave[2] = ibex::Interval(0.0);
+    activated_pave[0] = ibex::Interval(20.0);
+    activated_pave[1] = ibex::Interval(20.0);
+    activated_pave[2] = ibex::Interval(5.0);
 
 //    ibex::Function f_sym(x, y, Return(x, -y));
 //    s.set_symetry(&f_sym,3, 3);
 
-    s.cameleon_propagation(15, 5e4, activated_pave);
+    s.cameleon_propagation(15, 3e5, activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 //    s.draw();
@@ -166,10 +168,10 @@ void capture_attractor(){
 
 int main()
 {
-    integration();
+//    integration();
 //    ball();
 //    capture_attractor();
-//    van_der_pol_cycle();
+    van_der_pol_cycle();
 //    lorenz_attractor();
 //    test();
 
