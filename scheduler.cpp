@@ -111,6 +111,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
 
             int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true, false);
+//            int graph_list_process_cpt = m_graph_list[nb_graph]->process(min(process_iterations_max, 4*m_graph_list[0]->size()), true, false);
 //            cout << "--> processing outer = " << graph_list_process_cpt << endl;
 
             if(inner && iterations>0){
