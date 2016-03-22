@@ -54,15 +54,15 @@ void lorenz_attractor(){
     ibex::Function f(x, y, z, Return(10.0*(y-x), 28.0*x-y-x*z, x*y-8.0/3.0*z));
 
     IntervalVector box(3);
-    box[0] = ibex::Interval(-30.0, 30.0);
-    box[1] = ibex::Interval(-30.0, 30.0);
-    box[2] = ibex::Interval(-30.0, 30.0);
+    box[0] = ibex::Interval(-100.0, 100.0);
+    box[1] = ibex::Interval(-100.0, 100.0);
+    box[2] = ibex::Interval(-100.0, 100.0);
 
     ibex::IntervalVector u(1);
     u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(7, 5, 1e6, false, false);
+    s.cameleon_cycle(10, 5, 1e6, false, false);
 //    s.cameleon_cycle(12, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -168,11 +168,11 @@ void capture_attractor(){
 
 int main()
 {
-    integration();
+//    integration();
 //    ball();
 //    capture_attractor();
 //    van_der_pol_cycle();
-//    lorenz_attractor();
+    lorenz_attractor();
 //    test();
 
 #if 0

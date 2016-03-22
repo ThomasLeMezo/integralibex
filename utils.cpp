@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "pave.h"
 #include "iomanip"
+#include "conversion.h"
 
 using namespace std;
 using namespace ibex;
