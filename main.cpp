@@ -62,7 +62,7 @@ void lorenz_attractor(){
     u[0] = ibex::Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(4, 5, 1e6, false, false);
+    s.cameleon_cycle(7, 5, 1e6, false, false);
 //    s.cameleon_cycle(12, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -168,10 +168,10 @@ void capture_attractor(){
 
 int main()
 {
-//    integration();
+    integration();
 //    ball();
 //    capture_attractor();
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 //    lorenz_attractor();
 //    test();
 

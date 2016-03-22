@@ -160,9 +160,7 @@ bool CtcContinuity(Pave *p, bool backward){
             if(backward){
                 PPL::C_Polyhedron volume_inter_out(volume_out), volume_inter_in(volume_in);
                 volume_inter_out.intersection_assign(p->get_border(face)->get_volume_in());
-                volume_inter_out.simplify_using_context_assign(p->get_volume_universe());
                 volume_inter_in.intersection_assign(p->get_border(face)->get_volume_out());
-                volume_inter_in.simplify_using_context_assign(p->get_volume_universe());
 
                 if(p->get_border(face)->get_volume_in() != volume_inter_out || p->get_border(face)->get_volume_out() != volume_inter_in){
                     change = true;

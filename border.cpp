@@ -184,7 +184,7 @@ bool Border::is_full(){
 }
 
 void Border::set_volume_in(const PPL::C_Polyhedron &volume_in, bool inclusion){
-    if(!volume_in.is_discrete()){
+//    if(!volume_in.is_discrete()){
         if(inclusion)
             m_volume_in.intersection_assign(volume_in);
         else{
@@ -192,12 +192,12 @@ void Border::set_volume_in(const PPL::C_Polyhedron &volume_in, bool inclusion){
             m_volume_in.simplify_using_context_assign(m_pave->get_volume_universe());
             m_volume_in.intersection_assign(m_volume_full);
         }
-            m_volume_in.simplify_using_context_assign(m_pave->get_volume_universe());
-    }
+        m_volume_in.simplify_using_context_assign(m_pave->get_volume_universe());
+//    }
 }
 
 void Border::set_volume_out(const PPL::C_Polyhedron &volume_out, bool inclusion){
-    if(!volume_out.is_discrete()){
+//    if(!volume_out.is_discrete()){
         if(inclusion){
             m_volume_out.intersection_assign(volume_out);
         }
@@ -207,7 +207,7 @@ void Border::set_volume_out(const PPL::C_Polyhedron &volume_out, bool inclusion)
             m_volume_out.intersection_assign(m_volume_full);
         }
         m_volume_out.simplify_using_context_assign(m_pave->get_volume_universe());
-    }
+//    }
 }
 
 void Border::set_pave(Pave* pave){
