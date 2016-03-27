@@ -59,7 +59,7 @@ void ball(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f(x, y, Return(y,-10-1*y));
+    ibex::Function f(x, y, Return(y,-10-0.1*y*abs(y)));
 
     IntervalVector box(2);
     box[0] = Interval(0.0, 20.0);
@@ -75,7 +75,7 @@ void ball(){
     ibex::Function f_sym(x, y, Return(x, -y-2.0));
     s.set_symetry(&f_sym,3, 3);
 
-    s.cameleon_propagation(15, 1000000, activated_pave);
+    s.cameleon_propagation(20, 1000000, activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -116,10 +116,10 @@ void capture_attractor(){
 
 int main()
 {
-//    ball();
+    ball();
 //    capture_attractor();
 //    van_der_pol_cycle();
-    test();
+//    test();
 
 #if 0
     const clock_t begin_time = clock();
