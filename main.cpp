@@ -101,23 +101,29 @@ void capture_attractor(){
     ibex::Function f_sym32(phi, d, Return(phi+Interval::TWO_PI, d));
     s.set_symetry(&f_sym32,3, 1);
 
-    IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(2);
-    activated_pave[1] = Interval(3.0);
-
-    s.cameleon_cycle(20, 5, 1e9, true, false);
-//    s.cameleon_propagation(15, 1e6, activated_pave, false);
+    s.cameleon_cycle(20, 5, 1e9, false, false);
+//    s.cameleon_propagation(15, 1e6, activated_pave, false);  
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     s.draw(1024, true);
-    s.print_pave_info(0, -1.64,0.11,"b[b]");
+//    s.print_pave_info(0, -1.64,0.11,"b[b]");
+
+    vector<double> x, y;
+    double c=0.705;
+    for(double t=-M_PI; t<=M_PI; t+=0.01){
+        y.push_back(sqrt(pow(cos(t)+c, 2)+pow(sin(t), 2)));
+        double phi = atan2(cos(t), -sin(t))+M_PI-atan2(sin(t), cos(t)+c);
+        x.push_back(2*atan(tan(phi/2.0)));
+    }
+    vibes::drawPolygon(x, y, "blue[]");
+
 }
 
 int main()
 {
-    ball();
-//    capture_attractor();
+//    ball();
+    capture_attractor();
 //    van_der_pol_cycle();
 //    test();
 
