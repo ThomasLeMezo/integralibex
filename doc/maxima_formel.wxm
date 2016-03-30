@@ -1,0 +1,57 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 14.12.1 ] */
+
+/* [wxMaxima: input   start ] */
+kill(all);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+f(t, c):=2*atan(tan((atan2(cos(t), -sin(t))+%pi-atan2(sin(t), cos(t)+c))/2));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+f(0,1);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot3d(f, [x,0.1,2*%pi], [c,-1,0])$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+solve([diff(f(t, c),t,1)=0], [t]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+g(c):=f(%pi-acos(c), c);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+solve([g(x)=-%pi/4], [x]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d(g, [c,0.1, 1])$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+g(c);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+solve([atan(c/-sqrt(1-c*c))=%pi/4], [c]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+solve([c=-sqrt(1-c^2)], [c]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+h(x):=x+sqrt(1-x^2);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+bfloat(1/sqrt(2));
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
