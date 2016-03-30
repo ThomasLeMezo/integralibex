@@ -20,7 +20,7 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     m_segment_full = position[face%2];
 
     m_empty = false;
-    m_full = false;
+    m_full = true;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -32,7 +32,7 @@ Border::Border(const Border *border): m_position(2)
     m_segment_out = border->get_segment_out();
     m_segment_full = border->get_segment_full();
     m_empty = false;
-    m_full = false;
+    m_full = true;
     //    m_inclusions = border->get_inclusions();
     //    m_inclusions_receving = border->get_inclusions_receving();
 }
@@ -186,7 +186,7 @@ bool Border::is_empty(){
 }
 
 bool Border::is_full(){
-    if(!m_full){
+    if(m_full==false){
         return false;
     }
     else{
@@ -340,7 +340,7 @@ void Border::set_inclusion_receving(Border* border, int id_brother){
 
 void Border::reset_full_empty(){
     m_empty = false;
-    m_full = false;
+    m_full = true;
 }
 
 int Border::size() const{

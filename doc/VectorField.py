@@ -34,7 +34,7 @@ plt.figure()
 # plt.show()
 
 ########## Part 3 ##########
-c=0.705
+c=1.0/sqrt(2.0)
 t = np.linspace(0.0, 2*np.pi, 1000)
 phi = arctan2(cos(t), -sin(t))+np.pi-arctan2(sin(t), cos(t)+c)
 phi_mod = 2*arctan(tan(phi/2.0))

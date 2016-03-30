@@ -27,7 +27,7 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u):
     coordinate[0] = position[0]; coordinate[1] = Interval(position[1].ub()); m_borders.push_back(new Border(coordinate, 2, this));
     coordinate[1] = position[1]; coordinate[0] = Interval(position[0].lb()); m_borders.push_back(new Border(coordinate, 3, this));
 
-    m_full = false;
+    m_full = true;
     m_empty = false;
 
     for(int i=0; i<2; i++)

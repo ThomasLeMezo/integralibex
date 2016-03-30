@@ -13,7 +13,7 @@ public:
     ~Graph();
 
     int process(int max_iterations, bool backward, bool inner);
-    void sivia(double epsilon_theta, int nb_node, bool backward, bool do_not_bisect_empty);
+    void sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full);
     void remove_empty_node();
 
     bool inter(const Graph &g);

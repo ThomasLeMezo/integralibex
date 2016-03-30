@@ -35,7 +35,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(0.0,4,false, false); // Start with 4 boxes
+        m_graph_list[0]->sivia(4,false, false, false); // Start with 4 boxes
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
             m_graph_list[0]->set_active_pave(initial_box);
@@ -49,7 +49,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->remove_empty_node();
-        m_graph_list[0]->sivia(0.0, 2*m_graph_list[0]->size(), false, true);
+        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), false, true, true);
 
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
@@ -79,7 +79,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     }
 }
 
-void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner){
+void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner, bool do_not_bisect_inside){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
 
@@ -88,9 +88,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(0.0,4,false, false); // Start with 4 boxes
-
-        //m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
+        m_graph_list[0]->sivia(4,true, false, false); // Start with 4 boxes
+        m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
     }
 
@@ -102,7 +101,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)
                 break;
             m_graph_list[nb_graph]->clear_node_queue();
-            m_graph_list[nb_graph]->sivia(0.0, 2*m_graph_list[nb_graph]->size(), true, true);
+            m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->size(), true, false, do_not_bisect_inside);
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
