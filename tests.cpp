@@ -4,9 +4,12 @@
 #include <vibes.h>
 #include "iomanip"
 #include "graphdot.h"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
 
 using namespace ibex;
 using namespace std;
+using namespace cv;
 
 void test_draw(Pave *p, string drawing_name, bool full=false){
     vibes::beginDrawing();
@@ -327,12 +330,12 @@ void test_copy_graph(){
 }
 
 void sandbox(){
-    IntervalVector box(2);
-    box[0] = Interval(5,10);
-    box[1] = Interval(0,10);
+//    IntervalVector box(2);
+//    box[0] = Interval(5,10);
+//    box[1] = Interval(0,10);
 
-    Interval test = Interval(0, 10);
-    cout << test.lb() << endl;
+//    Interval test = Interval(0, 10);
+//    cout << test.lb() << endl;
 
 //    Variable x, y;
 //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
@@ -345,4 +348,66 @@ void sandbox(){
 //    Interval theta = atan2(dy, dx);
 //    cout << setprecision(80) << theta << endl;
 //    cout << Interval::HALF_PI << endl;
+    int sizeX = 4000;
+    int sizeY = 4000;
+    Interval rangeX = Interval(-4.0, 4.0);
+    Interval rangeY = Interval(-4.0, 4.0);
+
+    Variable t;
+    ibex::Function f(t, Return(2*atan(tan((atan2(cos(t), -sin(t))+Interval::PI-atan2(sin(t), cos(t)+1.0/sqrt(2.0)))/2.0)),
+                                sqrt(pow(cos(t)+1/sqrt(2.0), 2)+pow(sin(t), 2))));
+
+    std::vector<Interval> list_t;
+    list_t.push_back(Interval::ZERO | Interval::TWO_PI);
+
+    for(int i=0; i<10; i++){
+        std::vector<Interval> tmp_list_t(list_t);
+        list_t.clear();
+        for(auto &i:tmp_list_t){
+            list_t.push_back(Interval(i.lb(), i.mid()));
+            list_t.push_back(Interval(i.mid(), i.ub()));
+        }
+    }
+
+    double factor = 4000.0/8.0;
+
+    Mat img(sizeX,sizeY, CV_8UC1, Scalar(0));
+    for(auto &i:list_t){
+        IntervalVector tmp(2);
+        tmp[0] = i;
+        IntervalVector p(f.eval_vector(tmp));
+        cout << p.diam()[0] << endl;
+        if(p.diam()[0] < 1)
+            rectangle(img, Point(ceil((p[0].lb()+4.0)*factor), ceil((p[1].lb()+4.0)*factor)), Point(floor((p[0].ub()+4.0)*factor), floor((p[1].ub()+4.0)*factor)), Scalar(255), 5.0);
+    }
+
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+
+    /// Find contours
+    findContours( img, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+
+//    /// Draw contours
+    Mat img_filled = Mat::zeros( img.size(), CV_8U );
+    for( int i = 0; i< contours.size(); i++ ){
+        drawContours(img_filled, contours, i, Scalar(1), CV_FILLED, 8, hierarchy, 0, Point() );
+    }
+
+    Mat img_integral = Mat::zeros(img.size(), CV_64FC1); // CV_32SC1
+    cv::integral(img_filled, img_integral, CV_64FC1);
+
+    const char* window_title = "Hello, OpenCV!";
+    namedWindow (window_title, CV_WINDOW_NORMAL);
+    imshow(window_title, img);
+
+    window_title = "Filled";
+    namedWindow (window_title, CV_WINDOW_NORMAL);
+    imshow(window_title, img_filled);
+
+    window_title = "Integral";
+    namedWindow (window_title, CV_WINDOW_NORMAL);
+    imshow(window_title, img_integral);
+
+
+    waitKey(0);
 }

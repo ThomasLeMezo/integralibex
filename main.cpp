@@ -23,7 +23,7 @@ void test(){
 //    test_CtcPropagateSegment();
 
 //    test_CtcPaveForward();
-    test_CtcPaveConsistency();
+//    test_CtcPaveConsistency();
 
 //    test_contractor_polar();
 
@@ -32,7 +32,7 @@ void test(){
 //    test_diff();
 //    test_copy_graph();
 
-//    sandbox();
+    sandbox();
 }
 
 void van_der_pol_cycle(){
@@ -123,9 +123,9 @@ void capture_attractor(){
 int main()
 {
 //    ball();
-    capture_attractor();
+//    capture_attractor();
 //    van_der_pol_cycle();
-//    test();
+    test();
 
 #if 0
     const clock_t begin_time = clock();
