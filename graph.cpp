@@ -91,7 +91,10 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bo
 
         if(do_not_bisect_empty || do_not_bisect_full)
             tmp->reset_full_empty();
-        if(((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full())) && tmp->get_theta_diam()<M_PI){// || (not_full_test && tmp->is_full() && diam < M_PI)){
+        if(m_utils->m_imageIntegral_activated)
+            tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
+
+        if(tmp->get_inner() || ((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full())) && tmp->get_theta_diam()<M_PI){// || (not_full_test && tmp->is_full() && diam < M_PI)){
             m_node_list.push_back(tmp);
             iterations++;
         }

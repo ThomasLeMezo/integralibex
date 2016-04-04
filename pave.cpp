@@ -20,6 +20,8 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u):
 
     m_first_process = false;
 
+    m_inner = false;
+
     // Border building
     IntervalVector coordinate(2);
     coordinate[0] = position[0]; coordinate[1] = Interval(position[1].lb()); m_borders.push_back(new Border(coordinate, 0, this));
@@ -77,6 +79,7 @@ Pave::Pave(const Pave *p): m_position(2)
     m_in_queue = false;
     m_u = p->get_u();
     m_first_process = false;
+    m_inner = p->get_inner();
 
     for(int i=0; i<2; i++){
         m_theta.push_back(p->get_theta(i));
@@ -169,8 +172,13 @@ void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
         draw_borders(filled, "[#00FF00AA]");
     }
     else{
+
         vibes::drawBox(m_position, color);
-        draw_borders(filled);
+
+        if(m_inner)
+            draw_borders(filled, "g[g]");
+        else
+            draw_borders(filled, "y[y]");
         // Draw theta
 
         double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
@@ -454,4 +462,12 @@ void Pave::set_first_process_true(){
 
 void Pave::set_first_process_false(){
     m_first_process = false;
+}
+
+bool Pave::get_inner() const{
+    return m_inner;
+}
+
+void Pave::set_inner(bool inner){
+    m_inner = inner;
 }

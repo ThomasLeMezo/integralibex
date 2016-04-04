@@ -3,7 +3,7 @@
 
 #include "ibex.h"
 #include "pave.h"
-
+#include "imageintegral.h"
 
 class Utils
 {
@@ -55,6 +55,9 @@ public:
     // ***********************************************************
 
     ibex::Interval tab_rotation[4] = {ibex::Interval::ZERO, -ibex::Interval::HALF_PI, ibex::Interval::PI, ibex::Interval::HALF_PI};
+
+    imageIntegral* m_imageIntegral;
+    bool           m_imageIntegral_activated;
 
 };
 

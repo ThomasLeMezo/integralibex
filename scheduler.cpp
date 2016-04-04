@@ -4,6 +4,7 @@
 #include "omp.h"
 
 #include "graphdot.h"
+#include "imageintegral.h"
 
 using namespace std;
 using namespace ibex;
@@ -206,4 +207,9 @@ Graph* Scheduler::get_graph_list(int i){
 
 void Scheduler::print_pave_info(int graph, double x, double y, string color){
     m_graph_list[graph]->print_pave_info(x, y, color);
+}
+
+void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY){
+    m_utils.m_imageIntegral = new imageIntegral(range, f, t_range, nbBisectionT, nbBisectionXY);
+    m_utils.m_imageIntegral_activated = true;
 }

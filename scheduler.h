@@ -19,6 +19,7 @@ public:
     void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe, bool inner=false);
 
     void set_symetry(ibex::Function *f, int face_in, int face_out);
+    void set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY);
 
     // ******** Drawing functions ********
     void draw(int size, bool filled);

@@ -43,6 +43,7 @@ public:
     void                        set_copy_node(Pave *p);
     void                        set_first_process_true();
     void                        set_first_process_false();
+    void                        set_inner(bool inner);
 
     void                        reset_full_empty();
 
@@ -62,6 +63,7 @@ public:
     ibex::Function*                     get_f() const;
 
     bool                                get_first_process() const;
+    bool                                get_inner() const;
 
     Border* operator[](int face);
 
@@ -70,7 +72,7 @@ private:
     std::vector<ibex::Interval> m_theta;
     ibex::Interval              m_u;
     ibex::IntervalVector        m_position;
-    std::vector<Border*>         m_borders;
+    std::vector<Border*>        m_borders;
 
     ibex::Function              *m_f;
     Pave*                       m_copy_node;
@@ -82,6 +84,7 @@ private:
     bool                        m_in_queue;
 
     bool                        m_first_process;
+    bool                        m_inner;
 };
 
 #endif // PAVE_H

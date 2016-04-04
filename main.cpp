@@ -32,7 +32,9 @@ void test(){
 //    test_diff();
 //    test_copy_graph();
 
-    sandbox();
+    test_imageIntegral();
+
+//    sandbox();
 }
 
 void van_der_pol_cycle(){
@@ -95,20 +97,30 @@ void capture_attractor(){
     Interval u = Interval::ZERO;
     Scheduler s(box, &f, u);
 
+    /////////////// Symetries ///////////////
     ibex::Function f_sym23(phi, d, Return(phi-Interval::TWO_PI, d));
     s.set_symetry(&f_sym23,1, 3);
 
     ibex::Function f_sym32(phi, d, Return(phi+Interval::TWO_PI, d));
     s.set_symetry(&f_sym32,3, 1);
 
-    s.cameleon_cycle(15, 5, 1e9, false, false, true);
+    /////////////// Inner ///////////////
+    Variable t;
+    ibex::Function f_inner(t, Return(2*atan(tan((atan2(cos(t), -sin(t))+Interval::PI-atan2(sin(t), cos(t)+1.0/sqrt(2.0)))/2.0)),
+                               sqrt(pow(cos(t)+1/sqrt(2.0), 2)+pow(sin(t), 2))));
+    s.set_imageIntegral(box, &f_inner, Interval::ZERO | Interval::TWO_PI, 15,6000);
+
+    /////////////// Compute ///////////////
+    s.cameleon_cycle(15, 5, 1e9, false, false, false);
 //    s.cameleon_propagation(15, 1e6, activated_pave, false);  
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
+    /////////////// Drawing ///////////////
     s.draw(1024, true);
 //    s.print_pave_info(0, -1.64,0.11,"b[b]");
 
+    /// Truth
     vector<double> x, y;
     double c=1.0/sqrt(2.0);
     for(double t=-M_PI; t<=M_PI; t+=0.01){
@@ -123,9 +135,9 @@ void capture_attractor(){
 int main()
 {
 //    ball();
-//    capture_attractor();
+    capture_attractor();
 //    van_der_pol_cycle();
-    test();
+//    test();
 
 #if 0
     const clock_t begin_time = clock();
