@@ -68,7 +68,7 @@ void imageIntegral::compute_image(){
     Mat img_filled_mask = Mat::zeros(img.size(), CV_8U);
     for( int i = 0; i< contours.size(); i++ ){
         drawContours(img_filled_inside, contours, i, Scalar(1), CV_FILLED, 8, hierarchy, 0, Point() );
-        drawContours(img_filled_contour, contours, i, Scalar(1), 1, 8, hierarchy, 0, Point() );
+        drawContours(img_filled_contour, contours, i, Scalar(1), 6, 8, hierarchy, 0, Point() );
     }
 
     img_filled_mask = cv::Scalar::all(1) - img_filled_contour;

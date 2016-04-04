@@ -12,7 +12,7 @@ public:
     imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY);
 
     void compute_image();
-    void set_box(IntervalVector box);
+    void set_box(ibex::IntervalVector box);
     bool testBox(const ibex::IntervalVector &test_box);
 
 private:

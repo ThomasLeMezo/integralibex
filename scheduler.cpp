@@ -97,6 +97,11 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
+
+//        if(m_utils.m_imageIntegral_activated){
+//            m_utils.m_imageIntegral->set_box(m_graph_list[0]->get_bounding_box());
+//        }
+
         for(int nb_graph=0; nb_graph<m_graph_list.size(); nb_graph++){
 
             if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)

@@ -395,3 +395,15 @@ void Graph::set_all_first_process(){
 int Graph::get_graph_id(){
     return m_graph_id;
 }
+
+IntervalVector Graph::get_bounding_box() const{
+    IntervalVector boundingBox(2);
+    boundingBox[0] = Interval::EMPTY_SET;
+    boundingBox[1] = Interval::EMPTY_SET;
+
+    for(auto &p:m_node_list){
+        boundingBox |= p->get_position();
+    }
+
+    return boundingBox;
+}

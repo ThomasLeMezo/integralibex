@@ -32,16 +32,17 @@ public:
     void set_all_first_process();
 
     // Getter
-    Pave*               get_pave(double x, double y) const;
-    const std::vector<Pave *> get_pave(const ibex::IntervalVector &box) const;
-    const std::vector<Pave *>& get_node_list() const;
-    const std::vector<Pave *> get_node_queue() const;
-    Pave*               get_node_const(int i) const;
-    Pave*               get_semi_full_node();
-    Utils*              get_utils();
-    int                 size() const;
-    ibex::Function*     get_f_inclusion_std();
-    int                 get_graph_id();
+    Pave*                       get_pave(double x, double y) const;
+    const std::vector<Pave *>   get_pave(const ibex::IntervalVector &box) const;
+    const std::vector<Pave *>&  get_node_list() const;
+    const std::vector<Pave *>   get_node_queue() const;
+    Pave*                       get_node_const(int i) const;
+    Pave*                       get_semi_full_node();
+    Utils*                      get_utils();
+    int                         size() const;
+    ibex::Function*             get_f_inclusion_std();
+    int                         get_graph_id();
+    ibex::IntervalVector        get_bounding_box() const;
 
     // Other functions
     Pave& operator[](int id);

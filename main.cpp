@@ -108,10 +108,10 @@ void capture_attractor(){
     Variable t;
     ibex::Function f_inner(t, Return(2*atan(tan((atan2(cos(t), -sin(t))+Interval::PI-atan2(sin(t), cos(t)+1.0/sqrt(2.0)))/2.0)),
                                sqrt(pow(cos(t)+1/sqrt(2.0), 2)+pow(sin(t), 2))));
-    s.set_imageIntegral(box, &f_inner, Interval::ZERO | Interval::TWO_PI, 15,6000);
+    s.set_imageIntegral(box, &f_inner, Interval::ZERO | Interval::TWO_PI, 15,5000);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(15, 5, 1e9, false, false, false);
+    s.cameleon_cycle(20, 5, 1e9, false, false, false);
 //    s.cameleon_propagation(15, 1e6, activated_pave, false);  
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
