@@ -7,7 +7,8 @@
 class Graph
 {
 public:
-    Graph(const ibex::IntervalVector &box, ibex::Function *f, Utils *utils, int graph_id, ibex::Interval u=ibex::Interval::EMPTY_SET);
+    Graph(const ibex::IntervalVector &box, ibex::Function *f, Utils *utils, const ibex::IntervalVector &u, int graph_id);
+    Graph(Utils *utils, int graph_id);
     Graph(Graph* g, int graph_id=-1);
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);
     ~Graph();
@@ -34,7 +35,7 @@ public:
     // Getter
     Pave*                       get_pave(double x, double y) const;
     const std::vector<Pave *>   get_pave(const ibex::IntervalVector &box) const;
-    const std::vector<Pave *>&  get_node_list() const;
+    std::vector<Pave *>&        get_node_list();
     const std::vector<Pave *>   get_node_queue() const;
     Pave*                       get_node_const(int i) const;
     Pave*                       get_semi_full_node();
@@ -45,7 +46,8 @@ public:
     ibex::IntervalVector        get_bounding_box() const;
 
     // Other functions
-    Pave& operator[](int id);
+    Pave&                       operator[](int id);
+    void                        build_graph();
 
     void print_pave_info(double x, double y, string color) const;
     void print() const;

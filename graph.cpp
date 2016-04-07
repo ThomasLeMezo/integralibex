@@ -4,9 +4,15 @@
 using namespace std;
 using namespace ibex;
 
-Graph::Graph(const IntervalVector &box, ibex::Function *f, Utils *utils, int graph_id=0, Interval u){
+Graph::Graph(const IntervalVector &box, ibex::Function *f, Utils *utils, const IntervalVector &u, int graph_id=0){
     Pave *p = new Pave(box, f, u);
     m_node_list.push_back(p);
+    m_graph_id = graph_id;
+    m_drawing_cpt = 0;
+    m_utils = utils;
+}
+
+Graph::Graph(Utils *utils, int graph_id=0){
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
     m_utils = utils;
@@ -216,7 +222,7 @@ void Graph::set_active_pave(const IntervalVector &box){
     }
 }
 
-const std::vector<Pave *> &Graph::get_node_list() const {
+std::vector<Pave *> &Graph::get_node_list() {
     return m_node_list;
 }
 
@@ -406,4 +412,34 @@ IntervalVector Graph::get_bounding_box() const{
     }
 
     return boundingBox;
+}
+
+void Graph::build_graph(){
+
+    // ToDo : To Improve !!!
+    for(auto &p1:m_node_list){
+        for(auto &p2:m_node_list){
+            IntervalVector inter = p1->get_position() & p2->get_position();
+            if(!(inter[0].is_degenerated() && inter[1].is_degenerated())){
+                // Find common border
+
+                for(auto &b1:p1->get_borders()){
+                    for(auto &b2:p1->get_borders()){
+                        IntervalVector inter = b1->get_position() & b2->get_position();
+                        if(!(inter[0].is_degenerated() && inter[1].is_degenerated())){
+
+                            Inclusion *inclusion_to_b1 = new Inclusion(b1, b2->get_face());
+                            b2->add_inclusion(inclusion_to_b1);
+
+                            Inclusion *inclusion_to_b2 = new Inclusion(b2, b1->get_face());
+                            b1->add_inclusion(inclusion_to_b2);
+                        }
+                    }
+                }
+
+
+            }
+        }
+    }
+
 }

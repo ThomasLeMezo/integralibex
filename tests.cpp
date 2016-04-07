@@ -133,7 +133,10 @@ void test_CtcPropagateSegment(){
     cout << "seg_in = " << seg_in << endl;
     cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
 
-    u.CtcPropagateSegment(seg_in, seg_out, face, theta, box, Interval::EMPTY_SET);
+    std::vector<Interval> command;
+    command.push_back(Interval::ZERO);
+    command.push_back(Interval::ZERO);
+    u.CtcPropagateSegment(seg_in, seg_out, face, theta, box, command);
 
     cout << "----------" << endl;
     cout << "seg_in = " << seg_in << endl;
@@ -146,9 +149,9 @@ void test_CtcPaveForward(){
     box[0] = Interval(-2.03, -1.955);
     box[1] = Interval(0.47, 0.545);
 
-//    Interval command = -Interval::PI/8 | Interval::PI/8;
-    Interval command = -Interval::PI/4 | Interval::PI/4;
-//    Interval command = -Interval::PI | Interval::PI;
+    IntervalVector command(2);
+    command[0] = Interval(1);
+    command[1] = Interval(-1, 1);
 
     Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
@@ -175,11 +178,14 @@ void test_CtcPaveConsistency(){
     box[0] = Interval(-1.66897, -1.5708);
     box[1] = Interval(0.0880469, 0.166094);
 
-    Interval command = Interval::ZERO;
-//    Interval command = -Interval::HALF_PI| Interval::PI;
-//    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
-//    Interval command = -Interval::PI/4 | Interval::PI/4;
-//    Interval command = Interval(-1.0472, 1.0472);
+//    Interval command = Interval::ZERO;
+////    Interval command = -Interval::HALF_PI| Interval::PI;
+////    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
+////    Interval command = -Interval::PI/4 | Interval::PI/4;
+////    Interval command = Interval(-1.0472, 1.0472);
+    IntervalVector command(2);
+    command[0] = Interval::ZERO;
+    command[1] = Interval::ZERO;
 
 //    Variable x, y;
 //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
@@ -284,8 +290,11 @@ void test_diff(){
     box[1] = Interval(0,1);
     Function f;
 
-    Pave p1(box, &f);
-    Pave p2(box, &f);
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
+    Pave p1(box, &f, u);
+    Pave p2(box, &f, u);
 
     p1.get_border(0)->set_full();
     p1.get_border(1)->set_full();
@@ -308,7 +317,11 @@ void test_copy_graph(){
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
     Utils u;
 
-    Graph g(box, &f, &u, 1);
+    IntervalVector command(2);
+    command[0] = Interval::ZERO;
+    command[1] = Interval::ZERO;
+
+    Graph g(box, &f, &u, command, 1);
     g.sivia(0.0, 4, false, false);
 
     GraphDot graphDot(&g);
@@ -430,6 +443,26 @@ void test_imageIntegral(){
 
 
     waitKey(0);
+}
+
+void test_car_on_hill(){
+    IntervalVector box(2);
+    box[0] = Interval(0,10);
+    box[1] = Interval(0,10);
+
+    IntervalVector box_diff(2);
+    box_diff[0] = Interval(4,5);
+    box_diff[1] = Interval(4,5);
+
+    IntervalVector* box_result;
+    int size = box.diff(box_diff, box_result);
+
+    cout << "box " << box << endl;
+    cout << "box_diff " << box_diff << endl;
+    cout << "box_result = " << box_result << endl;
+    cout << "size = " << size << endl;
+    for(int i=0; i<size; i++)
+        cout << "box_result = " << box_result[i] << endl;
 }
 
 void sandbox(){

@@ -10,7 +10,7 @@ class Pave
 
     /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &position, ibex::Function *f, ibex::Interval u=ibex::Interval::ZERO);
+    Pave(const ibex::IntervalVector &position, ibex::Function *f, const ibex::IntervalVector &u);
     Pave(const Pave *p);
     ~Pave();
 
@@ -52,10 +52,12 @@ public:
     const std::vector<Pave*>            get_brothers(int face);
     const ibex::Interval&               get_theta(int i) const;
     const std::vector<ibex::Interval>   get_theta() const;
-    const ibex::Interval&               get_u() const;
+    const ibex::Interval&               get_u(int i) const;
+    const std::vector<ibex::Interval>   get_u() const;
+    const ibex::IntervalVector&         get_u_iv() const;
     const ibex::IntervalVector&         get_position() const;
 
-    const std::vector<Border *> &get_borders();
+    const std::vector<Border *> &       get_borders();
     Border*                             get_border(int face);
     const Border*                       get_border_const(int face) const;
 
@@ -70,7 +72,8 @@ public:
     /***************** Variables ******************/
 private:
     std::vector<ibex::Interval> m_theta;
-    ibex::Interval              m_u;
+    std::vector<ibex::Interval> m_u;
+    ibex::IntervalVector        m_u_iv;
     ibex::IntervalVector        m_position;
     std::vector<Border*>        m_borders;
 

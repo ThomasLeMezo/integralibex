@@ -32,7 +32,8 @@ void test(){
 //    test_diff();
 //    test_copy_graph();
 
-    test_imageIntegral();
+//    test_imageIntegral();
+    test_car_on_hill();
 
 //    sandbox();
 }
@@ -47,7 +48,9 @@ void van_der_pol_cycle(){
     box[0] = Interval(-4.0, 4.0);
     box[1] = Interval(-4.0, 4.0);
 
-    Interval u = Interval::ZERO;
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
     Scheduler s(box, &f, u);
 
     s.cameleon_cycle(7, 5, 1e9, true, false);
@@ -67,7 +70,9 @@ void ball(){
     box[0] = Interval(0.0, 20.0);
     box[1] = Interval(-20.0, 20.0);
 
-    Interval u = Interval::ZERO;
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
     Scheduler s(box, &f, u);
 
     IntervalVector activated_pave(2);
@@ -94,7 +99,9 @@ void capture_attractor(){
     box[0] = -Interval::PI | Interval::PI;
     box[1] = Interval(0.01, 10.0);
 
-    Interval u = Interval::ZERO;
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
     Scheduler s(box, &f, u);
 
     /////////////// Symetries ///////////////
@@ -111,7 +118,7 @@ void capture_attractor(){
     s.set_imageIntegral(box, &f_inner, Interval::ZERO | Interval::TWO_PI, 15,5000);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(20, 5, 1e9, false, false, false);
+    s.cameleon_cycle(15, 5, 1e9, false, false, false);
 //    s.cameleon_propagation(15, 1e6, activated_pave, false);  
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -132,10 +139,73 @@ void capture_attractor(){
 
 }
 
+void car_on_the_hill(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f(x1, x2, Return(x2,
+                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+
+    IntervalVector box(2);
+    box[0] = Interval(0.0, 12.0);
+    box[1] = Interval(-6.0, 6.0);
+
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval(-0.5, 0.5);
+
+    Scheduler s(box, &f, u);
+
+    /////////////// Compute ///////////////
+    s.cameleon_cycle(14, 5, 1e9, false, false, false);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+//    s.print_pave_info(0, -1.64,0.11,"b[b]");
+
+}
+
+void car_on_the_hill_v2(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f(x1, x2, Return(x2,
+                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+
+    IntervalVector box(2);
+    box[0] = Interval(0.0, 12.0);
+    box[1] = Interval(-6.0, 6.0);
+
+    IntervalVector box_remove(2);
+    box_remove[0] = Interval(2.5,3.5);
+    box_remove[1] = Interval(-0.5,0.5);
+
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval(-0.5, 0.5);
+
+    Scheduler s(box, box_remove, &f, u);
+
+    /////////////// Compute ///////////////
+    s.cameleon_cycle(15, 5, 1e9, false, false, false);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+
+//    s.print_pave_info(0, -1.64,0.11,"b[b]");
+
+}
+
 int main()
 {
 //    ball();
-    capture_attractor();
+//    capture_attractor();
+//    car_on_the_hill();
+    car_on_the_hill_v2();
 //    van_der_pol_cycle();
 //    test();
 

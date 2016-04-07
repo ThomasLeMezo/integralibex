@@ -40,9 +40,9 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
     contract_polar.contract(Dx, Dy, rho, theta2);
     x_front &= (x + Dx) & X;
 
-//    if((x + Dx).is_empty()){
-//        x = Interval::EMPTY_SET;
-//    }
+    //    if((x + Dx).is_empty()){
+    //        x = Interval::EMPTY_SET;
+    //    }
 
     if(!(X & (x_front - Dx)).is_empty()){
         x &= (x_front - Dx);
@@ -198,7 +198,7 @@ void Utils::CtcPropagateRightSideInner(ibex::Interval &x, ibex::Interval &y, con
 // ********************************************************************************
 // ****************** Contractors Global functions ********************************
 
-void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta, const ibex::IntervalVector &box_pave, const ibex::Interval &u, bool inner, bool inner_backward){
+void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta, const ibex::IntervalVector &box_pave, const std::vector<ibex::Interval> &u, bool inner, bool inner_backward){
     // Translate and rotate the Segment
     IntervalVector box(box_pave);
     IntervalVector box_in(box_pave);
@@ -218,39 +218,56 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     }
 
     // Compute the propagation
-    Interval segment_norm_in[3][2], segment_norm_out[3][2];
+    Interval segment_norm_in[3][2][u.size()], segment_norm_out[3][2][u.size()];
 
     for(int i=0; i<3; i++){
         for(int j=0; j<2; j++){
-            segment_norm_in[i][j] = segment_in[0];
-            segment_norm_out[i][j] = (segment_out[i][0].diam() > segment_out[i][1].diam()) ? segment_out[i][0] : segment_out[i][1];
+            for(int k=0; k<u.size(); k++){
+                segment_norm_in[i][j][k] = segment_in[0];
+                segment_norm_out[i][j][k] = (segment_out[i][0].diam() > segment_out[i][1].diam()) ? segment_out[i][0] : segment_out[i][1];
+            }
         }
     }
 
     if(!inner){
         for(int i=0; i<2; i++){
-            this->CtcPropagateRightSide(segment_norm_in[0][i], segment_norm_out[0][i], theta[i] + tab_rotation[face] + u, box);
-            this->CtcPropagateFront(segment_norm_in[1][i], segment_norm_out[1][i], theta[i] + tab_rotation[face] + u, box);
-            this->CtcPropagateLeftSide(segment_norm_in[2][i], segment_norm_out[2][i], theta[i] + tab_rotation[face] + u, box);
+            for(int j=0; j<u.size(); j++){
+                this->CtcPropagateRightSide(segment_norm_in[0][i][j], segment_norm_out[0][i][j], theta[i] + tab_rotation[face] + u[j], box);
+                this->CtcPropagateFront(segment_norm_in[1][i][j], segment_norm_out[1][i][j], theta[i] + tab_rotation[face] + u[j], box);
+                this->CtcPropagateLeftSide(segment_norm_in[2][i][j], segment_norm_out[2][i][j], theta[i] + tab_rotation[face] + u[j], box);
+            }
         }
     }
     else{
+        // ToDo : implement u cmd !!!
+        cout << "FUNCTION NOT IMPLEMENTED : EXIT" << endl;
+        exit(EXIT_FAILURE);
         vector<Interval> theta_list = {theta[0] + tab_rotation[face], theta[1] + tab_rotation[face]};
-        this->CtcPropagateRightSideInner(segment_norm_in[0][0], segment_norm_out[0][0], theta_list, box, u ,false, inner_backward);
-        this->CtcPropagateFrontInner(segment_norm_in[1][0], segment_norm_out[1][0], theta_list, box, u, inner_backward);
-        this->CtcPropagateLeftSideInner(segment_norm_in[2][0], segment_norm_out[2][0], theta_list, box, u, false, inner_backward);
+        this->CtcPropagateRightSideInner(segment_norm_in[0][0][0], segment_norm_out[0][0][0], theta_list, box, u[0] ,false, inner_backward);
+        this->CtcPropagateFrontInner(segment_norm_in[1][0][0], segment_norm_out[1][0][0], theta_list, box, u[0], inner_backward);
+        this->CtcPropagateLeftSideInner(segment_norm_in[2][0][0], segment_norm_out[2][0][0], theta_list, box, u[0], false, inner_backward);
         for(int i=0; i<3; i++){
-            segment_norm_out[i][1] = Interval::EMPTY_SET;
-            segment_norm_in[i][1] = Interval::EMPTY_SET;
+            for(int j=0; j<u.size(); j++){
+                segment_norm_out[i][1][j] = Interval::EMPTY_SET;
+                segment_norm_in[i][1][j] = Interval::EMPTY_SET;
+            }
         }
     }
 
     // **************************** OUTPUT ****************************
     // Translate and rotate back the Segment
-    IntervalVector segment_contracted_out[3] = IntervalVector(2);
-    segment_contracted_out[0][1] = segment_norm_out[0][0] | segment_norm_out[0][1]; segment_contracted_out[0][0] = Interval(box[0].ub());
-    segment_contracted_out[1][0] = segment_norm_out[1][0] | segment_norm_out[1][1]; segment_contracted_out[1][1] = Interval(box[1].ub());
-    segment_contracted_out[2][1] = segment_norm_out[2][0] | segment_norm_out[2][1]; segment_contracted_out[2][0] = Interval(box[0].lb());
+    IntervalVector segment_contracted_out[3] = IntervalVector(2, Interval::EMPTY_SET);
+
+    for(int i=0; i<2; i++){
+        for(int j=0; j<u.size(); j++){
+            segment_contracted_out[0][1] |= segment_norm_out[0][i][j];
+            segment_contracted_out[1][0] |= segment_norm_out[1][i][j];
+            segment_contracted_out[2][1] |= segment_norm_out[2][i][j];
+        }
+    }
+    segment_contracted_out[0][0] = Interval(box[0].ub());
+    segment_contracted_out[1][1] = Interval(box[1].ub());
+    segment_contracted_out[2][0] = Interval(box[0].lb());
 
     // Rotate and translate back with the initial box
     vector<Interval> seg_out_tmp;
@@ -263,12 +280,13 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     seg_out = seg_out_tmp;
 
     // **************************** INPUT ****************************
-    IntervalVector segment_contracted_in = IntervalVector(2);
-    segment_contracted_in[0] = Interval::EMPTY_SET;
+    IntervalVector segment_contracted_in = IntervalVector(2, Interval::EMPTY_SET);
     segment_contracted_in[1] = Interval(box[1].lb());
     for(int i=0; i<3; i++){
         for(int j=0; j<2; j++){
-            segment_contracted_in[0] |= segment_norm_in[i][j];
+            for(int k=0; k<u.size(); k++){
+                segment_contracted_in[0] |= segment_norm_in[i][j][k];
+            }
         }
     }
     // Rotate and translate back with the initial box
@@ -454,29 +472,30 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
     bool change = false;
 
     for(int face = 0; face < 4; face++){
-        Interval segment_in = Interval::EMPTY_SET;
-        Interval segment_out = Interval::EMPTY_SET;
+        if(p->get_border(face)->get_continuity()){
+            Interval segment_in = Interval::EMPTY_SET;
+            Interval segment_out = Interval::EMPTY_SET;
 
-        for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
-            segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
-            segment_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
-        }
+            for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
+                segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
+                segment_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
+            }
 
-        if(backward){
-            if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())
-                    || p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out())){
-                change = true;
-                p->get_border(face)->set_segment_in(segment_out, backward);
-                p->get_border(face)->set_segment_out(segment_in, backward);
+            if(backward){
+                if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())
+                        || p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out())){
+                    change = true;
+                    p->get_border(face)->set_segment_in(segment_out, backward);
+                    p->get_border(face)->set_segment_out(segment_in, backward);
+                }
+            }
+            else{
+                if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
+                    change = true;
+                    p->get_border(face)->set_segment_in(segment_out, backward);
+                }
             }
         }
-        else{
-            if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
-                change = true;
-                p->get_border(face)->set_segment_in(segment_out, backward);
-            }
-        }
-
     }
 
     return change;

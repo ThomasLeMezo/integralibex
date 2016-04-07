@@ -9,13 +9,40 @@
 using namespace std;
 using namespace ibex;
 
-Scheduler::Scheduler(const IntervalVector &box, ibex::Function *f, Interval u){
-    m_graph_list.push_back(new Graph(box, f, &m_utils, 0, u));
+Scheduler::Scheduler(const IntervalVector &box, ibex::Function *f, const IntervalVector &u){
+    m_graph_list.push_back(new Graph(box, f, &m_utils, u, 0));
 }
 
 Scheduler::~Scheduler(){
     for(auto &graph:m_graph_list){
         delete(graph);
+    }
+}
+
+Scheduler::Scheduler(const IntervalVector &box, const IntervalVector &box_remove, ibex::Function *f, const IntervalVector &u){
+    Graph *g = new Graph(&m_utils, 0);
+    m_graph_list.push_back(g);
+
+    // Creates paves
+    IntervalVector* box_diff;
+    int nb_box = box.diff(box_remove, box_diff);
+
+    for(int i=0; i<nb_box; i++){
+        Pave* p = new Pave(box_diff[i], f, u);
+        g->get_node_list().push_back(p);
+    }
+
+    // Rebuilt continuity inside graph
+    g->build_graph();
+
+    // Diseable continuity on bounding box
+    for(int i=0; i<nb_box; i++){
+        for(auto &b:g->get_node_list()[i]->get_borders()){
+            IntervalVector test_inter = b->get_position() & box;
+            if(!(test_inter[0].is_degenerated() && test_inter[1].is_degenerated())){
+                b->set_continuity(false);
+            }
+        }
     }
 }
 
@@ -98,9 +125,9 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
 
-//        if(m_utils.m_imageIntegral_activated){
-//            m_utils.m_imageIntegral->set_box(m_graph_list[0]->get_bounding_box());
-//        }
+        //        if(m_utils.m_imageIntegral_activated){
+        //            m_utils.m_imageIntegral->set_box(m_graph_list[0]->get_bounding_box());
+        //        }
 
         for(int nb_graph=0; nb_graph<m_graph_list.size(); nb_graph++){
 
@@ -129,10 +156,10 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 cout << "--> processing inner = " << graph_inner_process_cpt << endl;
                 m_graph_inner_list.insert(m_graph_inner_list.begin()+nb_graph, graph_inner);
 
-//                if(!graph_inner->is_empty()){
-//                    cout << "GRAPH inner not empty, iteration = " << iterations << endl;
-//                    break;
-//                }
+                //                if(!graph_inner->is_empty()){
+                //                    cout << "GRAPH inner not empty, iteration = " << iterations << endl;
+                //                    break;
+                //                }
             }
 
             // Remove empty pave
@@ -164,25 +191,25 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                     break;
 
                 Graph* graph_propagation = new Graph(m_graph_list[nb_graph], pave_start); // copy graph with 1 activated node (pave_start)
-//                Graph* graph_diff = new Graph(m_graph_list[nb_graph], m_graph_list.size());
+                //                Graph* graph_diff = new Graph(m_graph_list[nb_graph], m_graph_list.size());
 
                 graph_propagation->process(process_iterations_max, false, false); // process forward
 
                 m_graph_list[nb_graph]->inter(*graph_propagation); // intersect the graph with the propagation graph
 
 
-//                graph_diff->diff(*m_graph_list[nb_graph]);
+                //                graph_diff->diff(*m_graph_list[nb_graph]);
 
-//                if(!graph_diff->is_empty() && false){ // If there is an inside, add to graph_list
-//                    cout << " REMOVE INSIDE" << endl;
-//                    m_graph_list.push_back(graph_diff);
-//                    graph_diff->clear_node_queue();
-//                    cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
-//                    //m_graph_list.back()->print();
-//                }
-//                else{
-//                    delete(graph_diff);
-//                }
+                //                if(!graph_diff->is_empty() && false){ // If there is an inside, add to graph_list
+                //                    cout << " REMOVE INSIDE" << endl;
+                //                    m_graph_list.push_back(graph_diff);
+                //                    graph_diff->clear_node_queue();
+                //                    cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
+                //                    //m_graph_list.back()->print();
+                //                }
+                //                else{
+                //                    delete(graph_diff);
+                //                }
                 m_graph_list[nb_graph]->remove_empty_node();
 
                 delete(graph_propagation);

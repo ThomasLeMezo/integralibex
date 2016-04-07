@@ -21,6 +21,8 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
 
     m_empty = false;
     m_full = true;
+
+    m_enable_continuity = true;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -35,6 +37,7 @@ Border::Border(const Border *border): m_position(2)
     m_full = true;
     //    m_inclusions = border->get_inclusions();
     //    m_inclusions_receving = border->get_inclusions_receving();
+    m_enable_continuity = border->get_continuity();
 }
 
 Border::~Border(){
@@ -349,4 +352,12 @@ int Border::size() const{
 
 Inclusion* Border::operator[](int id){
     return m_inclusions[id];
+}
+
+bool Border::get_continuity() const{
+    return m_enable_continuity;
+}
+
+bool Border::set_continuity(bool enable){
+    m_enable_continuity = enable;
 }

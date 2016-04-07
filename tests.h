@@ -30,5 +30,7 @@ void test_imageIntegral();
 
 void sandbox();
 
+void test_car_on_hill();
+
 #endif // TESTS_H
 

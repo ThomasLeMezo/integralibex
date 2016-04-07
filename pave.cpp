@@ -8,12 +8,14 @@
 using namespace std;
 using namespace ibex;
 
-Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u): m_position(2)
+Pave::Pave(const IntervalVector &position, ibex::Function *f, const ibex::IntervalVector &u):
+    m_position(2),
+    m_u_iv(2)
 {
     m_position = position;    // Box corresponding to the Pave
     m_borders.reserve(4);
     m_f = f;
-    m_u = u;
+    m_u_iv = u;
 
     m_in_queue = false;
     m_copy_node = NULL;
@@ -32,6 +34,7 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u):
     m_full = true;
     m_empty = false;
 
+    /////////////////////////////// CASE THETA ///////////////////////////////
     for(int i=0; i<2; i++)
         m_theta.push_back(Interval::EMPTY_SET);
     if(f!=NULL){
@@ -68,21 +71,57 @@ Pave::Pave(const IntervalVector &position, ibex::Function *f, ibex::Interval u):
             cout << "ERROR - Pave "<< theta << dx << dy << m_position << endl;
         }
     }
+
+    /////////////////////////////// CASE CMD U ///////////////////////////////
+    if(u[0] == Interval::ZERO && u[1] == Interval::ZERO){
+        m_u.push_back(Interval::ZERO);
+    }
+    else{
+        Interval theta_u = atan2(u[1], u[0]);
+        if(theta_u==(-Interval::PI|Interval::PI)){
+            Interval thetaR_u = atan2(-u[1], -u[0]); // PI rotation ({dx, dy} -> {-dx, -dy})
+            if(thetaR_u.diam()<theta_u.diam()){
+                if(thetaR_u.is_subset(-Interval::PI | Interval::PI)){
+                    m_u.push_back((thetaR_u + Interval::PI) & (Interval::ZERO | Interval::PI)); // theta[0] in [0, pi]
+                    m_u.push_back(((thetaR_u + Interval::PI) & (Interval::PI | Interval::TWO_PI)) - Interval::TWO_PI); // theta[1] in [-pi, 0]
+                }
+                else{
+                    cout << "****************** ERROR ******************" << endl;
+                }
+
+            }
+            else{
+                m_u.push_back(theta_u);
+            }
+        }
+        else if(theta_u.is_empty()){
+            m_u.push_back(-Interval::PI|Interval::PI);
+        }
+        else{
+            m_u.push_back(theta_u);
+        }
+        if(m_u[0].is_empty()){
+            cout << "ERROR - Pave "<< theta_u << u[0] << u[1] << m_position << endl;
+        }
+    }
 }
 
-Pave::Pave(const Pave *p): m_position(2)
+Pave::Pave(const Pave *p):
+    m_position(2),
+    m_u_iv(2)
 {
     m_position = p->get_position();    // Box corresponding to the Pave
     m_f = p->get_f();
+    m_u_iv = p->get_u_iv();
     m_full = true; // Force to recompute results
     m_empty = false;
     m_in_queue = false;
-    m_u = p->get_u();
     m_first_process = false;
     m_inner = p->get_inner();
 
     for(int i=0; i<2; i++){
         m_theta.push_back(p->get_theta(i));
+        m_u.push_back(p->get_u(i));
     }
 
     for(int face = 0; face < 4; face++){
@@ -184,8 +223,9 @@ void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
         double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
 
         if(cmd_u){
-            Interval theta_u = ((m_theta[0] | m_theta[1]).lb() + m_u) & ((m_theta[0] | m_theta[1]).ub() + m_u);
-            Interval theta_u_bwd = Interval::PI + ((Interval((m_theta[0] | m_theta[1]).lb()) + m_u) & (Interval((m_theta[0] | m_theta[1]).ub()) + m_u));
+            // ToDo: check m_u input m_u[0] & m_u[1] add without check
+            Interval theta_u = ((m_theta[0] | m_theta[1]).lb() + m_u[0]) & ((m_theta[0] | m_theta[1]).ub() + m_u[1]);
+            Interval theta_u_bwd = Interval::PI + ((Interval((m_theta[0] | m_theta[1]).lb()) + m_u[0]) & (Interval((m_theta[0] | m_theta[1]).ub()) + m_u[1]));
 
             for(int face =0; face<4; face++){
                 if(!get_border(face)->get_segment_in().is_empty()){
@@ -238,8 +278,8 @@ void Pave::bisect(vector<Pave*> &result){
 
     std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
 
-    Pave *pave1 = new Pave(result_boxes.first, m_f, m_u); // Left or Up
-    Pave *pave2 = new Pave(result_boxes.second, m_f, m_u); // Right or Down
+    Pave *pave1 = new Pave(result_boxes.first, m_f, m_u_iv); // Left or Up
+    Pave *pave2 = new Pave(result_boxes.second, m_f, m_u_iv); // Right or Down
 
     int indice1, indice2;
 
@@ -265,9 +305,11 @@ void Pave::bisect(vector<Pave*> &result){
         if(m_borders[face]->get_inclusions().size()!=0){
             if(face!=indice1){
                 pave1->get_border(face)->add_inclusions(m_borders[face]->get_inclusions());
+                pave1->get_border(face)->set_continuity(m_borders[face]->get_continuity());
             }
             if(face!=indice2){
                 pave2->get_border(face)->add_inclusions(m_borders[face]->get_inclusions());
+                pave2->get_border(face)->set_continuity(m_borders[face]->get_continuity());
             }
         }
     }
@@ -374,8 +416,21 @@ const Interval &Pave::get_theta(int i) const{
         return NULL;
 }
 
-const ibex::Interval& Pave::get_u() const{
+const Interval &Pave::get_u(int i) const{
+    if(i==0)
+        return m_u[0];
+    else if(i==1)
+        return m_u[1];
+    else
+        return NULL;
+}
+
+const std::vector<Interval> Pave::get_u() const{
     return m_u;
+}
+
+const IntervalVector &Pave::get_u_iv() const{
+    return m_u_iv;
 }
 
 const IntervalVector &Pave::get_position() const{
@@ -430,7 +485,7 @@ void Pave::print(){
     cout << "********" << endl;
     cout << "PAVE x=" << m_position[0] << " y= " << m_position[1] << endl;
     cout << this << endl;
-    cout << "theta[0]=" << m_theta[0] << " theta[1]=" << m_theta[1] << " u=" << m_u << endl;
+    cout << "theta[0]=" << m_theta[0] << " theta[1]=" << m_theta[1] << " u=" << m_u_iv << endl;
     for(int face = 0; face < 4; face++){
         if(m_borders[face]->get_inclusions().size()==0){
             cout << "border=" << face << " " << &(m_borders[face])

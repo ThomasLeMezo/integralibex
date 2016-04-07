@@ -39,7 +39,7 @@ public:
     void set_segment_in(ibex::Interval segment_in, bool inclusion);
     void set_segment_out(ibex::Interval segment_out, bool inclusion);
     void set_pave(Pave* pave);
-
+    bool set_continuity(bool enable);
 
     void set_inclusion(Border *border, int id_brother);
     void set_inclusion_receving(Border* border, int id_brother);
@@ -63,8 +63,10 @@ public:
     Pave*                           get_pave() const;
     const ibex::Interval&           get_segment_full() const;
     int                             get_face() const;
-    int size() const;
-    Inclusion* operator[](int id);
+    int                             size() const;
+    Inclusion*                      operator[](int id);
+
+    bool                            get_continuity() const;
 
     // Tests
     bool is_empty();
@@ -86,6 +88,9 @@ private:
 private:
     bool m_empty;
     bool m_full;
+
+private:
+    bool m_enable_continuity;
 };
 
 #endif // BORDER_H
