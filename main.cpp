@@ -53,7 +53,7 @@ void van_der_pol_cycle(){
     u[1] = Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(11, 5, 1e9, true, false);
+    s.cameleon_cycle(12, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
