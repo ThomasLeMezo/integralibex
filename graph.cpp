@@ -134,12 +134,13 @@ int Graph::process(int max_iterations, bool backward, bool inner){
 //            pave->draw_position();
 //            pave->print();
 //        }
-        IntervalVector test(2);
-        test[0] = Interval(3.22);
-        test[1] = Interval(-0.52);
 
-        if(!(test & pave->get_position()).is_empty())
-            cout << "TEST" << endl;
+//        IntervalVector test(2);
+//        test[0] = Interval(3.22);
+//        test[1] = Interval(-0.52);
+
+//        if(!(test & pave->get_position()).is_empty())
+//            cout << "TEST" << endl;
 
         bool change = m_utils->CtcContinuity(pave, backward);
         if(change || pave->get_first_process()){
@@ -283,7 +284,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
     cout << p << endl;
     cout << "Border ID" << '\t' << "Position ([x], [y])" << '\t' << "segment_in" << '\t' << "segment_out" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
-        cout << "border " << i << '\t' << "position=" << p->get_border(i)->get_position() << '\t' << "in=" << p->get_border(i)->get_segment_in() << "out=" << p->get_border(i)->get_segment_out()<< "continuity = " << p->get_border(i)->get_continuity() << endl;
+        cout << "border " << i << '\t' << "position=" << p->get_border(i)->get_position() << "   " << '\t' << "in=" << p->get_border(i)->get_segment_in() << '\t' << "out=" << p->get_border(i)->get_segment_out()<< "continuity = " << p->get_border(i)->get_continuity() << endl;
     }
     cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << endl;
 

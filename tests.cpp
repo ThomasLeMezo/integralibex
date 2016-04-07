@@ -175,8 +175,9 @@ void test_CtcPaveForward(){
 void test_CtcPaveConsistency(){
     Utils u;
     IntervalVector box(2);
-    box[0] = Interval(-1.66897, -1.5708);
-    box[1] = Interval(0.0880469, 0.166094);
+    box[0] = Interval(3, 3.05);
+    box[1] = Interval(0.1, 0.190625);
+
 
 //    Interval command = Interval::ZERO;
 ////    Interval command = -Interval::HALF_PI| Interval::PI;
@@ -190,36 +191,51 @@ void test_CtcPaveConsistency(){
 //    Variable x, y;
 //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
-    Variable phi, d;
-    ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
-                                    -cos(phi)));
+//    Variable phi, d;
+//    ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
+//                                    -cos(phi)));
+
+    Variable x1, x2;
+    ibex::Function f(x1, x2, Return(x2,
+                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+
     Pave p(box, &f, command);
-    p.set_theta(p.get_theta()[0] + (-Interval::PI/40.0 | Interval::PI/40.0) + Interval::HALF_PI);
+//    p.set_theta(p.get_theta()[0] + (-Interval::PI/40.0 | Interval::PI/40.0) + Interval::HALF_PI);
 
 //    p.set_theta(Interval::HALF_PI + Interval::PI/4);
 //    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+2*Interval::PI/3);
 //    p.set_theta(Interval(1.5708,2.67795));
 
+    //    BOX = ([3, 3.05] ; [0.1, 0.190625])
+    //    0xbf92b0
+    //    Border ID	Position ([x], [y])	segment_in	segment_out
+    //    border 0	position=([3, 3.05] ; [0.1, 0.1])    	in=[ empty ]	out=[ empty ]continuity = 1
+    //    border 1	position=([3.05, 3.05] ; [0.1, 0.190625])    	in=[ empty ]	out=[0.1, 0.190625]continuity = 1
+    //    border 2	position=([3, 3.05] ; [0.190625, 0.190625])    	in=[3.00253, 3.05]	out=[ empty ]continuity = 1
+    //    border 3	position=([3, 3] ; [0.1, 0.190625])    	in=[0.1, 0.190625]	out=[ empty ]continuity = 1
+
+
 //    p.get_border(0)->set_full_segment_in();
 //    p.get_border(1)->set_full_segment_in();
-    p.get_border(2)->set_full_segment_in();
-    p.get_border(3)->set_full_segment_in();
-    p.get_border(1)->set_segment_in(Interval(0.157751, 0.166094), false);
+//    p.get_border(2)->set_full_segment_in();
+//    p.get_border(3)->set_full_segment_in();
+//    p.get_border(1)->set_segment_in(Interval(0.157751, 0.166094), false);
 //    p.get_border(1)->set_segment_in(Interval(-10,0.0), false);
 
+    p.get_border(2)->set_segment_in(Interval(3.00253, 3.05), false);
+    p.get_border(3)->set_segment_in(Interval(0.1, 0.190625), false);
+
 //    p.get_border(0)->set_full_segment_out();
-    p.get_border(1)->set_full_segment_out();
-    p.get_border(2)->set_full_segment_out();
-    p.get_border(3)->set_full_segment_out();
+//    p.get_border(1)->set_full_segment_out();
+//    p.get_border(2)->set_full_segment_out();
+//    p.get_border(3)->set_full_segment_out();
 //    p.get_border(2)->set_segment_out(Interval(0.1, 1.0), false);
 
-//    p.get_border(2)->set_segment_out(Interval(-10,-5), false);
+    p.get_border(1)->set_segment_out(Interval(0.1, 0.190625), false);
 
     test_draw(&p, "test_before");
     u.CtcPaveConsistency(&p, true, false);
 
-    vibes::beginDrawing();
-    vibes::newFigure("drawing_name2");
     test_draw(&p, "test_after");
     cout << setprecision(80) << endl;
     p.print();

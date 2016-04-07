@@ -43,7 +43,7 @@ Scheduler::Scheduler(const IntervalVector &box, const IntervalVector &box_remove
     box2[0] = box[0];                   box2[1] = Interval(box[1].ub());
     box3[0] = Interval(box[0].lb());    box3[1] = box[1];
 
-    for(int i=0; i<nb_box; i++){
+    for(int i=0; i<4; i++){
         for(auto &b:g->get_node_list()[i]->get_borders()){
             IntervalVector inter0 = b->get_position() & box0;
             IntervalVector inter1 = b->get_position() & box1;
@@ -168,10 +168,10 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 cout << "--> processing inner = " << graph_inner_process_cpt << endl;
                 m_graph_inner_list.insert(m_graph_inner_list.begin()+nb_graph, graph_inner);
 
-                //                if(!graph_inner->is_empty()){
-                //                    cout << "GRAPH inner not empty, iteration = " << iterations << endl;
-                //                    break;
-                //                }
+//                if(!graph_inner->is_empty()){
+//                    cout << "GRAPH inner not empty, iteration = " << iterations << endl;
+//                    break;
+//                }
             }
 
             // Remove empty pave
