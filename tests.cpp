@@ -216,22 +216,52 @@ void test_CtcPaveConsistency(){
 
 
 //    p.get_border(0)->set_full_segment_in();
-//    p.get_border(1)->set_full_segment_in();
-//    p.get_border(2)->set_full_segment_in();
-//    p.get_border(3)->set_full_segment_in();
-//    p.get_border(1)->set_segment_in(Interval(0.157751, 0.166094), false);
-//    p.get_border(1)->set_segment_in(Interval(-10,0.0), false);
 
     p.get_border(2)->set_segment_in(Interval(3.00253, 3.05), false);
     p.get_border(3)->set_segment_in(Interval(0.1, 0.190625), false);
 
 //    p.get_border(0)->set_full_segment_out();
-//    p.get_border(1)->set_full_segment_out();
-//    p.get_border(2)->set_full_segment_out();
-//    p.get_border(3)->set_full_segment_out();
-//    p.get_border(2)->set_segment_out(Interval(0.1, 1.0), false);
-
     p.get_border(1)->set_segment_out(Interval(0.1, 0.190625), false);
+
+    test_draw(&p, "test_before");
+    u.CtcPaveConsistency(&p, true, false);
+
+    test_draw(&p, "test_after");
+    cout << setprecision(80) << endl;
+    p.print();
+}
+
+void test_CtcPaveConsistency2(){
+//    PAVE x=[-3, -2] y= [-3, -2]
+//    0x7d32e0
+//    theta[0]=[1.64474, 1.92957] theta[1]=[ empty ] u=([0, 0] ; [0, 0])
+//    border=0 0x7d9600 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d3110 segment_full=[-3, -2]
+//    border=1 0x7d9608 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d54f0 segment_full=[-3, -2]
+//    border=2 0x7d9610 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d4350 segment_full=[-3, -2]
+//    border=3 0x7d9618 segment_in=[-3, -2] segment_out=[-3, -2]
+    Utils u;
+    IntervalVector box(2);
+    box[0] = Interval(-3, -2);
+    box[1] = Interval(-3, -2);
+    IntervalVector command(2);
+    command[0] = Interval::ZERO;
+    command[1] = Interval::ZERO;
+
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    Pave p(box, &f, command);
+
+    p.get_border(0)->set_segment_in(Interval(-3, -2), false);
+    p.get_border(0)->set_segment_out(Interval(-3, -2), false);
+
+    p.get_border(1)->set_segment_in(Interval(-3, -2), false);
+    p.get_border(1)->set_segment_out(Interval(-3, -2), false);
+
+    p.get_border(2)->set_segment_in(Interval(-3, -2), false);
+    p.get_border(2)->set_segment_out(Interval(-3, -2), false);
+
+    p.get_border(3)->set_segment_in(Interval(-3, -2), false);
+    p.get_border(3)->set_segment_out(Interval(-3, -2), false);
 
     test_draw(&p, "test_before");
     u.CtcPaveConsistency(&p, true, false);

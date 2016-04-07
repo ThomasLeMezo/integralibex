@@ -136,11 +136,13 @@ int Graph::process(int max_iterations, bool backward, bool inner){
 //        }
 
 //        IntervalVector test(2);
-//        test[0] = Interval(3.22);
-//        test[1] = Interval(-0.52);
+//        test[0] = Interval(-2.6);
+//        test[1] = Interval(-2.5);
 
-//        if(!(test & pave->get_position()).is_empty())
+//        if(!(test & pave->get_position()).is_empty()){
 //            cout << "TEST" << endl;
+//            pave->print();
+//        }
 
         bool change = m_utils->CtcContinuity(pave, backward);
         if(change || pave->get_first_process()){

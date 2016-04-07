@@ -23,8 +23,8 @@ Utils::~Utils(){
  ** CtcPropagateFront supposed that the down left box corner is (0,0)
  **
 */
-void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const double &dx, const double &dy, bool forward){
-    if(x_front.is_empty() || x.is_empty()){
+void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const double &dx, const double &dy){
+    if(x_front.is_empty() || x.is_empty() || theta.is_empty()){
         x = Interval::EMPTY_SET;
         x_front = Interval::EMPTY_SET;
         return;
@@ -35,34 +35,19 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
     Interval Dx = Interval(-dx, dx);
     Interval Dy = Interval(dy);
     Interval rho = Interval::POS_REALS;
-    Interval theta2 = theta;
+    Interval theta2(theta);
 
     contract_polar.contract(Dx, Dy, rho, theta2);
+
     x_front &= (x + Dx) & X;
-
-    if(!forward && (Dx.is_empty() && Dx.is_empty())){
+    if(Dx.is_empty() && Dx.is_empty())
         x = Interval::EMPTY_SET;
-    }
-
-    if(!(X & (x_front - Dx)).is_empty()){
-        x &= (x_front - Dx);
-    }
-    else{
-        x |= (x_front - Dx);
-    }
-
-    if(!(X & (x_front + Dx)).is_empty()){
-        x &= (x_front + Dx);
-    }
-    else{
-        x |= (x_front + Dx);
-    }
-
-    x &= X;
+    else
+        x &= Interval(x_front.lb()-Dx.lb(), x_front.ub()-Dx.ub());
 }
 
-void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const IntervalVector &box, bool forward){
-    this->CtcPropagateFront(x, x_front, theta, box[0].ub(), box[1].ub(), forward);
+void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const IntervalVector &box){
+    this->CtcPropagateFront(x, x_front, theta, box[0].ub(), box[1].ub());
 }
 
 void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy){
@@ -198,7 +183,7 @@ void Utils::CtcPropagateRightSideInner(ibex::Interval &x, ibex::Interval &y, con
 // ********************************************************************************
 // ****************** Contractors Global functions ********************************
 
-void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta, const ibex::IntervalVector &box_pave, const std::vector<ibex::Interval> &u, bool forward, bool inner, bool inner_backward){
+void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta, const ibex::IntervalVector &box_pave, const std::vector<ibex::Interval> &u, bool backward, bool inner, bool inner_backward){
     // Translate and rotate the Segment
     IntervalVector box(box_pave);
     IntervalVector box_in(box_pave);
@@ -232,9 +217,19 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     if(!inner){
         for(int i=0; i<2; i++){
             //            for(int j=0; j<u.size(); j++){
-            this->CtcPropagateRightSide(segment_norm_in[0][i][0], segment_norm_out[0][i][0], theta[i] + tab_rotation[face], box);
-            this->CtcPropagateFront(segment_norm_in[1][i][0], segment_norm_out[1][i][0], theta[i] + tab_rotation[face], box, forward);
-            this->CtcPropagateLeftSide(segment_norm_in[2][i][0], segment_norm_out[2][i][0], theta[i] + tab_rotation[face], box);
+            if(!theta[i].is_empty()){
+                this->CtcPropagateRightSide(segment_norm_in[0][i][0], segment_norm_out[0][i][0], theta[i] + tab_rotation[face], box);
+                this->CtcPropagateFront(segment_norm_in[1][i][0], segment_norm_out[1][i][0], theta[i] + tab_rotation[face], box);
+                this->CtcPropagateLeftSide(segment_norm_in[2][i][0], segment_norm_out[2][i][0], theta[i] + tab_rotation[face], box);
+            }
+            else{
+                for(int k=0; k<3; k++){
+                    segment_norm_out[k][i][0] = Interval::EMPTY_SET;
+//                    if(backward)
+                        segment_norm_in[k][i][0] = Interval::EMPTY_SET;
+                }
+
+            }
             //            }
         }
     }
@@ -248,8 +243,9 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
         this->CtcPropagateLeftSideInner(segment_norm_in[2][0][0], segment_norm_out[2][0][0], theta_list, box, u[0], false, inner_backward);
         for(int i=0; i<3; i++){
             //            for(int j=0; j<1; j++){
-            segment_norm_out[i][1][0] = Interval::EMPTY_SET;
-            segment_norm_in[i][1][0] = Interval::EMPTY_SET;
+
+//            segment_norm_out[i][1][0] = Interval::EMPTY_SET;
+//            segment_norm_in[i][1][0] = Interval::EMPTY_SET;
             //            }
         }
     }
@@ -324,10 +320,10 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner){
         }
 
         if(!inner){
-            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), false, false, false);
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), true, false, false);
         }
         else{
-            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), false, true, true);
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), true, true, true);
         }
 
         segment_in[face] = seg_in;
@@ -350,10 +346,10 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner){
         }
 
         if(!inner){
-            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), true, false, false);
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), false, false, false);
         }
         else{
-            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), true, true, false);
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), false, true, false);
         }
 
         int k=0;

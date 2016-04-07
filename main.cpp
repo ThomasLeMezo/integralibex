@@ -23,7 +23,8 @@ void test(){
 //    test_CtcPropagateSegment();
 
 //    test_CtcPaveForward();
-    test_CtcPaveConsistency();
+//    test_CtcPaveConsistency();
+    test_CtcPaveConsistency2();
 
 //    test_contractor_polar();
 
@@ -53,11 +54,12 @@ void van_der_pol_cycle(){
     u[1] = Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(10, 5, 1e9, true, false);
+    s.cameleon_cycle(13, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     s.draw(1024, true);
+//    s.print_pave_info(0, -2.6,-2.5,"b[b]");
 }
 
 void ball(){
@@ -175,8 +177,8 @@ void car_on_the_hill_v2(){
                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
     IntervalVector box(2);
-    box[0] = Interval(0.0, 6.0);
-    box[1] = Interval(-3.0, 3.0);
+    box[0] = Interval(0.0, 12.0);
+    box[1] = Interval(-2.0, 2.0);
 
     IntervalVector box_remove(2);
     box_remove[0] = Interval(2.9,3.1);
@@ -189,7 +191,7 @@ void car_on_the_hill_v2(){
     Scheduler s(box, box_remove, &f, u);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(7, 5, 1e9, false, false, false);
+    s.cameleon_cycle(10, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -207,8 +209,8 @@ int main()
 //    ball();
 //    capture_attractor();
 //    car_on_the_hill();
-//    car_on_the_hill_v2();
-    van_der_pol_cycle();
+    car_on_the_hill_v2();
+//    van_der_pol_cycle();
 //    test();
 
 #if 0
