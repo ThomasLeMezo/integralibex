@@ -305,13 +305,17 @@ void Pave::bisect(vector<Pave*> &result){
         if(m_borders[face]->get_inclusions().size()!=0){
             if(face!=indice1){
                 pave1->get_border(face)->add_inclusions(m_borders[face]->get_inclusions());
-                pave1->get_border(face)->set_continuity(m_borders[face]->get_continuity());
+
             }
             if(face!=indice2){
                 pave2->get_border(face)->add_inclusions(m_borders[face]->get_inclusions());
-                pave2->get_border(face)->set_continuity(m_borders[face]->get_continuity());
             }
         }
+
+        if(face!=indice1)
+            pave1->get_border(face)->set_continuity(m_borders[face]->get_continuity());
+        if(face!=indice2)
+            pave2->get_border(face)->set_continuity(m_borders[face]->get_continuity());
     }
 
     // 3) Add each other to its brother list (pave1 <-> pave2)

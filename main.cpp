@@ -53,7 +53,7 @@ void van_der_pol_cycle(){
     u[1] = Interval::ZERO;
     Scheduler s(box, &f, u);
 
-    s.cameleon_cycle(7, 5, 1e9, true, false);
+    s.cameleon_cycle(11, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -189,14 +189,16 @@ void car_on_the_hill_v2(){
     Scheduler s(box, box_remove, &f, u);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(15, 5, 1e9, false, false, false);
+    s.cameleon_cycle(10, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     /////////////// Drawing ///////////////
     s.draw(1024, true);
 
-//    s.print_pave_info(0, -1.64,0.11,"b[b]");
+
+    s.print_pave_info(0, 3.22, -0.54,"b[b]");
+//    s.print_pave_info(0, 0.2,5.96,"b[b]");
 
 }
 
@@ -205,8 +207,8 @@ int main()
 //    ball();
 //    capture_attractor();
 //    car_on_the_hill();
-    car_on_the_hill_v2();
-//    van_der_pol_cycle();
+//    car_on_the_hill_v2();
+    van_der_pol_cycle();
 //    test();
 
 #if 0

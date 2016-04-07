@@ -36,10 +36,26 @@ Scheduler::Scheduler(const IntervalVector &box, const IntervalVector &box_remove
     g->build_graph();
 
     // Diseable continuity on bounding box
+
+    IntervalVector box0(2), box1(2), box2(2), box3(2);
+    box0[0] = box[0];                   box0[1] = Interval(box[1].lb());
+    box1[0] = Interval(box[0].ub());    box1[1] = box[1];
+    box2[0] = box[0];                   box2[1] = Interval(box[1].ub());
+    box3[0] = Interval(box[0].lb());    box3[1] = box[1];
+
     for(int i=0; i<nb_box; i++){
         for(auto &b:g->get_node_list()[i]->get_borders()){
-            IntervalVector test_inter = b->get_position() & box;
-            if(!(test_inter[0].is_degenerated() && test_inter[1].is_degenerated())){
+            IntervalVector inter0 = b->get_position() & box0;
+            IntervalVector inter1 = b->get_position() & box1;
+            IntervalVector inter2 = b->get_position() & box2;
+            IntervalVector inter3 = b->get_position() & box3;
+
+            bool test0 = !inter0.is_empty() && (!inter0[0].is_degenerated() || !inter0[1].is_degenerated());
+            bool test1 = !inter1.is_empty() && (!inter1[0].is_degenerated() || !inter1[1].is_degenerated());
+            bool test2 = !inter2.is_empty() && (!inter2[0].is_degenerated() || !inter2[1].is_degenerated());
+            bool test3 = !inter3.is_empty() && (!inter3[0].is_degenerated() || !inter3[1].is_degenerated());
+
+            if(test0 || test1 || test2 || test3){
                 b->set_continuity(false);
             }
         }
@@ -124,10 +140,6 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-
-        //        if(m_utils.m_imageIntegral_activated){
-        //            m_utils.m_imageIntegral->set_box(m_graph_list[0]->get_bounding_box());
-        //        }
 
         for(int nb_graph=0; nb_graph<m_graph_list.size(); nb_graph++){
 

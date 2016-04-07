@@ -134,6 +134,12 @@ int Graph::process(int max_iterations, bool backward, bool inner){
 //            pave->draw_position();
 //            pave->print();
 //        }
+        IntervalVector test(2);
+        test[0] = Interval(3.22);
+        test[1] = Interval(-0.52);
+
+        if(!(test & pave->get_position()).is_empty())
+            cout << "TEST" << endl;
 
         bool change = m_utils->CtcContinuity(pave, backward);
         if(change || pave->get_first_process()){
@@ -277,7 +283,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
     cout << p << endl;
     cout << "Border ID" << '\t' << "Position ([x], [y])" << '\t' << "segment_in" << '\t' << "segment_out" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
-        cout << "border " << i << '\t' << p->get_border(i)->get_position() << '\t' << p->get_border(i)->get_segment_in() << p->get_border(i)->get_segment_out()<< endl;
+        cout << "border " << i << '\t' << "position=" << p->get_border(i)->get_position() << '\t' << "in=" << p->get_border(i)->get_segment_in() << "out=" << p->get_border(i)->get_segment_out()<< "continuity = " << p->get_border(i)->get_continuity() << endl;
     }
     cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << endl;
 
@@ -417,27 +423,32 @@ IntervalVector Graph::get_bounding_box() const{
 void Graph::build_graph(){
 
     // ToDo : To Improve !!!
-    for(auto &p1:m_node_list){
-        for(auto &p2:m_node_list){
+    for(int i=0; i<m_node_list.size()-1; i++){
+        Pave *p1 = m_node_list[i];
+        for(int j=i+1; j<m_node_list.size(); j++){
+            Pave *p2 = m_node_list[j];
+
             IntervalVector inter = p1->get_position() & p2->get_position();
-            if(!(inter[0].is_degenerated() && inter[1].is_degenerated())){
+//            cout << "== p1=" << p1->get_position() << '\t' << "p2=" << p2->get_position() << '\t' << "result="<< inter << '\t' << "test=" << !inter.is_empty() << endl;
+            if(!inter.is_empty()){
                 // Find common border
 
-                for(auto &b1:p1->get_borders()){
-                    for(auto &b2:p1->get_borders()){
-                        IntervalVector inter = b1->get_position() & b2->get_position();
-                        if(!(inter[0].is_degenerated() && inter[1].is_degenerated())){
+                for(int face = 0; face < 4; face++){
+                    Border *b1 = p1->get_border(face);
+                    Border *b2 = p2->get_border((face+2)%4);
 
-                            Inclusion *inclusion_to_b1 = new Inclusion(b1, b2->get_face());
-                            b2->add_inclusion(inclusion_to_b1);
+                    IntervalVector inter_b = b1->get_position() & b2->get_position();
 
-                            Inclusion *inclusion_to_b2 = new Inclusion(b2, b1->get_face());
-                            b1->add_inclusion(inclusion_to_b2);
-                        }
+                    if(!inter_b.is_empty() ){
+//                        cout << "b1 = " << b1->get_position() << '\t' << "b2 = " << b2->get_position() << '\t' << "inter = " << inter_b << '\t' << "test = " << inter_b.is_empty() << endl;
+
+                        Inclusion *inclusion_to_b1 = new Inclusion(b1, b1->get_face());
+                        b2->add_inclusion(inclusion_to_b1);
+
+                        Inclusion *inclusion_to_b2 = new Inclusion(b2, b2->get_face());
+                        b1->add_inclusion(inclusion_to_b2);
                     }
                 }
-
-
             }
         }
     }
