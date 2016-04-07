@@ -19,16 +19,29 @@ Scheduler::~Scheduler(){
     }
 }
 
-Scheduler::Scheduler(const IntervalVector &box, const IntervalVector &box_remove, ibex::Function *f, const IntervalVector &u){
+Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &remove_boxes, ibex::Function *f, const IntervalVector &u){
     Graph *g = new Graph(&m_utils, 0);
     m_graph_list.push_back(g);
 
     // Creates paves
-    IntervalVector* box_diff;
-    int nb_box = box.diff(box_remove, box_diff);
+    vector<IntervalVector> list_boxes;
+    list_boxes.push_back(box);
 
-    for(int i=0; i<nb_box; i++){
-        Pave* p = new Pave(box_diff[i], f, u);
+    for(auto &box_remove:remove_boxes){
+        vector<IntervalVector> list_boxes_tmp;
+        for(auto &b:list_boxes){
+            IntervalVector* box_result;
+            int nb_boxes = b.diff(box_remove, box_result);
+
+            for(int i=0; i<nb_boxes; i++)
+                list_boxes_tmp.push_back(box_result[i]);
+        }
+        list_boxes.swap(list_boxes_tmp);
+        list_boxes_tmp.clear();
+    }
+
+    for(auto &b:list_boxes){
+        Pave* p = new Pave(b, f, u);
         g->get_node_list().push_back(p);
     }
 
@@ -43,7 +56,7 @@ Scheduler::Scheduler(const IntervalVector &box, const IntervalVector &box_remove
     box2[0] = box[0];                   box2[1] = Interval(box[1].ub());
     box3[0] = Interval(box[0].lb());    box3[1] = box[1];
 
-    for(int i=0; i<4; i++){
+    for(int i=0; i<g->get_node_list().size(); i++){
         for(auto &b:g->get_node_list()[i]->get_borders()){
             IntervalVector inter0 = b->get_position() & box0;
             IntervalVector inter1 = b->get_position() & box1;

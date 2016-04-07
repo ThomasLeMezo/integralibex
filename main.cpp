@@ -180,18 +180,26 @@ void car_on_the_hill_v2(){
     box[0] = Interval(0.0, 12.0);
     box[1] = Interval(-2.0, 2.0);
 
+    std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
     box_remove[0] = Interval(2.9,3.1);
     box_remove[1] = Interval(-0.1,0.1);
+    list_boxes_removed.push_back(box_remove);
+    box_remove[0] = Interval(5.9,6.1);
+    box_remove[1] = Interval(-0.1,0.1);
+    list_boxes_removed.push_back(box_remove);
+    box_remove[0] = Interval(8.9,9.1);
+    box_remove[1] = Interval(-0.1,0.1);
+    list_boxes_removed.push_back(box_remove);
 
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval(-0.5, 0.5);
 
-    Scheduler s(box, box_remove, &f, u);
+    Scheduler s(box, list_boxes_removed, &f, u);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(10, 5, 1e9, false, false, false);
+    s.cameleon_cycle(11, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

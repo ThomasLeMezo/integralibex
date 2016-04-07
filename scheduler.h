@@ -12,7 +12,7 @@ class Scheduler
 /***************** Functions ******************/
 public:
     Scheduler(const ibex::IntervalVector &box, ibex::Function *f, const ibex::IntervalVector &u);
-    Scheduler(const ibex::IntervalVector &box, const ibex::IntervalVector &box_remove, ibex::Function *f, const ibex::IntervalVector &u);
+    Scheduler(const ibex::IntervalVector &box, const vector<ibex::IntervalVector> &remove_boxes, ibex::Function *f, const ibex::IntervalVector &u);
     ~Scheduler();
 
     void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner, bool do_not_bisect_inside=false);
