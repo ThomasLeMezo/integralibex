@@ -3,7 +3,6 @@
 
 #include <pave.h>
 #include <scheduler.h>
-
 #include <tests.h>
 
 #include <iostream>
@@ -188,23 +187,29 @@ void car_on_the_hill_v2(){
                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
 
     std::vector<ibex::Function*> f_list;
-//    f_list.push_back(&f);
     f_list.push_back(&f2);
+    f_list.push_back(&f);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
-    box[1] = Interval(-20.0, 20.0);
+    box[1] = Interval(-16.0, 16.0);
 
     std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
-    box_remove[0] = Interval(2.9,3.1);
-    box_remove[1] = Interval(-0.1,0.1);
+    box_remove[0] = Interval(-0.4,0.4);
+    box_remove[1] = Interval(-0.3,0.3);
     list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(5.9,6.1);
-    box_remove[1] = Interval(-0.1,0.1);
+    box_remove[0] = Interval(2.4,3.4);
+    box_remove[1] = Interval(-0.3,0.3);
     list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(8.9,9.1);
-    box_remove[1] = Interval(-0.1,0.1);
+    box_remove[0] = Interval(5.4,6.4);
+    box_remove[1] = Interval(-0.3,0.3);
+    list_boxes_removed.push_back(box_remove);
+    box_remove[0] = Interval(8.4,9.4);
+    box_remove[1] = Interval(-0.3,0.3);
+    list_boxes_removed.push_back(box_remove);
+    box_remove[0] = Interval(11.9,12.4);
+    box_remove[1] = Interval(-0.3,0.3);
     list_boxes_removed.push_back(box_remove);
 
     IntervalVector u(2);
@@ -214,7 +219,7 @@ void car_on_the_hill_v2(){
     Scheduler s(box, list_boxes_removed, f_list, u);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(15, 5, 1e9, false, false, false);
+    s.cameleon_cycle(3, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

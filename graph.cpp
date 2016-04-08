@@ -172,6 +172,10 @@ int Graph::process(int max_iterations, bool backward, bool inner){
 //                cout << iterations << endl;
 //            }
 //        }
+
+//        if(iterations%1000==0){
+//            cout << '\r' << "process = " << iterations << flush;
+//        }
     }
 
     m_node_queue.clear();

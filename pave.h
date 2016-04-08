@@ -3,6 +3,7 @@
 
 #include <ibex.h>
 #include <border.h>
+#include <string>
 
 class Border;
 class Pave
@@ -21,13 +22,13 @@ public:
     bool                        diff(const Pave &p);
 
     // ******** Drawing functions ********
-    void                        draw(bool filled, string color="black[]", bool borders_only=false, bool cmd_u=false);
-    void                        draw_borders(bool filled, string color_polygon="g[g]");
+    void                        draw(bool filled, std::string color="black[]", bool borders_only=false, bool cmd_u=false);
+    void                        draw_borders(bool filled, std::string color_polygon="g[g]");
     void                        draw_position();
     void                        print();
 
     // ******** Graph building ********
-    void                        bisect(vector<Pave *> &result);
+    void                        bisect(std::vector<Pave *> &result);
     void                        remove_from_brothers();
     void                        remove_brothers(Pave* p, int face);
 
