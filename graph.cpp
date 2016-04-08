@@ -4,8 +4,8 @@
 using namespace std;
 using namespace ibex;
 
-Graph::Graph(const IntervalVector &box, ibex::Function *f, Utils *utils, const IntervalVector &u, int graph_id=0){
-    Pave *p = new Pave(box, f, u);
+Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, Utils *utils, const IntervalVector &u, int graph_id=0){
+    Pave *p = new Pave(box, f_list, u);
     m_node_list.push_back(p);
     m_graph_id = graph_id;
     m_drawing_cpt = 0;

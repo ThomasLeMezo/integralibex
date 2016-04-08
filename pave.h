@@ -10,11 +10,13 @@ class Pave
 
     /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &position, ibex::Function *f, const ibex::IntervalVector &u);
+    Pave(const ibex::IntervalVector &position, const std::vector<ibex::Function *> &f_list, const ibex::IntervalVector &u);
+    Pave(const ibex::IntervalVector &position, ibex::Function* f, const ibex::IntervalVector &u);
     Pave(const Pave *p);
     ~Pave();
 
     Pave&                       operator&=(const Pave &p);
+    Border*                     operator[](int face);
     bool                        inter(const Pave &p);
     bool                        diff(const Pave &p);
 
@@ -45,6 +47,8 @@ public:
     void                        set_first_process_false();
     void                        set_inner(bool inner);
 
+    void                        set_active_function(int id);
+
     void                        reset_full_empty();
 
     // Getters
@@ -52,8 +56,10 @@ public:
     const std::vector<Pave*>            get_brothers(int face);
     const ibex::Interval&               get_theta(int i) const;
     const std::vector<ibex::Interval>   get_theta() const;
+    std::vector<std::vector<ibex::Interval>>  get_theta_list() const;
+
     const ibex::Interval&               get_u(int i) const;
-    const std::vector<ibex::Interval>   get_u() const;
+    const std::vector<ibex::Interval>   get_u() const;    
     const ibex::IntervalVector&         get_u_iv() const;
     const ibex::IntervalVector&         get_position() const;
 
@@ -63,21 +69,29 @@ public:
 
     Pave*                               get_copy_node();
     ibex::Function*                     get_f() const;
+    std::vector<ibex::Function *>       get_f_list() const;
+    int                                 get_active_function() const;
 
     bool                                get_first_process() const;
     bool                                get_inner() const;
 
-    Border* operator[](int face);
+    // Other functions
+    const std::vector<ibex::Interval>&  compute_theta(ibex::Function *f);
+
+
 
     /***************** Variables ******************/
 private:
     std::vector<ibex::Interval> m_theta;
+    std::vector< std::vector<ibex::Interval>> m_theta_list;
+
     std::vector<ibex::Interval> m_u;
     ibex::IntervalVector        m_u_iv;
     ibex::IntervalVector        m_position;
     std::vector<Border*>        m_borders;
 
-    ibex::Function              *m_f;
+    std::vector<ibex::Function*> m_f_list;
+    int                         m_active_function;
     Pave*                       m_copy_node;
 
 private:

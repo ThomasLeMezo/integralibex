@@ -44,6 +44,8 @@ void van_der_pol_cycle(){
     vibes::beginDrawing();
     Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
 
     IntervalVector box(2);
     box[0] = Interval(-4.0, 4.0);
@@ -52,7 +54,7 @@ void van_der_pol_cycle(){
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
-    Scheduler s(box, &f, u);
+    Scheduler s(box, f_list, u);
 
     s.cameleon_cycle(13, 5, 1e9, true, false);
 
@@ -67,6 +69,8 @@ void ball(){
     vibes::beginDrawing();
     Variable x, y;
     ibex::Function f(x, y, Return(y,-10-0.1*y*abs(y)));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
 
     IntervalVector box(2);
     box[0] = Interval(0.0, 20.0);
@@ -75,7 +79,7 @@ void ball(){
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
-    Scheduler s(box, &f, u);
+    Scheduler s(box, f_list, u);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(12.0);
@@ -96,6 +100,8 @@ void capture_attractor(){
     Variable phi, d;
     ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
                                     -cos(phi)));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
 
     IntervalVector box(2);
     box[0] = -Interval::PI | Interval::PI;
@@ -104,7 +110,7 @@ void capture_attractor(){
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
-    Scheduler s(box, &f, u);
+    Scheduler s(box, f_list, u);
 
     /////////////// Symetries ///////////////
     ibex::Function f_sym23(phi, d, Return(phi-Interval::TWO_PI, d));
@@ -147,6 +153,8 @@ void car_on_the_hill(){
     Variable x1, x2;
     ibex::Function f(x1, x2, Return(x2,
                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
 
     IntervalVector box(2);
     box[0] = Interval(0.0, 12.0);
@@ -156,7 +164,7 @@ void car_on_the_hill(){
     u[0] = Interval::ZERO;
     u[1] = Interval(-0.5, 0.5);
 
-    Scheduler s(box, &f, u);
+    Scheduler s(box, f_list, u);
 
     /////////////// Compute ///////////////
     s.cameleon_cycle(14, 5, 1e9, false, false, false);
@@ -174,7 +182,9 @@ void car_on_the_hill_v2(){
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f(x1, x2, Return(x2,
-                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2+2.0));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
 
     IntervalVector box(2);
     box[0] = Interval(1.0, 11.0);
@@ -196,7 +206,7 @@ void car_on_the_hill_v2(){
     u[0] = Interval::ZERO;
     u[1] = Interval(-0.5, 0.5);
 
-    Scheduler s(box, list_boxes_removed, &f, u);
+    Scheduler s(box, list_boxes_removed, f_list, u);
 
     /////////////// Compute ///////////////
     s.cameleon_cycle(11, 5, 1e9, false, false, false);
@@ -207,7 +217,7 @@ void car_on_the_hill_v2(){
     s.draw(1024, true);
 
 
-    s.print_pave_info(0, 3.03, 0.14,"b[b]");
+//    s.print_pave_info(0, 3.03, 0.14,"b[b]");
 //    s.print_pave_info(0, 0.2,5.96,"b[b]");
 
 }

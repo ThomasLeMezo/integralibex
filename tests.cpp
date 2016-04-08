@@ -155,7 +155,9 @@ void test_CtcPaveForward(){
 
     Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-    Pave p(box, &f, command);
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+    Pave p(box, f_list, command);
 
 //    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
 //    p.set_theta((Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0) + Interval::PI/3);
@@ -199,7 +201,9 @@ void test_CtcPaveConsistency(){
     ibex::Function f(x1, x2, Return(x2,
                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
-    Pave p(box, &f, command);
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+    Pave p(box, f_list, command);
 //    p.set_theta(p.get_theta()[0] + (-Interval::PI/40.0 | Interval::PI/40.0) + Interval::HALF_PI);
 
 //    p.set_theta(Interval::HALF_PI + Interval::PI/4);
@@ -249,7 +253,9 @@ void test_CtcPaveConsistency2(){
 
     Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-    Pave p(box, &f, command);
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+    Pave p(box, f_list, command);
 
     p.get_border(0)->set_segment_in(Interval(-3, -2), false);
     p.get_border(0)->set_segment_out(Interval(-3, -2), false);
@@ -339,8 +345,10 @@ void test_diff(){
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
-    Pave p1(box, &f, u);
-    Pave p2(box, &f, u);
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+    Pave p1(box, f_list, u);
+    Pave p2(box, f_list, u);
 
     p1.get_border(0)->set_full();
     p1.get_border(1)->set_full();
@@ -367,7 +375,9 @@ void test_copy_graph(){
     command[0] = Interval::ZERO;
     command[1] = Interval::ZERO;
 
-    Graph g(box, &f, &u, command, 1);
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+    Graph g(box, f_list, &u, command, 1);
     g.sivia(0.0, 4, false, false);
 
     GraphDot graphDot(&g);

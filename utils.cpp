@@ -225,8 +225,8 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
             else{
                 for(int k=0; k<3; k++){
                     segment_norm_out[k][i][0] = Interval::EMPTY_SET;
-//                    if(backward)
-                        segment_norm_in[k][i][0] = Interval::EMPTY_SET;
+                    //                    if(backward)
+                    segment_norm_in[k][i][0] = Interval::EMPTY_SET;
                 }
 
             }
@@ -244,8 +244,8 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
         for(int i=0; i<3; i++){
             //            for(int j=0; j<1; j++){
 
-//            segment_norm_out[i][1][0] = Interval::EMPTY_SET;
-//            segment_norm_in[i][1][0] = Interval::EMPTY_SET;
+            //            segment_norm_out[i][1][0] = Interval::EMPTY_SET;
+            //            segment_norm_in[i][1][0] = Interval::EMPTY_SET;
             //            }
         }
     }
@@ -467,14 +467,18 @@ ibex::IntervalVector Utils::segment2IntervalVector(const ibex::Interval &seg, co
 
 void Utils::CtcPaveConsistency(Pave *p, bool backward, bool inner){
     if(backward){
-        this->CtcPaveBackward(p, backward, inner);
-        Pave p2(p);
-        this->CtcPaveForward(&p2, backward, inner);
-        *p &= p2;
-        if(inner){
-            Pave p3(p);
-            this->CtcPaveBackward(&p3, backward, inner);
-            *p &= p3;
+        for(int i=0; i<p->get_f_list().size(); i++){
+            p->set_active_function(i);
+
+            this->CtcPaveBackward(p, backward, inner);
+            Pave p2(p);
+            this->CtcPaveForward(&p2, backward, inner);
+            *p &= p2;
+            if(inner){
+                Pave p3(p);
+                this->CtcPaveBackward(&p3, backward, inner);
+                *p &= p3;
+            }
         }
     }
     else{

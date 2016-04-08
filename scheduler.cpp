@@ -9,8 +9,8 @@
 using namespace std;
 using namespace ibex;
 
-Scheduler::Scheduler(const IntervalVector &box, ibex::Function *f, const IntervalVector &u){
-    m_graph_list.push_back(new Graph(box, f, &m_utils, u, 0));
+Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, const IntervalVector &u){
+    m_graph_list.push_back(new Graph(box, f_list, &m_utils, u, 0));
 }
 
 Scheduler::~Scheduler(){
@@ -19,7 +19,7 @@ Scheduler::~Scheduler(){
     }
 }
 
-Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &remove_boxes, ibex::Function *f, const IntervalVector &u){
+Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &remove_boxes, const std::vector<ibex::Function *> &f_list, const IntervalVector &u){
     Graph *g = new Graph(&m_utils, 0);
     m_graph_list.push_back(g);
 
@@ -41,7 +41,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
     }
 
     for(auto &b:list_boxes){
-        Pave* p = new Pave(b, f, u);
+        Pave* p = new Pave(b, f_list, u);
         g->get_node_list().push_back(p);
     }
 
