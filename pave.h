@@ -76,13 +76,13 @@ public:
     bool                                get_inner() const;
 
     // Other functions
-    const std::vector<ibex::Interval>&  compute_theta(ibex::Function *f);
+    const std::vector<ibex::Interval> compute_theta(ibex::Function *f);
 
 
 
     /***************** Variables ******************/
 private:
-    std::vector<ibex::Interval> m_theta;
+//    std::vector<ibex::Interval> m_theta;
     std::vector< std::vector<ibex::Interval>> m_theta_list;
 
     std::vector<ibex::Interval> m_u;

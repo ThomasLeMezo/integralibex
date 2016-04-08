@@ -38,7 +38,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
 
     /////////////////////////////// CASE THETA ///////////////////////////////
     for(int i=0; i<f_list.size(); i++){
-        std::vector<Interval> theta = compute_theta(f_list[i]);
+        std::vector<ibex::Interval> theta = compute_theta(f_list[i]);
         m_theta_list.push_back(theta);
     }
 
@@ -77,7 +77,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     }
 }
 
-const std::vector<ibex::Interval>& Pave::compute_theta(ibex::Function *f){
+const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
     std::vector<ibex::Interval> theta_list;
 
     for(int i=0; i<2; i++)
@@ -116,6 +116,8 @@ const std::vector<ibex::Interval>& Pave::compute_theta(ibex::Function *f){
             cout << "ERROR - Pave "<< theta << dx << dy << m_position << endl;
         }
     }
+
+    return theta_list;
 }
 
 Pave::Pave(const Pave *p):
@@ -177,20 +179,25 @@ bool Pave::diff(const Pave &p){
 }
 
 void Pave::set_theta(ibex::Interval theta){
-    m_theta[0] = Interval::EMPTY_SET;
-    m_theta[1] = Interval::EMPTY_SET;
+    m_theta_list.clear();
+
+    std::vector<ibex::Interval> thetas;
+    for(int i=0; i<2; i++)
+        thetas.push_back(Interval::EMPTY_SET);
 
     if(theta.is_subset(-Interval::PI | Interval::PI)){
-        m_theta[0] = theta;
+        thetas[0] = theta;
     }
     else{
-        m_theta[0] = (theta & (-Interval::PI | Interval::PI));
+        thetas[0] = (theta & (-Interval::PI | Interval::PI));
 
         if(!((theta + 2*Interval::PI) & (-Interval::PI | Interval::PI) ).is_empty())
-            m_theta[1] =(theta + 2*Interval::PI);
+            thetas[1] =(theta + 2*Interval::PI);
         else if (!((theta - 2*Interval::PI) & (-Interval::PI | Interval::PI)).is_empty())
-            m_theta[1] = (theta - 2*Interval::PI);
+            thetas[1] = (theta - 2*Interval::PI);
     }
+
+    m_theta_list.push_back(thetas);
 }
 
 void Pave::set_full(){
@@ -235,29 +242,30 @@ void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
 
         if(cmd_u){
             // ToDo: check m_u input m_u[0] & m_u[1] add without check
-            Interval theta_u = ((m_theta[0] | m_theta[1]).lb() + m_u[0]) & ((m_theta[0] | m_theta[1]).ub() + m_u[1]);
-            Interval theta_u_bwd = Interval::PI + ((Interval((m_theta[0] | m_theta[1]).lb()) + m_u[0]) & (Interval((m_theta[0] | m_theta[1]).ub()) + m_u[1]));
+//            Interval theta_u = ((m_theta[0] | m_theta[1]).lb() + m_u[0]) & ((m_theta[0] | m_theta[1]).ub() + m_u[1]);
+//            Interval theta_u_bwd = Interval::PI + ((Interval((m_theta[0] | m_theta[1]).lb()) + m_u[0]) & (Interval((m_theta[0] | m_theta[1]).ub()) + m_u[1]));
 
-            for(int face =0; face<4; face++){
-                if(!get_border(face)->get_segment_in().is_empty()){
+//            for(int face =0; face<4; face++){
+//                if(!get_border(face)->get_segment_in().is_empty()){
 
-                    IntervalVector segment_in = get_border(face)->get_segment_in_2D();
+//                    IntervalVector segment_in = get_border(face)->get_segment_in_2D();
 
-                    vibes::drawSector(segment_in[0].lb(), segment_in[1].lb(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
-                    vibes::drawSector(segment_in[0].ub(), segment_in[1].ub(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
-                }
-                if(!get_border(face)->get_segment_out().is_empty()){
-                    IntervalVector segment_out = get_border(face)->get_segment_out_2D();
+//                    vibes::drawSector(segment_in[0].lb(), segment_in[1].lb(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
+//                    vibes::drawSector(segment_in[0].ub(), segment_in[1].ub(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
+//                }
+//                if(!get_border(face)->get_segment_out().is_empty()){
+//                    IntervalVector segment_out = get_border(face)->get_segment_out_2D();
 
-                    vibes::drawSector(segment_out[0].lb(), segment_out[1].lb(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
-                    vibes::drawSector(segment_out[0].ub(), segment_out[1].ub(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
-                }
-            }
+//                    vibes::drawSector(segment_out[0].lb(), segment_out[1].lb(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
+//                    vibes::drawSector(segment_out[0].ub(), segment_out[1].ub(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
+//                }
+//            }
 
         }
 
         for(int i=0; i<2; i++){
-            vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta[i].lb())*180.0/M_PI, (-m_theta[i].ub())*180.0/M_PI, "r[]");
+            for(int k=0; k<m_f_list.size(); k++)
+                vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta_list[k][i].lb())*180.0/M_PI, (-m_theta_list[k][i].ub())*180.0/M_PI, "r[]");
         }
 
 
@@ -500,7 +508,7 @@ void Pave::print(){
     cout << "********" << endl;
     cout << "PAVE x=" << m_position[0] << " y= " << m_position[1] << endl;
     cout << this << endl;
-    cout << "theta[0]=" << m_theta[0] << " theta[1]=" << m_theta[1] << " u=" << m_u_iv << endl;
+    cout << "theta[0]=" << m_theta_list[m_active_function][0] << " theta[1]=" << m_theta_list[m_active_function][1] << " u=" << m_u_iv << endl;
     for(int face = 0; face < 4; face++){
         if(m_borders[face]->get_inclusions().size()==0){
             cout << "border=" << face << " " << &(m_borders[face])
