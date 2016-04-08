@@ -177,8 +177,8 @@ void car_on_the_hill_v2(){
                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
     IntervalVector box(2);
-    box[0] = Interval(0.0, 12.0);
-    box[1] = Interval(-2.0, 2.0);
+    box[0] = Interval(1.0, 11.0);
+    box[1] = Interval(-10.0, 10.0);
 
     std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
