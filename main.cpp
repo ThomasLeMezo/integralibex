@@ -221,10 +221,10 @@ void car_on_the_hill_v2(){
     u[0] = Interval::ZERO;
     u[1] = Interval(-0.5, 0.5);
 
-    Scheduler s(box, list_boxes_removed, f_list, u);
+    Scheduler s(box, list_boxes_removed, f_list, u, false);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(12, 5, 1e9, false, false, false, true);
+    s.cameleon_cycle(12, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

@@ -307,7 +307,7 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     seg_in &= ((segment_contracted_in[0].diam() > segment_contracted_in[1].diam()) ? segment_contracted_in[0] : segment_contracted_in[1]);
 }
 
-void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner, bool diseable_singleton){
+void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner){
 
     Interval segment_in[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
@@ -326,8 +326,7 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner, bool diseable_s
             this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), true, true, true);
         }
 
-        if(!diseable_singleton || !seg_in.is_degenerated())
-            segment_in[face] = seg_in;
+        segment_in[face] = seg_in;
     }
 
     for(int face = 0; face<4; face++){
@@ -335,7 +334,7 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner, bool diseable_s
     }
 }
 
-void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner, bool diseable_singleton){
+void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner){
     Interval segment_out[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int face = 0; face < 4; face++){
@@ -355,7 +354,6 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner, bool diseable_si
 
         int k=0;
         for(int i=(face+1)%4; i!=face; i=(i+1)%4){
-            if(!diseable_singleton || !seg_out[k].is_degenerated())
             segment_out[i] |= seg_out[k];
             k++;
         }
@@ -467,18 +465,18 @@ ibex::IntervalVector Utils::segment2IntervalVector(const ibex::Interval &seg, co
 // ********************************************************************************
 // ****************** Algorithm functions      ************************************
 
-void Utils::CtcPaveConsistency(Pave *p, bool backward, bool inner, bool diseable_singleton){
+void Utils::CtcPaveConsistency(Pave *p, bool backward, bool inner){
     if(backward){
         for(int i=0; i<p->get_f_list().size(); i++){
             p->set_active_function(i);
 
-            this->CtcPaveBackward(p, backward, inner, diseable_singleton);
+            this->CtcPaveBackward(p, backward, inner);
             Pave p2(p);
-            this->CtcPaveForward(&p2, backward, inner, diseable_singleton);
+            this->CtcPaveForward(&p2, backward, inner);
             *p &= p2;
             if(inner){
                 Pave p3(p);
-                this->CtcPaveBackward(&p3, backward, inner, diseable_singleton);
+                this->CtcPaveBackward(&p3, backward, inner);
                 *p &= p3;
             }
         }

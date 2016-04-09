@@ -95,8 +95,8 @@ private:
     bool                            m_full;
 
 private:
-    bool m_enable_continuity_in, m_enable_continuity_out;
-    bool m_active_in, m_active_out;
+    bool                            m_enable_continuity_in, m_enable_continuity_out;
+    bool                            m_active_in, m_active_out;
     ibex::Interval                  m_segment_blocked_in;
     ibex::Interval                  m_segment_blocked_out;
 };

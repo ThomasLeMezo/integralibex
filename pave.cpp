@@ -8,7 +8,7 @@
 using namespace std;
 using namespace ibex;
 
-Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f_list, const ibex::IntervalVector &u, bool active):
+Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f_list, const ibex::IntervalVector &u, bool diseable_singeleton, bool active):
     m_position(2),
     m_u_iv(2)
 {
@@ -17,6 +17,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_f_list = f_list;
     m_active_function = 0;
     m_active = active;
+    m_diseable_singeleton = diseable_singeleton;
 
     m_u_iv = u;
 
@@ -135,6 +136,7 @@ Pave::Pave(const Pave *p):
     m_first_process = false;
     m_inner = p->get_inner();
     m_active = p->is_active();
+    m_diseable_singeleton = p->get_diseable_singeleton();
 
     m_theta_list = p->get_theta_list();
     m_u = p->get_u();
@@ -599,4 +601,8 @@ void Pave::set_continuity_out(bool enable){
 void Pave::set_continuity_in(bool enable){
     for(int face=0; face<4; face++)
         m_borders[face]->set_continuity_in(enable);
+}
+
+bool Pave::get_diseable_singelton() const{
+    return m_diseable_singeleton;
 }

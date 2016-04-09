@@ -4,8 +4,8 @@
 using namespace std;
 using namespace ibex;
 
-Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, Utils *utils, const IntervalVector &u, int graph_id=0){
-    Pave *p = new Pave(box, f_list, u);
+Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, Utils *utils, const IntervalVector &u, int graph_id, bool diseable_singleton){
+    Pave *p = new Pave(box, f_list, u, diseable_singleton);
     m_node_list.push_back(p);
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
@@ -123,7 +123,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bo
     }
 }
 
-int Graph::process(int max_iterations, bool backward, bool inner, bool diseable_singleton){
+int Graph::process(int max_iterations, bool backward, bool inner){
     int iterations = 0;
     while(!m_node_queue.empty() & iterations < max_iterations){
         iterations++;
@@ -133,7 +133,7 @@ int Graph::process(int max_iterations, bool backward, bool inner, bool diseable_
 
         bool change = m_utils->CtcContinuity(pave, backward) && pave->is_active();
         if(change || pave->get_first_process()){
-            m_utils->CtcPaveConsistency(pave, backward, inner, diseable_singleton);
+            m_utils->CtcPaveConsistency(pave, backward, inner);
 
             // Warn scheduler to process new pave
             for(int face=0; face<4; face++){

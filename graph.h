@@ -7,13 +7,13 @@
 class Graph
 {
 public:
-    Graph(const ibex::IntervalVector &box, const std::vector<ibex::Function *> &f_list, Utils *utils, const ibex::IntervalVector &u, int graph_id);
+    Graph(const ibex::IntervalVector &box, const std::vector<ibex::Function *> &f_list, Utils *utils, const ibex::IntervalVector &u, int graph_id=0, bool diseable_singleton=false);
     Graph(Utils *utils, int graph_id);
     Graph(Graph* g, int graph_id=-1);
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);
     ~Graph();
 
-    int                         process(int max_iterations, bool backward, bool inner, bool diseable_singleton=false);
+    int                         process(int max_iterations, bool backward, bool inner);
     void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full);
     void                        remove_empty_node();
 
