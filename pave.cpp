@@ -136,7 +136,7 @@ Pave::Pave(const Pave *p):
     m_first_process = false;
     m_inner = p->get_inner();
     m_active = p->is_active();
-    m_diseable_singeleton = p->get_diseable_singeleton();
+    m_diseable_singeleton = p->get_diseable_singelton();
 
     m_theta_list = p->get_theta_list();
     m_u = p->get_u();
