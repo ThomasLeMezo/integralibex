@@ -12,7 +12,6 @@ class Pave
     /***************** Functions ******************/
 public:
     Pave(const ibex::IntervalVector &position, const std::vector<ibex::Function *> &f_list, const ibex::IntervalVector &u, bool diseable_singeleton=false, bool active=true);
-    //Pave(const ibex::IntervalVector &position, ibex::Function* f, const ibex::IntervalVector &u, bool diseable_singeleton= false, bool active=true);
     Pave(const Pave *p);
     ~Pave();
 

@@ -48,7 +48,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
     define_continuity(g, box, false, false);
 
     for(auto &b:remove_boxes){
-        Pave* p = new Pave(b, f_list, u, false, diseable_singleton);
+        Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
         p->set_full_out();
         p->set_continuity_out(false);
         g->get_node_list().push_back(p);
@@ -191,10 +191,10 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 cout << "--> processing inner = " << graph_inner_process_cpt << endl;
                 m_graph_inner_list.insert(m_graph_inner_list.begin()+nb_graph, graph_inner);
 
-//                if(!graph_inner->is_empty()){
-//                    cout << "GRAPH inner not empty, iteration = " << iterations << endl;
-//                    break;
-//                }
+                //                if(!graph_inner->is_empty()){
+                //                    cout << "GRAPH inner not empty, iteration = " << iterations << endl;
+                //                    break;
+                //                }
             }
 
             // Remove empty pave

@@ -315,8 +315,8 @@ void Pave::bisect(vector<Pave*> &result){
 
     std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
 
-    Pave *pave1 = new Pave(result_boxes.first, m_f_list, m_u_iv); // Left or Up
-    Pave *pave2 = new Pave(result_boxes.second, m_f_list, m_u_iv); // Right or Down
+    Pave *pave1 = new Pave(result_boxes.first, m_f_list, m_u_iv, m_diseable_singeleton, m_active); // Left or Up
+    Pave *pave2 = new Pave(result_boxes.second, m_f_list, m_u_iv, m_diseable_singeleton, m_active); // Right or Down
 
     int indice1, indice2;
 
