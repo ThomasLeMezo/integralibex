@@ -490,7 +490,39 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
     bool change = false;
 
     for(int face = 0; face < 4; face++){
-        if(p->get_border(face)->get_continuity()){
+//        if(p->get_border(face)->get_continuity_out()){
+//            Interval segment_out = Interval::EMPTY_SET;
+//            for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++)
+//                segment_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
+
+//            if(backward){
+//                if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())){
+//                    change = true;
+//                    p->get_border(face)->set_segment_in(segment_out, backward);
+//                }
+//            }
+//            else{
+//                if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
+//                    change = true;
+//                    p->get_border(face)->set_segment_in(segment_out, backward);
+//                }
+//            }
+//        }
+
+//        if(p->get_border(face)->get_continuity_in()){
+//            Interval segment_in = Interval::EMPTY_SET;
+//            for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++)
+//                segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
+
+//            if(backward){
+//                if(p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out())){
+//                    change = true;
+//                    p->get_border(face)->set_segment_out(segment_in, backward);
+//                }
+//            }
+//        }
+
+        if(p->get_border(face)->get_continuity_in() && p->get_border(face)->get_continuity_out()){
             Interval segment_in = Interval::EMPTY_SET;
             Interval segment_out = Interval::EMPTY_SET;
 
@@ -514,6 +546,7 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
                 }
             }
         }
+
     }
 
     return change;
