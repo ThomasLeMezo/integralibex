@@ -73,6 +73,9 @@ public:
     bool                            get_continuity_in() const;
     bool                            get_continuity_out() const;
 
+    ibex::Interval                  get_blocked_in() const;
+    ibex::Interval                  get_blocked_out() const;
+
     // Tests
     bool                            is_empty();
     bool                            is_full();

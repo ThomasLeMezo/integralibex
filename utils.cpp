@@ -225,7 +225,6 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
             else{
                 for(int k=0; k<3; k++){
                     segment_norm_out[k][i][0] = Interval::EMPTY_SET;
-                    //                    if(backward)
                     segment_norm_in[k][i][0] = Interval::EMPTY_SET;
                 }
 

@@ -53,14 +53,14 @@ void van_der_pol_cycle(){
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u);
+    Scheduler s(box, f_list, u, false);
 
-    s.cameleon_cycle(13, 5, 1e9, true, false);
+    s.cameleon_cycle(10, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     s.draw(1024, true);
-//    s.print_pave_info(0, -2.6,-2.5,"b[b]");
+    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
 void ball(){
