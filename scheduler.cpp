@@ -96,7 +96,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     cameleon_propagation(iterations_max, process_iterations_max, initial_boxes, inner);
 }
 
-void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, vector<IntervalVector> &initial_boxes, bool inner){
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, vector<IntervalVector> &initial_boxes, bool inner, bool diseable_singeleton){
     if(m_graph_list.size()!=1 && m_graph_list[0]->size() !=1)
         return;
     int iterations = 0;
@@ -107,7 +107,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
             m_graph_list[0]->set_active_pave(initial_box);
-        m_graph_list[0]->process(process_iterations_max, false, false);
+        m_graph_list[0]->process(process_iterations_max, false, false, diseable_singeleton);
         m_graph_list[0]->remove_empty_node();
         iterations++;
     }
@@ -125,7 +125,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[0]->size() << ")" << endl;
-        m_graph_list[0]->process(process_iterations_max, false, false);
+        m_graph_list[0]->process(process_iterations_max, false, false, diseable_singeleton);
 
         // Remove empty pave & Test if the graph is empty
 
@@ -147,7 +147,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     }
 }
 
-void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner, bool do_not_bisect_inside){
+void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner, bool do_not_bisect_inside, bool diseable_singeleton){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
 
@@ -157,7 +157,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->sivia(4,true, false, false); // Start with 4 boxes
-        m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
+        m_graph_list[0]->process(process_iterations_max, true, false, diseable_singeleton); // ? Usefull ??? ToDo
         iterations++;
     }
 
@@ -175,7 +175,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
 
-            int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true, false);
+            int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true, false, diseable_singeleton);
             cout << "--> processing outer = " << graph_list_process_cpt << endl;
 
             if(inner && iterations>0){
@@ -188,7 +188,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 graph_inner = new Graph(m_graph_list[nb_graph]);
                 graph_inner->add_all_to_queue();
                 graph_inner->set_all_first_process();
-                int graph_inner_process_cpt = graph_inner->process(process_iterations_max, true, true);
+                int graph_inner_process_cpt = graph_inner->process(process_iterations_max, true, true, diseable_singeleton);
                 cout << "--> processing inner = " << graph_inner_process_cpt << endl;
                 m_graph_inner_list.insert(m_graph_inner_list.begin()+nb_graph, graph_inner);
 
@@ -229,7 +229,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 Graph* graph_propagation = new Graph(m_graph_list[nb_graph], pave_start); // copy graph with 1 activated node (pave_start)
                 //                Graph* graph_diff = new Graph(m_graph_list[nb_graph], m_graph_list.size());
 
-                graph_propagation->process(process_iterations_max, false, false); // process forward
+                graph_propagation->process(process_iterations_max, false, false, diseable_singeleton); // process forward
 
                 m_graph_list[nb_graph]->inter(*graph_propagation); // intersect the graph with the propagation graph
 

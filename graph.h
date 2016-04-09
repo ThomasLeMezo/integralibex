@@ -13,7 +13,7 @@ public:
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);
     ~Graph();
 
-    int                         process(int max_iterations, bool backward, bool inner);
+    int                         process(int max_iterations, bool backward, bool inner, bool diseable_singleton=false);
     void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full);
     void                        remove_empty_node();
 

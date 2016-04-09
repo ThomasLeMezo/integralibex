@@ -123,7 +123,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bo
     }
 }
 
-int Graph::process(int max_iterations, bool backward, bool inner){
+int Graph::process(int max_iterations, bool backward, bool inner, bool diseable_singleton){
     int iterations = 0;
     while(!m_node_queue.empty() & iterations < max_iterations){
         iterations++;
@@ -133,7 +133,7 @@ int Graph::process(int max_iterations, bool backward, bool inner){
 
         bool change = m_utils->CtcContinuity(pave, backward) && pave->is_active();
         if(change || pave->get_first_process()){
-            m_utils->CtcPaveConsistency(pave, backward, inner);
+            m_utils->CtcPaveConsistency(pave, backward, inner, diseable_singleton);
 
             // Warn scheduler to process new pave
             for(int face=0; face<4; face++){

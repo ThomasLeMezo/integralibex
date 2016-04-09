@@ -307,7 +307,7 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     seg_in &= ((segment_contracted_in[0].diam() > segment_contracted_in[1].diam()) ? segment_contracted_in[0] : segment_contracted_in[1]);
 }
 
-void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner){
+void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner, bool diseable_singleton){
 
     Interval segment_in[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
@@ -326,7 +326,8 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner){
             this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), true, true, true);
         }
 
-        segment_in[face] = seg_in;
+        if(!diseable_singleton || !seg_in.is_degenerated())
+            segment_in[face] = seg_in;
     }
 
     for(int face = 0; face<4; face++){
@@ -334,7 +335,7 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner){
     }
 }
 
-void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner){
+void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner, bool diseable_singleton){
     Interval segment_out[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int face = 0; face < 4; face++){
@@ -354,6 +355,7 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner){
 
         int k=0;
         for(int i=(face+1)%4; i!=face; i=(i+1)%4){
+            if(!diseable_singleton || !seg_out[k].is_degenerated())
             segment_out[i] |= seg_out[k];
             k++;
         }
@@ -465,18 +467,18 @@ ibex::IntervalVector Utils::segment2IntervalVector(const ibex::Interval &seg, co
 // ********************************************************************************
 // ****************** Algorithm functions      ************************************
 
-void Utils::CtcPaveConsistency(Pave *p, bool backward, bool inner){
+void Utils::CtcPaveConsistency(Pave *p, bool backward, bool inner, bool diseable_singleton){
     if(backward){
         for(int i=0; i<p->get_f_list().size(); i++){
             p->set_active_function(i);
 
-            this->CtcPaveBackward(p, backward, inner);
+            this->CtcPaveBackward(p, backward, inner, diseable_singleton);
             Pave p2(p);
-            this->CtcPaveForward(&p2, backward, inner);
+            this->CtcPaveForward(&p2, backward, inner, diseable_singleton);
             *p &= p2;
             if(inner){
                 Pave p3(p);
-                this->CtcPaveBackward(&p3, backward, inner);
+                this->CtcPaveBackward(&p3, backward, inner, diseable_singleton);
                 *p &= p3;
             }
         }
@@ -492,18 +494,16 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
     for(int face = 0; face < 4; face++){
         if(p->get_border(face)->get_continuity_out()){
             Interval segment_in = Interval::EMPTY_SET;
-            bool active_border = true;
+            Interval segment_blocked_in = Interval::EMPTY_SET;
+
             for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
                 segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
                 if(!p->get_border(face)->get_inclusion(b)->get_border()->get_continuity_in())
-                    active_border = false;
+                    segment_blocked_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
             }
+            p->get_border(face)->set_blocked_out(segment_blocked_in);
 
-            if(!active_border){
-                p->get_border(face)->set_enable_out(false);
-            }
-
-            if(backward && active_border && (p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out()))){
+            if(backward && (p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out()))){
                 change = true;
                 p->get_border(face)->set_segment_out(segment_in, backward);
             }
@@ -511,26 +511,23 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
 
         if(p->get_border(face)->get_continuity_in()){
             Interval segment_out = Interval::EMPTY_SET;
+            Interval segment_blocked_out = Interval::EMPTY_SET;
 
-            bool active_border = true;
             for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
                 segment_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
                 if(!p->get_border(face)->get_inclusion(b)->get_border()->get_continuity_out())
-                    active_border = false;
+                    segment_blocked_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
             }
-
-            if(!active_border){
-                p->get_border(face)->set_enable_in(false);
-            }
+            p->get_border(face)->set_blocked_in(segment_blocked_out);
 
             if(backward){
-                if(active_border && p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())){
+                if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())){
                     change = true;
                     p->get_border(face)->set_segment_in(segment_out, backward);
                 }
             }
             else{
-                if(active_border && p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
+                if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
                     change = true;
                     p->get_border(face)->set_segment_in(segment_out, backward);
                 }
