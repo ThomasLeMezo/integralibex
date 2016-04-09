@@ -49,7 +49,13 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
     g->build_graph();
 
     // Diseable continuity on bounding box
+    define_continuity(g, box, false, false);
+    for(auto &box_remove:remove_boxes)
+        define_continuity(g, box_remove, true, false);
 
+}
+
+void Scheduler::define_continuity(Graph *g, const IntervalVector &box, bool continuity_in, bool continuity_out){
     IntervalVector box0(2), box1(2), box2(2), box3(2);
     box0[0] = box[0];                   box0[1] = Interval(box[1].lb());
     box1[0] = Interval(box[0].ub());    box1[1] = box[1];
@@ -69,7 +75,8 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
             bool test3 = !inter3.is_empty() && (!inter3[0].is_degenerated() || !inter3[1].is_degenerated());
 
             if(test0 || test1 || test2 || test3){
-                b->set_continuity(false);
+                b->set_continuity_in(continuity_in);
+                b->set_continuity_out(continuity_out);
             }
         }
     }
