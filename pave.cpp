@@ -336,8 +336,8 @@ void Pave::bisect(vector<Pave*> &result){
             pave1->get_border(face)->set_continuity_out(m_borders[face]->get_continuity_out());
         }
         if(face!=indice2){
-            pave2->get_border(face)->set_continuity_in(m_borders[face]->get_continuity_out());
-            pave2->get_border(face)->set_continuity_in(m_borders[face]->get_continuity_out());
+            pave2->get_border(face)->set_continuity_in(m_borders[face]->get_continuity_in());
+            pave2->get_border(face)->set_continuity_out(m_borders[face]->get_continuity_out());
         }
     }
 

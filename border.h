@@ -32,6 +32,7 @@ public:
     bool                            diff(const Border &b);
 
     // Setters
+<<<<<<< HEAD
     void                            set_full();
     void                            set_full_segment_in();
     void                            set_full_segment_out();
@@ -51,6 +52,26 @@ public:
     bool                            add_inclusion(Inclusion *inclusion);
     bool                            add_inclusion_copy(Inclusion *inclusion);
     void                            add_inclusion_receving(Inclusion* inclusion);
+=======
+    void set_full();
+    void set_full_segment_in();
+    void set_full_segment_out();
+    void set_empty();
+    void set_segment_in(ibex::Interval segment_in, bool inclusion);
+    void set_segment_out(ibex::Interval segment_out, bool inclusion);
+    void set_pave(Pave* pave);
+    void set_continuity_in(bool enable);
+    void set_continuity_out(bool enable);
+
+    void set_inclusion(Border *border, int id_brother);
+    void set_inclusion_receving(Border* border, int id_brother);
+    void reset_full_empty();
+
+    void add_inclusions(const std::vector<Inclusion *> &inclusion_list);
+    bool add_inclusion(Inclusion *inclusion);
+    bool add_inclusion_copy(Inclusion *inclusion);
+    void add_inclusion_receving(Inclusion* inclusion);
+>>>>>>> f93df85d9df6d5196fe3169070014ada67e21131
 
     // Getters
     void                            get_points(std::vector<double> &x, std::vector<double> &y) const;
@@ -93,7 +114,11 @@ private:
     bool                            m_full;
 
 private:
+<<<<<<< HEAD
     bool                            m_enable_continuity_in, m_enable_continuity_out;
+=======
+    bool m_enable_continuity_in, m_enable_continuity_out;
+>>>>>>> f93df85d9df6d5196fe3169070014ada67e21131
 };
 
 #endif // BORDER_H

@@ -191,9 +191,9 @@ void car_on_the_hill_v2(){
 
 
     std::vector<ibex::Function*> f_list;
-//    f_list.push_back(&f2);
-//    f_list.push_back(&f1);
-    f_list.push_back(&f3);
+    f_list.push_back(&f1);
+//      f_list.push_back(&f2);
+//    f_list.push_back(&f3);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
@@ -224,7 +224,7 @@ void car_on_the_hill_v2(){
     Scheduler s(box, list_boxes_removed, f_list, u);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(15, 5, 1e9, false, false, false);
+    s.cameleon_cycle(10, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

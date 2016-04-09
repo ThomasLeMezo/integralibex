@@ -290,8 +290,8 @@ void Graph::print_pave_info(double x, double y, string color) const{
     cout << p << endl;
     cout << "Border ID" << '\t' << "Position ([x], [y])" << '\t' << "segment_in" << '\t' << "segment_out" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
-        cout << "border " << i << '\t'
-             << "position=" << p->get_border(i)->get_position() << "   " << '\t'
+        cout << "border " << i << '\t' << "position="
+             << p->get_border(i)->get_position() << "   " << '\t'
              << "in=" << p->get_border(i)->get_segment_in() << '\t'
              << "out=" << p->get_border(i)->get_segment_out() << '\t'
              << "continuity_in = " << p->get_border(i)->get_continuity_in()

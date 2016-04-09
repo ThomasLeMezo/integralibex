@@ -371,8 +371,3 @@ void Border::set_continuity_in(bool enable){
 void Border::set_continuity_out(bool enable){
     m_enable_continuity_out = enable;
 }
-
-void Border::set_continuity(bool enable){
-    m_enable_continuity_in = enable;
-    m_enable_continuity_out = enable;
-}
