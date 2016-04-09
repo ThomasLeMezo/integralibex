@@ -8,7 +8,7 @@
 using namespace std;
 using namespace ibex;
 
-Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f_list, const ibex::IntervalVector &u):
+Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f_list, const ibex::IntervalVector &u, bool active):
     m_position(2),
     m_u_iv(2)
 {
@@ -16,6 +16,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_borders.reserve(4);
     m_f_list = f_list;
     m_active_function = 0;
+    m_active = active;
 
     m_u_iv = u;
 
@@ -133,6 +134,7 @@ Pave::Pave(const Pave *p):
     m_in_queue = false;
     m_first_process = false;
     m_inner = p->get_inner();
+    m_active = p->is_active();
 
     m_theta_list = p->get_theta_list();
     m_u = p->get_u();
@@ -203,6 +205,20 @@ void Pave::set_theta(ibex::Interval theta){
 void Pave::set_full(){
     for(int face=0; face<4; face++){
         m_borders[face]->set_full();
+    }
+    m_full = true;
+}
+
+void Pave::set_full_in(){
+    for(int face=0; face<4; face++){
+        m_borders[face]->set_full_segment_in();
+    }
+    m_full = true;
+}
+
+void Pave::set_full_out(){
+    for(int face=0; face<4; face++){
+        m_borders[face]->set_full_segment_out();
     }
     m_full = true;
 }
@@ -569,4 +585,18 @@ int Pave::get_active_function() const{
 
 std::vector<std::vector<ibex::Interval>> Pave::get_theta_list() const{
     return m_theta_list;
+}
+
+bool Pave::is_active() const{
+    return m_active;
+}
+
+void Pave::set_continuity_out(bool enable){
+    for(int face=0; face<4; face++)
+        m_borders[face]->set_continuity_out(enable);
+}
+
+void Pave::set_continuity_in(bool enable){
+    for(int face=0; face<4; face++)
+        m_borders[face]->set_continuity_in(enable);
 }

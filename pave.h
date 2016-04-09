@@ -11,8 +11,8 @@ class Pave
 
     /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &position, const std::vector<ibex::Function *> &f_list, const ibex::IntervalVector &u);
-    Pave(const ibex::IntervalVector &position, ibex::Function* f, const ibex::IntervalVector &u);
+    Pave(const ibex::IntervalVector &position, const std::vector<ibex::Function *> &f_list, const ibex::IntervalVector &u, bool active=true);
+    Pave(const ibex::IntervalVector &position, ibex::Function* f, const ibex::IntervalVector &u, bool active=true);
     Pave(const Pave *p);
     ~Pave();
 
@@ -37,9 +37,12 @@ public:
     bool                        is_empty();
     bool                        is_full();
     bool                        is_in_queue() const;
+    bool                        is_active() const;
 
     // Setter
     void                        set_full();
+    void                        set_full_in();
+    void                        set_full_out();
     void                        set_empty();
     void                        set_theta(ibex::Interval theta);
     void                        set_in_queue(bool flag);
@@ -47,6 +50,9 @@ public:
     void                        set_first_process_true();
     void                        set_first_process_false();
     void                        set_inner(bool inner);
+
+    void                        set_continuity_in(bool enable);
+    void                        set_continuity_out(bool enable);
 
     void                        set_active_function(int id);
 
@@ -103,6 +109,8 @@ private:
 
     bool                        m_first_process;
     bool                        m_inner;
+
+    bool                        m_active;
 };
 
 #endif // PAVE_H

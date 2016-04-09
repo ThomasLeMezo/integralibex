@@ -24,6 +24,9 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
 
     m_enable_continuity_in = true;
     m_enable_continuity_out = true;
+
+    m_active_in = true;
+    m_active_out = true;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -40,6 +43,8 @@ Border::Border(const Border *border): m_position(2)
     //    m_inclusions_receving = border->get_inclusions_receving();
     m_enable_continuity_in = border->get_continuity_in();
     m_enable_continuity_out = border->get_continuity_out();
+    m_active_in = true;
+    m_active_out = true;
 }
 
 Border::~Border(){
@@ -206,17 +211,21 @@ bool Border::is_full(){
 }
 
 void Border::set_segment_in(ibex::Interval segment_in, bool inclusion){
-    if(inclusion)
-        m_segment_in &= segment_in;
-    else
-        m_segment_in |= segment_in & m_segment_full;
+    if(m_active_in){
+        if(inclusion)
+            m_segment_in &= segment_in;
+        else
+            m_segment_in |= segment_in & m_segment_full;
+    }
 }
 
 void Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
-    if(inclusion)
-        m_segment_out &= segment_out;
-    else
-        m_segment_out |= segment_out & m_segment_full;
+    if(m_active_out){
+        if(inclusion)
+            m_segment_out &= segment_out;
+        else
+            m_segment_out |= segment_out & m_segment_full;
+    }
 }
 
 void Border::set_pave(Pave* pave){
@@ -370,4 +379,20 @@ void Border::set_continuity_in(bool enable){
 
 void Border::set_continuity_out(bool enable){
     m_enable_continuity_out = enable;
+}
+
+void Border::set_enable_out(bool enable){
+    m_active_out = enable;
+}
+
+void Border::set_enable_in(bool enable){
+    m_active_in = enable;
+}
+
+bool Border::get_enable_in() const{
+    return m_active_in;
+}
+
+bool Border::get_enable_out() const{
+    return m_active_out;
 }

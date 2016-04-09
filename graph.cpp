@@ -100,7 +100,10 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bo
         if(m_utils->m_imageIntegral_activated)
             tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
 
-        if(tmp->get_inner() || ((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full())) && tmp->get_theta_diam()<M_PI){// || (not_full_test && tmp->is_full() && diam < M_PI)){
+        if(!tmp->is_active() ||
+                (tmp->get_inner()
+                 || ((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full()))
+                 && tmp->get_theta_diam()<M_PI)){// || (not_full_test && tmp->is_full() && diam < M_PI)){
             m_node_list.push_back(tmp);
             iterations++;
         }
@@ -128,23 +131,7 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
-//        if(inner){
-//            cout << "----------------------" << endl;
-//            this->draw(512, false, "inner - before", true);
-//            pave->draw_position();
-//            pave->print();
-//        }
-
-//        IntervalVector test(2);
-//        test[0] = Interval(-2.6);
-//        test[1] = Interval(-2.5);
-
-//        if(!(test & pave->get_position()).is_empty()){
-//            cout << "TEST" << endl;
-//            pave->print();
-//        }
-
-        bool change = m_utils->CtcContinuity(pave, backward);
+        bool change = m_utils->CtcContinuity(pave, backward) && pave->is_active();
         if(change || pave->get_first_process()){
             m_utils->CtcPaveConsistency(pave, backward, inner);
 
@@ -162,20 +149,20 @@ int Graph::process(int max_iterations, bool backward, bool inner){
             pave->set_first_process_false();
         }
 
-//        if(inner){
-//            this->draw(512, false, "inner - after", true);
-//            pave->draw_position();
-//            cout << "********"<< endl;
-//            cout << "change = " << change << endl;
-//            pave->print();
-//            if(iterations%100==0){
-//                cout << iterations << endl;
-//            }
-//        }
+        //        if(inner){
+        //            this->draw(512, false, "inner - after", true);
+        //            pave->draw_position();
+        //            cout << "********"<< endl;
+        //            cout << "change = " << change << endl;
+        //            pave->print();
+        //            if(iterations%100==0){
+        //                cout << iterations << endl;
+        //            }
+        //        }
 
-//        if(iterations%1000==0){
-//            cout << '\r' << "process = " << iterations << flush;
-//        }
+        //        if(iterations%1000==0){
+        //            cout << '\r' << "process = " << iterations << flush;
+        //        }
     }
 
     m_node_queue.clear();
@@ -184,7 +171,8 @@ int Graph::process(int max_iterations, bool backward, bool inner){
 
 void Graph::set_full(){
     for(auto &node : m_node_list){
-        node->set_full();
+        if(node->is_active())
+            node->set_full();
     }
 }
 
@@ -294,7 +282,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
              << p->get_border(i)->get_position() << "   " << '\t'
              << "in=" << p->get_border(i)->get_segment_in() << '\t'
              << "out=" << p->get_border(i)->get_segment_out() << '\t'
-             << "continuity_in = " << p->get_border(i)->get_continuity_in()
+             << "continuity_in = " << p->get_border(i)->get_continuity_in() << " "
              << "continuity_out = " << p->get_border(i)->get_continuity_out()
              << endl;
     }
@@ -337,12 +325,14 @@ int Graph::size() const{
 
 void Graph::remove_empty_node(){
     for(int i=0; i<m_node_list.size(); i++){
-        m_node_list[i]->reset_full_empty();
-        if(m_node_list[i]->is_empty()){
-            m_node_list[i]->remove_from_brothers();
-            m_node_empty_list.push_back(m_node_list[i]);
-            m_node_list.erase(m_node_list.begin() + i);
-            i--;
+        if(m_node_list[i]->is_active()){
+            m_node_list[i]->reset_full_empty();
+            if(m_node_list[i]->is_empty()){
+                m_node_list[i]->remove_from_brothers();
+                m_node_empty_list.push_back(m_node_list[i]);
+                m_node_list.erase(m_node_list.begin() + i);
+                i--;
+            }
         }
     }
 }
@@ -402,7 +392,8 @@ bool Graph::inter(const Graph &g){
 
 void Graph::set_empty(){
     for(auto &pave : m_node_list){
-        pave->set_empty();
+        if(pave->is_active())
+            pave->set_empty();
     }
 }
 
@@ -442,7 +433,7 @@ void Graph::build_graph(){
             Pave *p2 = m_node_list[j];
 
             IntervalVector inter = p1->get_position() & p2->get_position();
-//            cout << "== p1=" << p1->get_position() << '\t' << "p2=" << p2->get_position() << '\t' << "result="<< inter << '\t' << "test=" << !inter.is_empty() << endl;
+            //            cout << "== p1=" << p1->get_position() << '\t' << "p2=" << p2->get_position() << '\t' << "result="<< inter << '\t' << "test=" << !inter.is_empty() << endl;
             if(!inter.is_empty()){
                 // Find common border
 
@@ -453,7 +444,7 @@ void Graph::build_graph(){
                     IntervalVector inter_b = b1->get_position() & b2->get_position();
 
                     if(!inter_b.is_empty() ){
-//                        cout << "b1 = " << b1->get_position() << '\t' << "b2 = " << b2->get_position() << '\t' << "inter = " << inter_b << '\t' << "test = " << inter_b.is_empty() << endl;
+                        //                        cout << "b1 = " << b1->get_position() << '\t' << "b2 = " << b2->get_position() << '\t' << "inter = " << inter_b << '\t' << "test = " << inter_b.is_empty() << endl;
 
                         Inclusion *inclusion_to_b1 = new Inclusion(b1, b1->get_face());
                         b2->add_inclusion(inclusion_to_b1);

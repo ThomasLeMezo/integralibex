@@ -43,7 +43,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
     if(Dx.is_empty() && Dx.is_empty())
         x = Interval::EMPTY_SET;
     else
-        x &= Interval(x_front.lb()-Dx.lb(), x_front.ub()-Dx.ub());
+        x &= Interval(x_front.lb()-Dx.lb(), x_front.ub()-Dx.ub()) | Interval(x_front.lb()-Dx.ub(), x_front.ub()-Dx.lb());
 }
 
 void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const ibex::Interval &theta, const IntervalVector &box){
@@ -490,31 +490,47 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
     bool change = false;
 
     for(int face = 0; face < 4; face++){
-        if(p->get_border(face)->get_continuity_in()){
+        if(p->get_border(face)->get_continuity_out()){
             Interval segment_in = Interval::EMPTY_SET;
-            for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++)
+            bool active_border = true;
+            for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
                 segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
+                if(!p->get_border(face)->get_inclusion(b)->get_border()->get_continuity_in())
+                    active_border = false;
+            }
 
-            if(backward && (p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out()))){
+            if(!active_border){
+                p->get_border(face)->set_enable_out(false);
+            }
+
+            if(backward && active_border && (p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out()))){
                 change = true;
                 p->get_border(face)->set_segment_out(segment_in, backward);
             }
         }
 
-        if(p->get_border(face)->get_continuity_out()){
+        if(p->get_border(face)->get_continuity_in()){
             Interval segment_out = Interval::EMPTY_SET;
 
-            for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++)
+            bool active_border = true;
+            for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
                 segment_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
+                if(!p->get_border(face)->get_inclusion(b)->get_border()->get_continuity_out())
+                    active_border = false;
+            }
+
+            if(!active_border){
+                p->get_border(face)->set_enable_in(false);
+            }
 
             if(backward){
-                if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())){
+                if(active_border && p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())){
                     change = true;
                     p->get_border(face)->set_segment_in(segment_out, backward);
                 }
             }
             else{
-                if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
+                if(active_border && p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
                     change = true;
                     p->get_border(face)->set_segment_in(segment_out, backward);
                 }

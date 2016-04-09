@@ -44,15 +44,19 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
         Pave* p = new Pave(b, f_list, u);
         g->get_node_list().push_back(p);
     }
+    // Diseable continuity on the bounding box
+    define_continuity(g, box, false, false);
+
+    for(auto &b:remove_boxes){
+        Pave* p = new Pave(b, f_list, u, false);
+        p->set_full_out();
+        p->set_continuity_out(false);
+//        p->set_continuity_in(false);
+        g->get_node_list().push_back(p);
+    }
 
     // Rebuilt continuity inside graph
     g->build_graph();
-
-    // Diseable continuity on bounding box
-    define_continuity(g, box, false, false);
-    for(auto &box_remove:remove_boxes)
-        define_continuity(g, box_remove, true, false);
-
 }
 
 void Scheduler::define_continuity(Graph *g, const IntervalVector &box, bool continuity_in, bool continuity_out){

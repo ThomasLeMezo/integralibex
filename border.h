@@ -42,6 +42,8 @@ public:
     void set_pave(Pave* pave);
     void set_continuity_in(bool enable);
     void set_continuity_out(bool enable);
+    void set_enable_in(bool enable);
+    void set_enable_out(bool enable);
 
     void set_inclusion(Border *border, int id_brother);
     void set_inclusion_receving(Border* border, int id_brother);
@@ -71,6 +73,9 @@ public:
     bool                            get_continuity_in() const;
     bool                            get_continuity_out() const;
 
+    bool                            get_enable_in() const;
+    bool                            get_enable_out() const;
+
     // Tests
     bool                            is_empty();
     bool                            is_full();
@@ -94,6 +99,7 @@ private:
 
 private:
     bool m_enable_continuity_in, m_enable_continuity_out;
+    bool m_active_in, m_active_out;
 };
 
 #endif // BORDER_H
