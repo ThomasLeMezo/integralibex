@@ -16,6 +16,7 @@ public:
     ~Pave();
 
     Pave&                       operator&=(const Pave &p);
+    Pave&                       operator|=(const Pave &p);
     Border*                     operator[](int face);
     bool                        inter(const Pave &p);
     bool                        diff(const Pave &p);
@@ -83,7 +84,7 @@ public:
     bool                                get_diseable_singelton() const;
 
     // Other functions
-    const std::vector<ibex::Interval> compute_theta(ibex::Function *f);
+    const std::vector<ibex::Interval> compute_theta(ibex::Function *f, ibex::IntervalVector u);
 
 
 

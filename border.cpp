@@ -288,6 +288,12 @@ Border& Border::operator&=(const Border &b){
     return *this;
 }
 
+Border& Border::operator|=(const Border &b){
+    m_segment_in |= b.get_segment_in();
+    m_segment_out |= b.get_segment_out();
+    return *this;
+}
+
 bool Border::inter(const Border &b){
     bool change = false;
     if((m_segment_in & b.get_segment_in()) != m_segment_in)

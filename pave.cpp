@@ -40,52 +40,52 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
 
     /////////////////////////////// CASE THETA ///////////////////////////////
     for(int i=0; i<f_list.size(); i++){
-        std::vector<ibex::Interval> theta = compute_theta(f_list[i]);
+        std::vector<ibex::Interval> theta = compute_theta(f_list[i], u);
         m_theta_list.push_back(theta);
     }
 
 
     /////////////////////////////// CASE CMD U ///////////////////////////////
-    if(u[0] == Interval::ZERO && u[1] == Interval::ZERO){
+//    if(u[0] == Interval::ZERO && u[1] == Interval::ZERO){
         m_u.push_back(Interval::ZERO);
-    }
-    else{
-        Interval theta_u = atan2(u[1], u[0]);
-        if(theta_u==(-Interval::PI|Interval::PI)){
-            Interval thetaR_u = atan2(-u[1], -u[0]); // PI rotation ({dx, dy} -> {-dx, -dy})
-            if(thetaR_u.diam()<theta_u.diam()){
-                if(thetaR_u.is_subset(-Interval::PI | Interval::PI)){
-                    m_u.push_back((thetaR_u + Interval::PI) & (Interval::ZERO | Interval::PI)); // theta[0] in [0, pi]
-                    m_u.push_back(((thetaR_u + Interval::PI) & (Interval::PI | Interval::TWO_PI)) - Interval::TWO_PI); // theta[1] in [-pi, 0]
-                }
-                else{
-                    cout << "****************** ERROR ******************" << endl;
-                }
+//    }
+//    else{
+//        Interval theta_u = atan2(u[1], u[0]);
+//        if(theta_u==(-Interval::PI|Interval::PI)){
+//            Interval thetaR_u = atan2(-u[1], -u[0]); // PI rotation ({dx, dy} -> {-dx, -dy})
+//            if(thetaR_u.diam()<theta_u.diam()){
+//                if(thetaR_u.is_subset(-Interval::PI | Interval::PI)){
+//                    m_u.push_back((thetaR_u + Interval::PI) & (Interval::ZERO | Interval::PI)); // theta[0] in [0, pi]
+//                    m_u.push_back(((thetaR_u + Interval::PI) & (Interval::PI | Interval::TWO_PI)) - Interval::TWO_PI); // theta[1] in [-pi, 0]
+//                }
+//                else{
+//                    cout << "****************** ERROR ******************" << endl;
+//                }
 
-            }
-            else{
-                m_u.push_back(theta_u);
-            }
-        }
-        else if(theta_u.is_empty()){
-            m_u.push_back(-Interval::PI|Interval::PI);
-        }
-        else{
-            m_u.push_back(theta_u);
-        }
-        if(m_u[0].is_empty()){
-            cout << "ERROR - Pave "<< theta_u << u[0] << u[1] << m_position << endl;
-        }
-    }
+//            }
+//            else{
+//                m_u.push_back(theta_u);
+//            }
+//        }
+//        else if(theta_u.is_empty()){
+//            m_u.push_back(-Interval::PI|Interval::PI);
+//        }
+//        else{
+//            m_u.push_back(theta_u);
+//        }
+//        if(m_u[0].is_empty()){
+//            cout << "ERROR - Pave "<< theta_u << u[0] << u[1] << m_position << endl;
+//        }
+//    }
 }
 
-const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
+const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f, ibex::IntervalVector u){
     std::vector<ibex::Interval> theta_list;
 
     for(int i=0; i<2; i++)
         theta_list.push_back(Interval::EMPTY_SET);
     if(f!=NULL){
-        IntervalVector dposition = f->eval_vector(m_position);
+        IntervalVector dposition = f->eval_vector(m_position) + u;
 
         Interval dx = dposition[0];
         Interval dy = dposition[1];
@@ -158,6 +158,13 @@ Pave::~Pave(){
 Pave& Pave::operator&=(const Pave &p){
     for(int face = 0; face <4; face++){
         *(m_borders[face]) &= *(p.get_border_const(face));
+    }
+    return *this;
+}
+
+Pave& Pave::operator|=(const Pave &p){
+    for(int face = 0; face <4; face++){
+        *(m_borders[face]) |= *(p.get_border_const(face));
     }
     return *this;
 }

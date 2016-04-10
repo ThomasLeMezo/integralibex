@@ -47,11 +47,11 @@ void van_der_pol_cycle(){
     f_list.push_back(&f);
 
     IntervalVector box(2);
-    box[0] = Interval(-4.0, 4.0);
-    box[1] = Interval(-4.0, 4.0);
+    box[0] = Interval(-10.0, 10.0);
+    box[1] = Interval(-10.0, 10.0);
 
     IntervalVector u(2);
-    u[0] = Interval::ZERO;
+    u[0] = Interval(0.5);
     u[1] = Interval::ZERO;
     Scheduler s(box, f_list, u, false);
 
@@ -161,7 +161,7 @@ void car_on_the_hill(){
 
     IntervalVector u(2);
     u[0] = Interval::ZERO;
-    u[1] = Interval(-0.5, 0.5);
+    u[1] = Interval(-2.0, 2.0);
 
     Scheduler s(box, f_list, u);
 
@@ -219,7 +219,7 @@ void car_on_the_hill_v2(){
 
     IntervalVector u(2);
     u[0] = Interval::ZERO;
-    u[1] = Interval(-0.5, 0.5);
+    u[1] = Interval::ZERO;
 
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
@@ -232,7 +232,7 @@ void car_on_the_hill_v2(){
     s.draw(1024, true);
 
 
-    s.print_pave_info(0, 2.42, -0.33,"b[b]");
+//    s.print_pave_info(0, 2.42, -0.33,"b[b]");
 //    s.print_pave_info(0, -0.5, 0.44,"b[b]");
 
 }

@@ -28,31 +28,32 @@ public:
     // ******** Border Properties ********
     // Operations
     Border&                         operator&=(const Border &b);
+    Border&                         operator|=(const Border &b);
     bool                            inter(const Border &b);
     bool                            diff(const Border &b);
 
     // Setters
 
-    void set_full();
-    void set_full_segment_in();
-    void set_full_segment_out();
-    void set_empty();
-    void set_segment_in(ibex::Interval segment_in, bool inclusion);
-    void set_segment_out(ibex::Interval segment_out, bool inclusion);
-    void set_pave(Pave* pave);
-    void set_continuity_in(bool enable);
-    void set_continuity_out(bool enable);
-    void set_blocked_in(ibex::Interval segment_blocked);
-    void set_blocked_out(ibex::Interval segment_blocked);
+    void                            set_full();
+    void                            set_full_segment_in();
+    void                            set_full_segment_out();
+    void                            set_empty();
+    void                            set_segment_in(ibex::Interval segment_in, bool inclusion);
+    void                            set_segment_out(ibex::Interval segment_out, bool inclusion);
+    void                            set_pave(Pave* pave);
+    void                            set_continuity_in(bool enable);
+    void                            set_continuity_out(bool enable);
+    void                            set_blocked_in(ibex::Interval segment_blocked);
+    void                            set_blocked_out(ibex::Interval segment_blocked);
 
-    void set_inclusion(Border *border, int id_brother);
-    void set_inclusion_receving(Border* border, int id_brother);
-    void reset_full_empty();
+    void                            set_inclusion(Border *border, int id_brother);
+    void                            set_inclusion_receving(Border* border, int id_brother);
+    void                            reset_full_empty();
 
-    void add_inclusions(const std::vector<Inclusion *> &inclusion_list);
-    bool add_inclusion(Inclusion *inclusion);
-    bool add_inclusion_copy(Inclusion *inclusion);
-    void add_inclusion_receving(Inclusion* inclusion);
+    void                            add_inclusions(const std::vector<Inclusion *> &inclusion_list);
+    bool                            add_inclusion(Inclusion *inclusion);
+    bool                            add_inclusion_copy(Inclusion *inclusion);
+    void                            add_inclusion_receving(Inclusion* inclusion);
 
     // Getters
     void                            get_points(std::vector<double> &x, std::vector<double> &y) const;
