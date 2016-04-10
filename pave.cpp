@@ -40,7 +40,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
 
     /////////////////////////////// CASE THETA ///////////////////////////////
     for(int i=0; i<f_list.size(); i++){
-        std::vector<ibex::Interval> theta = compute_theta(f_list[i], u);
+        std::vector<ibex::Interval> theta = compute_theta(f_list[i]);
         m_theta_list.push_back(theta);
     }
 
@@ -79,13 +79,13 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
 //    }
 }
 
-const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f, ibex::IntervalVector u){
+const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
     std::vector<ibex::Interval> theta_list;
 
     for(int i=0; i<2; i++)
         theta_list.push_back(Interval::EMPTY_SET);
     if(f!=NULL){
-        IntervalVector dposition = f->eval_vector(m_position) + u;
+        IntervalVector dposition = f->eval_vector(m_position);
 
         Interval dx = dposition[0];
         Interval dy = dposition[1];

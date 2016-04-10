@@ -181,13 +181,13 @@ void car_on_the_hill_v2(){
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
-                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
 
     ibex::Function f2(x1, x2, Return(x2,
-                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
 
     ibex::Function f3(x1, x2, Return(x2,
-                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
 
     std::vector<ibex::Function*> f_list;
@@ -197,24 +197,32 @@ void car_on_the_hill_v2(){
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
-    box[1] = Interval(-16.0, 16.0);
+    box[1] = Interval(-16, 16);
+
+    // Points d'équilibre (stable)
+    // x1 = 2.311(6-7)
+    // x1 = 7.78(10/09)
+    // Points d'équilibre (instable)
+    // x1 = 0.0
+    // x1 = 4.9517(6-7)
+    // x1 = 10.683(6-7)
 
     std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
-    box_remove[0] = Interval(-0.4,0.4);
-    box_remove[1] = Interval(-0.3,0.3);
+    box_remove[0] = Interval(-0.1,0.1);// + Interval(-0.5, 0.5);
+    box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(2.4,3.4);
-    box_remove[1] = Interval(-0.3,0.3);
+    box_remove[0] = Interval(2.2,2.4) + Interval(-0.5, 0.5);
+    box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(5.4,6.4);
-    box_remove[1] = Interval(-0.3,0.3);
+    box_remove[0] = Interval(4.8,5.0) + Interval(-0.5, 0.5);
+    box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(8.4,9.4);
-    box_remove[1] = Interval(-0.3,0.3);
+    box_remove[0] = Interval(7.7, 7.8) + Interval(-0.5, 0.5);
+    box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(11.4,12.4);
-    box_remove[1] = Interval(-0.3,0.3);
+    box_remove[0] = Interval(10.5, 10.7);// + Interval(-0.5, 0.5);
+    box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
 
     IntervalVector u(2);
