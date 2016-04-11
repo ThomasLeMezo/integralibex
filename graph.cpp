@@ -170,6 +170,13 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         //        if(iterations%1000==0){
         //            cout << '\r' << "process = " << iterations << flush;
         //        }
+
+//        if(iterations%1000==0){
+//            cout << "PAUSE" << endl;
+//            this->draw(1024, true);
+//            vibes::axisLimits(-30, 35, -16,16);
+//            cin.ignore();
+//        }
     }
 
     m_node_queue.clear();

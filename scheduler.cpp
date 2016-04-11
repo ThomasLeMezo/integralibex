@@ -47,8 +47,6 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
     // Diseable continuity on the bounding box
     define_continuity(g, box, false, false);
 
-//    box[0] = Interval(-1.0, 13.0);
-//    box[1] = Interval(-16, 16);
 //    vector<IntervalVector> list_border;
 //    double size_border = 0.1;
 //    IntervalVector test(2);
@@ -67,10 +65,11 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
 
 //    for(auto &b:list_border){
 //        Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
-////        p->set_full_out();
+//        p->set_full_out();
 //        p->set_full_in();
-////        p->set_continuity_out(false);
+//        p->set_continuity_out(false);
 //        p->set_continuity_in(false);
+
 //        g->get_node_list().push_back(p);
 //    }
 

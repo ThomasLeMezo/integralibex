@@ -240,7 +240,7 @@ void car_on_the_hill_dead_path(){
     s.draw(1024, true);
 
 
-//    s.print_pave_info(0, 2.42, -0.33,"b[b]");
+    s.print_pave_info(0, -0.8, -0.7,"b[b]");
 //    s.print_pave_info(0, -0.5, 0.44,"b[b]");
 
 }
@@ -249,8 +249,11 @@ void car_on_the_hill_integrator(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x1, x2;
+//    ibex::Function f1(x1, x2, Return(-x2,
+//                                    -(-9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0)));
     ibex::Function f1(x1, x2, Return(-x2,
-                                    -(-9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0)));
+                                    -(-9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0)));
+
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
 
@@ -264,10 +267,9 @@ void car_on_the_hill_integrator(){
     Scheduler s(box, f_list, u);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(11.028646, 11.028647);
+//    activated_pave[0] = Interval(11.028646, 11.028647); // Point limite : x0 = 11.02864(6-7)
+    activated_pave[0] = Interval(-1.0);
     activated_pave[1] = Interval(0.0);
-
-    // Point limite : x0 = 11.02864(6-7)
 
     s.cameleon_propagation(25, 1e9, activated_pave);
 
