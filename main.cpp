@@ -192,7 +192,7 @@ void car_on_the_hill_v2(){
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-    f_list.push_back(&f2);
+//    f_list.push_back(&f2);
 //    f_list.push_back(&f3);
 
     IntervalVector box(2);

@@ -47,6 +47,33 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
     // Diseable continuity on the bounding box
     define_continuity(g, box, false, false);
 
+//    box[0] = Interval(-1.0, 13.0);
+//    box[1] = Interval(-16, 16);
+//    vector<IntervalVector> list_border;
+//    double size_border = 0.1;
+//    IntervalVector test(2);
+//    test[0] = Interval(box[0].lb(), box[0].ub());
+//    test[1] = Interval(box[1].lb()-size_border, box[1].lb());
+//    list_border.push_back(test);
+//    test[0] = Interval(box[0].ub(), box[0].ub()+size_border);
+//    test[1] = Interval(box[1].lb(), box[1].ub());
+//    list_border.push_back(test);
+//    test[0] = Interval(box[0].lb(), box[0].ub());
+//    test[1] = Interval(box[1].ub(), box[1].ub()+size_border);
+//    list_border.push_back(test);
+//    test[0] = Interval(box[0].lb()-size_border, box[0].lb());
+//    test[1] = Interval(box[1].lb(), box[1].ub());
+//    list_border.push_back(test);
+
+//    for(auto &b:list_border){
+//        Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
+////        p->set_full_out();
+//        p->set_full_in();
+////        p->set_continuity_out(false);
+//        p->set_continuity_in(false);
+//        g->get_node_list().push_back(p);
+//    }
+
     for(auto &b:remove_boxes){
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
         p->set_full_out();
