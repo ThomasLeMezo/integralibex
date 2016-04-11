@@ -37,6 +37,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
     Interval rho = Interval::POS_REALS;
     Interval theta2(theta);
 
+
     contract_polar.contract(Dx, Dy, rho, theta2);
 
     x_front &= (x + Dx) & X;

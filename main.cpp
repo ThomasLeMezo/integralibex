@@ -146,7 +146,7 @@ void capture_attractor(){
 
 }
 
-void car_on_the_hill(){
+void car_on_the_hill_attractor(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x1, x2;
@@ -176,7 +176,7 @@ void car_on_the_hill(){
 
 }
 
-void car_on_the_hill_v2(){
+void car_on_the_hill_dead_path(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x1, x2;
@@ -192,7 +192,7 @@ void car_on_the_hill_v2(){
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-//    f_list.push_back(&f2);
+    f_list.push_back(&f2);
 //    f_list.push_back(&f3);
 
     IntervalVector box(2);
@@ -232,7 +232,7 @@ void car_on_the_hill_v2(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(12, 5, 1e9, false, false, false);
+    s.cameleon_cycle(6, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -245,63 +245,45 @@ void car_on_the_hill_v2(){
 
 }
 
+void car_on_the_hill_integrator(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(-x2,
+                                    -(-9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0)));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(-1.0, 13.0);
+    box[1] = Interval(-16, 16);
+
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
+    Scheduler s(box, f_list, u);
+
+    IntervalVector activated_pave(2);
+    activated_pave[0] = Interval(11.028646, 11.028647);
+    activated_pave[1] = Interval(0.0);
+
+    // Point limite : x0 = 11.02864(6-7)
+
+    s.cameleon_propagation(25, 1e9, activated_pave);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.draw(1024, true);
+}
+
 int main()
 {
 //    ball();
 //    capture_attractor();
-//    car_on_the_hill();
-    car_on_the_hill_v2();
+//    car_on_the_hill_attractor();
+    car_on_the_hill_dead_path();
+//    car_on_the_hill_integrator();
 //    van_der_pol_cycle();
 //    test();
 
-#if 0
-    const clock_t begin_time = clock();
-    vibes::beginDrawing();
-    Variable x, y;
-    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-
-    IntervalVector box(2);
-    box[0] = Interval(-10.0, 10.0);
-    box[1] = Interval(-10.0, 10.0);
-
-    Interval u = -Interval::HALF_PI/2 | Interval::HALF_PI/2;
-    Scheduler s(box, &f, u);
-
-    vector<IntervalVector> activated_paves;
-    IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(-2.2);
-    activated_pave[1] = Interval(0.0);
-    activated_paves.push_back(activated_pave);
-
-    s.cameleon_propagation(15, 1000000, activated_paves, true);
-
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-    s.draw(1024, true);
-
-#endif
-
-#if 0
-    const clock_t begin_time = clock();
-    vibes::beginDrawing();
-    Variable x, y;
-    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-
-    IntervalVector box(2);
-    box[0] = Interval(-10.0, 10.0);
-    box[1] = Interval(-10.0, 10.0);
-
-//    Interval u = -2*Interval::PI/3 | 2*Interval::PI/3;
-    Interval u = Interval::ZERO;
-    Scheduler s(box, &f, u);
-
-    s.cameleon_cycle(10, 5, 1e9, false, false);
-
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-
-    s.draw(1024, true);
-
-//    s.print_pave_info(-5, 6, "r[]");
-
-#endif
     return 0;
 }

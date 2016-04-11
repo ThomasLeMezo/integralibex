@@ -1,0 +1,49 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 14.12.1 ] */
+
+/* [wxMaxima: input   start ] */
+f(x):=((-1.1/1.2)*cos(x)+1.2/1.1*cos(1.1*x))/2;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+diff(f(x), x, 1);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+g(x):=(0.91666666666666*sin(x)-1.2*sin(1.1*x))/2;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+-9.81*g(13);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+solve(-9.81*g(x)=0);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+h(x):=-9.81*sin(g(x))+2;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+lbfgs((-9.81*g(x)-2)², [x], [13], 1e-4, [-1,0]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+wxplot2d([-9.81*g(x)-0.7*x+2], [x,-1,13])$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+wxplot2d([f, g], [x, -1, 13]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+wxplot2d([h(x)^2], [x, -1, 13]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+lbfgs(h(x)^2, [x], [10.0], 1e-6, [-1,0]);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
