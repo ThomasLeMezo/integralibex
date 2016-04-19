@@ -209,9 +209,9 @@ void car_on_the_hill_dead_path(){
 
     std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
-    box_remove[0] = Interval(-0.1,0.1);// + Interval(-0.5, 0.5);
-    box_remove[1] = Interval(-0.1,0.1);
-    list_boxes_removed.push_back(box_remove);
+//    box_remove[0] = Interval(-0.1,0.1);// + Interval(-0.5, 0.5);
+//    box_remove[1] = Interval(-0.1,0.1);
+//    list_boxes_removed.push_back(box_remove);
     box_remove[0] = Interval(2.2,2.4) + Interval(-0.5, 0.5);
     box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
@@ -221,9 +221,9 @@ void car_on_the_hill_dead_path(){
     box_remove[0] = Interval(7.7, 7.8) + Interval(-0.5, 0.5);
     box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(10.5, 10.7);// + Interval(-0.5, 0.5);
-    box_remove[1] = Interval(-0.1,0.1);
-    list_boxes_removed.push_back(box_remove);
+//    box_remove[0] = Interval(10.5, 10.7);// + Interval(-0.5, 0.5);
+//    box_remove[1] = Interval(-0.1,0.1);
+//    list_boxes_removed.push_back(box_remove);
 
     IntervalVector u(2);
     u[0] = Interval::ZERO;
@@ -232,7 +232,7 @@ void car_on_the_hill_dead_path(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(6, 5, 1e9, false, false, false);
+    s.cameleon_cycle(10, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

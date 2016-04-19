@@ -288,10 +288,15 @@ void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
 
         }
 
-        for(int i=0; i<2; i++){
-            for(int k=0; k<m_theta_list.size(); k++)
-                vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta_list[k][i].lb())*180.0/M_PI, (-m_theta_list[k][i].ub())*180.0/M_PI, "r[]");
-                size *= 0.7;
+        std::vector<std::string> color_map;
+        color_map.push_back("r[]");
+        color_map.push_back("b[]");
+        color_map.push_back("g[]");
+
+        for(int k=0; k<m_theta_list.size(); k++){
+            for(int i=0; i<m_theta_list[0].size(); i++){
+                vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta_list[k][i].lb())*180.0/M_PI, (-m_theta_list[k][i].ub())*180.0/M_PI, color_map[k%color_map.size()]);
+            }
         }
 
 
