@@ -93,7 +93,7 @@ void ball(){
     s.draw(1024, true);
 }
 
-void capture_attractor(){
+void station_keeping_attractor(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable phi, d;
@@ -245,6 +245,96 @@ void car_on_the_hill_dead_path(){
 
 }
 
+void car_on_the_hill_capture_bassin(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f(x1, x2, Return(x2,
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+
+    IntervalVector box(2);
+    box[0] = Interval(-1.0, 13.0);
+//    box[1] = Interval(-16, 16);
+    box[1] = Interval(-8, 11);
+
+    // Points d'équilibre (stable)
+    // x1 = 2.311(6-7)
+    // x1 = 7.78(10/09)
+
+    std::vector<IntervalVector> list_boxes_removed;
+    IntervalVector box_remove(2);
+//    box_remove[0] = Interval(2.2,2.4) + Interval(-0.5, 0.5);
+//    box_remove[1] = Interval(-0.1,0.1);
+//    list_boxes_removed.push_back(box_remove);
+    box_remove[0] = Interval(7.7, 7.8) + Interval(-0.5, 0.5);
+    box_remove[1] = Interval(-0.1,0.1);
+    list_boxes_removed.push_back(box_remove);
+
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
+
+    Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
+
+    /////////////// Compute ///////////////
+    s.cameleon_cycle(14, 5, 1e9, false, false, false);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+    vibes::axisLimits(-1,13, -8,11);
+
+//    s.print_pave_info(0, -0.8, -0.7,"b[b]");
+//    s.print_pave_info(0, -0.5, 0.44,"b[b]");
+}
+
+void pendulum_capture_bassin(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f(x1, x2, Return(x2,
+                                    -9.81/1.0*sin(x1)-1.0*x2));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+
+    IntervalVector box(2);
+    box[0] = Interval(-4, 4);
+//    box[1] = Interval(-16, 16);
+    box[1] = Interval(-7, 7);
+
+    // Points d'équilibre (stable)
+    // x1 = 2.311(6-7)
+    // x1 = 7.78(10/09)
+
+    std::vector<IntervalVector> list_boxes_removed;
+    IntervalVector box_remove(2);
+    box_remove[0] = Interval(-0.1, 0.1);
+    box_remove[1] = Interval(-0.1,0.1);
+    list_boxes_removed.push_back(box_remove);
+
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
+
+    Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
+
+    /////////////// Compute ///////////////
+    s.cameleon_cycle(14, 5, 1e9, false, false, false);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+//    vibes::axisLimits(-1,13, -8,11);
+
+//    s.print_pave_info(0, -0.8, -0.7,"b[b]");
+//    s.print_pave_info(0, -0.5, 0.44,"b[b]");
+}
+
 void car_on_the_hill_integrator(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
@@ -280,9 +370,11 @@ void car_on_the_hill_integrator(){
 int main()
 {
 //    ball();
-//    capture_attractor();
+//    station_keeping_attractor();
 //    car_on_the_hill_attractor();
-    car_on_the_hill_dead_path();
+//    car_on_the_hill_dead_path();
+//    car_on_the_hill_capture_bassin();
+    pendulum_capture_bassin();
 //    car_on_the_hill_integrator();
 //    van_der_pol_cycle();
 //    test();

@@ -259,8 +259,12 @@ void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
 
         if(m_inner)
             draw_borders(filled, "g[g]");
-        else
-            draw_borders(filled, "y[y]");
+        else{
+            if(m_active)
+                draw_borders(filled, "y[y]");
+            else
+                draw_borders(filled, "#00BFFF[#00BFFF]");
+        }
         // Draw theta
 
         double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
