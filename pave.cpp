@@ -263,7 +263,7 @@ void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
             if(m_active)
                 draw_borders(filled, "y[y]");
             else
-                draw_borders(filled, "#00BFFF[#00BFFF]");
+                vibes::drawBox(m_position, "#00BFFF[#00BFFF]");
         }
         // Draw theta
 

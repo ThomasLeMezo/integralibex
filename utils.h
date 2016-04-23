@@ -50,6 +50,7 @@ public:
 
     void CtcPolarCorrection(ibex::Interval &x, ibex::Interval &y, ibex::Interval &rho, ibex::Interval &theta);
     ibex::CtcPolar contract_polar;
+    std::vector<ibex::IntervalVector> diff(const ibex::IntervalVector &box_initial, const ibex::IntervalVector &box_remove);
 
     // ***********************************************************
     // ************************ Variables ************************

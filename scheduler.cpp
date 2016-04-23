@@ -30,10 +30,9 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
     for(auto &box_remove:remove_boxes){
         vector<IntervalVector> list_boxes_tmp;
         for(auto &b:list_boxes){
-            IntervalVector* box_result;
-            int nb_boxes = b.diff(box_remove, box_result);
+            std::vector<IntervalVector> box_result = m_utils.diff(b, box_remove);
 
-            for(int i=0; i<nb_boxes; i++)
+            for(int i=0; i<box_result.size(); i++)
                 list_boxes_tmp.push_back(box_result[i]);
         }
         list_boxes.swap(list_boxes_tmp);
@@ -76,7 +75,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
     for(auto &b:remove_boxes){
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
         p->set_full_out();
-        p->set_continuity_out(false);
+//        p->set_continuity_out(false);
         g->get_node_list().push_back(p);
     }
 

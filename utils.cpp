@@ -548,3 +548,38 @@ void Utils::CtcPolarCorrection(Interval &x, Interval &y, Interval &rho, Interval
     }
 }
 
+std::vector<IntervalVector> Utils::diff(const IntervalVector &box_initial, const IntervalVector &box_remove){
+    std::vector<IntervalVector> box_result;
+
+    IntervalVector box_diff = box_initial & box_remove;
+
+    if(!box_diff.is_empty()){
+        IntervalVector box(2);
+        box[0] = Interval(box_initial[0].lb(), box_diff[0].lb());
+        box[1] = Interval(box_diff[1].lb(), box_initial[1].ub());
+        if(!box.is_flat())
+            box_result.push_back(box);
+
+        box[0] = Interval(box_initial[0].lb(), box_diff[0].ub());
+        box[1] = Interval(box_initial[1].lb(), box_diff[1].lb());
+        if(!box.is_flat())
+            box_result.push_back(box);
+
+        box[0] = Interval(box_diff[0].ub(), box_initial[0].ub());
+        box[1] = Interval(box_initial[1].lb(), box_diff[1].ub());
+        if(!box.is_flat())
+            box_result.push_back(box);
+
+        box[0] = Interval(box_diff[0].lb(), box_initial[0].ub());
+        box[1] = Interval(box_diff[1].ub(), box_initial[1].ub());
+        if(!box.is_flat())
+            box_result.push_back(box);
+
+    }
+    else{
+        box_result.push_back(box_initial);
+    }
+
+    return box_result;
+}
+
