@@ -80,6 +80,7 @@ public:
     // Tests
     bool                            is_empty();
     bool                            is_full();
+    bool                            is_fully_full();
 
 /***************** Variables ******************/
 private:
@@ -97,6 +98,7 @@ private:
 private:
     bool                            m_empty;
     bool                            m_full;
+    bool                            m_fully_full;
 
 private:
     bool                            m_enable_continuity_in, m_enable_continuity_out;

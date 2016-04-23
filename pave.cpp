@@ -36,6 +36,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     coordinate[1] = position[1]; coordinate[0] = Interval(position[0].lb()); m_borders.push_back(new Border(coordinate, 3, this));
 
     m_full = true;
+    m_fully_full = true;
     m_empty = false;
 
     /////////////////////////////// CASE THETA ///////////////////////////////
@@ -131,6 +132,7 @@ Pave::Pave(const Pave *p):
     m_active_function = p->get_active_function();
     m_u_iv = p->get_u_iv();
     m_full = true; // Force to recompute results
+    m_fully_full = true;
     m_empty = false;
     m_in_queue = false;
     m_first_process = false;
@@ -453,6 +455,22 @@ bool Pave::is_full(){
     }
 }
 
+bool Pave::is_fully_full(){
+    if(!m_fully_full){
+        return false;
+    }
+    else{
+        for(int face=0; face<4; face++){
+            if(!m_borders[face]->is_fully_full()){
+                m_fully_full = false;
+                return false;
+            }
+        }
+        m_fully_full = true;
+        return true;
+    }
+}
+
 const std::vector<Pave *> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
     for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
@@ -464,6 +482,7 @@ const std::vector<Pave *> Pave::get_brothers(int face){
 void Pave::reset_full_empty(){
     m_empty = false;
     m_full = true;
+    m_fully_full = true;
     for(auto &border: m_borders){
         border->reset_full_empty();
     }

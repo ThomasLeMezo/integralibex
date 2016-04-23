@@ -36,6 +36,7 @@ public:
     // Tests
     bool                        is_empty();
     bool                        is_full();
+    bool                        is_fully_full();
     bool                        is_in_queue() const;
     bool                        is_active() const;
 
@@ -105,6 +106,7 @@ private:
 private:
     bool                        m_empty;
     bool                        m_full;
+    bool                        m_fully_full;
 
     bool                        m_in_queue;
 

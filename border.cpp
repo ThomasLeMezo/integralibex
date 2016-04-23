@@ -24,6 +24,7 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
 
     m_empty = false;
     m_full = true;
+    m_fully_full = true;
 
     m_enable_continuity_in = true;
     m_enable_continuity_out = true;
@@ -39,6 +40,7 @@ Border::Border(const Border *border): m_position(2)
     m_segment_full = border->get_segment_full();
     m_empty = false;
     m_full = true;
+    m_fully_full = true;
     //    m_inclusions = border->get_inclusions();
     //    m_inclusions_receving = border->get_inclusions_receving();
     m_enable_continuity_in = border->get_continuity_in();
@@ -202,6 +204,21 @@ bool Border::is_full(){
     else{
         if((m_segment_in | m_segment_out) != m_segment_full){
             m_full = false;
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+}
+
+bool Border::is_fully_full(){
+    if(m_fully_full==false){
+        return false;
+    }
+    else{
+        if((m_segment_in & m_segment_out) != m_segment_full){
+            m_fully_full = false;
             return false;
         }
         else{

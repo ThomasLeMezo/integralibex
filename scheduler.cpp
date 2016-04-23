@@ -195,12 +195,15 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 break;
             m_graph_list[nb_graph]->clear_node_queue();
             m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->size(), true, false, do_not_bisect_inside);
+            const clock_t sivia_time = clock();
+            cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
 
             int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true, false);
             cout << "--> processing outer = " << graph_list_process_cpt << endl;
+            cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
             if(inner && iterations>0){
                 cout << "COMPUTE INNER" << endl;
@@ -276,7 +279,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
             }
         }
-        cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        cout << "--> time (total) = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
     }
 }
