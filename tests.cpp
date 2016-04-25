@@ -55,7 +55,7 @@ void testRotate(){
     u.rotate_segment_and_box(Sk, M_PI, box, true);
 
     cout << Sk << endl;
-//    cout << box << endl;
+    //    cout << box << endl;
 }
 
 void test_CtcPropagateLeftSide(){
@@ -68,7 +68,7 @@ void test_CtcPropagateLeftSide(){
     box[0] = Interval(0.0, 1.0);
     box[1] = Interval(0.0, 1.0);
 
-//    Interval theta = Interval::PI/4.0 | Interval::HALF_PI;
+    //    Interval theta = Interval::PI/4.0 | Interval::HALF_PI;
     Interval theta = Interval::PI | 4*Interval::PI/5.0;
 
     u.CtcPropagateLeftSide(x, y, theta, box);
@@ -159,17 +159,20 @@ void test_CtcPaveForward(){
     f_list.push_back(&f);
     Pave p(box, f_list, command);
 
-//    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
-//    p.set_theta((Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0) + Interval::PI/3);
-//    p.set_theta(-Interval::HALF_PI | Interval::HALF_PI);
+    //    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
+    //    p.set_theta((Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0) + Interval::PI/3);
+    //    p.set_theta(-Interval::HALF_PI | Interval::HALF_PI);
     p.get_border(0)->set_full_segment_in();
     p.get_border(3)->set_full_segment_in();
 
-//    p.get_border(0)->set_segment_in(Interval(0.5, 0.9), false);
+    //    p.get_border(0)->set_segment_in(Interval(0.5, 0.9), false);
 
     test_draw(&p, "test_before");
 
-    u.CtcPaveForward(&p, false, true);
+std:vector<bool> change_tab;
+    for(int i=0; i<4; i++)
+        change_tab.push_back(false);
+    u.CtcPaveForward(&p, false, true, change_tab);
 
     test_draw(&p, "test_after");
 }
@@ -181,21 +184,21 @@ void test_CtcPaveConsistency(){
     box[1] = Interval(0.1, 0.190625);
 
 
-//    Interval command = Interval::ZERO;
-////    Interval command = -Interval::HALF_PI| Interval::PI;
-////    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
-////    Interval command = -Interval::PI/4 | Interval::PI/4;
-////    Interval command = Interval(-1.0472, 1.0472);
+    //    Interval command = Interval::ZERO;
+    ////    Interval command = -Interval::HALF_PI| Interval::PI;
+    ////    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
+    ////    Interval command = -Interval::PI/4 | Interval::PI/4;
+    ////    Interval command = Interval(-1.0472, 1.0472);
     IntervalVector command(2);
     command[0] = Interval::ZERO;
     command[1] = Interval::ZERO;
 
-//    Variable x, y;
-//    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    //    Variable x, y;
+    //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
-//    Variable phi, d;
-//    ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
-//                                    -cos(phi)));
+    //    Variable phi, d;
+    //    ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
+    //                                    -cos(phi)));
 
     Variable x1, x2;
     ibex::Function f(x1, x2, Return(x2,
@@ -204,11 +207,11 @@ void test_CtcPaveConsistency(){
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f);
     Pave p(box, f_list, command);
-//    p.set_theta(p.get_theta()[0] + (-Interval::PI/40.0 | Interval::PI/40.0) + Interval::HALF_PI);
+    //    p.set_theta(p.get_theta()[0] + (-Interval::PI/40.0 | Interval::PI/40.0) + Interval::HALF_PI);
 
-//    p.set_theta(Interval::HALF_PI + Interval::PI/4);
-//    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+2*Interval::PI/3);
-//    p.set_theta(Interval(1.5708,2.67795));
+    //    p.set_theta(Interval::HALF_PI + Interval::PI/4);
+    //    p.set_theta((-Interval::HALF_PI/16.0 | Interval::HALF_PI/16.0)+2*Interval::PI/3);
+    //    p.set_theta(Interval(1.5708,2.67795));
 
     //    BOX = ([3, 3.05] ; [0.1, 0.190625])
     //    0xbf92b0
@@ -219,16 +222,19 @@ void test_CtcPaveConsistency(){
     //    border 3	position=([3, 3] ; [0.1, 0.190625])    	in=[0.1, 0.190625]	out=[ empty ]continuity = 1
 
 
-//    p.get_border(0)->set_full_segment_in();
+    //    p.get_border(0)->set_full_segment_in();
 
     p.get_border(2)->set_segment_in(Interval(3.00253, 3.05), false);
     p.get_border(3)->set_segment_in(Interval(0.1, 0.190625), false);
 
-//    p.get_border(0)->set_full_segment_out();
+    //    p.get_border(0)->set_full_segment_out();
     p.get_border(1)->set_segment_out(Interval(0.1, 0.190625), false);
 
     test_draw(&p, "test_before");
-    u.CtcPaveConsistency(&p, true, false);
+    std:vector<bool> change_tab;
+    for(int i=0; i<4; i++)
+        change_tab.push_back(false);
+    u.CtcPaveConsistency(&p, true, false, change_tab);
 
     test_draw(&p, "test_after");
     cout << setprecision(80) << endl;
@@ -236,16 +242,16 @@ void test_CtcPaveConsistency(){
 }
 
 void test_CtcPaveConsistency2(){
-//    PAVE x=[-3, -2] y= [-3, -2]
-//    0x7d32e0
-//    theta[0]=[1.64474, 1.92957] theta[1]=[ empty ] u=([0, 0] ; [0, 0])
-//    border=0 0x7d9600 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d3110 segment_full=[-3, -2]
-//    border=1 0x7d9608 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d54f0 segment_full=[-3, -2]
-//    border=2 0x7d9610 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d4350 segment_full=[-3, -2]
-//    border=3 0x7d9618 segment_in=[-3, -2] segment_out=[-3, -2]
+    //    PAVE x=[-3, -2] y= [-3, -2]
+    //    0x7d32e0
+    //    theta[0]=[1.64474, 1.92957] theta[1]=[ empty ] u=([0, 0] ; [0, 0])
+    //    border=0 0x7d9600 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d3110 segment_full=[-3, -2]
+    //    border=1 0x7d9608 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d54f0 segment_full=[-3, -2]
+    //    border=2 0x7d9610 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d4350 segment_full=[-3, -2]
+    //    border=3 0x7d9618 segment_in=[-3, -2] segment_out=[-3, -2]
 
-//    BOX = ([-0.3, -0.2] ; [0.459375, 0.5125])
-//    0x2271af0
+    //    BOX = ([-0.3, -0.2] ; [0.459375, 0.5125])
+    //    0x2271af0
 
     Utils u;
     IntervalVector box(2);
@@ -256,12 +262,12 @@ void test_CtcPaveConsistency2(){
     command[1] = Interval::ZERO;
 
     Variable x1, x2, x, y;
-//    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
     ibex::Function f1(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
+                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
 
     ibex::Function f2(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
+                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
 
 
     std::vector<ibex::Function*> f_list;
@@ -269,34 +275,37 @@ void test_CtcPaveConsistency2(){
     f_list.push_back(&f2);
     Pave p(box, f_list, command);
 
-//    border 0	position=([-3.875, -3.75] ; [-4, -4])     	in=[ empty ]	out=[ empty ]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
-//    border 1	position=([-3.75, -3.75] ; [-4, -3.75])     in=[-4, -3.75]	out=[ empty ]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
-//    border 2	position=([-3.875, -3.75] ; [-3.75, -3.75]) in=[ empty ]	out=[-3.8277, -3.75]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
-//    border 3	position=([-3.875, -3.875] ; [-4, -3.75])   in=[ empty ]	out=[ empty ]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
+    //    border 0	position=([-3.875, -3.75] ; [-4, -4])     	in=[ empty ]	out=[ empty ]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
+    //    border 1	position=([-3.75, -3.75] ; [-4, -3.75])     in=[-4, -3.75]	out=[ empty ]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
+    //    border 2	position=([-3.875, -3.75] ; [-3.75, -3.75]) in=[ empty ]	out=[-3.8277, -3.75]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
+    //    border 3	position=([-3.875, -3.875] ; [-4, -3.75])   in=[ empty ]	out=[ empty ]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
 
-//    p.get_border(0)->set_segment_in(Interval(-3, -2), false);
-//    p.get_border(0)->set_segment_out(Interval(-0.277939, -0.2), false);
+    //    p.get_border(0)->set_segment_in(Interval(-3, -2), false);
+    //    p.get_border(0)->set_segment_out(Interval(-0.277939, -0.2), false);
     p.get_border(0)->set_full();
-//    p.get_border(0)->set_full_segment_out();
+    //    p.get_border(0)->set_full_segment_out();
 
-//    p.get_border(1)->set_segment_in(Interval(-4, -3.75), false);
-//    p.get_border(1)->set_segment_out(Interval(0.459375, 0.5125), false);
+    //    p.get_border(1)->set_segment_in(Interval(-4, -3.75), false);
+    //    p.get_border(1)->set_segment_out(Interval(0.459375, 0.5125), false);
     p.get_border(1)->set_full();
-//    p.get_border(1)->set_full_segment_out();
+    //    p.get_border(1)->set_full_segment_out();
 
-//    p.get_border(2)->set_segment_in(Interval(-0.293823, -0.2), false);
-//    p.get_border(2)->set_segment_out(Interval(1,1.4), false);
-//    p.get_border(2)->set_full_segment_out();
+    //    p.get_border(2)->set_segment_in(Interval(-0.293823, -0.2), false);
+    //    p.get_border(2)->set_segment_out(Interval(1,1.4), false);
+    //    p.get_border(2)->set_full_segment_out();
     p.get_border(2)->set_full();
-//    p.get_border(2)->set_full_segment_out();
+    //    p.get_border(2)->set_full_segment_out();
 
-//    p.get_border(3)->set_segment_in(Interval(0.480101, 0.5125), false);
-//    p.get_border(3)->set_segment_out(Interval(-3, -2), false);
-//    p.get_border(3)->set_full_segment_out();
+    //    p.get_border(3)->set_segment_in(Interval(0.480101, 0.5125), false);
+    //    p.get_border(3)->set_segment_out(Interval(-3, -2), false);
+    //    p.get_border(3)->set_full_segment_out();
     p.get_border(3)->set_full();
 
     test_draw(&p, "test_before");
-    u.CtcPaveConsistency(&p, true, false);
+    std:vector<bool> change_tab;
+    for(int i=0; i<4; i++)
+        change_tab.push_back(false);
+    u.CtcPaveConsistency(&p, true, false, change_tab);
 
     test_draw(&p, "test_after");
     //cout << setprecision(80) << endl;
@@ -319,9 +328,9 @@ void test_CtcPaveConsistency3(){
     f_list.push_back(&f);
     Pave p(box, f_list, command, false);
     p.set_theta(-Interval::HALF_PI | -Interval::PI);
-//    p.set_theta(Interval::HALF_PI | Interval::PI);
-//    p.set_theta(Interval::ZERO | Interval::HALF_PI);
-//    p.set_theta(Interval::ZERO | -Interval::HALF_PI);
+    //    p.set_theta(Interval::HALF_PI | Interval::PI);
+    //    p.set_theta(Interval::ZERO | Interval::HALF_PI);
+    //    p.set_theta(Interval::ZERO | -Interval::HALF_PI);
 
     p.get_border(0)->set_full_segment_out();
     p.get_border(0)->set_full_segment_in();
@@ -336,7 +345,10 @@ void test_CtcPaveConsistency3(){
     p.get_border(3)->set_full_segment_in();
 
     test_draw(&p, "test_before");
-    u.CtcPaveConsistency(&p, true, false);
+    std:vector<bool> change_tab;
+    for(int i=0; i<4; i++)
+        change_tab.push_back(false);
+    u.CtcPaveConsistency(&p, true, false, change_tab);
 
     test_draw(&p, "test_after");
     //cout << setprecision(80) << endl;
@@ -365,19 +377,19 @@ void test_contractor_polar(){
 
     cout << x_ub << y_ub << rho_ub << theta2_ub << endl;
 
-//    Interval x = Interval::ZERO;
-//    Interval y = Interval::ALL_REALS;
-//    Interval theta = Interval::ALL_REALS;
+    //    Interval x = Interval::ZERO;
+    //    Interval y = Interval::ALL_REALS;
+    //    Interval theta = Interval::ALL_REALS;
 
-//    const double d2PI   = (2*Interval::PI).ub();
-//    Interval theta_tmp = atan2(y, x);
-//    cout << theta_tmp << endl;
-//    bwd_imod(theta, theta_tmp, d2PI);
-//    cout << theta << theta_tmp << endl;
-//    theta = Interval::HALF_PI | 3*Interval::HALF_PI;
-//    bwd_angle(theta, y, x);
+    //    const double d2PI   = (2*Interval::PI).ub();
+    //    Interval theta_tmp = atan2(y, x);
+    //    cout << theta_tmp << endl;
+    //    bwd_imod(theta, theta_tmp, d2PI);
+    //    cout << theta << theta_tmp << endl;
+    //    theta = Interval::HALF_PI | 3*Interval::HALF_PI;
+    //    bwd_angle(theta, y, x);
 
-//    cout << x << y << theta << theta_tmp << endl;
+    //    cout << x << y << theta << theta_tmp << endl;
 }
 
 void test_rotation(){
@@ -459,9 +471,9 @@ void test_copy_graph(){
     GraphDot graphDot3(&g3);
     graphDot3.write("g3.dot");
 
-//    g.print();
-//    g2.print();
-//    g3.print();
+    //    g.print();
+    //    g2.print();
+    //    g3.print();
 }
 
 void test_imageIntegral(){
@@ -473,7 +485,7 @@ void test_imageIntegral(){
 
     Variable t;
     ibex::Function f(t, Return(2*atan(tan((atan2(cos(t), -sin(t))+Interval::PI-atan2(sin(t), cos(t)+1.0/sqrt(2.0)))/2.0)),
-                                sqrt(pow(cos(t)+1/sqrt(2.0), 2)+pow(sin(t), 2))));
+                               sqrt(pow(cos(t)+1/sqrt(2.0), 2)+pow(sin(t), 2))));
 
     std::vector<Interval> list_t;
     list_t.push_back(Interval::ZERO | Interval::TWO_PI);
@@ -505,7 +517,7 @@ void test_imageIntegral(){
     /// Find contours
     findContours( img, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 
-//    /// Draw contours
+    //    /// Draw contours
     Mat img_filled = Mat::zeros( img.size(), CV_8U);
     for( int i = 0; i< contours.size(); i++ ){
         drawContours(img_filled, contours, i, Scalar(1), CV_FILLED, 4, hierarchy, 0, Point() );
@@ -588,22 +600,22 @@ void test_car_on_hill(){
 }
 
 void sandbox(){
-//    IntervalVector box(2);
-//    box[0] = Interval(5,10);
-//    box[1] = Interval(0,10);
+    //    IntervalVector box(2);
+    //    box[0] = Interval(5,10);
+    //    box[1] = Interval(0,10);
 
-//    Interval test = Interval(0, 10);
-//    cout << test.lb() << endl;
+    //    Interval test = Interval(0, 10);
+    //    cout << test.lb() << endl;
 
-//    Variable x, y;
-//    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    //    Variable x, y;
+    //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
-//    IntervalVector dposition = f.eval_vector(box);
+    //    IntervalVector dposition = f.eval_vector(box);
 
-//    Interval dx = dposition[0];
-//    Interval dy = dposition[1];
+    //    Interval dx = dposition[0];
+    //    Interval dy = dposition[1];
 
-//    Interval theta = atan2(dy, dx);
-//    cout << setprecision(80) << theta << endl;
-//    cout << Interval::HALF_PI << endl;
+    //    Interval theta = atan2(dy, dx);
+    //    cout << setprecision(80) << theta << endl;
+    //    cout << Interval::HALF_PI << endl;
 }

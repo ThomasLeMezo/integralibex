@@ -121,7 +121,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
                 m_node_queue.push_back(tmp_pave_list[i]);
             }
             else{
-                if(tmp_pave_list[i]->is_near_inactive() || tmp_pave_list[i]->is_near_empty_box()){
+                if(tmp_pave_list[i]->is_near_inactive() || tmp_pave_list[i]->is_border()){
                     tmp_pave_list[i]->set_in_queue(true);
                     m_node_queue.push_back(tmp_pave_list[i]);
                 }
@@ -146,17 +146,22 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         //            cout << "TEST" << endl;
         //        }
 
-        bool change = m_utils->CtcContinuity(pave, backward) && pave->is_active();
-        if(change || pave->get_first_process()){
-            m_utils->CtcPaveConsistency(pave, backward, inner);
+        bool change = m_utils->CtcContinuity(pave, backward);
+        if(pave->is_active() && (change || pave->get_first_process())){
+            std::vector<bool> change_tab;
+            for(int i=0; i<4; i++)
+                change_tab.push_back(false);
+            m_utils->CtcPaveConsistency(pave, backward, inner, change_tab);
 
             // Warn scheduler to process new pave
             for(int face=0; face<4; face++){
-                vector<Pave*> brothers_pave = pave->get_brothers(face);
-                for(int i=0; i<brothers_pave.size(); i++){
-                    if(brothers_pave[i]->is_in_queue() == false){
-                        m_node_queue.push_back(brothers_pave[i]);
-                        brothers_pave[i]->set_in_queue(true);
+                if(change_tab[face]){
+                    vector<Pave*> brothers_pave = pave->get_brothers(face);
+                    for(int i=0; i<brothers_pave.size(); i++){
+                        if(brothers_pave[i]->is_in_queue() == false){
+                            m_node_queue.push_back(brothers_pave[i]);
+                            brothers_pave[i]->set_in_queue(true);
+                        }
                     }
                 }
             }

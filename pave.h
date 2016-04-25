@@ -40,7 +40,7 @@ public:
     bool                        is_in_queue() const;
     bool                        is_active() const;
     bool                        is_near_inactive() const;
-    bool                        is_near_empty_box() const;
+    bool                        is_border() const;
 
     // Setter
     void                        set_full();

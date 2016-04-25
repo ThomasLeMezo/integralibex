@@ -303,7 +303,7 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     seg_in &= ((segment_contracted_in[0].diam() > segment_contracted_in[1].diam()) ? segment_contracted_in[0] : segment_contracted_in[1]);
 }
 
-void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner){
+void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner, std::vector<bool> &change_tab){
 
     Interval segment_in[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
@@ -326,11 +326,11 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner){
     }
 
     for(int face = 0; face<4; face++){
-        p->get_border(face)->set_segment_in(segment_in[face], inclusion);
+        change_tab[face] = p->get_border(face)->set_segment_in(segment_in[face], inclusion) || change_tab[face];
     }
 }
 
-void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner){
+void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner, std::vector<bool> &change_tab){
     Interval segment_out[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int face = 0; face < 4; face++){
@@ -356,7 +356,7 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner){
     }
 
     for(int face = 0; face<4; face++){
-        p->get_border(face)->set_segment_out(segment_out[face], inclusion);
+        change_tab[face] = p->get_border(face)->set_segment_out(segment_out[face], inclusion) || change_tab[face];
     }
 }
 
@@ -461,24 +461,24 @@ ibex::IntervalVector Utils::segment2IntervalVector(const ibex::Interval &seg, co
 // ********************************************************************************
 // ****************** Algorithm functions      ************************************
 
-void Utils::CtcPaveConsistency(Pave *p, bool backward, bool inner){
+void Utils::CtcPaveConsistency(Pave *p, bool backward, bool inner, std::vector<bool> &change_tab){
     if(backward){
         for(int i=0; i<p->get_f_list().size(); i++){
             p->set_active_function(i);
 
-            this->CtcPaveBackward(p, backward, inner);
+            this->CtcPaveBackward(p, backward, inner, change_tab);
             Pave p2(p);
-            this->CtcPaveForward(&p2, backward, inner);
+            this->CtcPaveForward(&p2, backward, inner, change_tab);
             *p &= p2;
             if(inner){
                 Pave p3(p);
-                this->CtcPaveBackward(&p3, backward, inner);
+                this->CtcPaveBackward(&p3, backward, inner, change_tab);
                 *p &= p3;
             }
         }
     }
     else{
-        this->CtcPaveForward(p, backward, inner);
+        this->CtcPaveForward(p, backward, inner, change_tab);
     }
 }
 
@@ -500,6 +500,7 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
             if(backward && (p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out()))){
                 change = true;
                 p->get_border(face)->set_segment_out(segment_in, backward);
+                p->get_border(face)->set_contaminated(true);
             }
         }
 
@@ -527,7 +528,6 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
                 }
             }
         }
-
     }
 
     return change;

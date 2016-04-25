@@ -28,6 +28,8 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
 
     m_enable_continuity_in = true;
     m_enable_continuity_out = true;
+
+    m_contaminated = false;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -41,6 +43,7 @@ Border::Border(const Border *border): m_position(2)
     m_empty = false;
     m_full = true;
     m_fully_full = true;
+    m_contaminated = false;
     //    m_inclusions = border->get_inclusions();
     //    m_inclusions_receving = border->get_inclusions_receving();
     m_enable_continuity_in = border->get_continuity_in();
@@ -227,28 +230,42 @@ bool Border::is_fully_full(){
     }
 }
 
-void Border::set_segment_in(ibex::Interval segment_in, bool inclusion){
-//    if(m_enable_continuity_in){
-        if(inclusion)
-            m_segment_in &= segment_in | (m_segment_blocked_in & m_segment_full);
-        else
-            m_segment_in |= (segment_in | m_segment_blocked_in) & m_segment_full;
+bool Border::set_segment_in(ibex::Interval segment_in, bool inclusion){
+    bool change = false;
+    Interval i(Interval::EMPTY_SET);
+    if(inclusion)
+        i = m_segment_in & (segment_in | (m_segment_blocked_in & m_segment_full));
+    else
+        i = m_segment_in | ((segment_in | m_segment_blocked_in) & m_segment_full);
 
-        if(m_pave->get_diseable_singelton() && m_segment_in.is_degenerated())
-            m_segment_in = Interval::EMPTY_SET;
-//    }
+    if(i != m_segment_in){
+        m_segment_in = i;
+        change = true;
+    }
+
+    if(m_pave->get_diseable_singelton() && m_segment_in.is_degenerated())
+        m_segment_in = Interval::EMPTY_SET;
+
+    return change;
 }
 
-void Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
-//    if(m_enable_continuity_out){
-        if(inclusion)
-            m_segment_out &= segment_out | (m_segment_blocked_out & m_segment_full);
-        else
-            m_segment_out |= (segment_out | m_segment_blocked_out) & m_segment_full;
+bool Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
+    bool change = false;
+    Interval i(Interval::EMPTY_SET);
+    if(inclusion)
+        i = m_segment_out & (segment_out | (m_segment_blocked_out & m_segment_full));
+    else
+        i = m_segment_out | ((segment_out | m_segment_blocked_out) & m_segment_full);
 
-        if(m_pave->get_diseable_singelton() && m_segment_out.is_degenerated())
-            m_segment_out = Interval::EMPTY_SET;
-//    }
+    if(i!=m_segment_out){
+        change = true;
+        m_segment_out = i;
+    }
+
+    if(m_pave->get_diseable_singelton() && m_segment_out.is_degenerated())
+        m_segment_out = Interval::EMPTY_SET;
+
+    return change;
 }
 
 void Border::set_pave(Pave* pave){
@@ -424,4 +441,12 @@ ibex::Interval Border::get_blocked_in() const{
 
 ibex::Interval Border::get_blocked_out() const{
     return m_segment_blocked_out;
+}
+
+bool Border::get_contaminated() const{
+    return m_contaminated;
+}
+
+bool Border::set_contaminated(bool val){
+    m_contaminated = val;
 }

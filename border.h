@@ -38,8 +38,8 @@ public:
     void                            set_full_segment_in();
     void                            set_full_segment_out();
     void                            set_empty();
-    void                            set_segment_in(ibex::Interval segment_in, bool inclusion);
-    void                            set_segment_out(ibex::Interval segment_out, bool inclusion);
+    bool                            set_segment_in(ibex::Interval segment_in, bool inclusion);
+    bool                            set_segment_out(ibex::Interval segment_out, bool inclusion);
     void                            set_pave(Pave* pave);
     void                            set_continuity_in(bool enable);
     void                            set_continuity_out(bool enable);
@@ -49,6 +49,7 @@ public:
     void                            set_inclusion(Border *border, int id_brother);
     void                            set_inclusion_receving(Border* border, int id_brother);
     void                            reset_full_empty();
+    bool                            set_contaminated(bool val);
 
     void                            add_inclusions(const std::vector<Inclusion *> &inclusion_list);
     bool                            add_inclusion(Inclusion *inclusion);
@@ -76,6 +77,8 @@ public:
 
     ibex::Interval                  get_blocked_in() const;
     ibex::Interval                  get_blocked_out() const;
+
+    bool                            get_contaminated() const;
 
     // Tests
     bool                            is_empty();
@@ -105,6 +108,8 @@ private:
     bool                            m_active_in, m_active_out;
     ibex::Interval                  m_segment_blocked_in;
     ibex::Interval                  m_segment_blocked_out;
+
+    bool                            m_contaminated;
 };
 
 #endif // BORDER_H

@@ -654,11 +654,10 @@ bool Pave::is_near_inactive() const{
     return false;
 }
 
-bool Pave::is_near_empty_box() const{
+bool Pave::is_border() const{
     for(auto &b:m_borders){
         if(b->get_inclusions().size() == 0){
             return true;
         }
     }
-    return false;
 }
