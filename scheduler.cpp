@@ -46,31 +46,30 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
     // Diseable continuity on the bounding box
     define_continuity(g, box, false, false);
 
-//    vector<IntervalVector> list_border;
-//    double size_border = 0.1;
-//    IntervalVector test(2);
-//    test[0] = Interval(box[0].lb(), box[0].ub());
-//    test[1] = Interval(box[1].lb()-size_border, box[1].lb());
-//    list_border.push_back(test);
-//    test[0] = Interval(box[0].ub(), box[0].ub()+size_border);
-//    test[1] = Interval(box[1].lb(), box[1].ub());
-//    list_border.push_back(test);
-//    test[0] = Interval(box[0].lb(), box[0].ub());
-//    test[1] = Interval(box[1].ub(), box[1].ub()+size_border);
-//    list_border.push_back(test);
-//    test[0] = Interval(box[0].lb()-size_border, box[0].lb());
-//    test[1] = Interval(box[1].lb(), box[1].ub());
-//    list_border.push_back(test);
+    vector<IntervalVector> list_border;
+    double size_border = 0.1;
+    IntervalVector test(2);
+    test[0] = Interval(box[0].lb(), box[0].ub());
+    test[1] = Interval(box[1].lb()-size_border, box[1].lb());
+    list_border.push_back(test);
+    test[0] = Interval(box[0].ub(), box[0].ub()+size_border);
+    test[1] = Interval(box[1].lb(), box[1].ub());
+    list_border.push_back(test);
+    test[0] = Interval(box[0].lb(), box[0].ub());
+    test[1] = Interval(box[1].ub(), box[1].ub()+size_border);
+    list_border.push_back(test);
+    test[0] = Interval(box[0].lb()-size_border, box[0].lb());
+    test[1] = Interval(box[1].lb(), box[1].ub());
+    list_border.push_back(test);
 
-//    for(auto &b:list_border){
-//        Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
-//        p->set_full_out();
-//        p->set_full_in();
+    for(auto &b:list_border){
+        Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
+        p->set_full_out();
+        p->set_full_in();
 //        p->set_continuity_out(false);
 //        p->set_continuity_in(false);
-
-//        g->get_node_list().push_back(p);
-//    }
+        g->get_node_list().push_back(p);
+    }
 
     for(auto &b:remove_boxes){
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
@@ -171,7 +170,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     }
 }
 
-void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner, bool do_not_bisect_inside){
+void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner, bool do_not_bisect_inside, bool near_bassin){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
 
@@ -180,7 +179,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(4,true, false, false); // Start with 4 boxes
+        m_graph_list[0]->sivia(4,true, false, false, near_bassin); // Start with 4 boxes
         m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
     }
@@ -194,7 +193,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)
                 break;
             m_graph_list[nb_graph]->clear_node_queue();
-            m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->size(), true, false, do_not_bisect_inside);
+            m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->size(), true, false, do_not_bisect_inside, near_bassin);
             const clock_t sivia_time = clock();
             cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 

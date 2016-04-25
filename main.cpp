@@ -23,7 +23,8 @@ void test(){
 
 //    test_CtcPaveForward();
 //    test_CtcPaveConsistency();
-    test_CtcPaveConsistency2();
+//    test_CtcPaveConsistency2();
+    test_CtcPaveConsistency3();
 
 //    test_contractor_polar();
 
@@ -55,7 +56,7 @@ void van_der_pol_cycle(){
     u[1] = Interval::ZERO;
     Scheduler s(box, f_list, u, false);
 
-    s.cameleon_cycle(10, 5, 1e9, true, false);
+    s.cameleon_cycle(12, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -232,7 +233,7 @@ void car_on_the_hill_dead_path(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(10, 5, 1e9, false, false, false);
+    s.cameleon_cycle(6, 5, 1e9, false, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -281,7 +282,7 @@ void car_on_the_hill_capture_bassin(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(14, 5, 1e9, false, false, false);
+    s.cameleon_cycle(12, 5, 1e9, false, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     /////////////// Drawing ///////////////
@@ -373,8 +374,8 @@ int main()
 //    station_keeping_attractor();
 //    car_on_the_hill_attractor();
 //    car_on_the_hill_dead_path();
-//    car_on_the_hill_capture_bassin();
-    pendulum_capture_bassin();
+    car_on_the_hill_capture_bassin();
+//    pendulum_capture_bassin();
 //    car_on_the_hill_integrator();
 //    van_der_pol_cycle();
 //    test();

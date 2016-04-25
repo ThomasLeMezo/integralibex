@@ -303,6 +303,46 @@ void test_CtcPaveConsistency2(){
     p.print();
 }
 
+void test_CtcPaveConsistency3(){
+    Utils u;
+    IntervalVector box(2);
+    box[0] = Interval(0, 1);
+    box[1] = Interval(0,1);
+    IntervalVector command(2);
+    command[0] = Interval::ZERO;
+    command[1] = Interval::ZERO;
+
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+    Pave p(box, f_list, command, false);
+    p.set_theta(-Interval::HALF_PI | -Interval::PI);
+//    p.set_theta(Interval::HALF_PI | Interval::PI);
+//    p.set_theta(Interval::ZERO | Interval::HALF_PI);
+//    p.set_theta(Interval::ZERO | -Interval::HALF_PI);
+
+    p.get_border(0)->set_full_segment_out();
+    p.get_border(0)->set_full_segment_in();
+
+    p.get_border(1)->set_full_segment_out();
+    p.get_border(1)->set_full_segment_in();
+
+    p.get_border(2)->set_full_segment_out();
+    p.get_border(2)->set_full_segment_in();
+
+    p.get_border(3)->set_full_segment_out();
+    p.get_border(3)->set_full_segment_in();
+
+    test_draw(&p, "test_before");
+    u.CtcPaveConsistency(&p, true, false);
+
+    test_draw(&p, "test_after");
+    //cout << setprecision(80) << endl;
+    p.print();
+}
+
 void test_contractor_polar(){
     Utils u;
     Interval x_ub = Interval::ALL_REALS;
@@ -566,5 +606,4 @@ void sandbox(){
 //    Interval theta = atan2(dy, dx);
 //    cout << setprecision(80) << theta << endl;
 //    cout << Interval::HALF_PI << endl;
-
 }

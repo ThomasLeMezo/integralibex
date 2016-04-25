@@ -642,3 +642,23 @@ void Pave::set_continuity_in(bool enable){
 bool Pave::get_diseable_singelton() const{
     return m_diseable_singeleton;
 }
+
+bool Pave::is_near_inactive() const{
+    for(auto &b:m_borders){
+        for(auto &i:b->get_inclusions()){
+            if(!i->get_border()->get_pave()->is_active()){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool Pave::is_near_empty_box() const{
+    for(auto &b:m_borders){
+        if(b->get_inclusions().size() == 0){
+            return true;
+        }
+    }
+    return false;
+}

@@ -14,7 +14,7 @@ public:
     ~Graph();
 
     int                         process(int max_iterations, bool backward, bool inner);
-    void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full);
+    void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bool do_not_bisect_full=false, bool near_bassin=false);
     void                        remove_empty_node();
 
     bool                        inter(const Graph &g);

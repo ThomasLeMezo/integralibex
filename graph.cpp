@@ -85,7 +85,7 @@ void Graph::clear_node_queue(){
     m_node_queue.clear();
 }
 
-void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bool do_not_bisect_full=false){
+void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, bool near_bassin){
     int iterations = 0;
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
@@ -116,8 +116,16 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bo
     for(int i=0; i<tmp_pave_list.size(); i++){
         if(backward){
             tmp_pave_list[i]->set_full();
-            tmp_pave_list[i]->set_in_queue(true);
-            m_node_queue.push_back(tmp_pave_list[i]);
+            if(!near_bassin){
+                tmp_pave_list[i]->set_in_queue(true);
+                m_node_queue.push_back(tmp_pave_list[i]);
+            }
+            else{
+                if(tmp_pave_list[i]->is_near_inactive() || tmp_pave_list[i]->is_near_empty_box()){
+                    tmp_pave_list[i]->set_in_queue(true);
+                    m_node_queue.push_back(tmp_pave_list[i]);
+                }
+            }
         }
         m_node_list.push_back(tmp_pave_list[i]);
     }
@@ -131,12 +139,12 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
-//        IntervalVector test(2);
-//        test[0] = Interval(-3.5);
-//        test[1] = Interval(-3);
-//        if(!(test & pave->get_position()).is_empty()){
-//            cout << "TEST" << endl;
-//        }
+        //        IntervalVector test(2);
+        //        test[0] = Interval(-3.5);
+        //        test[1] = Interval(-3);
+        //        if(!(test & pave->get_position()).is_empty()){
+        //            cout << "TEST" << endl;
+        //        }
 
         bool change = m_utils->CtcContinuity(pave, backward) && pave->is_active();
         if(change || pave->get_first_process()){
@@ -171,12 +179,12 @@ int Graph::process(int max_iterations, bool backward, bool inner){
         //            cout << '\r' << "process = " << iterations << flush;
         //        }
 
-//        if(iterations%1000==0){
-//            cout << "PAUSE" << endl;
-//            this->draw(1024, true);
-//            vibes::axisLimits(-30, 35, -16,16);
-//            cin.ignore();
-//        }
+        //        if(iterations%1000==0){
+        //            cout << "PAUSE" << endl;
+        //            this->draw(1024, true);
+        //            vibes::axisLimits(-30, 35, -16,16);
+        //            cin.ignore();
+        //        }
     }
 
     m_node_queue.clear();
