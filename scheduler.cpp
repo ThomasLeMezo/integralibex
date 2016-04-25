@@ -73,6 +73,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
 
     for(auto &b:remove_boxes){
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
+        p->set_bassin(true);
         p->set_full_out();
 //        p->set_continuity_out(false);
         g->get_node_list().push_back(p);
@@ -199,6 +200,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
+            if(near_bassin)
+                m_graph_list[nb_graph]->desactive_contaminated();
 
             int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true, false);
             cout << "--> processing outer = " << graph_list_process_cpt << endl;

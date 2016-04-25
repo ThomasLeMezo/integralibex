@@ -29,7 +29,8 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     m_enable_continuity_in = true;
     m_enable_continuity_out = true;
 
-    m_contaminated = false;
+    m_contaminated_in = true;
+    m_contaminated_out = true;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -43,7 +44,8 @@ Border::Border(const Border *border): m_position(2)
     m_empty = false;
     m_full = true;
     m_fully_full = true;
-    m_contaminated = false;
+    m_contaminated_in = border->get_contaminated_in();
+    m_contaminated_out = border->get_contaminated_out();
     //    m_inclusions = border->get_inclusions();
     //    m_inclusions_receving = border->get_inclusions_receving();
     m_enable_continuity_in = border->get_continuity_in();
@@ -443,10 +445,18 @@ ibex::Interval Border::get_blocked_out() const{
     return m_segment_blocked_out;
 }
 
-bool Border::get_contaminated() const{
-    return m_contaminated;
+bool Border::get_contaminated_in() const{
+    return m_contaminated_in;
 }
 
-bool Border::set_contaminated(bool val){
-    m_contaminated = val;
+bool Border::set_contaminated_in(bool val){
+    m_contaminated_in = val;
+}
+
+bool Border::get_contaminated_out() const{
+    return m_contaminated_out;
+}
+
+bool Border::set_contaminated_out(bool val){
+    m_contaminated_out = val;
 }

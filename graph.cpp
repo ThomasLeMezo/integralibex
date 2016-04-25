@@ -121,7 +121,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
                 m_node_queue.push_back(tmp_pave_list[i]);
             }
             else{
-                if(tmp_pave_list[i]->is_near_inactive() || tmp_pave_list[i]->is_border()){
+                if(tmp_pave_list[i]->is_near_bassin() || tmp_pave_list[i]->is_border()){
                     tmp_pave_list[i]->set_in_queue(true);
                     m_node_queue.push_back(tmp_pave_list[i]);
                 }
@@ -169,27 +169,28 @@ int Graph::process(int max_iterations, bool backward, bool inner){
             pave->set_first_process_false();
         }
 
-        //        if(inner){
-        //            this->draw(512, false, "inner - after", true);
-        //            pave->draw_position();
-        //            cout << "********"<< endl;
-        //            cout << "change = " << change << endl;
-        //            pave->print();
-        //            if(iterations%100==0){
-        //                cout << iterations << endl;
-        //            }
-        //        }
+//                if(inner){
+//                    this->draw(512, false, "inner - after", true);
+//                    pave->draw_position();
+//                    cout << "********"<< endl;
+//                    cout << "change = " << change << endl;
+//                    pave->print();
+//                    if(iterations%100==0){
+//                        cout << iterations << endl;
+//                    }
+//                }
 
-        //        if(iterations%1000==0){
-        //            cout << '\r' << "process = " << iterations << flush;
-        //        }
+//                if(iterations%1000==0){
+//                    cout << '\r' << "process = " << iterations << flush;
+//                }
 
-        //        if(iterations%1000==0){
-        //            cout << "PAUSE" << endl;
-        //            this->draw(1024, true);
-        //            vibes::axisLimits(-30, 35, -16,16);
-        //            cin.ignore();
-        //        }
+//                if(iterations%1000==0){
+//                    cout << "PAUSE" << endl;
+//                    this->draw(1024, true);
+//                    vibes::axisLimits(-30, 35, -16,16);
+//                    print_pave_info(-0.8, -1.3, "b[b]");
+//                    cin.ignore();
+//                }
     }
 
     m_node_queue.clear();
@@ -320,7 +321,11 @@ void Graph::print_pave_info(double x, double y, string color) const{
     for(int i=0; i<4; i++){
         if(p->get_border(i)->get_inclusions().size()!=0){
             for(int j = 0; j<p->get_border(i)->get_inclusions().size(); j++){
-                cout << "border=" << i << " (" << p->get_border(i) << ") brother=" << j << " " << p->get_border(i)->get_inclusion(j)->get_border() << " pave(" << p->get_border(i)->get_inclusion(j)->get_border()->get_pave() << ")" << endl;
+                cout << "border=" << i << " (" << p->get_border(i)
+                     << ") brother=" << j << " " << p->get_border(i)->get_inclusion(j)->get_border()
+                     << " pave(" << p->get_border(i)->get_inclusion(j)->get_border()->get_pave() << ")"
+                     << " contaminated (in/out)= " << p->get_border(i)->get_contaminated_in() << " " << p->get_border(i)->get_contaminated_out()
+                     << endl;
             }
         }
         else{
@@ -486,4 +491,20 @@ void Graph::build_graph(){
         }
     }
 
+}
+
+void Graph::desactive_contaminated(){
+    for(auto &p:m_node_list){
+        p->set_contaminated(false);
+    }
+
+    for(auto &p:m_node_list){
+        if(p->is_bassin()){
+            for(auto &b:p->get_borders()){
+                for(auto &i:b->get_inclusions()){
+                    i->get_border()->set_contaminated_out(true);
+                }
+            }
+        }
+    }
 }

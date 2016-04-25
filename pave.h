@@ -39,8 +39,9 @@ public:
     bool                        is_fully_full();
     bool                        is_in_queue() const;
     bool                        is_active() const;
-    bool                        is_near_inactive() const;
+    bool                        is_near_bassin() const;
     bool                        is_border() const;
+    bool                        is_bassin() const;
 
     // Setter
     void                        set_full();
@@ -58,6 +59,9 @@ public:
     void                        set_continuity_out(bool enable);
 
     void                        set_active_function(int id);
+
+    void                        set_contaminated(bool val);
+    void                        set_bassin(bool val);
 
     void                        reset_full_empty();
 
@@ -116,6 +120,7 @@ private:
     bool                        m_inner;
 
     bool                        m_active;
+    bool                        m_bassin;
     bool                        m_diseable_singeleton;
 };
 

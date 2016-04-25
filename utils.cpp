@@ -234,36 +234,36 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
         }
     }
     else{
-//        // ToDo : implement u cmd !!!
-//        cout << "FUNCTION NOT IMPLEMENTED : EXIT" << endl;
-//        exit(EXIT_FAILURE);
-//        vector<Interval> theta_list = {theta[0] + tab_rotation[face], theta[1] + tab_rotation[face]};
-//        this->CtcPropagateRightSideInner(segment_norm_in[0][0][0], segment_norm_out[0][0][0], theta_list, box, u[0] ,false, inner_backward);
-//        this->CtcPropagateFrontInner(segment_norm_in[1][0][0], segment_norm_out[1][0][0], theta_list, box, u[0], inner_backward);
-//        this->CtcPropagateLeftSideInner(segment_norm_in[2][0][0], segment_norm_out[2][0][0], theta_list, box, u[0], false, inner_backward);
-//        for(int i=0; i<3; i++){
-//            //            for(int j=0; j<1; j++){
+        //        // ToDo : implement u cmd !!!
+        //        cout << "FUNCTION NOT IMPLEMENTED : EXIT" << endl;
+        //        exit(EXIT_FAILURE);
+        //        vector<Interval> theta_list = {theta[0] + tab_rotation[face], theta[1] + tab_rotation[face]};
+        //        this->CtcPropagateRightSideInner(segment_norm_in[0][0][0], segment_norm_out[0][0][0], theta_list, box, u[0] ,false, inner_backward);
+        //        this->CtcPropagateFrontInner(segment_norm_in[1][0][0], segment_norm_out[1][0][0], theta_list, box, u[0], inner_backward);
+        //        this->CtcPropagateLeftSideInner(segment_norm_in[2][0][0], segment_norm_out[2][0][0], theta_list, box, u[0], false, inner_backward);
+        //        for(int i=0; i<3; i++){
+        //            //            for(int j=0; j<1; j++){
 
-//            //            segment_norm_out[i][1][0] = Interval::EMPTY_SET;
-//            //            segment_norm_in[i][1][0] = Interval::EMPTY_SET;
-//            //            }
-//        }
+        //            //            segment_norm_out[i][1][0] = Interval::EMPTY_SET;
+        //            //            segment_norm_in[i][1][0] = Interval::EMPTY_SET;
+        //            //            }
+        //        }
     }
 
     // **************************** OUTPUT ****************************
     // Translate and rotate back the Segment
-        IntervalVector segment_contracted_out[3] = {IntervalVector(2, Interval::EMPTY_SET), IntervalVector(2, Interval::EMPTY_SET), IntervalVector(2, Interval::EMPTY_SET)};
+    IntervalVector segment_contracted_out[3] = {IntervalVector(2, Interval::EMPTY_SET), IntervalVector(2, Interval::EMPTY_SET), IntervalVector(2, Interval::EMPTY_SET)};
 
-        for(int i=0; i<2; i++){
-            for(int j=0; j<u.size(); j++){
-                segment_contracted_out[0][1] |= segment_norm_out[0][i][j];
-                segment_contracted_out[1][0] |= segment_norm_out[1][i][j];
-                segment_contracted_out[2][1] |= segment_norm_out[2][i][j];
-            }
+    for(int i=0; i<2; i++){
+        for(int j=0; j<u.size(); j++){
+            segment_contracted_out[0][1] |= segment_norm_out[0][i][j];
+            segment_contracted_out[1][0] |= segment_norm_out[1][i][j];
+            segment_contracted_out[2][1] |= segment_norm_out[2][i][j];
         }
-        segment_contracted_out[0][0] = Interval(box[0].ub());
-        segment_contracted_out[1][1] = Interval(box[1].ub());
-        segment_contracted_out[2][0] = Interval(box[0].lb());
+    }
+    segment_contracted_out[0][0] = Interval(box[0].ub());
+    segment_contracted_out[1][1] = Interval(box[1].ub());
+    segment_contracted_out[2][0] = Interval(box[0].lb());
 
     // Rotate and translate back with the initial box
     vector<Interval> seg_out_tmp;
@@ -304,29 +304,37 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
 }
 
 void Utils::CtcPaveBackward(Pave *p, bool inclusion, bool inner, std::vector<bool> &change_tab){
-
-    Interval segment_in[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
-
     for(int face = 0; face < 4; face++){
         Interval seg_in = p->get_border(face)->get_segment_in();
+        Interval seg_in2 = p->get_border(face)->get_segment_full();
 
-        vector<Interval> seg_out;
+        vector<Interval> seg_out, seg_out2;
+
         for(int j=(face+1)%4; j!=face; j=(j+1)%4){
-            seg_out.push_back(p->get_border(j)->get_segment_out());
+            if(p->get_border(j)->get_contaminated_out()){
+                seg_out.push_back(p->get_border(j)->get_segment_out());
+            }
+            else{
+                seg_out.push_back(p->get_border(j)->get_segment_full());
+            }
+            seg_out2.push_back(p->get_border(j)->get_segment_full());
         }
 
         if(!inner){
             this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), true, false, false);
+            this->CtcPropagateSegment(seg_in2, seg_out2, face, p->get_theta(), p->get_position(), p->get_u(), true, false, false);
         }
         else{
             this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), true, true, true);
+            this->CtcPropagateSegment(seg_in2, seg_out2, face, p->get_theta(), p->get_position(), p->get_u(), true, true, true);
         }
 
-        segment_in[face] = seg_in;
-    }
+        if(seg_in != seg_in2){
+        change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
+        if(change_tab[face])
+            p->get_border(face)->set_contaminated_in(true);
+        }
 
-    for(int face = 0; face<4; face++){
-        change_tab[face] = p->get_border(face)->set_segment_in(segment_in[face], inclusion) || change_tab[face];
     }
 }
 
@@ -334,29 +342,51 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, bool inner, std::vector<bool
     Interval segment_out[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int face = 0; face < 4; face++){
-        Interval seg_in = p->get_border(face)->get_segment_in();
+        Interval seg_in, seg_in2;
+        seg_in2 =  p->get_border(face)->get_segment_full();
+        if(p->get_border(face)->get_contaminated_in()){
+            seg_in = p->get_border(face)->get_segment_in();
+        }
+        else{
+            seg_in = seg_in2;
+        }
 
-        vector<Interval> seg_out;
+        vector<Interval> seg_out, seg_out2;
         for(int j=0; j<3; j++){
             seg_out.push_back(Interval::ALL_REALS);
+            seg_out2.push_back(Interval::ALL_REALS);
         }
 
         if(!inner){
             this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), false, false, false);
+            this->CtcPropagateSegment(seg_in2, seg_out2, face, p->get_theta(), p->get_position(), p->get_u(), false, false, false);
         }
         else{
             this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u(), false, true, false);
+            this->CtcPropagateSegment(seg_in2, seg_out2, face, p->get_theta(), p->get_position(), p->get_u(), false, true, false);
         }
 
         int k=0;
         for(int i=(face+1)%4; i!=face; i=(i+1)%4){
-            segment_out[i] |= seg_out[k];
+            if(p->get_border(face)->get_contaminated_in()){
+                if(seg_out[k] != seg_out2[k]){
+                    segment_out[i] |= seg_out[k];
+                }
+                else{
+                    segment_out[i] |= seg_out2[k];
+                }
+            }
+            else{
+                segment_out[i] |= seg_out[k];
+            }
             k++;
         }
     }
 
     for(int face = 0; face<4; face++){
         change_tab[face] = p->get_border(face)->set_segment_out(segment_out[face], inclusion) || change_tab[face];
+        if(change_tab[face])
+            p->get_border(face)->set_contaminated_out(true);
     }
 }
 
@@ -500,7 +530,7 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
             if(backward && (p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out()))){
                 change = true;
                 p->get_border(face)->set_segment_out(segment_in, backward);
-                p->get_border(face)->set_contaminated(true);
+                p->get_border(face)->set_contaminated_out(true);
             }
         }
 
@@ -519,12 +549,14 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
                 if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())){
                     change = true;
                     p->get_border(face)->set_segment_in(segment_out, backward);
+                    p->get_border(face)->set_contaminated_in(true);
                 }
             }
             else{
                 if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
                     change = true;
                     p->get_border(face)->set_segment_in(segment_out, backward);
+                    p->get_border(face)->set_contaminated_in(true);
                 }
             }
         }

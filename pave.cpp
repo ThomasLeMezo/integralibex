@@ -17,6 +17,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_f_list = f_list;
     m_active_function = 0;
     m_active = active;
+    m_bassin = false;
     m_diseable_singeleton = diseable_singeleton;
 
     m_u_iv = u;
@@ -138,6 +139,7 @@ Pave::Pave(const Pave *p):
     m_first_process = false;
     m_inner = p->get_inner();
     m_active = p->is_active();
+    m_bassin = p->is_bassin();
     m_diseable_singeleton = p->get_diseable_singelton();
 
     m_theta_list = p->get_theta_list();
@@ -643,10 +645,10 @@ bool Pave::get_diseable_singelton() const{
     return m_diseable_singeleton;
 }
 
-bool Pave::is_near_inactive() const{
+bool Pave::is_near_bassin() const{
     for(auto &b:m_borders){
         for(auto &i:b->get_inclusions()){
-            if(!i->get_border()->get_pave()->is_active()){
+            if(!i->get_border()->get_pave()->is_bassin()){
                 return true;
             }
         }
@@ -660,4 +662,19 @@ bool Pave::is_border() const{
             return true;
         }
     }
+}
+
+void Pave::set_contaminated(bool val){
+    for(auto &b:m_borders){
+        b->set_contaminated_in(val);
+        b->set_contaminated_out(val);
+    }
+}
+
+bool Pave::is_bassin() const{
+    return m_bassin;
+}
+
+void Pave::set_bassin(bool val){
+    m_bassin = val;
 }

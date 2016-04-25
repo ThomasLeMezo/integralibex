@@ -49,7 +49,8 @@ public:
     void                            set_inclusion(Border *border, int id_brother);
     void                            set_inclusion_receving(Border* border, int id_brother);
     void                            reset_full_empty();
-    bool                            set_contaminated(bool val);
+    bool                            set_contaminated_in(bool val);
+    bool                            set_contaminated_out(bool val);
 
     void                            add_inclusions(const std::vector<Inclusion *> &inclusion_list);
     bool                            add_inclusion(Inclusion *inclusion);
@@ -78,7 +79,8 @@ public:
     ibex::Interval                  get_blocked_in() const;
     ibex::Interval                  get_blocked_out() const;
 
-    bool                            get_contaminated() const;
+    bool                            get_contaminated_in() const;
+    bool                            get_contaminated_out() const;
 
     // Tests
     bool                            is_empty();
@@ -109,7 +111,8 @@ private:
     ibex::Interval                  m_segment_blocked_in;
     ibex::Interval                  m_segment_blocked_out;
 
-    bool                            m_contaminated;
+    bool                            m_contaminated_in;
+    bool                            m_contaminated_out;
 };
 
 #endif // BORDER_H

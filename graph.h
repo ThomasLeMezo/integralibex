@@ -31,6 +31,7 @@ public:
     void                        clear_node_queue();
     void                        add_all_to_queue();
     void                        set_all_first_process();
+    void                        desactive_contaminated();
 
     // Getter
     Pave*                       get_pave(double x, double y) const;
