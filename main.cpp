@@ -233,7 +233,7 @@ void car_on_the_hill_dead_path(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(8, 5, 1e9, false, false, false, true);
+    s.cameleon_cycle(9, 5, 1e9, false, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

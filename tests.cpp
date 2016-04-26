@@ -172,7 +172,7 @@ void test_CtcPaveForward(){
 std:vector<bool> change_tab;
     for(int i=0; i<4; i++)
         change_tab.push_back(false);
-    u.CtcPaveForward(&p, false, true, change_tab);
+    u.CtcPaveForward(&p, false, change_tab);
 
     test_draw(&p, "test_after");
 }
@@ -234,7 +234,7 @@ void test_CtcPaveConsistency(){
     std:vector<bool> change_tab;
     for(int i=0; i<4; i++)
         change_tab.push_back(false);
-    u.CtcPaveConsistency(&p, true, false, change_tab);
+    u.CtcPaveConsistency(&p, true, change_tab);
 
     test_draw(&p, "test_after");
     cout << setprecision(80) << endl;
@@ -305,7 +305,7 @@ void test_CtcPaveConsistency2(){
     std:vector<bool> change_tab;
     for(int i=0; i<4; i++)
         change_tab.push_back(false);
-    u.CtcPaveConsistency(&p, true, false, change_tab);
+    u.CtcPaveConsistency(&p, true, change_tab);
 
     test_draw(&p, "test_after");
     //cout << setprecision(80) << endl;
@@ -348,7 +348,7 @@ void test_CtcPaveConsistency3(){
     std:vector<bool> change_tab;
     for(int i=0; i<4; i++)
         change_tab.push_back(false);
-    u.CtcPaveConsistency(&p, true, false, change_tab);
+    u.CtcPaveConsistency(&p, true, change_tab);
 
     test_draw(&p, "test_after");
     //cout << setprecision(80) << endl;

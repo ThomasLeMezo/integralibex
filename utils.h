@@ -31,11 +31,11 @@ public:
     void CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy);
     void CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const ibex::IntervalVector &box);
 
-    void CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta, const ibex::IntervalVector &box_pave, const std::vector<ibex::Interval> &u, bool backward=false, bool inner=false, bool inner_backward=false);
+    void CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta, const ibex::IntervalVector &box_pave, const std::vector<ibex::Interval> &u);
 
-    void CtcPaveForward(Pave *p, bool inclusion, bool inner, std::vector<bool> &change_tab);
-    void CtcPaveBackward(Pave *p, bool inclusion, bool inner, std::vector<bool> &change_tab);
-    void CtcPaveConsistency(Pave *p, bool backward, bool inner, std::vector<bool> &change_tab);
+    void CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_tab);
+    void CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_tab);
+    void CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change_tab);
     bool CtcContinuity(Pave *p, bool backward);
 
     // Contractor Inner
