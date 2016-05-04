@@ -126,7 +126,7 @@ void station_keeping_attractor(){
     s.set_imageIntegral(box, &f_inner, Interval::ZERO | Interval::TWO_PI, 15,5000);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(15, 5, 1e9, false, false, false);
+    s.cameleon_cycle(15, 5, 1e9, false, false);
 //    s.cameleon_propagation(15, 1e6, activated_pave, false);  
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -235,7 +235,7 @@ void car_on_the_hill_dead_path(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(9, 5, 1e9, false, false, false, true);
+    s.cameleon_cycle(11, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -284,7 +284,7 @@ void car_on_the_hill_capture_bassin(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(5, 5, 1e9, false, false, false, true);
+    s.cameleon_cycle(10, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     /////////////// Drawing ///////////////
@@ -337,7 +337,7 @@ void cercle_capture_bassin(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(15, 5, 1e9, false, false, false, true);
+    s.cameleon_cycle(15, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     /////////////// Drawing ///////////////
@@ -380,7 +380,7 @@ void pendulum_capture_bassin(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(14, 5, 1e9, false, false, false);
+    s.cameleon_cycle(14, 5, 1e9, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     /////////////// Drawing ///////////////
@@ -458,13 +458,13 @@ int main()
 //    ball();
 //    station_keeping_attractor();
 //    car_on_the_hill_attractor();
-//    car_on_the_hill_dead_path();
+    car_on_the_hill_dead_path();
 //    car_on_the_hill_capture_bassin();
 //    pendulum_capture_bassin();
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 //    van_der_pol_cycle();
-    cercle_capture_bassin();
+//    cercle_capture_bassin();
 //    test();
 
     return 0;

@@ -31,13 +31,14 @@ public:
     void                        clear_node_queue();
     void                        add_all_to_queue();
     void                        set_all_first_process();
-    void                        desactive_contaminated();
+    void                        desactive_contaminated(bool add_to_queue=false);
 
     // Getter
     Pave*                       get_pave(double x, double y) const;
     const std::vector<Pave *>   get_pave(const ibex::IntervalVector &box) const;
     std::vector<Pave *>&        get_node_list();
     const std::vector<Pave *>   get_node_queue() const;
+    std::vector<Pave *>&        get_node_queue_access();
     Pave*                       get_node_const(int i) const;
     Pave*                       get_semi_full_node();
     Utils*                      get_utils();

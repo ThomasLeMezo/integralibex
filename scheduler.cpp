@@ -156,7 +156,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     }
 }
 
-void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner, bool do_not_bisect_inside, bool near_bassin){
+void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
 
@@ -185,10 +185,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
-            if(near_bassin)
-                m_graph_list[nb_graph]->desactive_contaminated();
-
             int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true);
+
             cout << "--> processing outer = " << graph_list_process_cpt << endl;
             cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 

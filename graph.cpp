@@ -259,6 +259,10 @@ const std::vector<Pave *> Graph::get_node_queue() const {
     return m_node_queue;
 }
 
+std::vector<Pave *> &Graph::get_node_queue_access(){
+    return m_node_queue;
+}
+
 Pave* Graph::get_node_const(int i) const{
     return m_node_list[i];
 }
@@ -493,21 +497,38 @@ void Graph::build_graph(){
 
 }
 
-void Graph::desactive_contaminated(){
-    for(auto &p:m_node_list){
-        p->set_contaminated(false);
-    }
+void Graph::desactive_contaminated(bool add_to_queue){
+    //    if(add_to_queue)
+    //        m_node_queue.clear();
 
-    for(auto &p:m_node_list){
-        for(auto &b:p->get_borders()){
-            if(p->is_bassin()){
-                for(auto &i:b->get_inclusions()){
-                    i->get_border()->set_contaminated_out(true);
-                }
-            }
-            if(b->get_inclusions().size()==0){
-                b->set_contaminated_out(true);
+    if(add_to_queue){
+        m_node_queue.clear();
+        for(auto &p:m_node_list){
+            p->set_first_process_true();
+            p->set_in_queue(false);
+            p->reset_full_empty();
+
+            if((!p->is_full() && !p->is_empty()) || p->is_near_bassin() || p->is_border()){
+                p->set_in_queue(true);
+                m_node_queue.push_back(p);
             }
         }
     }
+
+//    for(auto &p:m_node_list){
+//        if(!add_to_queue)
+//            p->set_contaminated(false);
+
+//        for(auto &b:p->get_borders()){
+//            if(p->is_bassin()){
+//                for(auto &i:b->get_inclusions()){
+//                    i->get_border()->set_contaminated_out(true);
+//                }
+//            }
+
+//            if(b->get_inclusions().size()==0){
+//                b->set_contaminated_out(true);
+//            }
+//        }
+//    }
 }
