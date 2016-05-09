@@ -434,8 +434,8 @@ void car_on_the_hill_integrator(){
     f_list.push_back(&f1);
 
     IntervalVector box(2);
-    box[0] = Interval(-1.0, 13.0);
-    box[1] = Interval(-16, 16);
+    box[0] = Interval(-2.0, 13.0);
+    box[1] = Interval(-6, 6);
 
     IntervalVector u(2);
     u[0] = Interval::ZERO;
@@ -447,10 +447,11 @@ void car_on_the_hill_integrator(){
     activated_pave[0] = Interval(-1.0);
     activated_pave[1] = Interval(0.0);
 
-    s.cameleon_propagation(25, 1e9, activated_pave);
+    s.cameleon_propagation(20, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
+    vibes::axisLimits(-2,13, -6, 6);
 }
 
 int main()
@@ -458,10 +459,10 @@ int main()
 //    ball();
 //    station_keeping_attractor();
 //    car_on_the_hill_attractor();
-    car_on_the_hill_dead_path();
+//    car_on_the_hill_dead_path();
 //    car_on_the_hill_capture_bassin();
 //    pendulum_capture_bassin();
-//    car_on_the_hill_integrator();
+    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 //    van_der_pol_cycle();
 //    cercle_capture_bassin();
