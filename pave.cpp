@@ -89,8 +89,8 @@ const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
     if(f!=NULL){
         IntervalVector dposition = f->eval_vector(m_position);
 
-        Interval dx = dposition[0];
-        Interval dy = dposition[1];
+        Interval dx = dposition[0] + m_u_iv[0];
+        Interval dy = dposition[1] + m_u_iv[1];
 
         Interval theta = atan2(dy, dx);
 
@@ -455,6 +455,18 @@ bool Pave::is_full(){
         m_full = true;
         return true;
     }
+}
+
+bool Pave::is_full_geometricaly(){
+    IntervalVector box(2, Interval::EMPTY_SET);
+    for(int face = 0; face < 4; face++){
+        box |= m_borders[face]->get_segment_out_2D();
+        box |= m_borders[face]->get_segment_in_2D();
+    }
+    if(box == m_position)
+        return true;
+    else
+        return false;
 }
 
 bool Pave::is_fully_full(){

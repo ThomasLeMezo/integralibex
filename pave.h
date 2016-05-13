@@ -36,6 +36,7 @@ public:
     // Tests
     bool                        is_empty();
     bool                        is_full();
+    bool                        is_full_geometricaly();
     bool                        is_fully_full();
     bool                        is_in_queue() const;
     bool                        is_active() const;

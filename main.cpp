@@ -56,7 +56,7 @@ void van_der_pol_cycle(){
     u[1] = Interval::ZERO;
     Scheduler s(box, f_list, u, false);
 
-    s.cameleon_cycle(12, 5, 1e9, true, false);
+    s.cameleon_cycle(6, 5, 1e9, true, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -159,7 +159,7 @@ void car_on_the_hill_attractor(){
     f_list.push_back(&f);
 
     IntervalVector box(2);
-    box[0] = Interval(0.0, 12.0);
+    box[0] = Interval(0.5, 5.5);
     box[1] = Interval(-6.0, 6.0);
 
     IntervalVector u(2);
@@ -169,7 +169,7 @@ void car_on_the_hill_attractor(){
     Scheduler s(box, f_list, u);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(14, 5, 1e9, false, false, false);
+    s.cameleon_cycle(10, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -189,8 +189,8 @@ void car_on_the_hill_dead_path(){
     ibex::Function f2(x1, x2, Return(x2,
                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
 
-    ibex::Function f3(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+//    ibex::Function f3(x1, x2, Return(x2,
+//                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
 
     std::vector<ibex::Function*> f_list;
@@ -235,7 +235,7 @@ void car_on_the_hill_dead_path(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(11, 5, 1e9, false, false, true);
+    s.cameleon_cycle(7, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -284,7 +284,7 @@ void car_on_the_hill_capture_bassin(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(10, 5, 1e9, false, false, true);
+    s.cameleon_cycle(12, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     /////////////// Drawing ///////////////
@@ -447,25 +447,69 @@ void car_on_the_hill_integrator(){
     activated_pave[0] = Interval(-1.0);
     activated_pave[1] = Interval(0.0);
 
-    s.cameleon_propagation(20, 1e9, activated_pave); // 25
+    s.cameleon_propagation(13, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
     vibes::axisLimits(-2,13, -6, 6);
 }
 
+void integrator(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(1.0+0.0*x1,
+                                    -sin(x2)));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(0.0,20.0);
+    box[1] = Interval(-2, 2);
+
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval(-0.1,0.1);
+    Scheduler s(box, f_list, u);
+
+    IntervalVector activated_pave(2);
+    activated_pave[0] = Interval(0.0);
+    activated_pave[1] = Interval(0.5,1.5);
+
+    s.cameleon_propagation(15, 1e9, activated_pave); // 25
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.draw(1024, true);
+}
+
 int main()
 {
+    /// **** BALL ***** //
 //    ball();
+
+    /// **** STATION KEEPING ***** //
 //    station_keeping_attractor();
+
+    /// **** CAR ON THE HILL ***** //
 //    car_on_the_hill_attractor();
-//    car_on_the_hill_dead_path();
 //    car_on_the_hill_capture_bassin();
-//    pendulum_capture_bassin();
-    car_on_the_hill_integrator();
+    car_on_the_hill_dead_path();
+
+    //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
-//    van_der_pol_cycle();
+
+    /// **** CAPTURE BASSIN ***** //
+//    pendulum_capture_bassin();
 //    cercle_capture_bassin();
+
+    /// **** VAN DER POL ***** //
+//    van_der_pol_cycle();
+
+    /// **** INTEGRATOR ***** //
+//    integrator();
+
+    /// **** TEST ***** //
 //    test();
 
     return 0;

@@ -288,9 +288,12 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_t
 
         this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u());
 
-        change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
-        if(change_tab[face])
-            p->get_border(face)->set_contaminated_in(true);
+        if(p->get_border((face+1)%4)->get_contaminated_out() || p->get_border((face-1)%4)->get_contaminated_out()){
+            bool change = p->get_border(face)->set_segment_in(seg_in, inclusion);
+            if(change)
+                p->get_border(face)->set_contaminated_in(true);
+            change_tab[face] = change_tab[face] || change;
+        }
     }
 }
 
