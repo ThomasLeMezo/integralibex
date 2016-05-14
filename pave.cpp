@@ -691,7 +691,7 @@ bool Pave::is_test() const{
             if(i->get_border()->get_pave()->is_bassin()){
                 return true;
             }
-            if(!i->get_border()->get_pave()->is_full() || !i->get_border()->get_pave()->is_full_geometricaly()){
+            if(i->get_border()->get_pave()->is_empty() || !i->get_border()->get_pave()->is_full_geometricaly()){
                 return true;
             }
         }

@@ -19,7 +19,7 @@ Scheduler::~Scheduler(){
     }
 }
 
-Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list, const IntervalVector &u, bool diseable_singleton){
+Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list, const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out){
     Graph *g = new Graph(&m_utils, 0);
     m_graph_list.push_back(g);
 
@@ -64,8 +64,10 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
 
     for(auto &b:list_border){
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
-        p->set_full_out();
-        p->set_full_in();
+        if(border_out)
+            p->set_full_out();
+        if(border_in)
+            p->set_full_in();
         g->get_node_list().push_back(p);
     }
 

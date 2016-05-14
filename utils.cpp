@@ -288,9 +288,9 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_t
 
         this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u());
 
-        if(!p->get_border(face)->get_contaminated_in()){
+        if(true && !p->get_border(face)->get_contaminated_in()){
+            bool change = p->get_border(face)->set_segment_in(seg_in, inclusion);
             if(p->is_test()){
-                bool change = p->get_border(face)->set_segment_in(seg_in, inclusion);
                 if(change){
                     p->get_border(face)->set_contaminated_in(true);
                     change_tab[face] = change_tab[face] || change;
@@ -336,18 +336,19 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 // ****************** Algorithm functions      ************************************
 
 void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change_tab){
-    if(backward){
-        for(int i=0; i<p->get_f_list().size(); i++){
-            p->set_active_function(i);
+    for(int i=0; i<p->get_f_list().size(); i++){
+        p->set_active_function(i);
 
+        if(backward){
             this->CtcPaveBackward(p, true, change_tab);
             Pave p2(p);
             this->CtcPaveForward(&p2, true, change_tab);
             *p &= p2;
+
         }
-    }
-    else{
-        this->CtcPaveForward(p, false, change_tab);
+        else{
+            this->CtcPaveForward(p, false, change_tab);
+        }
     }
 }
 

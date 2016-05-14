@@ -316,7 +316,8 @@ void test_CtcPaveConsistency3(){
     Pave p(box, f_list, command, false);
 
     vector<Interval> theta_list;
-    theta_list.push_back(-Interval::HALF_PI/2.0 | -Interval::HALF_PI);
+    theta_list.push_back(Interval::ZERO | Interval::HALF_PI/2.0);
+    theta_list.push_back(Interval::ZERO | -Interval::HALF_PI/2.0);
 
     p.set_theta(theta_list);
     //    p.set_theta(Interval::HALF_PI | Interval::PI);

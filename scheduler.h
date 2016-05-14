@@ -12,7 +12,7 @@ class Scheduler
 /***************** Functions ******************/
 public:
     Scheduler(const ibex::IntervalVector &box, const std::vector<ibex::Function *> &f_list, const ibex::IntervalVector &u, bool diseable_singleton=false);
-    Scheduler(const ibex::IntervalVector &box, const vector<ibex::IntervalVector> &remove_boxes, const std::vector<ibex::Function *> &f_list, const ibex::IntervalVector &u, bool diseable_singleton=false);
+    Scheduler(const ibex::IntervalVector &box, const vector<ibex::IntervalVector> &remove_boxes, const std::vector<ibex::Function *> &f_list, const ibex::IntervalVector &u, bool diseable_singleton=false, bool border_in=true, bool border_out=true);
     ~Scheduler();
 
     void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside=false, bool near_bassin=false);
