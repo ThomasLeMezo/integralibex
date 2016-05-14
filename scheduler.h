@@ -22,7 +22,6 @@ public:
     void set_symetry(ibex::Function *f, int face_in, int face_out);
     void set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY);
 
-    void define_continuity(Graph *g, const ibex::IntervalVector &test_box, bool continuity_in, bool continuity_out);
     // ******** Drawing functions ********
     void draw(int size, bool filled);
     void print_pave_info(int graph, double x, double y, string color);

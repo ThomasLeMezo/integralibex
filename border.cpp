@@ -17,9 +17,6 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     m_segment_in = Interval::EMPTY_SET;
     m_segment_out = Interval::EMPTY_SET;
 
-    m_segment_blocked_in = Interval::EMPTY_SET;
-    m_segment_blocked_out = Interval::EMPTY_SET;
-
     m_segment_full = position[face%2];
 
     m_empty = false;
@@ -50,8 +47,6 @@ Border::Border(const Border *border): m_position(2)
     //    m_inclusions_receving = border->get_inclusions_receving();
     m_enable_continuity_in = border->get_continuity_in();
     m_enable_continuity_out = border->get_continuity_out();
-    m_segment_blocked_in = border->get_blocked_in();
-    m_segment_blocked_out = border->get_blocked_out();
 }
 
 Border::~Border(){
@@ -236,9 +231,9 @@ bool Border::set_segment_in(ibex::Interval segment_in, bool inclusion){
     bool change = false;
     Interval i(Interval::EMPTY_SET);
     if(inclusion)
-        i = m_segment_in & (segment_in | (m_segment_blocked_in & m_segment_full));
+        i = m_segment_in & segment_in & m_segment_full;
     else
-        i = m_segment_in | ((segment_in | m_segment_blocked_in) & m_segment_full);
+        i = (m_segment_in | segment_in) & m_segment_full;
 
     if(i != m_segment_in){
         m_segment_in = i;
@@ -255,9 +250,9 @@ bool Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
     bool change = false;
     Interval i(Interval::EMPTY_SET);
     if(inclusion)
-        i = m_segment_out & (segment_out | (m_segment_blocked_out & m_segment_full));
+        i = m_segment_out & segment_out & m_segment_full;
     else
-        i = m_segment_out | ((segment_out | m_segment_blocked_out) & m_segment_full);
+        i = (m_segment_out | segment_out) & m_segment_full;
 
     if(i!=m_segment_out){
         change = true;
@@ -427,22 +422,6 @@ void Border::set_continuity_in(bool enable){
 
 void Border::set_continuity_out(bool enable){
     m_enable_continuity_out = enable;
-}
-
-void Border::set_blocked_out(ibex::Interval segment_blocked){
-    m_segment_blocked_out = segment_blocked;
-}
-
-void Border::set_blocked_in(ibex::Interval segment_blocked){
-    m_segment_blocked_in = segment_blocked;
-}
-
-ibex::Interval Border::get_blocked_in() const{
-    return m_segment_blocked_in;
-}
-
-ibex::Interval Border::get_blocked_out() const{
-    return m_segment_blocked_out;
 }
 
 bool Border::get_contaminated_in() const{

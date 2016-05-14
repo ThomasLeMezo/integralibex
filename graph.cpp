@@ -316,8 +316,6 @@ void Graph::print_pave_info(double x, double y, string color) const{
              << "out=" << p->get_border(i)->get_segment_out() << '\t'
              << "continuity_in = " << p->get_border(i)->get_continuity_in() << " "
              << "continuity_out = " << p->get_border(i)->get_continuity_out() << " "
-             << "blocked_in = " << p->get_border(i)->get_blocked_in() << " "
-             << "blocked_out = " << p->get_border(i)->get_blocked_out() << " "
              << endl;
     }
     cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << endl;
@@ -497,38 +495,33 @@ void Graph::build_graph(){
 
 }
 
-void Graph::desactive_contaminated(bool add_to_queue){
-    //    if(add_to_queue)
-    //        m_node_queue.clear();
+void Graph::update_contaminated(){
 
-    if(add_to_queue){
-        m_node_queue.clear();
-        for(auto &p:m_node_list){
-            p->set_first_process_true();
-            p->set_in_queue(false);
-            p->reset_full_empty();
+    m_node_queue.clear();
+    for(auto &p:m_node_list){
+        p->set_first_process_true();
+        p->set_in_queue(false);
+        p->reset_full_empty();
 
-            if((!p->is_full() && !p->is_empty()) || p->is_near_bassin() || p->is_border()){
-                p->set_in_queue(true);
-                m_node_queue.push_back(p);
-            }
+        if((!p->is_full() && !p->is_empty()) || p->is_near_bassin() || p->is_border()){
+            p->set_in_queue(true);
+            m_node_queue.push_back(p);
         }
     }
 
-//    for(auto &p:m_node_list){
-//        if(!add_to_queue)
-//            p->set_contaminated(false);
+    for(auto &p:m_node_list){
+        p->set_contaminated(false);
 
-//        for(auto &b:p->get_borders()){
-//            if(p->is_bassin()){
-//                for(auto &i:b->get_inclusions()){
-//                    i->get_border()->set_contaminated_out(true);
-//                }
-//            }
+        for(auto &b:p->get_borders()){
+            if(p->is_bassin()){
+                for(auto &i:b->get_inclusions()){
+                    i->get_border()->set_contaminated_out(true);
+                }
+            }
 
-//            if(b->get_inclusions().size()==0){
-//                b->set_contaminated_out(true);
-//            }
-//        }
-//    }
+            if(b->get_inclusions().size()==0){
+                b->set_contaminated_out(true);
+            }
+        }
+    }
 }

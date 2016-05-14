@@ -19,18 +19,18 @@ Scheduler::~Scheduler(){
     }
 }
 
-Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &remove_boxes, const std::vector<ibex::Function *> &f_list, const IntervalVector &u, bool diseable_singleton){
+Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list, const IntervalVector &u, bool diseable_singleton){
     Graph *g = new Graph(&m_utils, 0);
     m_graph_list.push_back(g);
 
-    // Creates paves
     vector<IntervalVector> list_boxes;
     list_boxes.push_back(box);
 
-    for(auto &box_remove:remove_boxes){
+    // Build diff boxes
+    for(auto &box_bassin:bassin_boxes){
         vector<IntervalVector> list_boxes_tmp;
         for(auto &b:list_boxes){
-            std::vector<IntervalVector> box_result = m_utils.diff(b, box_remove);
+            std::vector<IntervalVector> box_result = m_utils.diff(b, box_bassin);
 
             for(int i=0; i<box_result.size(); i++)
                 list_boxes_tmp.push_back(box_result[i]);
@@ -39,13 +39,13 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
         list_boxes_tmp.clear();
     }
 
+    // Build Paves and push back them
     for(auto &b:list_boxes){
         Pave* p = new Pave(b, f_list, u, diseable_singleton);
         g->get_node_list().push_back(p);
     }
-    // Diseable continuity on the bounding box
-    define_continuity(g, box, false, false);
 
+    // ****** CREATE BORDER EXTRA BOXES *******
     vector<IntervalVector> list_border;
     double size_border = 0.1;
     IntervalVector test(2);
@@ -66,49 +66,49 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &re
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
         p->set_full_out();
         p->set_full_in();
-//        p->set_continuity_out(false);
-//        p->set_continuity_in(false);
         g->get_node_list().push_back(p);
     }
 
-    for(auto &b:remove_boxes){
+    // ****** ADD BASSIN BOXES *******
+    for(auto &b:bassin_boxes){
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
         p->set_bassin(true);
         p->set_full_out();
-//        p->set_continuity_out(false);
         g->get_node_list().push_back(p);
     }
 
-    // Rebuilt continuity inside graph
-    g->build_graph();
+    // ****** REBUILD GRAPH *******
+    g->build_graph(); // connect boxes according to continuity
 }
 
-void Scheduler::define_continuity(Graph *g, const IntervalVector &box, bool continuity_in, bool continuity_out){
-    IntervalVector box0(2), box1(2), box2(2), box3(2);
-    box0[0] = box[0];                   box0[1] = Interval(box[1].lb());
-    box1[0] = Interval(box[0].ub());    box1[1] = box[1];
-    box2[0] = box[0];                   box2[1] = Interval(box[1].ub());
-    box3[0] = Interval(box[0].lb());    box3[1] = box[1];
+//void Scheduler::define_continuity(Graph *g, const IntervalVector &box, bool continuity_in, bool continuity_out){
+//    // Test if boxes from g have a border in common with box
+//    // If it is the case, set continuity property
+//    IntervalVector box0(2), box1(2), box2(2), box3(2);
+//    box0[0] = box[0];                   box0[1] = Interval(box[1].lb());
+//    box1[0] = Interval(box[0].ub());    box1[1] = box[1];
+//    box2[0] = box[0];                   box2[1] = Interval(box[1].ub());
+//    box3[0] = Interval(box[0].lb());    box3[1] = box[1];
 
-    for(int i=0; i<g->get_node_list().size(); i++){
-        for(auto &b:g->get_node_list()[i]->get_borders()){
-            IntervalVector inter0 = b->get_position() & box0;
-            IntervalVector inter1 = b->get_position() & box1;
-            IntervalVector inter2 = b->get_position() & box2;
-            IntervalVector inter3 = b->get_position() & box3;
+//    for(int i=0; i<g->get_node_list().size(); i++){
+//        for(auto &b:g->get_node_list()[i]->get_borders()){
+//            IntervalVector inter0 = b->get_position() & box0;
+//            IntervalVector inter1 = b->get_position() & box1;
+//            IntervalVector inter2 = b->get_position() & box2;
+//            IntervalVector inter3 = b->get_position() & box3;
 
-            bool test0 = !inter0.is_empty() && (!inter0[0].is_degenerated() || !inter0[1].is_degenerated());
-            bool test1 = !inter1.is_empty() && (!inter1[0].is_degenerated() || !inter1[1].is_degenerated());
-            bool test2 = !inter2.is_empty() && (!inter2[0].is_degenerated() || !inter2[1].is_degenerated());
-            bool test3 = !inter3.is_empty() && (!inter3[0].is_degenerated() || !inter3[1].is_degenerated());
+//            bool test0 = !inter0.is_empty() && (!inter0[0].is_degenerated() || !inter0[1].is_degenerated());
+//            bool test1 = !inter1.is_empty() && (!inter1[0].is_degenerated() || !inter1[1].is_degenerated());
+//            bool test2 = !inter2.is_empty() && (!inter2[0].is_degenerated() || !inter2[1].is_degenerated());
+//            bool test3 = !inter3.is_empty() && (!inter3[0].is_degenerated() || !inter3[1].is_degenerated());
 
-            if(test0 || test1 || test2 || test3){
-                b->set_continuity_in(continuity_in);
-                b->set_continuity_out(continuity_out);
-            }
-        }
-    }
-}
+//            if(test0 || test1 || test2 || test3){
+//                b->set_continuity_in(continuity_in);
+//                b->set_continuity_out(continuity_out);
+//            }
+//        }
+//    }
+//}
 
 void Scheduler::set_symetry(Function *f, int face_in, int face_out){
     m_graph_list[0]->set_symetry(f, face_in, face_out);
@@ -183,6 +183,9 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             const clock_t sivia_time = clock();
             cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
+            if(near_bassin){
+                m_graph_list[nb_graph]->update_contaminated();
+            }
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
             int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true);

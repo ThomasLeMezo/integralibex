@@ -235,7 +235,7 @@ void car_on_the_hill_dead_path(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(7, 5, 1e9, false, false, true);
+    s.cameleon_cycle(6, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -493,10 +493,10 @@ int main()
 
     /// **** CAR ON THE HILL ***** //
 //    car_on_the_hill_attractor();
-//    car_on_the_hill_capture_bassin();
-    car_on_the_hill_dead_path();
+    car_on_the_hill_capture_bassin();
+//    car_on_the_hill_dead_path();
 
-    //    car_on_the_hill_integrator();
+//    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //

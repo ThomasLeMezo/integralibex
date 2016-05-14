@@ -59,6 +59,9 @@ LIBS += -lopencv_contrib
 LIBS += -lopencv_legacy
 LIBS += -lopencv_flann
 
+DISTFILES += \
+    NOTES
+
 
 
 

@@ -288,11 +288,18 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_t
 
         this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u());
 
-        if(p->get_border((face+1)%4)->get_contaminated_out() || p->get_border((face-1)%4)->get_contaminated_out()){
-            bool change = p->get_border(face)->set_segment_in(seg_in, inclusion);
-            if(change)
-                p->get_border(face)->set_contaminated_in(true);
-            change_tab[face] = change_tab[face] || change;
+        if(!p->get_border(face)->get_contaminated_in()){
+            if((p->get_border((face+1)%4)->get_segment_out_2D() & p->get_border(face)->get_position()).is_empty()
+                    || (p->get_border((face+3)%4)->get_segment_out_2D() & p->get_border(face)->get_position()).is_empty()){
+
+                bool change = p->get_border(face)->set_segment_in(seg_in, inclusion);
+                if(change)
+                    p->get_border(face)->set_contaminated_in(true);
+                change_tab[face] = change_tab[face] || change;
+            }
+        }
+        else{
+             change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
         }
     }
 }
@@ -351,16 +358,13 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
     bool change = false;
 
     for(int face = 0; face < 4; face++){
+        // **************** OUT CONTINUITY *************
         if(p->get_border(face)->get_continuity_out()){
             Interval segment_in = Interval::EMPTY_SET;
-            Interval segment_blocked_in = Interval::EMPTY_SET;
 
             for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
                 segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
-                if(!p->get_border(face)->get_inclusion(b)->get_border()->get_continuity_in())
-                    segment_blocked_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
             }
-            p->get_border(face)->set_blocked_out(segment_blocked_in);
 
             if(backward && (p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out()))){
                 change = true;
@@ -369,16 +373,13 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
             }
         }
 
+        // **************** IN CONTINUITY *************
         if(p->get_border(face)->get_continuity_in()){
             Interval segment_out = Interval::EMPTY_SET;
-            Interval segment_blocked_out = Interval::EMPTY_SET;
 
             for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
                 segment_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
-                if(!p->get_border(face)->get_inclusion(b)->get_border()->get_continuity_out())
-                    segment_blocked_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
             }
-            p->get_border(face)->set_blocked_in(segment_blocked_out);
 
             if(backward){
                 if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())){
