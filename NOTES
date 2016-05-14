@@ -1,4 +1,5 @@
 
 iner function : for Station Keeping pb : do not bisect if inner
-
 active pave : do not add no active pave inside queue list
+
+continuity : NOT USEFULL : but is available if we want to set constraint

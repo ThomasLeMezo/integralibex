@@ -46,39 +46,38 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
         m_theta_list.push_back(theta);
     }
 
-
     /////////////////////////////// CASE CMD U ///////////////////////////////
-//    if(u[0] == Interval::ZERO && u[1] == Interval::ZERO){
-        m_u.push_back(Interval::ZERO);
-//    }
-//    else{
-//        Interval theta_u = atan2(u[1], u[0]);
-//        if(theta_u==(-Interval::PI|Interval::PI)){
-//            Interval thetaR_u = atan2(-u[1], -u[0]); // PI rotation ({dx, dy} -> {-dx, -dy})
-//            if(thetaR_u.diam()<theta_u.diam()){
-//                if(thetaR_u.is_subset(-Interval::PI | Interval::PI)){
-//                    m_u.push_back((thetaR_u + Interval::PI) & (Interval::ZERO | Interval::PI)); // theta[0] in [0, pi]
-//                    m_u.push_back(((thetaR_u + Interval::PI) & (Interval::PI | Interval::TWO_PI)) - Interval::TWO_PI); // theta[1] in [-pi, 0]
-//                }
-//                else{
-//                    cout << "****************** ERROR ******************" << endl;
-//                }
+    //    if(u[0] == Interval::ZERO && u[1] == Interval::ZERO){
+    m_u.push_back(Interval::ZERO);
+    //    }
+    //    else{
+    //        Interval theta_u = atan2(u[1], u[0]);
+    //        if(theta_u==(-Interval::PI|Interval::PI)){
+    //            Interval thetaR_u = atan2(-u[1], -u[0]); // PI rotation ({dx, dy} -> {-dx, -dy})
+    //            if(thetaR_u.diam()<theta_u.diam()){
+    //                if(thetaR_u.is_subset(-Interval::PI | Interval::PI)){
+    //                    m_u.push_back((thetaR_u + Interval::PI) & (Interval::ZERO | Interval::PI)); // theta[0] in [0, pi]
+    //                    m_u.push_back(((thetaR_u + Interval::PI) & (Interval::PI | Interval::TWO_PI)) - Interval::TWO_PI); // theta[1] in [-pi, 0]
+    //                }
+    //                else{
+    //                    cout << "****************** ERROR ******************" << endl;
+    //                }
 
-//            }
-//            else{
-//                m_u.push_back(theta_u);
-//            }
-//        }
-//        else if(theta_u.is_empty()){
-//            m_u.push_back(-Interval::PI|Interval::PI);
-//        }
-//        else{
-//            m_u.push_back(theta_u);
-//        }
-//        if(m_u[0].is_empty()){
-//            cout << "ERROR - Pave "<< theta_u << u[0] << u[1] << m_position << endl;
-//        }
-//    }
+    //            }
+    //            else{
+    //                m_u.push_back(theta_u);
+    //            }
+    //        }
+    //        else if(theta_u.is_empty()){
+    //            m_u.push_back(-Interval::PI|Interval::PI);
+    //        }
+    //        else{
+    //            m_u.push_back(theta_u);
+    //        }
+    //        if(m_u[0].is_empty()){
+    //            cout << "ERROR - Pave "<< theta_u << u[0] << u[1] << m_position << endl;
+    //        }
+    //    }
 }
 
 const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
@@ -194,25 +193,33 @@ bool Pave::diff(const Pave &p){
 }
 
 void Pave::set_theta(ibex::Interval theta){
+    std::vector<ibex::Interval> theta_list;
+    theta_list.push_back(theta);
+    set_theta(theta_list);
+}
+
+void Pave::set_theta(std::vector<ibex::Interval> theta_list){
     m_theta_list.clear();
 
-    std::vector<ibex::Interval> thetas;
-    for(int i=0; i<2; i++)
-        thetas.push_back(Interval::EMPTY_SET);
+    for(auto &theta:theta_list){
+        std::vector<ibex::Interval> thetas;
+        for(int i=0; i<2; i++)
+            thetas.push_back(Interval::EMPTY_SET);
 
-    if(theta.is_subset(-Interval::PI | Interval::PI)){
-        thetas[0] = theta;
+        if(theta.is_subset(-Interval::PI | Interval::PI)){
+            thetas[0] = theta;
+        }
+        else{
+            thetas[0] = (theta & (-Interval::PI | Interval::PI));
+
+            if(!((theta + 2*Interval::PI) & (-Interval::PI | Interval::PI) ).is_empty())
+                thetas[1] =(theta + 2*Interval::PI);
+            else if (!((theta - 2*Interval::PI) & (-Interval::PI | Interval::PI)).is_empty())
+                thetas[1] = (theta - 2*Interval::PI);
+        }
+
+        m_theta_list.push_back(thetas);
     }
-    else{
-        thetas[0] = (theta & (-Interval::PI | Interval::PI));
-
-        if(!((theta + 2*Interval::PI) & (-Interval::PI | Interval::PI) ).is_empty())
-            thetas[1] =(theta + 2*Interval::PI);
-        else if (!((theta - 2*Interval::PI) & (-Interval::PI | Interval::PI)).is_empty())
-            thetas[1] = (theta - 2*Interval::PI);
-    }
-
-    m_theta_list.push_back(thetas);
 }
 
 void Pave::set_full(){
@@ -275,24 +282,24 @@ void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
 
         if(cmd_u){
             // ToDo: check m_u input m_u[0] & m_u[1] add without check
-//            Interval theta_u = ((m_theta[0] | m_theta[1]).lb() + m_u[0]) & ((m_theta[0] | m_theta[1]).ub() + m_u[1]);
-//            Interval theta_u_bwd = Interval::PI + ((Interval((m_theta[0] | m_theta[1]).lb()) + m_u[0]) & (Interval((m_theta[0] | m_theta[1]).ub()) + m_u[1]));
+            //            Interval theta_u = ((m_theta[0] | m_theta[1]).lb() + m_u[0]) & ((m_theta[0] | m_theta[1]).ub() + m_u[1]);
+            //            Interval theta_u_bwd = Interval::PI + ((Interval((m_theta[0] | m_theta[1]).lb()) + m_u[0]) & (Interval((m_theta[0] | m_theta[1]).ub()) + m_u[1]));
 
-//            for(int face =0; face<4; face++){
-//                if(!get_border(face)->get_segment_in().is_empty()){
+            //            for(int face =0; face<4; face++){
+            //                if(!get_border(face)->get_segment_in().is_empty()){
 
-//                    IntervalVector segment_in = get_border(face)->get_segment_in_2D();
+            //                    IntervalVector segment_in = get_border(face)->get_segment_in_2D();
 
-//                    vibes::drawSector(segment_in[0].lb(), segment_in[1].lb(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
-//                    vibes::drawSector(segment_in[0].ub(), segment_in[1].ub(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
-//                }
-//                if(!get_border(face)->get_segment_out().is_empty()){
-//                    IntervalVector segment_out = get_border(face)->get_segment_out_2D();
+            //                    vibes::drawSector(segment_in[0].lb(), segment_in[1].lb(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
+            //                    vibes::drawSector(segment_in[0].ub(), segment_in[1].ub(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
+            //                }
+            //                if(!get_border(face)->get_segment_out().is_empty()){
+            //                    IntervalVector segment_out = get_border(face)->get_segment_out_2D();
 
-//                    vibes::drawSector(segment_out[0].lb(), segment_out[1].lb(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
-//                    vibes::drawSector(segment_out[0].ub(), segment_out[1].ub(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
-//                }
-//            }
+            //                    vibes::drawSector(segment_out[0].lb(), segment_out[1].lb(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
+            //                    vibes::drawSector(segment_out[0].ub(), segment_out[1].ub(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
+            //                }
+            //            }
 
         }
 
@@ -660,7 +667,7 @@ bool Pave::get_diseable_singelton() const{
 bool Pave::is_near_bassin() const{
     for(auto &b:m_borders){
         for(auto &i:b->get_inclusions()){
-            if(!i->get_border()->get_pave()->is_bassin()){
+            if(i->get_border()->get_pave()->is_bassin()){
                 return true;
             }
         }
@@ -674,6 +681,22 @@ bool Pave::is_border() const{
             return true;
         }
     }
+}
+
+bool Pave::is_test() const{
+    if(is_border())
+        return true;
+    for(auto &b:m_borders){
+        for(auto &i:b->get_inclusions()){
+            if(i->get_border()->get_pave()->is_bassin()){
+                return true;
+            }
+            if(!i->get_border()->get_pave()->is_full() || !i->get_border()->get_pave()->is_full_geometricaly()){
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void Pave::set_contaminated(bool val){

@@ -146,13 +146,17 @@ int Graph::process(int max_iterations, bool backward){
         //            cout << "TEST" << endl;
         //        }
 
+        /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
         if(pave->is_active() && (change || pave->get_first_process())){
+
+            /// ******* PROCESS CONSISTENCY *******
             std::vector<bool> change_tab;
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
             m_utils->CtcPaveConsistency(pave, backward, change_tab);
 
+            /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
             for(int face=0; face<4; face++){
                 if(change_tab[face]){
@@ -168,17 +172,6 @@ int Graph::process(int max_iterations, bool backward){
 
             pave->set_first_process_false();
         }
-
-        //                if(inner){
-        //                    this->draw(512, false, "inner - after", true);
-        //                    pave->draw_position();
-        //                    cout << "********"<< endl;
-        //                    cout << "change = " << change << endl;
-        //                    pave->print();
-        //                    if(iterations%100==0){
-        //                        cout << iterations << endl;
-        //                    }
-        //                }
 
         //                if(iterations%1000==0){
         //                    cout << '\r' << "process = " << iterations << flush;

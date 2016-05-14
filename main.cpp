@@ -243,7 +243,7 @@ void car_on_the_hill_dead_path(){
     s.draw(1024, true);
 
 
-    s.print_pave_info(0, -0.8, -0.7,"b[b]");
+    s.print_pave_info(0, 4.4, -2.8,"b[b]");
 //    s.print_pave_info(0, -0.5, 0.44,"b[b]");
 
 }
@@ -493,8 +493,8 @@ int main()
 
     /// **** CAR ON THE HILL ***** //
 //    car_on_the_hill_attractor();
-    car_on_the_hill_capture_bassin();
-//    car_on_the_hill_dead_path();
+//    car_on_the_hill_capture_bassin();
+    car_on_the_hill_dead_path();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
@@ -510,7 +510,7 @@ int main()
 //    integrator();
 
     /// **** TEST ***** //
-//    test();
+    test();
 
     return 0;
 }

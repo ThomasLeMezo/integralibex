@@ -43,12 +43,14 @@ public:
     bool                        is_near_bassin() const;
     bool                        is_border() const;
     bool                        is_bassin() const;
+    bool                        is_test() const;
 
     // Setter
     void                        set_full();
     void                        set_full_in();
     void                        set_full_out();
     void                        set_empty();
+    void                        set_theta(std::vector<ibex::Interval> theta_list);
     void                        set_theta(ibex::Interval theta);
     void                        set_in_queue(bool flag);
     void                        set_copy_node(Pave *p);

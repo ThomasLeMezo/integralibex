@@ -242,21 +242,10 @@ void test_CtcPaveConsistency(){
 }
 
 void test_CtcPaveConsistency2(){
-    //    PAVE x=[-3, -2] y= [-3, -2]
-    //    0x7d32e0
-    //    theta[0]=[1.64474, 1.92957] theta[1]=[ empty ] u=([0, 0] ; [0, 0])
-    //    border=0 0x7d9600 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d3110 segment_full=[-3, -2]
-    //    border=1 0x7d9608 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d54f0 segment_full=[-3, -2]
-    //    border=2 0x7d9610 segment_in=[-3, -2] segment_out=[-3, -2] inclusion=0 *border=0x7d4350 segment_full=[-3, -2]
-    //    border=3 0x7d9618 segment_in=[-3, -2] segment_out=[-3, -2]
-
-    //    BOX = ([-0.3, -0.2] ; [0.459375, 0.5125])
-    //    0x2271af0
-
     Utils u;
     IntervalVector box(2);
-    box[0] = Interval(-0.1, 0.1);
-    box[1] = Interval(-0.3485, -0.1);
+    box[0] = Interval(4.2, 4.85);
+    box[1] = Interval(-3.08125, -2.58437);
     IntervalVector command(2);
     command[0] = Interval::ZERO;
     command[1] = Interval::ZERO;
@@ -274,11 +263,7 @@ void test_CtcPaveConsistency2(){
     f_list.push_back(&f1);
     f_list.push_back(&f2);
     Pave p(box, f_list, command);
-
-    //    border 0	position=([-3.875, -3.75] ; [-4, -4])     	in=[ empty ]	out=[ empty ]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
-    //    border 1	position=([-3.75, -3.75] ; [-4, -3.75])     in=[-4, -3.75]	out=[ empty ]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
-    //    border 2	position=([-3.875, -3.75] ; [-3.75, -3.75]) in=[ empty ]	out=[-3.8277, -3.75]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
-    //    border 3	position=([-3.875, -3.875] ; [-4, -3.75])   in=[ empty ]	out=[ empty ]	continuity_in = 1 continuity_out = 1 blocked_in = [ empty ] blocked_out = [ empty ]
+    p.set_contaminated(false);
 
     //    p.get_border(0)->set_segment_in(Interval(-3, -2), false);
     //    p.get_border(0)->set_segment_out(Interval(-0.277939, -0.2), false);
@@ -289,12 +274,14 @@ void test_CtcPaveConsistency2(){
     //    p.get_border(1)->set_segment_out(Interval(0.459375, 0.5125), false);
     p.get_border(1)->set_full();
     //    p.get_border(1)->set_full_segment_out();
+    p.get_border(1)->set_contaminated_out(true);
 
     //    p.get_border(2)->set_segment_in(Interval(-0.293823, -0.2), false);
     //    p.get_border(2)->set_segment_out(Interval(1,1.4), false);
     //    p.get_border(2)->set_full_segment_out();
     p.get_border(2)->set_full();
     //    p.get_border(2)->set_full_segment_out();
+    p.get_border(2)->set_contaminated_out(true);
 
     //    p.get_border(3)->set_segment_in(Interval(0.480101, 0.5125), false);
     //    p.get_border(3)->set_segment_out(Interval(-3, -2), false);
@@ -327,7 +314,11 @@ void test_CtcPaveConsistency3(){
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f);
     Pave p(box, f_list, command, false);
-    p.set_theta(-Interval::HALF_PI | -Interval::PI);
+
+    vector<Interval> theta_list;
+    theta_list.push_back(-Interval::HALF_PI/2.0 | -Interval::HALF_PI);
+
+    p.set_theta(theta_list);
     //    p.set_theta(Interval::HALF_PI | Interval::PI);
     //    p.set_theta(Interval::ZERO | Interval::HALF_PI);
     //    p.set_theta(Interval::ZERO | -Interval::HALF_PI);

@@ -289,17 +289,16 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_t
         this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u());
 
         if(!p->get_border(face)->get_contaminated_in()){
-            if((p->get_border((face+1)%4)->get_segment_out_2D() & p->get_border(face)->get_position()).is_empty()
-                    || (p->get_border((face+3)%4)->get_segment_out_2D() & p->get_border(face)->get_position()).is_empty()){
-
+            if(p->is_test()){
                 bool change = p->get_border(face)->set_segment_in(seg_in, inclusion);
-                if(change)
+                if(change){
                     p->get_border(face)->set_contaminated_in(true);
-                change_tab[face] = change_tab[face] || change;
+                    change_tab[face] = change_tab[face] || change;
+                }
             }
         }
         else{
-             change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
+            change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
         }
     }
 }
@@ -328,8 +327,6 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
         if(p->get_border(face)->get_contaminated_out()){
             change_tab[face] = p->get_border(face)->set_segment_out(segment_out[face], inclusion) || change_tab[face];
         }
-        //        if(change_tab[face])
-        //            p->get_border(face)->set_contaminated_out(true);
     }
 }
 

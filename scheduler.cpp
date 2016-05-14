@@ -81,35 +81,6 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     g->build_graph(); // connect boxes according to continuity
 }
 
-//void Scheduler::define_continuity(Graph *g, const IntervalVector &box, bool continuity_in, bool continuity_out){
-//    // Test if boxes from g have a border in common with box
-//    // If it is the case, set continuity property
-//    IntervalVector box0(2), box1(2), box2(2), box3(2);
-//    box0[0] = box[0];                   box0[1] = Interval(box[1].lb());
-//    box1[0] = Interval(box[0].ub());    box1[1] = box[1];
-//    box2[0] = box[0];                   box2[1] = Interval(box[1].ub());
-//    box3[0] = Interval(box[0].lb());    box3[1] = box[1];
-
-//    for(int i=0; i<g->get_node_list().size(); i++){
-//        for(auto &b:g->get_node_list()[i]->get_borders()){
-//            IntervalVector inter0 = b->get_position() & box0;
-//            IntervalVector inter1 = b->get_position() & box1;
-//            IntervalVector inter2 = b->get_position() & box2;
-//            IntervalVector inter3 = b->get_position() & box3;
-
-//            bool test0 = !inter0.is_empty() && (!inter0[0].is_degenerated() || !inter0[1].is_degenerated());
-//            bool test1 = !inter1.is_empty() && (!inter1[0].is_degenerated() || !inter1[1].is_degenerated());
-//            bool test2 = !inter2.is_empty() && (!inter2[0].is_degenerated() || !inter2[1].is_degenerated());
-//            bool test3 = !inter3.is_empty() && (!inter3[0].is_degenerated() || !inter3[1].is_degenerated());
-
-//            if(test0 || test1 || test2 || test3){
-//                b->set_continuity_in(continuity_in);
-//                b->set_continuity_out(continuity_out);
-//            }
-//        }
-//    }
-//}
-
 void Scheduler::set_symetry(Function *f, int face_in, int face_out){
     m_graph_list[0]->set_symetry(f, face_in, face_out);
 }
