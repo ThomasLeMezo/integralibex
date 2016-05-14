@@ -36,14 +36,14 @@ public:
     // Tests
     bool                        is_empty();
     bool                        is_full();
-    bool                        is_full_geometricaly();
+    bool                        is_full_geometricaly() const;
     bool                        is_fully_full();
     bool                        is_in_queue() const;
     bool                        is_active() const;
     bool                        is_near_bassin() const;
     bool                        is_border() const;
     bool                        is_bassin() const;
-    bool                        is_test() const;
+    bool                        is_test(int face) const;
 
     // Setter
     void                        set_full();

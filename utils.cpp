@@ -283,23 +283,50 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_t
 
         vector<Interval> seg_out;
         for(int j=(face+1)%4; j!=face; j=(j+1)%4){
-            seg_out.push_back(p->get_border(j)->get_segment_out());
+            if(p->get_border(j)->get_contaminated_out())
+                seg_out.push_back(p->get_border(j)->get_segment_out());
+            else
+                seg_out.push_back(p->get_border(j)->get_segment_full());
         }
 
         this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), p->get_u());
 
-        if(true && !p->get_border(face)->get_contaminated_in()){
-            bool change = p->get_border(face)->set_segment_in(seg_in, inclusion);
-            if(p->is_test()){
-                if(change){
-                    p->get_border(face)->set_contaminated_in(true);
-                    change_tab[face] = change_tab[face] || change;
+        // Test bassin : complémentaire
+        bool apply_contraction = true;
+        if(!p->get_border(face)->get_contaminated_in()){
+            Interval c1, c2;
+            p->get_border(face)->get_segment_full().diff(seg_in, c1, c2);
+            Interval seg_in_c;
+            if(!c1.is_empty() & !c2.is_empty())
+                apply_contraction = false;
+            else
+                seg_in_c = c1.is_empty()? c2:c1;
+            vector<Interval> seg_out_c;
+            for(int j=(face+1)%4; j!=face; j=(j+1)%4){
+                if(p->get_border(j)->get_contaminated_out()){
+                    Interval o1, o2;
+                    p->get_border(j)->get_segment_full().diff(p->get_border(j)->get_segment_out(), o1, o2);
+                    seg_out_c.push_back(o1.is_empty()? o2:o1);
+                }
+                else{
+                    seg_out_c.push_back(Interval::EMPTY_SET);
                 }
             }
+            this->CtcPropagateSegment(seg_in_c, seg_out_c, face, p->get_theta(), p->get_position(), p->get_u());
+            bool seg_out_empty = true;
+            for(auto &seg:seg_out_c){
+                if(!seg.is_empty())
+                    seg_out_empty = false;
+            }
+            if(seg_out_empty)
+                apply_contraction = false;
+
         }
-        else{
-            change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
-        }
+        change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
+        if(apply_contraction)
+            p->get_border(face)->set_contaminated_in(true);
+        else
+            change_tab[face] = false;
     }
 }
 
@@ -307,7 +334,11 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
     Interval segment_out[4] = {Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET, Interval::EMPTY_SET};
 
     for(int face = 0; face < 4; face++){
-        Interval seg_in = p->get_border(face)->get_segment_in();
+        Interval seg_in;
+        if(p->get_border(face)->get_contaminated_in())
+            seg_in = p->get_border(face)->get_segment_in();
+        else
+            seg_in = p->get_border(face)->get_segment_full();
 
         vector<Interval> seg_out;
         for(int j=0; j<3; j++){

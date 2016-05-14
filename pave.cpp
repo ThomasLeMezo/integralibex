@@ -464,7 +464,7 @@ bool Pave::is_full(){
     }
 }
 
-bool Pave::is_full_geometricaly(){
+bool Pave::is_full_geometricaly() const{
     IntervalVector box(2, Interval::EMPTY_SET);
     for(int face = 0; face < 4; face++){
         box |= m_borders[face]->get_segment_out_2D();
@@ -683,15 +683,12 @@ bool Pave::is_border() const{
     }
 }
 
-bool Pave::is_test() const{
-    if(is_border())
+bool Pave::is_test(int face) const{
+    if(is_border() || is_near_bassin() || !is_full_geometricaly())
         return true;
     for(auto &b:m_borders){
         for(auto &i:b->get_inclusions()){
-            if(i->get_border()->get_pave()->is_bassin()){
-                return true;
-            }
-            if(i->get_border()->get_pave()->is_empty() || !i->get_border()->get_pave()->is_full_geometricaly()){
+            if(!i->get_border()->get_pave()->is_full_geometricaly()){
                 return true;
             }
         }
