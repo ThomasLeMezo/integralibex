@@ -44,3 +44,12 @@ limit = -np.ones(size(t))*pi/4.0
 plt.plot(t, limit, 'r')
 
 plt.show()
+
+#### TEST ####
+
+x1, x2 = np.meshgrid(np.arange(-2.0,2.0, .1), np.arange(-2.0,2.0, .1))
+U = x1-(x1+x2)*(x1**2+x2**2)
+V = x2+(x1-x2)*(x1**2+x2**2)
+plt.figure()
+Q = plt.quiver(U, V)
+plt.show()

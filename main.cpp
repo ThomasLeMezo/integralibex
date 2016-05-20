@@ -184,10 +184,8 @@ void car_on_the_hill_attractor_positive(){
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
-//    ibex::Function f2(x1, x2, Return(x2,
-//                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
 //    f_list.push_back(&f2);
@@ -198,7 +196,7 @@ void car_on_the_hill_attractor_positive(){
 
     IntervalVector u(2);
     u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
+    u[1] = Interval(-2.0, 2.0);
 
     vector<ibex::IntervalVector> list_boxes_removed; // empty list
     Scheduler s(box, list_boxes_removed, f_list, u, true, false, true);
@@ -510,7 +508,7 @@ void integrator(){
     f_list.push_back(&f1);
 
     IntervalVector box(2);
-    box[0] = Interval(0.0,20.0);
+    box[0] = Interval(0.0,5.0);
     box[1] = Interval(-2, 2);
 
     IntervalVector u(2);
@@ -520,7 +518,7 @@ void integrator(){
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(0.0);
-    activated_pave[1] = Interval(0.5,1.5);
+    activated_pave[1] = Interval(-0.5,0.5);
 
     s.cameleon_propagation(15, 1e9, activated_pave); // 25
 
@@ -538,9 +536,9 @@ int main()
 
     /// **** CAR ON THE HILL ***** //
 //    car_on_the_hill_attractor();
-//      car_on_the_hill_attractor_positive();
+      car_on_the_hill_attractor_positive();
 //    car_on_the_hill_capture_bassin();
-    car_on_the_hill_dead_path();
+//    car_on_the_hill_dead_path();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
