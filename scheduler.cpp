@@ -75,7 +75,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     for(auto &b:bassin_boxes){
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
         p->set_bassin(true);
-        p->set_full_out();
+        //p->set_full_out();
         g->get_node_list().push_back(p);
     }
 

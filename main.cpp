@@ -184,13 +184,9 @@ void car_on_the_hill_attractor_positive(){
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
-
-//    ibex::Function f2(x1, x2, Return(x2,
-//                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-//    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
@@ -198,7 +194,7 @@ void car_on_the_hill_attractor_positive(){
 
     IntervalVector u(2);
     u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
+    u[1] = Interval(-2.0, 2.0);
 
     vector<ibex::IntervalVector> list_boxes_removed; // empty list
     Scheduler s(box, list_boxes_removed, f_list, u, true, false, true);
@@ -223,14 +219,9 @@ void car_on_the_hill_dead_path(){
     ibex::Function f2(x1, x2, Return(x2,
                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
 
-//    ibex::Function f3(x1, x2, Return(x2,
-//                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
-
-
     std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f1);
     f_list.push_back(&f2);
-//    f_list.push_back(&f3);
+    f_list.push_back(&f1);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
@@ -269,7 +260,7 @@ void car_on_the_hill_dead_path(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(8, 5, 1e9, false, false, true);
+    s.cameleon_cycle(5, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -278,7 +269,7 @@ void car_on_the_hill_dead_path(){
 //    s.draw(1024, false);
 
 
-    s.print_pave_info(0, 4.4, -2.8,"b[b]");
+    s.print_pave_info(0, 4.5, -0.6,"b[b]");
 //    s.print_pave_info(0, -0.5, 0.44,"b[b]");
 
 }

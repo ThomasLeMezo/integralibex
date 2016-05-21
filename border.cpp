@@ -41,8 +41,8 @@ Border::Border(const Border *border): m_position(2)
     m_empty = false;
     m_full = true;
     m_fully_full = true;
-    m_contaminated_in = border->get_contaminated_in();
-    m_contaminated_out = border->get_contaminated_out();
+    m_contaminated_in = border->is_contaminated_in();
+    m_contaminated_out = border->is_contaminated_out();
     //    m_inclusions = border->get_inclusions();
     //    m_inclusions_receving = border->get_inclusions_receving();
     m_enable_continuity_in = border->get_continuity_in();
@@ -55,18 +55,50 @@ Border::~Border(){
     }
 }
 
-void Border::draw() const{
+void Border::draw(bool same_size, double offset, bool test) const{
     // Create an IntervalVector (2D) from the segment (1D)
     IntervalVector segment_in = get_segment_in_2D();
     IntervalVector segment_out =get_segment_out_2D();
 
-    double pourcentage_in = min(m_segment_full.diam()*0.005, 0.005);
+    double ratio = 0.005;
+    if(same_size)
+        ratio = 0.01;
+    double pourcentage_in = min(m_segment_full.diam()*ratio, ratio);
     double pourcentage_out = min(m_segment_full.diam()*0.01, 0.01);
-    segment_in[(m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in);
-    segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out);
 
-    vibes::drawBox(segment_out, "b[b]");
-    vibes::drawBox(segment_in, "r[r]");
+    segment_in[(m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in) + offset;
+    segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out) + 2*offset;
+
+    if(m_contaminated_out)
+        vibes::drawBox(segment_out, "b[b]");
+    else
+        vibes::drawBox(segment_out, "b[]");
+    if(m_contaminated_in)
+        vibes::drawBox(segment_in, "r[r]");
+    else
+        vibes::drawBox(segment_in, "r[]");
+
+    if(test && m_segment_in.is_empty()){
+        double center[2];
+        center[(m_face+1)%2] = m_position[(m_face+1)%2].mid() + offset;
+        center[(m_face)%2] = m_position[(m_face)%2].mid();
+
+        if(m_contaminated_in)
+            vibes::drawCircle(center[0], center[1], 0.01, "black[black]");
+        else
+            vibes::drawCircle(center[0], center[1], 0.01, "black[black]");
+    }
+
+    if(test && m_segment_out.is_empty()){
+        double center[2];
+        center[(m_face+1)%2] = m_position[(m_face+1)%2].mid() + 2*offset;
+        center[(m_face)%2] = m_position[(m_face)%2].mid();
+
+        if(m_contaminated_in)
+            vibes::drawCircle(center[0], center[1], 0.01, "black[black]");
+        else
+            vibes::drawCircle(center[0], center[1], 0.01, "black[black]");
+    }
 }
 
 void Border::get_points(std::vector<double> &x, std::vector<double> &y) const{
@@ -424,7 +456,7 @@ void Border::set_continuity_out(bool enable){
     m_enable_continuity_out = enable;
 }
 
-bool Border::get_contaminated_in() const{
+bool Border::is_contaminated_in() const{
     return m_contaminated_in;
 }
 
@@ -432,7 +464,7 @@ bool Border::set_contaminated_in(bool val){
     m_contaminated_in = val;
 }
 
-bool Border::get_contaminated_out() const{
+bool Border::is_contaminated_out() const{
     return m_contaminated_out;
 }
 

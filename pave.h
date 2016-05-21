@@ -22,9 +22,10 @@ public:
     bool                        diff(const Pave &p);
 
     // ******** Drawing functions ********
-    void                        draw(bool filled, std::string color="black[]", bool borders_only=false, bool cmd_u=false);
-    void                        draw_borders(bool filled, std::string color_polygon="g[g]");
-    void                        draw_position();
+    void                        draw(bool filled, std::string color="black[]", bool borders_only=false) const;
+    void                        draw_borders(bool filled, std::string color_polygon="g[g]") const;
+    void                        draw_test(int size, std::string comment) const;
+    void                        draw_theta() const;
     void                        print();
 
     // ******** Graph building ********

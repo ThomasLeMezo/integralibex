@@ -15,7 +15,7 @@ void test_draw(Pave *p, string drawing_name, bool full=false){
     vibes::beginDrawing();
     vibes::newFigure(drawing_name);
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
-    p->draw(full, "black[]", false, true);
+    p->draw(full, "black[]", false);
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     vibes::axisAuto();
 }
