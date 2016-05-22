@@ -688,13 +688,6 @@ bool Pave::is_test(int face) const{
     return false;
 }
 
-void Pave::set_contaminated(bool val){
-    for(auto &b:m_borders){
-        b->set_contaminated_in(val);
-        b->set_contaminated_out(val);
-    }
-}
-
 bool Pave::is_bassin() const{
     return m_bassin;
 }

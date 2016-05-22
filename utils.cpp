@@ -323,34 +323,36 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 
 void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change_tab){
     int nb_f = p->get_f_list().size();
-    std::vector<Pave*> pave_list;
 
-    for(int i=0; i<nb_f; i++){
-        Pave *p_cpy = new Pave(p);
-        p_cpy->set_active_function(i);
+    for(int i=0; i<2; i++){
+        std::vector<Pave*> pave_list;
+        for(int num_f=0; num_f<nb_f; num_f++){
+            Pave *p_cpy = new Pave(p);
+            p_cpy->set_active_function(num_f);
 
-        if(backward){
-            this->CtcPaveBackward(p_cpy, true, change_tab);
-            Pave p2(p_cpy);
-            this->CtcPaveForward(&p2, true, change_tab);
-            *p_cpy &= p2;
-            pave_list.push_back(p_cpy);
+            if(backward){
+                this->CtcPaveBackward(p_cpy, true, change_tab);
+                Pave p2(p_cpy);
+                this->CtcPaveForward(&p2, true, change_tab);
+                *p_cpy &= p2;
+                pave_list.push_back(p_cpy);
+            }
+            else{
+                this->CtcPaveForward(p_cpy, false, change_tab);
+                pave_list.push_back(p_cpy);
+            }
         }
-        else{
-            this->CtcPaveForward(p_cpy, false, change_tab);
-            pave_list.push_back(p_cpy);
+
+        // Union of Pave
+        for(int i=1; i<pave_list.size(); i++){
+            pave_list[0]->combine(*pave_list[i]);
         }
-    }
+        *p &= *(pave_list[0]);
 
-    // Union of Pave
-    for(int i=1; i<pave_list.size(); i++){
-        pave_list[0]->combine(*pave_list[i]);
-    }
-    *p &= *(pave_list[0]);
-
-    // Delete Pave
-    for(auto &p:pave_list){
-        delete(p);
+        // Delete Pave
+        for(auto &p:pave_list){
+            delete(p);
+        }
     }
 }
 
@@ -369,7 +371,6 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
             if(backward && (p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out()))){
                 change = true;
                 p->get_border(face)->set_segment_out(segment_in, backward);
-                p->get_border(face)->set_contaminated_out(true);
             }
         }
 
@@ -385,14 +386,12 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
                 if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())){
                     change = true;
                     p->get_border(face)->set_segment_in(segment_out, backward);
-                    p->get_border(face)->set_contaminated_in(true);
                 }
             }
             else{
                 if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
                     change = true;
                     p->get_border(face)->set_segment_in(segment_out, backward);
-                    p->get_border(face)->set_contaminated_in(true);
                 }
             }
         }

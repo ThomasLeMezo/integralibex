@@ -310,8 +310,6 @@ void Graph::print_pave_info(double x, double y, string color) const{
              << p->get_border(i)->get_position() << "       \t"
              << p->get_border(i)->get_segment_in() << '\t'
              << p->get_border(i)->get_segment_out() << '\t'
-             << p->get_border(i)->is_contaminated_in() << '\t'
-             << p->get_border(i)->is_contaminated_out() << '\t'
              << p->get_border(i)->get_continuity_in() << '\t'
              << p->get_border(i)->get_continuity_out() << '\t'
              << endl;
@@ -324,7 +322,6 @@ void Graph::print_pave_info(double x, double y, string color) const{
                 cout << "border=" << i << " (" << p->get_border(i)
                      << ") brother=" << j << " " << p->get_border(i)->get_inclusion(j)->get_border()
                      << " pave(" << p->get_border(i)->get_inclusion(j)->get_border()->get_pave() << ")"
-                     << " contaminated (in/out)= " << p->get_border(i)->is_contaminated_in() << " " << p->get_border(i)->is_contaminated_out()
                      << endl;
             }
         }
@@ -504,22 +501,6 @@ void Graph::update_contaminated(){
         if((!p->is_full() && !p->is_empty()) || p->is_near_bassin() || p->is_border()){
             p->set_in_queue(true);
             m_node_queue.push_back(p);
-        }
-    }
-
-    for(auto &p:m_node_list){
-        p->set_contaminated(false);
-
-        for(auto &b:p->get_borders()){
-            if(p->is_bassin()){
-                for(auto &i:b->get_inclusions()){
-                    i->get_border()->set_contaminated_out(true);
-                }
-            }
-
-            if(b->get_inclusions().size()==0){
-                b->set_contaminated_out(true);
-            }
         }
     }
 }

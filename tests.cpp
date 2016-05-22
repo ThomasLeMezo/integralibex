@@ -263,36 +263,27 @@ void test_CtcPaveConsistency2(){
     f_list.push_back(&f1);
     f_list.push_back(&f2);
     Pave p(box, f_list, command);
-    p.set_contaminated(false);
 
     //    p.get_border(0)->set_segment_in(Interval(-3, -2), false);
     //    p.get_border(0)->set_segment_out(Interval(-0.277939, -0.2), false);
     p.get_border(0)->set_full();
     //    p.get_border(0)->set_full_segment_out();
-    p.get_border(0)->set_contaminated_in(false);
-    p.get_border(0)->set_contaminated_out(false);
 
     //    p.get_border(1)->set_segment_in(Interval(-4, -3.75), false);
     //    p.get_border(1)->set_segment_out(Interval(0.459375, 0.5125), false);
     p.get_border(1)->set_full();
     //    p.get_border(1)->set_full_segment_out();
-    p.get_border(1)->set_contaminated_in(false);
-    p.get_border(1)->set_contaminated_out(false);
 
     p.get_border(2)->set_segment_in(Interval(4.2, 4.25), false);
     p.get_border(2)->set_segment_out(Interval(4.2, 4.25), false);
     //    p.get_border(2)->set_full_segment_out();
 //    p.get_border(2)->set_full();
     //    p.get_border(2)->set_full_segment_out();
-    p.get_border(2)->set_contaminated_out(true);
-    p.get_border(2)->set_contaminated_in(false);
 
     //    p.get_border(3)->set_segment_in(Interval(0.480101, 0.5125), false);
     //    p.get_border(3)->set_segment_out(Interval(-3, -2), false);
     //    p.get_border(3)->set_full_segment_out();
     p.get_border(3)->set_full();
-    p.get_border(3)->set_contaminated_in(false);
-    p.get_border(3)->set_contaminated_out(false);
 
 //    test_draw(&p, "test_before");
     std:vector<bool> change_tab;
