@@ -23,8 +23,8 @@ void test(){
 
 //    test_CtcPaveForward();
 //    test_CtcPaveConsistency();
-//    test_CtcPaveConsistency2();
-    test_CtcPaveConsistency3();
+    test_CtcPaveConsistency2();
+//    test_CtcPaveConsistency3();
 
 //    test_contractor_polar();
 
@@ -260,7 +260,7 @@ void car_on_the_hill_dead_path(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(5, 5, 1e9, false, false, true);
+    s.cameleon_cycle(12, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

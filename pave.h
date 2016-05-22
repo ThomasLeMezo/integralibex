@@ -21,6 +21,8 @@ public:
     bool                        inter(const Pave &p);
     bool                        diff(const Pave &p);
 
+    void                        combine(const Pave &p);
+
     // ******** Drawing functions ********
     void                        draw(bool filled, std::string color="black[]", bool borders_only=false) const;
     void                        draw_borders(bool filled, std::string color_polygon="g[g]") const;

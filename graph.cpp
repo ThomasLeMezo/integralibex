@@ -139,17 +139,17 @@ int Graph::process(int max_iterations, bool backward){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
-        IntervalVector test(2);
-        //        [4.2, 4.85] ; [-1.09375, -0.1]
-        test[0] = Interval(4.2, 4.85);
-        test[1] = Interval(-1.09375, -0.1);
+//        IntervalVector test(2);
+//        //        [4.2, 4.85] ; [-1.09375, -0.1]
+//        test[0] = Interval(4.2, 4.85);
+//        test[1] = Interval(-1.09375, -0.1);
 //        if(!(test & pave->get_position()).is_empty()){
 //            cout << "TEST" << endl;
 //        }
 
-        if(test == pave->get_position()){
-            pave->draw_test(512, " before");
-        }
+//        if(test == pave->get_position()){
+//            pave->draw_test(512, " before");
+//        }
 
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
@@ -179,15 +179,15 @@ int Graph::process(int max_iterations, bool backward){
         }
 
 
-        if(test == pave->get_position()){
+//        if(test == pave->get_position()){
 
-            this->draw(1024, true);
-            vibes::axisLimits(-30, 35, -16,16);
-            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
-            pave->draw_test(512, " after");
-//            cin.ignore();
-            cout << "PAUSE" << endl;
-        }
+//            this->draw(1024, true);
+//            vibes::axisLimits(-30, 35, -16,16);
+//            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
+//            pave->draw_test(512, " after");
+////            cin.ignore();
+//            cout << "PAUSE" << endl;
+//        }
     }
 
     m_node_queue.clear();

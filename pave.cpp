@@ -315,6 +315,7 @@ void Pave::draw_test(int size, string comment) const{
         vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
         vibes::drawBox(m_position, "black[]");
+        draw_borders(true, "y[y]");
         double offset[2] = {m_position[0].diam()*0.1, m_position[1].diam()*0.1};
 
         for(int i=0; i<m_borders.size(); i++){
@@ -700,4 +701,19 @@ bool Pave::is_bassin() const{
 
 void Pave::set_bassin(bool val){
     m_bassin = val;
+}
+
+void Pave::combine(const Pave &p){
+    for(int face = 0; face<m_borders.size(); face++){
+        // Segment IN
+        if(get_border(face)->get_segment_out().is_empty() && p.get_border_const(face)->get_segment_out().is_empty()){
+            get_border(face)->set_segment_in(p.get_border_const(face)->get_segment_in(), true);
+        }
+        else{
+            get_border(face)->set_segment_in(p.get_border_const(face)->get_segment_in(), false);
+        }
+
+        // Segment OUT
+        get_border(face)->set_segment_out(p.get_border_const(face)->get_segment_out(), false);
+    }
 }
