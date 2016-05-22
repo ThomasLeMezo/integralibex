@@ -219,13 +219,9 @@ void car_on_the_hill_dead_path(){
     ibex::Function f2(x1, x2, Return(x2,
                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
 
-    ibex::Function f3(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
-
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f2);
     f_list.push_back(&f1);
-    f_list.push_back(&f3);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
