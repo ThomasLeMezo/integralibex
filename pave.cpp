@@ -134,8 +134,8 @@ Pave::Pave(const Pave *p):
     m_full = true; // Force to recompute results
     m_fully_full = true;
     m_empty = false;
-    m_in_queue = false;
-    m_first_process = false;
+    m_in_queue = p->is_in_queue();
+    m_first_process = p->get_first_process();
     m_inner = p->get_inner();
     m_active = p->is_active();
     m_bassin = p->is_bassin();
@@ -254,12 +254,7 @@ void Pave::set_empty(){
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Pave::draw_position(){
-    double size = 0.5*min(m_position[0].diam(), m_position[1].diam())/2.0;
-    vibes::drawCircle(m_position[0].mid(), m_position[1].mid(), size, "b[b]");
-}
-
-void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
+void Pave::draw(bool filled, string color, bool borders_only) const{
     // Draw the pave
     if(borders_only){
         draw_borders(filled, "[#00FF00AA]");
@@ -277,47 +272,26 @@ void Pave::draw(bool filled, string color, bool borders_only, bool cmd_u){
                 vibes::drawBox(m_position, "#00BFFF[#00BFFF]");
         }
         // Draw theta
-
-        double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
-
-        if(cmd_u){
-            // ToDo: check m_u input m_u[0] & m_u[1] add without check
-            //            Interval theta_u = ((m_theta[0] | m_theta[1]).lb() + m_u[0]) & ((m_theta[0] | m_theta[1]).ub() + m_u[1]);
-            //            Interval theta_u_bwd = Interval::PI + ((Interval((m_theta[0] | m_theta[1]).lb()) + m_u[0]) & (Interval((m_theta[0] | m_theta[1]).ub()) + m_u[1]));
-
-            //            for(int face =0; face<4; face++){
-            //                if(!get_border(face)->get_segment_in().is_empty()){
-
-            //                    IntervalVector segment_in = get_border(face)->get_segment_in_2D();
-
-            //                    vibes::drawSector(segment_in[0].lb(), segment_in[1].lb(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
-            //                    vibes::drawSector(segment_in[0].ub(), segment_in[1].ub(), size*0.5, size*0.5, (-theta_u.lb())*180.0/M_PI, (-theta_u.ub())*180.0/M_PI, "r[]");
-            //                }
-            //                if(!get_border(face)->get_segment_out().is_empty()){
-            //                    IntervalVector segment_out = get_border(face)->get_segment_out_2D();
-
-            //                    vibes::drawSector(segment_out[0].lb(), segment_out[1].lb(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
-            //                    vibes::drawSector(segment_out[0].ub(), segment_out[1].ub(), size*0.3, size*0.3, (-theta_u_bwd.lb())*180.0/M_PI, (-theta_u_bwd.ub())*180.0/M_PI, "b[]");
-            //                }
-            //            }
-
-        }
-
-        std::vector<std::string> color_map;
-        color_map.push_back("r[]");
-        color_map.push_back("b[]");
-        color_map.push_back("g[]");
-
-        for(int k=0; k<m_theta_list.size(); k++){
-            for(int i=0; i<m_theta_list[0].size(); i++){
-                vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta_list[k][i].lb())*180.0/M_PI, (-m_theta_list[k][i].ub())*180.0/M_PI, color_map[k%color_map.size()]);
-            }
-        }
-
-
+        draw_theta();
     }
 }
-void Pave::draw_borders(bool filled, string color_polygon){
+
+void Pave::draw_theta() const{
+    double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
+
+    std::vector<std::string> color_map;
+    color_map.push_back("r[]");
+    color_map.push_back("b[]");
+    color_map.push_back("g[]");
+
+    for(int k=0; k<m_theta_list.size(); k++){
+        for(int i=0; i<m_theta_list[0].size(); i++){
+            vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta_list[k][i].lb())*180.0/M_PI, (-m_theta_list[k][i].ub())*180.0/M_PI, color_map[k%color_map.size()]);
+        }
+    }
+}
+
+void Pave::draw_borders(bool filled, string color_polygon) const{
     if(!filled){
         // Draw Segments
         for(int i=0; i<m_borders.size(); i++){
@@ -332,6 +306,25 @@ void Pave::draw_borders(bool filled, string color_polygon){
         }
         vibes::drawPolygon(x, y, color_polygon);
     }
+}
+
+void Pave::draw_test(int size, string comment) const{
+        stringstream ss;
+        ss << "integralIbex - pave=" << m_position << comment;
+        vibes::newFigure(ss.str());
+        vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
+
+        vibes::drawBox(m_position, "black[]");
+        draw_borders(true, "y[y]");
+        double offset[2] = {m_position[0].diam()*0.1, m_position[1].diam()*0.1};
+
+        for(int i=0; i<m_borders.size(); i++){
+            m_borders[i]->draw(true, offset[i%2]*(((i+3)%4>1)?-1:1), true);
+        }
+        draw_theta();
+
+        vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+        vibes::axisAuto();
 }
 
 // ********************************************************************************
@@ -634,8 +627,7 @@ std::vector<ibex::Function *> Pave::get_f_list() const{
 }
 
 void Pave::set_active_function(int id){
-    if(id>=0 && id < m_f_list.size())
-        m_active_function = id;
+    m_active_function = id;
 }
 
 int Pave::get_active_function() const{
@@ -696,17 +688,51 @@ bool Pave::is_test(int face) const{
     return false;
 }
 
-void Pave::set_contaminated(bool val){
-    for(auto &b:m_borders){
-        b->set_contaminated_in(val);
-        b->set_contaminated_out(val);
-    }
-}
-
 bool Pave::is_bassin() const{
     return m_bassin;
 }
 
 void Pave::set_bassin(bool val){
     m_bassin = val;
+}
+
+void Pave::complementaire(){
+    for(auto &b:m_borders){
+        b->complementaire();
+    }
+}
+
+void Pave::union_in_out(){
+    for(auto &b:m_borders){
+        b->union_in_out();
+    }
+}
+
+void Pave::combine(const Pave &p){
+
+//    Pave p1 = new Pave(&p);
+//    Pave p2 = new Pave(this);
+
+////    p1.complementaire();
+////    p2.complementaire();
+////    complementaire();
+
+//    p1.union_in_out();
+//    p2.union_in_out();
+
+//    *this &= p1;
+//    *this &= p2;
+
+    for(int face = 0; face<m_borders.size(); face++){
+        // Segment IN
+        if(get_border(face)->get_segment_out().is_empty() && p.get_border_const(face)->get_segment_out().is_empty()){
+            get_border(face)->set_segment_in(p.get_border_const(face)->get_segment_in(), true);
+        }
+        else{
+            get_border(face)->set_segment_in(p.get_border_const(face)->get_segment_in(), false);
+        }
+
+        // Segment OUT
+        get_border(face)->set_segment_out(p.get_border_const(face)->get_segment_out(), false);
+    }
 }

@@ -16,7 +16,7 @@ public:
     ~Border();
 
     // ******** Drawing functions ********
-    void                            draw() const;
+    void                            draw(bool same_size=false, double offset=0.0, bool test=false) const;
 
     // ******** Graph building ********
     void                            update_brothers_inclusion(Border *border_pave1, Border *border_pave2);
@@ -31,6 +31,8 @@ public:
     Border&                         operator|=(const Border &b);
     bool                            inter(const Border &b);
     bool                            diff(const Border &b);
+    void                            complementaire();
+    void                            union_in_out();
 
     // Setters
 
@@ -47,8 +49,6 @@ public:
     void                            set_inclusion(Border *border, int id_brother);
     void                            set_inclusion_receving(Border* border, int id_brother);
     void                            reset_full_empty();
-    bool                            set_contaminated_in(bool val);
-    bool                            set_contaminated_out(bool val);
 
     void                            add_inclusions(const std::vector<Inclusion *> &inclusion_list);
     bool                            add_inclusion(Inclusion *inclusion);
@@ -73,9 +73,6 @@ public:
 
     bool                            get_continuity_in() const;
     bool                            get_continuity_out() const;
-
-    bool                            get_contaminated_in() const;
-    bool                            get_contaminated_out() const;
 
     // Tests
     bool                            is_empty();
@@ -103,9 +100,6 @@ private:
 private:
     bool                            m_enable_continuity_in, m_enable_continuity_out;
     bool                            m_active_in, m_active_out;
-
-    bool                            m_contaminated_in;
-    bool                            m_contaminated_out;
 };
 
 #endif // BORDER_H

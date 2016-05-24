@@ -23,8 +23,8 @@ void test(){
 
 //    test_CtcPaveForward();
 //    test_CtcPaveConsistency();
-//    test_CtcPaveConsistency2();
-    test_CtcPaveConsistency3();
+    test_CtcPaveConsistency2();
+//    test_CtcPaveConsistency3();
 
 //    test_contractor_polar();
 
@@ -188,7 +188,6 @@ void car_on_the_hill_attractor_positive(){
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-//    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
@@ -221,14 +220,9 @@ void car_on_the_hill_dead_path(){
     ibex::Function f2(x1, x2, Return(x2,
                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
 
-//    ibex::Function f3(x1, x2, Return(x2,
-//                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
-
-
     std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f1);
     f_list.push_back(&f2);
-//    f_list.push_back(&f3);
+    f_list.push_back(&f1);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
@@ -247,15 +241,15 @@ void car_on_the_hill_dead_path(){
 //    box_remove[0] = Interval(-0.1,0.1);// + Interval(-0.5, 0.5);
 //    box_remove[1] = Interval(-0.1,0.1);
 //    list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(2.2,2.4) + Interval(-0.5, 0.5);
+    box_remove[0] = Interval(2.2,8.8) + Interval(-0.5, 0.5);
     box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(4.8,5.0) + Interval(-0.5, 0.5);
-    box_remove[1] = Interval(-0.1,0.1);
-    list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(7.7, 7.8) + Interval(-0.5, 0.5);
-    box_remove[1] = Interval(-0.1,0.1);
-    list_boxes_removed.push_back(box_remove);
+//    box_remove[0] = Interval(4.8,5.0) + Interval(-0.5, 0.5);
+//    box_remove[1] = Interval(-0.1,0.1);
+//    list_boxes_removed.push_back(box_remove);
+//    box_remove[0] = Interval(7.7, 7.8) + Interval(-0.5, 0.5);
+//    box_remove[1] = Interval(-0.1,0.1);
+//    list_boxes_removed.push_back(box_remove);
 //    box_remove[0] = Interval(10.5, 10.7);// + Interval(-0.5, 0.5);
 //    box_remove[1] = Interval(-0.1,0.1);
 //    list_boxes_removed.push_back(box_remove);
@@ -267,7 +261,7 @@ void car_on_the_hill_dead_path(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(8, 5, 1e9, false, false, true);
+    s.cameleon_cycle(12, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -276,7 +270,8 @@ void car_on_the_hill_dead_path(){
 //    s.draw(1024, false);
 
 
-    s.print_pave_info(0, 4.4, -2.8,"b[b]");
+    s.print_pave_info(0, 3.88, -3.89,"b[b]");
+    s.print_pave_info(0, 4.05, -3.89,"b[b]");
 //    s.print_pave_info(0, -0.5, 0.44,"b[b]");
 
 }
@@ -536,9 +531,9 @@ int main()
 
     /// **** CAR ON THE HILL ***** //
 //    car_on_the_hill_attractor();
-      car_on_the_hill_attractor_positive();
+//      car_on_the_hill_attractor_positive();
 //    car_on_the_hill_capture_bassin();
-//    car_on_the_hill_dead_path();
+    car_on_the_hill_dead_path();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();

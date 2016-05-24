@@ -25,9 +25,6 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
 
     m_enable_continuity_in = true;
     m_enable_continuity_out = true;
-
-    m_contaminated_in = true;
-    m_contaminated_out = true;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -41,8 +38,6 @@ Border::Border(const Border *border): m_position(2)
     m_empty = false;
     m_full = true;
     m_fully_full = true;
-    m_contaminated_in = border->get_contaminated_in();
-    m_contaminated_out = border->get_contaminated_out();
     //    m_inclusions = border->get_inclusions();
     //    m_inclusions_receving = border->get_inclusions_receving();
     m_enable_continuity_in = border->get_continuity_in();
@@ -55,18 +50,38 @@ Border::~Border(){
     }
 }
 
-void Border::draw() const{
+void Border::draw(bool same_size, double offset, bool test) const{
     // Create an IntervalVector (2D) from the segment (1D)
     IntervalVector segment_in = get_segment_in_2D();
     IntervalVector segment_out =get_segment_out_2D();
 
-    double pourcentage_in = min(m_segment_full.diam()*0.005, 0.005);
+    double ratio = 0.005;
+    if(same_size)
+        ratio = 0.01;
+    double pourcentage_in = min(m_segment_full.diam()*ratio, ratio);
     double pourcentage_out = min(m_segment_full.diam()*0.01, 0.01);
-    segment_in[(m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in);
-    segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out);
+
+    segment_in[(m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in) + offset;
+    segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out) + 2*offset;
 
     vibes::drawBox(segment_out, "b[b]");
     vibes::drawBox(segment_in, "r[r]");
+
+    if(test && m_segment_in.is_empty()){
+        double center[2];
+        center[(m_face+1)%2] = m_position[(m_face+1)%2].mid() + offset;
+        center[(m_face)%2] = m_position[(m_face)%2].mid();
+
+        vibes::drawCircle(center[0], center[1], 0.01, "black[black]");
+    }
+
+    if(test && m_segment_out.is_empty()){
+        double center[2];
+        center[(m_face+1)%2] = m_position[(m_face+1)%2].mid() + 2*offset;
+        center[(m_face)%2] = m_position[(m_face)%2].mid();
+
+        vibes::drawCircle(center[0], center[1], 0.01, "black[black]");
+    }
 }
 
 void Border::get_points(std::vector<double> &x, std::vector<double> &y) const{
@@ -424,18 +439,17 @@ void Border::set_continuity_out(bool enable){
     m_enable_continuity_out = enable;
 }
 
-bool Border::get_contaminated_in() const{
-    return m_contaminated_in;
+void Border::complementaire(){
+    Interval seg_in1, seg_in2;
+    m_segment_full.diff(m_segment_in, seg_in1,seg_in2);
+    m_segment_in = seg_in1 | seg_in2;
+
+    Interval seg_out1, seg_out2;
+    m_segment_full.diff(m_segment_out, seg_out1,seg_out2);
+    m_segment_in = seg_out1 | seg_out2;
 }
 
-bool Border::set_contaminated_in(bool val){
-    m_contaminated_in = val;
-}
-
-bool Border::get_contaminated_out() const{
-    return m_contaminated_out;
-}
-
-bool Border::set_contaminated_out(bool val){
-    m_contaminated_out = val;
+void Border::union_in_out(){
+    m_segment_in |= m_segment_out;
+    m_segment_out |= m_segment_in;
 }

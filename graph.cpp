@@ -139,12 +139,17 @@ int Graph::process(int max_iterations, bool backward){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
-        //        IntervalVector test(2);
-        //        test[0] = Interval(-3.5);
-        //        test[1] = Interval(-3);
-        //        if(!(test & pave->get_position()).is_empty()){
-        //            cout << "TEST" << endl;
-        //        }
+//        IntervalVector test(2);
+//        //        [4.2, 4.85] ; [-1.09375, -0.1]
+//        test[0] = Interval(4.2, 4.85);
+//        test[1] = Interval(-1.09375, -0.1);
+//        if(!(test & pave->get_position()).is_empty()){
+//            cout << "TEST" << endl;
+//        }
+
+//        if(test == pave->get_position()){
+//            pave->draw_test(512, " before");
+//        }
 
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
@@ -173,17 +178,16 @@ int Graph::process(int max_iterations, bool backward){
             pave->set_first_process_false();
         }
 
-        //                if(iterations%1000==0){
-        //                    cout << '\r' << "process = " << iterations << flush;
-        //                }
 
-        //                if(iterations%1000==0){
-        //                    cout << "PAUSE" << endl;
-        //                    this->draw(1024, true);
-        //                    vibes::axisLimits(-30, 35, -16,16);
-        //                    print_pave_info(-0.8, -1.3, "b[b]");
-        //                    cin.ignore();
-        //                }
+//        if(test == pave->get_position()){
+
+//            this->draw(1024, true);
+//            vibes::axisLimits(-30, 35, -16,16);
+//            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
+//            pave->draw_test(512, " after");
+////            cin.ignore();
+//            cout << "PAUSE" << endl;
+//        }
     }
 
     m_node_queue.clear();
@@ -264,7 +268,7 @@ Pave& Graph::operator[](int id){
     return *(m_node_list[id]);
 }
 
-void Graph::draw(int size, bool filled, string comment, bool inner_details){
+void Graph::draw(int size, bool filled, string comment){
 
     stringstream ss;
     ss << "integralIbex" << m_graph_id<< "-" << m_drawing_cpt << " " << comment;
@@ -276,10 +280,7 @@ void Graph::draw(int size, bool filled, string comment, bool inner_details){
     }
 
     for(auto &node:m_node_list){
-        if(inner_details)
-            node->draw(filled, "black[]", false, true);
-        else
-            node->draw(filled);
+        node->draw(filled);
     }
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     m_drawing_cpt++;
@@ -299,19 +300,21 @@ void Graph::print_pave_info(double x, double y, string color) const{
         return;
     }
 
+    cout << "*******************" << endl;
     cout << "BOX = " << p->get_position() << endl;
     cout << p << endl;
-    cout << "Border ID" << '\t' << "Position ([x], [y])" << '\t' << "segment_in" << '\t' << "segment_out" << endl;
+    cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << endl;
+    cout << "nb\t" << "position\t" << "in\t" << "out\t" << "contaminated_in\t" << "contaminated_out\t" << "continuity_in\t" << "continuity_out" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
-        cout << "border " << i << '\t' << "position="
-             << p->get_border(i)->get_position() << "     " << '\t'
-             << "in=" << p->get_border(i)->get_segment_in() << '\t'
-             << "out=" << p->get_border(i)->get_segment_out() << '\t'
-             << "continuity_in = " << p->get_border(i)->get_continuity_in() << " "
-             << "continuity_out = " << p->get_border(i)->get_continuity_out() << " "
+        cout << i << '\t'
+             << p->get_border(i)->get_position() << "       \t"
+             << p->get_border(i)->get_segment_in() << '\t'
+             << p->get_border(i)->get_segment_out() << '\t'
+             << p->get_border(i)->get_continuity_in() << '\t'
+             << p->get_border(i)->get_continuity_out() << '\t'
              << endl;
     }
-    cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << endl;
+
 
     for(int i=0; i<4; i++){
         if(p->get_border(i)->get_inclusions().size()!=0){
@@ -319,7 +322,6 @@ void Graph::print_pave_info(double x, double y, string color) const{
                 cout << "border=" << i << " (" << p->get_border(i)
                      << ") brother=" << j << " " << p->get_border(i)->get_inclusion(j)->get_border()
                      << " pave(" << p->get_border(i)->get_inclusion(j)->get_border()->get_pave() << ")"
-                     << " contaminated (in/out)= " << p->get_border(i)->get_contaminated_in() << " " << p->get_border(i)->get_contaminated_out()
                      << endl;
             }
         }
@@ -499,22 +501,6 @@ void Graph::update_contaminated(){
         if((!p->is_full() && !p->is_empty()) || p->is_near_bassin() || p->is_border()){
             p->set_in_queue(true);
             m_node_queue.push_back(p);
-        }
-    }
-
-    for(auto &p:m_node_list){
-        p->set_contaminated(false);
-
-        for(auto &b:p->get_borders()){
-            if(p->is_bassin()){
-                for(auto &i:b->get_inclusions()){
-                    i->get_border()->set_contaminated_out(true);
-                }
-            }
-
-            if(b->get_inclusions().size()==0){
-                b->set_contaminated_out(true);
-            }
         }
     }
 }

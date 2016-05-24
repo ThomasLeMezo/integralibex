@@ -15,7 +15,7 @@ void test_draw(Pave *p, string drawing_name, bool full=false){
     vibes::beginDrawing();
     vibes::newFigure(drawing_name);
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
-    p->draw(full, "black[]", false, true);
+    p->draw(full, "black[]", false);
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     vibes::axisAuto();
 }
@@ -245,7 +245,7 @@ void test_CtcPaveConsistency2(){
     Utils u;
     IntervalVector box(2);
     box[0] = Interval(4.2, 4.85);
-    box[1] = Interval(-3.08125, -2.58437);
+    box[1] = Interval(-1.09375, -0.1);
     IntervalVector command(2);
     command[0] = Interval::ZERO;
     command[1] = Interval::ZERO;
@@ -263,7 +263,6 @@ void test_CtcPaveConsistency2(){
     f_list.push_back(&f1);
     f_list.push_back(&f2);
     Pave p(box, f_list, command);
-    p.set_contaminated(false);
 
     //    p.get_border(0)->set_segment_in(Interval(-3, -2), false);
     //    p.get_border(0)->set_segment_out(Interval(-0.277939, -0.2), false);
@@ -274,21 +273,19 @@ void test_CtcPaveConsistency2(){
     //    p.get_border(1)->set_segment_out(Interval(0.459375, 0.5125), false);
     p.get_border(1)->set_full();
     //    p.get_border(1)->set_full_segment_out();
-    p.get_border(1)->set_contaminated_out(true);
 
-    //    p.get_border(2)->set_segment_in(Interval(-0.293823, -0.2), false);
-    //    p.get_border(2)->set_segment_out(Interval(1,1.4), false);
+    p.get_border(2)->set_segment_in(Interval(4.2, 4.25), false);
+    p.get_border(2)->set_segment_out(Interval(4.2, 4.25), false);
     //    p.get_border(2)->set_full_segment_out();
-    p.get_border(2)->set_full();
+//    p.get_border(2)->set_full();
     //    p.get_border(2)->set_full_segment_out();
-    p.get_border(2)->set_contaminated_out(true);
 
     //    p.get_border(3)->set_segment_in(Interval(0.480101, 0.5125), false);
     //    p.get_border(3)->set_segment_out(Interval(-3, -2), false);
     //    p.get_border(3)->set_full_segment_out();
     p.get_border(3)->set_full();
 
-    test_draw(&p, "test_before");
+//    test_draw(&p, "test_before");
     std:vector<bool> change_tab;
     for(int i=0; i<4; i++)
         change_tab.push_back(false);
