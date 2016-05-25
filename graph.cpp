@@ -490,7 +490,7 @@ void Graph::build_graph(){
 
 }
 
-void Graph::update_contaminated(){
+void Graph::update_queue(){
 
     m_node_queue.clear();
     for(auto &p:m_node_list){

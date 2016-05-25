@@ -324,7 +324,7 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change_tab){
     int nb_f = p->get_f_list().size();
 
-    for(int i=0; i<2; i++){ //to reach fix point (more iteration might be necessary)
+    for(int i=0; i<nb_f; i++){ //to reach fix point (more iteration might be necessary)
         std::vector<Pave*> pave_list;
         for(int num_f=0; num_f<nb_f; num_f++){
             Pave *p_cpy = new Pave(p);
@@ -347,7 +347,11 @@ void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change
         for(int i=1; i<pave_list.size(); i++){
             pave_list[0]->combine(*pave_list[i]);
         }
-        *p &= *(pave_list[0]);
+
+        if(backward)
+            *p &= *(pave_list[0]);
+        else
+            *p |= *(pave_list[0]);
 
         //        p->combine(pave_list[i]);
 
@@ -357,9 +361,11 @@ void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change
         }
     }
 
-    for(int face = 0; face<4; face++){
-        if(p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out()))
-            change_tab[face] = false;
+    if(backward){
+        for(int face = 0; face<4; face++){
+            if(p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out()))
+                change_tab[face] = false;
+        }
     }
 }
 

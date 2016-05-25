@@ -33,7 +33,6 @@ public:
 /***************** Variables ******************/
 private:
     std::vector<Graph*> m_graph_list;
-    std::vector<Graph*> m_graph_inner_list;
 
     Utils m_utils;
 };

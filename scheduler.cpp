@@ -157,7 +157,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
             if(near_bassin){
-                m_graph_list[nb_graph]->update_contaminated();
+                m_graph_list[nb_graph]->update_queue();
             }
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
@@ -171,13 +171,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
             // Test if the graph is empty
             if(m_graph_list[nb_graph]->is_empty()){
-                if(m_graph_inner_list.size()==m_graph_list.size()){
-                    delete(m_graph_inner_list[nb_graph]);
-                    m_graph_inner_list.erase(m_graph_inner_list.begin() + nb_graph);
-                }
-
-                delete(m_graph_list[nb_graph]);
                 m_graph_list.erase(m_graph_list.begin()+nb_graph);
+                delete(m_graph_list[nb_graph]);
                 cout << " REMOVE EMPTY GRAPH" << endl;
                 if(nb_graph!=0)
                     nb_graph--;
@@ -188,9 +183,10 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             // ***************************************************
             //              REMOVE INSIDE PROCEDURE
             // Copy graph & propagate one Pave + intersect with cycle
-            // Find the first non-full & non-empty Pave
+            // Find the first non-full & non-empty Pave (i.e. on the border)
+            /// TODO : improve the algorithm
             if(remove_inside && m_graph_list.size() < graph_max){
-                Pave *pave_start = m_graph_list[nb_graph]->get_semi_full_node(); // Find a pave semi full
+                Pave *pave_start = m_graph_list[nb_graph]->get_semi_full_node(); // Find a pave semi full (border pave)
                 if(pave_start == NULL)
                     break;
 
@@ -231,9 +227,6 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 void Scheduler::draw(int size, bool filled){
     for(int i=0; i<m_graph_list.size(); i++){
         m_graph_list[i]->draw(size, filled);
-
-        if(m_graph_inner_list.size()==m_graph_list.size())
-            m_graph_inner_list[i]->drawInner(filled);
     }
 }
 
@@ -242,7 +235,12 @@ Graph* Scheduler::get_graph_list(int i){
 }
 
 void Scheduler::print_pave_info(int graph, double x, double y, string color){
+    if(m_graph_list.size()>graph){
     m_graph_list[graph]->print_pave_info(x, y, color);
+    }
+    else{
+        cout << "GRAPH NOT FOUND" << endl;
+    }
 }
 
 void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY){
