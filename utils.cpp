@@ -324,7 +324,7 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change_tab){
     int nb_f = p->get_f_list().size();
 
-    for(int i=0; i<2; i++){
+    for(int i=0; i<2; i++){ //to reach fix point (more iteration might be necessary)
         std::vector<Pave*> pave_list;
         for(int num_f=0; num_f<nb_f; num_f++){
             Pave *p_cpy = new Pave(p);

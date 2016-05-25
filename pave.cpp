@@ -724,15 +724,32 @@ void Pave::combine(const Pave &p){
 //    *this &= p2;
 
     for(int face = 0; face<m_borders.size(); face++){
-        // Segment IN
-        if(get_border(face)->get_segment_out().is_empty() && p.get_border_const(face)->get_segment_out().is_empty()){
-            get_border(face)->set_segment_in(p.get_border_const(face)->get_segment_in(), true);
-        }
-        else{
-            get_border(face)->set_segment_in(p.get_border_const(face)->get_segment_in(), false);
+        Interval segment_out = get_border(face)->get_segment_out();
+        Interval segment_in = get_border(face)->get_segment_in();
+
+        /// Segment OUT
+        // Union
+        segment_out |= p.get_border_const(face)->get_segment_out();
+        if(get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
+            segment_out &= p.get_border_const(face)->get_segment_in();
         }
 
-        // Segment OUT
-        get_border(face)->set_segment_out(p.get_border_const(face)->get_segment_out(), false);
+        /// Segment IN
+        if(get_border(face)->get_segment_out().is_empty() && !p.get_border_const(face)->get_segment_out().is_empty()){
+            segment_in &= p.get_border_const(face)->get_segment_out();
+        }
+
+        if(get_border(face)->get_segment_out().is_empty() && p.get_border_const(face)->get_segment_out().is_empty()){
+            // Inter
+            segment_in &= p.get_border_const(face)->get_segment_in();
+        }
+        else{
+            // Union
+            segment_in |= p.get_border_const(face)->get_segment_in();
+        }
+
+        get_border(face)->set_empty();
+        get_border(face)->set_segment_in(segment_in, false);
+        get_border(face)->set_segment_out(segment_out, false);
     }
 }
