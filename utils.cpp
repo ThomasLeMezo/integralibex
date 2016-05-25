@@ -350,9 +350,14 @@ void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change
         *p &= *(pave_list[0]);
 
         // Delete Pave
-        for(auto &p:pave_list){
-            delete(p);
+        for(auto &pave:pave_list){
+            delete(pave);
         }
+    }
+
+    for(int face = 0; face<4; face++){
+        if(p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out()))
+            change_tab[face] = false;
     }
 }
 

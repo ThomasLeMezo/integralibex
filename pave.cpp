@@ -702,26 +702,34 @@ void Pave::complementaire(){
     }
 }
 
-void Pave::union_in_out(){
+IntervalVector Pave::bounding_pave() const{
+    IntervalVector box(2, Interval::EMPTY_SET);
+
     for(auto &b:m_borders){
-        b->union_in_out();
+        box |= b->get_segment_in_2D();
+        box |= b->get_segment_out_2D();
+    }
+    return box;
+}
+
+void Pave::intersect_face(const IntervalVector &box){
+    IntervalVector box2(box);
+    if(!box[0].is_empty() && (box[0] & m_position[0].lb()).is_empty() && (box[0] & m_position[0].ub()).is_empty()){
+        box2[0] = m_position[0];
+    }
+    if(!box[1].is_empty() && (box[1] & m_position[1].lb()).is_empty() && (box[1] & m_position[1].ub()).is_empty()){
+        box2[1] = m_position[1];
+    }
+
+    for(int face=0; face<4; face++){
+        get_border(face)->set_segment_in(box2[face%2], true);
+        get_border(face)->set_segment_out(box2[face%2], true);
     }
 }
 
 void Pave::combine(const Pave &p){
 
-//    Pave p1 = new Pave(&p);
-//    Pave p2 = new Pave(this);
-
-////    p1.complementaire();
-////    p2.complementaire();
-////    complementaire();
-
-//    p1.union_in_out();
-//    p2.union_in_out();
-
-//    *this &= p1;
-//    *this &= p2;
+//    intersect_face(p.bounding_pave());
 
     for(int face = 0; face<m_borders.size(); face++){
         Interval segment_out = get_border(face)->get_segment_out();

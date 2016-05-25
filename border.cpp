@@ -295,9 +295,9 @@ const ibex::IntervalVector Border::get_segment_in_2D() const{
 }
 
 const ibex::IntervalVector Border::get_segment_out_2D() const{
-    IntervalVector segment_in = m_position;
-    segment_in[m_face%2] = m_segment_out;
-    return segment_in;
+    IntervalVector segment_out = m_position;
+    segment_out[m_face%2] = m_segment_out;
+    return segment_out;
 }
 
 const ibex::Interval Border::get_segment_out() const{
@@ -447,9 +447,4 @@ void Border::complementaire(){
     Interval seg_out1, seg_out2;
     m_segment_full.diff(m_segment_out, seg_out1,seg_out2);
     m_segment_in = seg_out1 | seg_out2;
-}
-
-void Border::union_in_out(){
-    m_segment_in |= m_segment_out;
-    m_segment_out |= m_segment_in;
 }

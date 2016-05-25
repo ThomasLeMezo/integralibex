@@ -32,7 +32,6 @@ public:
     bool                            inter(const Border &b);
     bool                            diff(const Border &b);
     void                            complementaire();
-    void                            union_in_out();
 
     // Setters
 

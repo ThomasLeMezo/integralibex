@@ -23,7 +23,8 @@ public:
 
     void                        combine(const Pave &p);
     void                        complementaire();
-    void                        union_in_out();
+    ibex::IntervalVector        bounding_pave() const;
+    void                        intersect_face(const ibex::IntervalVector &box);
 
     // ******** Drawing functions ********
     void                        draw(bool filled, std::string color="black[]", bool borders_only=false) const;

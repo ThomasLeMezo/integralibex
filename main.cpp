@@ -221,8 +221,8 @@ void car_on_the_hill_dead_path(){
                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
 
     std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f1);
     f_list.push_back(&f2);
+    f_list.push_back(&f1);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
@@ -261,7 +261,7 @@ void car_on_the_hill_dead_path(){
     Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(8, 5, 1e9, false, false, true);
+    s.cameleon_cycle(12, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
