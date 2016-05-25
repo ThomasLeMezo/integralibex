@@ -57,7 +57,7 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, u, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin
-    s.cameleon_cycle(13, 5, 1e9, true, false, false);
+    s.cameleon_cycle(12, 5, 1e9, true, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -160,8 +160,8 @@ void car_on_the_hill_attractor(){
     f_list.push_back(&f);
 
     IntervalVector box(2);
-    box[0] = Interval(0.5, 5.5);
-    box[1] = Interval(-6.0, 6.0);
+    box[0] = Interval(-1.0, 13.0);
+    box[1] = Interval(-16, 16);
 
     IntervalVector u(2);
     u[0] = Interval::ZERO;
@@ -170,7 +170,7 @@ void car_on_the_hill_attractor(){
     Scheduler s(box, f_list, u);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(10, 5, 1e9, false, false, false);
+    s.cameleon_cycle(14, 5, 1e9, true, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -180,7 +180,7 @@ void car_on_the_hill_attractor(){
 
 }
 
-void car_on_the_hill_attractor_positive(){
+void car_on_the_hill_outer_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x1, x2;
@@ -211,7 +211,7 @@ void car_on_the_hill_attractor_positive(){
 //    s.print_pave_info(0, -1.64,0.11,"b[b]");
 }
 
-void car_on_the_hill_dead_path(){
+void car_on_the_hill_inner_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x1, x2;
@@ -511,10 +511,10 @@ int main()
 //    station_keeping_attractor();
 
     /// **** CAR ON THE HILL ***** //
-//    car_on_the_hill_attractor();
-//      car_on_the_hill_attractor_positive();
+    car_on_the_hill_attractor();
+//      car_on_the_hill_outer_kernel();
 //    car_on_the_hill_capture_bassin();
-//    car_on_the_hill_dead_path();
+//    car_on_the_hill_inner_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
@@ -524,7 +524,7 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 
     /// **** INTEGRATOR ***** //
 //    integrator();

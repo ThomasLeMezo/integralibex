@@ -103,7 +103,7 @@ public:
     bool                                get_diseable_singelton() const;
 
     // Other functions
-    const std::vector<ibex::Interval> compute_theta(ibex::Function *f);
+    const std::vector<ibex::Interval>   compute_theta(ibex::Function *f);
 
 
 

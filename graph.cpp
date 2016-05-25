@@ -380,6 +380,12 @@ bool Graph::is_empty(){
 
 Pave* Graph::get_semi_full_node(){
     for(auto &node:m_node_list){
+        if(node->is_border() && node->get_theta_diam()<M_PI/2.0){
+            return node;
+        }
+    }
+
+    for(auto &node:m_node_list){
         if(!node->is_empty() && !node->is_full()){
             return node;
         }
