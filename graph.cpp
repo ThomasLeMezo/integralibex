@@ -303,7 +303,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
     cout << "*******************" << endl;
     cout << "BOX = " << p->get_position() << endl;
     cout << p << endl;
-    cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << endl;
+    cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << " diam=" << p->get_theta_diam() << endl;
     cout << "nb\t" << "position\t" << "in\t" << "out\t" << "contaminated_in\t" << "contaminated_out\t" << "continuity_in\t" << "continuity_out" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
         cout << i << '\t'

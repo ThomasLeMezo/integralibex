@@ -309,22 +309,22 @@ void Pave::draw_borders(bool filled, string color_polygon) const{
 }
 
 void Pave::draw_test(int size, string comment) const{
-        stringstream ss;
-        ss << "integralIbex - pave=" << m_position << comment;
-        vibes::newFigure(ss.str());
-        vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
+    stringstream ss;
+    ss << "integralIbex - pave=" << m_position << comment;
+    vibes::newFigure(ss.str());
+    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
-        vibes::drawBox(m_position, "black[]");
-        draw_borders(true, "y[y]");
-        double offset[2] = {m_position[0].diam()*0.1, m_position[1].diam()*0.1};
+    vibes::drawBox(m_position, "black[]");
+    draw_borders(true, "y[y]");
+    double offset[2] = {m_position[0].diam()*0.1, m_position[1].diam()*0.1};
 
-        for(int i=0; i<m_borders.size(); i++){
-            m_borders[i]->draw(true, offset[i%2]*(((i+3)%4>1)?-1:1), true);
-        }
-        draw_theta();
+    for(int i=0; i<m_borders.size(); i++){
+        m_borders[i]->draw(true, offset[i%2]*(((i+3)%4>1)?-1:1), true);
+    }
+    draw_theta();
 
-        vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-        vibes::axisAuto();
+    vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+    vibes::axisAuto();
 }
 
 // ********************************************************************************
@@ -399,13 +399,27 @@ void Pave::bisect(vector<Pave*> &result){
 // ********************************************************************************
 // ****************** UTILS functions *********************************************
 
-double Pave::get_theta_diam(){
-    double diam = 0.0;
-    for(int i=0; i<m_theta_list[m_active_function].size(); i++){
-        if(!m_theta_list[m_active_function][i].is_empty())
-            diam += m_theta_list[m_active_function][i].diam();
+double Pave::get_theta_diam(int active_function){
+    if(active_function =-1){
+        double diam_max = 0.0;
+        for(int active_function = 0; active_function<m_f_list.size(); active_function++){
+            double diam = 0.0;
+            for(int i=0; i<m_theta_list[active_function].size(); i++){
+                if(!m_theta_list[active_function][i].is_empty())
+                    diam += m_theta_list[active_function][i].diam();
+            }
+            diam_max=max(diam_max, diam);
+        }
+        return diam_max;
     }
-    return diam;
+    else{
+        double diam = 0.0;
+        for(int i=0; i<m_theta_list[active_function].size(); i++){
+            if(!m_theta_list[active_function][i].is_empty())
+                diam += m_theta_list[active_function][i].diam();
+        }
+        return diam;
+    }
 }
 
 void Pave::remove_brothers(Pave* p, int face){
@@ -712,25 +726,56 @@ IntervalVector Pave::bounding_pave() const{
     return box;
 }
 
-void Pave::intersect_face(const IntervalVector &box){
-    IntervalVector box2(box);
-    if(!box[0].is_empty() && (box[0] & m_position[0].lb()).is_empty() && (box[0] & m_position[0].ub()).is_empty()){
-        box2[0] = m_position[0];
+IntervalVector Pave::bounding_pave_in() const{
+    IntervalVector box(2, Interval::EMPTY_SET);
+    for(auto &b:m_borders){
+        box |= b->get_segment_in_2D();
     }
-    if(!box[1].is_empty() && (box[1] & m_position[1].lb()).is_empty() && (box[1] & m_position[1].ub()).is_empty()){
-        box2[1] = m_position[1];
+    return box;
+}
+
+IntervalVector Pave::bounding_pave_out() const{
+    IntervalVector box(2, Interval::EMPTY_SET);
+    for(auto &b:m_borders){
+        box |= b->get_segment_out_2D();
+    }
+    return box;
+}
+
+void Pave::intersect_face(const IntervalVector &box_in, const IntervalVector &box_out){
+    IntervalVector box2_in(box_in);
+    IntervalVector box2_out(box_out);
+    if(!box_in[0].is_empty() && (box_in[0] & m_position[0].lb()).is_empty() && (box_in[0] & m_position[0].ub()).is_empty()){
+        box2_in[0] = m_position[0];
+    }
+    if(!box_in[1].is_empty() && (box_in[1] & m_position[1].lb()).is_empty() && (box_in[1] & m_position[1].ub()).is_empty()){
+        box2_in[1] = m_position[1];
+    }
+
+    if(!box_out[0].is_empty() && (box_out[0] & m_position[0].lb()).is_empty() && (box_out[0] & m_position[0].ub()).is_empty()){
+        box2_out[0] = m_position[0];
+    }
+    if(!box_out[1].is_empty() && (box_out[1] & m_position[1].lb()).is_empty() && (box_out[1] & m_position[1].ub()).is_empty()){
+        box2_out[1] = m_position[1];
     }
 
     for(int face=0; face<4; face++){
-        get_border(face)->set_segment_in(box2[face%2], true);
-        get_border(face)->set_segment_out(box2[face%2], true);
+        get_border(face)->set_segment_in(box2_in[face%2], true);
+        get_border(face)->set_segment_out(box2_out[face%2], true);
     }
 }
 
+void Pave::combine(std::vector<Pave *> &pave_list){
+    IntervalVector inter_pave_in(2, Interval::ALL_REALS);
+    IntervalVector inter_pave_out(2, Interval::ALL_REALS);
+    for(auto &p:pave_list){
+        inter_pave_in &= p->bounding_pave_in();
+        inter_pave_out &= p->bounding_pave_out();
+    }
+    intersect_face(inter_pave_in, inter_pave_out);
+}
+
 void Pave::combine(const Pave &p){
-
-//    intersect_face(p.bounding_pave());
-
     for(int face = 0; face<m_borders.size(); face++){
         Interval segment_out = get_border(face)->get_segment_out();
         Interval segment_in = get_border(face)->get_segment_in();
@@ -738,23 +783,29 @@ void Pave::combine(const Pave &p){
         /// Segment OUT
         // Union
         segment_out |= p.get_border_const(face)->get_segment_out();
-        if(get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
-            segment_out &= p.get_border_const(face)->get_segment_in();
-        }
+//        if(get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
+//            segment_out &= p.get_border_const(face)->get_segment_in();
+//        }
 
         /// Segment IN
-        if(get_border(face)->get_segment_out().is_empty() && !p.get_border_const(face)->get_segment_out().is_empty()){
-            segment_in &= p.get_border_const(face)->get_segment_out();
-        }
+//        if(get_border(face)->get_segment_out().is_empty() && !p.get_border_const(face)->get_segment_out().is_empty()){
+//            segment_in &= p.get_border_const(face)->get_segment_out();
+//        }
 
         if(get_border(face)->get_segment_out().is_empty() && p.get_border_const(face)->get_segment_out().is_empty()){
-            // Inter
-            segment_in &= p.get_border_const(face)->get_segment_in();
+            segment_in &= p.get_border_const(face)->get_segment_in(); // Inter
         }
         else{
-            // Union
-            segment_in |= p.get_border_const(face)->get_segment_in();
+            segment_in |= p.get_border_const(face)->get_segment_in(); // Union
         }
+//        if(!get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
+//            segment_in &= p.get_border_const(face)->get_segment_in();
+//        }
+
+//        if(get_theta_diam(p.get_active_function())>=2*M_PI){
+//            segment_in &= p.get_border_const(face)->get_segment_in();
+//            segment_out &= p.get_border_const(face)->get_segment_out();
+//        }
 
         get_border(face)->set_empty();
         get_border(face)->set_segment_in(segment_in, false);

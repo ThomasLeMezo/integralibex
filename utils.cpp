@@ -349,6 +349,8 @@ void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change
         }
         *p &= *(pave_list[0]);
 
+        //        p->combine(pave_list[i]);
+
         // Delete Pave
         for(auto &pave:pave_list){
             delete(pave);

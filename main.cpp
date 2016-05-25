@@ -221,38 +221,19 @@ void car_on_the_hill_dead_path(){
                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
 
     std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f2);
     f_list.push_back(&f1);
+    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    // Points d'équilibre (stable)
-    // x1 = 2.311(6-7)
-    // x1 = 7.78(10/09)
-    // Points d'équilibre (instable)
-    // x1 = 0.0
-    // x1 = 4.9517(6-7)
-    // x1 = 10.683(6-7)
-
     std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
-//    box_remove[0] = Interval(-0.1,0.1);// + Interval(-0.5, 0.5);
-//    box_remove[1] = Interval(-0.1,0.1);
-//    list_boxes_removed.push_back(box_remove);
+
     box_remove[0] = Interval(2.2,8.8) + Interval(-0.5, 0.5);
     box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
-//    box_remove[0] = Interval(4.8,5.0) + Interval(-0.5, 0.5);
-//    box_remove[1] = Interval(-0.1,0.1);
-//    list_boxes_removed.push_back(box_remove);
-//    box_remove[0] = Interval(7.7, 7.8) + Interval(-0.5, 0.5);
-//    box_remove[1] = Interval(-0.1,0.1);
-//    list_boxes_removed.push_back(box_remove);
-//    box_remove[0] = Interval(10.5, 10.7);// + Interval(-0.5, 0.5);
-//    box_remove[1] = Interval(-0.1,0.1);
-//    list_boxes_removed.push_back(box_remove);
 
     IntervalVector u(2);
     u[0] = Interval::ZERO;
@@ -270,7 +251,7 @@ void car_on_the_hill_dead_path(){
 //    s.draw(1024, false);
 
 
-    s.print_pave_info(0, 1.6, 0.05,"b[b]");
+    s.print_pave_info(0, 10.28, 0.0,"b[b]");
 //    s.print_pave_info(0, -0.5, 0.44,"b[b]");
 
 }

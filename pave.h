@@ -21,10 +21,13 @@ public:
     bool                        inter(const Pave &p);
     bool                        diff(const Pave &p);
 
+    void                        combine(std::vector<Pave *> &pave_list);
     void                        combine(const Pave &p);
     void                        complementaire();
     ibex::IntervalVector        bounding_pave() const;
-    void                        intersect_face(const ibex::IntervalVector &box);
+    ibex::IntervalVector        bounding_pave_in() const;
+    ibex::IntervalVector        bounding_pave_out() const;
+    void                        intersect_face(const ibex::IntervalVector &box_in, const ibex::IntervalVector &box_out);
 
     // ******** Drawing functions ********
     void                        draw(bool filled, std::string color="black[]", bool borders_only=false) const;
@@ -75,7 +78,7 @@ public:
     void                        reset_full_empty();
 
     // Getters
-    double                              get_theta_diam();
+    double                              get_theta_diam(int active_function=-1);
     const std::vector<Pave*>            get_brothers(int face);
     const ibex::Interval&               get_theta(int i) const;
     const std::vector<ibex::Interval>   get_theta() const;
