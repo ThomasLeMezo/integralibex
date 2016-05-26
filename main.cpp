@@ -207,14 +207,15 @@ void car_on_the_hill_attractor_with_inner_kernel(){
     Scheduler s(box, f_list, u, true, false, false);
 
     /////////////// Compute ///////////////
-    s.compute_attractor(9, 1e9);
-//    s.invert_for_inner();
+    s.compute_attractor(14, 1e9);
+    s.invert_for_inner();
+    s.cameleon_cycle(2, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     /////////////// Drawing ///////////////
     s.draw(1024, true);
-    s.print_pave_info(0, -0.4,0.15,"b[b]");
+    s.print_pave_info(0, 3.0,0.2,"b[b]");
 }
 
 void car_on_the_hill_outer_kernel(){
@@ -553,7 +554,7 @@ int main()
 //    car_on_the_hill_capture_bassin();
 //    car_on_the_hill_inner_kernel();
 
-//    car_on_the_hill_attractor_with_inner_kernel();
+    car_on_the_hill_attractor_with_inner_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
@@ -563,7 +564,7 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 
     /// **** INTEGRATOR ***** //
 //    integrator();

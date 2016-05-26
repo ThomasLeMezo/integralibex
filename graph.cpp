@@ -156,7 +156,7 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
 
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
-        if(pave->is_active() && (change || pave->get_first_process())){
+        if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
 
             /// ******* PROCESS CONSISTENCY *******
             std::vector<bool> change_tab;
@@ -170,7 +170,7 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
                 if(change_tab[face]){
                     vector<Pave*> brothers_pave = pave->get_brothers(face);
                     for(int i=0; i<brothers_pave.size(); i++){
-                        if(brothers_pave[i]->is_in_queue() == false && !brothers_pave[i]->is_removed_pave()){
+                        if(brothers_pave[i]->is_in_queue() == false){
                             m_node_queue.push_back(brothers_pave[i]);
                             brothers_pave[i]->set_in_queue(true);
                         }
@@ -199,7 +199,7 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
 
 void Graph::set_full(){
     for(auto &node : m_node_list){
-        if(node->is_active())
+        if(node->is_active() && !node->is_removed_pave())
             node->set_full();
     }
 }
@@ -367,10 +367,11 @@ int Graph::size() const{
 
 void Graph::mark_empty_node(){
     for(int i=0; i<m_node_list.size(); i++){
-        if(m_node_list[i]->is_active()){
+        if(!m_node_list[i]->is_removed_pave() && m_node_list[i]->is_active()){
             m_node_list[i]->reset_full_empty();
             if(m_node_list[i]->is_empty()){
                 m_node_list[i]->set_removed_pave(true);
+                m_node_list[i]->set_active(false);
             }
         }
     }
@@ -564,7 +565,7 @@ bool Graph::identify_attractor(){
     for(auto &p:m_node_list){
 
         // Study the subgraph starting with p
-        if(p->is_active() && !p->is_marked_attractor()){
+        if(p->is_active() && !p->is_marked_attractor() && !p->is_removed_pave()){
             vector<Pave*> attractor_list;
             attractor_list.push_back(p);
             get_recursive_attractor(p, attractor_list);
@@ -581,7 +582,6 @@ bool Graph::identify_attractor(){
             }
 
             vector<IntervalVector> list_search_box = m_utils->get_segment_from_box(m_search_box);
-            cout << "bounding box = " <<  bounding_box << endl;
             for(auto &b:list_search_box){
                 if(!((bounding_box & b).is_empty()))
                     test_attractor = false;
@@ -605,7 +605,7 @@ void Graph::get_recursive_attractor(Pave* p, vector<Pave*> &list){
     for(int face=0; face<4; face++){
         vector<Pave*> brothers_face = p->get_brothers(face);
         for(auto &p_brother:brothers_face){
-            if(!p_brother->is_marked_attractor()){
+            if(!p_brother->is_removed_pave() && !p_brother->is_marked_attractor()){
                 list.push_back(p_brother);
                 p_brother->set_marker_attractor(true);
                 get_recursive_attractor(p_brother, list);
@@ -633,5 +633,12 @@ void Graph::complementaire(){
 void Graph::set_external_boundary(bool in, bool out){
     for(auto &p:m_node_border_list){
         p->set_segment(in, out);
+    }
+}
+
+void Graph::set_all_active(){
+    for(auto &p:m_node_list){
+        p->set_active(true);
+        p->set_removed_pave(false);
     }
 }

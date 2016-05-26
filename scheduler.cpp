@@ -179,21 +179,13 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
             cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
             // Remove empty pave
-            m_graph_list[0]->remove_empty_node();
+            m_graph_list[0]->mark_empty_node();
 
-            // Test if the graph is empty
-            if(m_graph_list[0]->is_empty()){
-                delete(m_graph_list[0]);
-                m_graph_list.erase(m_graph_list.begin());
-                cout << "REMOVE EMPTY GRAPH" << endl;
-                break;
-            }
         }
-        if(m_graph_list.size()!=0){
-            if(m_graph_list[0]->identify_attractor()){
-                cout << "NO MORE ATTRACTOR TO FIND" << endl;
-                break;
-            }
+
+        if(m_graph_list[0]->identify_attractor()){
+            cout << "NO MORE ATTRACTOR TO FIND" << endl;
+            break;
         }
 
         cout << "--> time (total) = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -205,14 +197,19 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
-
     int iterations = 0;
-    m_graph_list[0]->set_full();
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
+        m_graph_list[0]->set_full();
         m_graph_list[0]->sivia(4,true, false, false, near_bassin); // Start with 4 boxes
         m_graph_list[0]->process(process_iterations_max, true); // ? Usefull ??? ToDo
+        iterations++;
+    }
+
+    if(iterations < iterations_max && this->m_graph_list[0]->size()>4){
+        m_graph_list[0]->remove_empty_node();
+        m_graph_list[0]->process(process_iterations_max, true);
         iterations++;
     }
 
@@ -322,6 +319,11 @@ void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Funct
 }
 
 void Scheduler::invert_for_inner(){
+    // reset removed and active pave
+
     m_graph_list[0]->complementaire();
+    m_graph_list[0]->set_all_active();
+    m_graph_list[0]->update_queue();
+
     m_graph_list[0]->set_external_boundary(true, true);
 }

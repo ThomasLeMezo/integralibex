@@ -440,13 +440,16 @@ void Border::set_continuity_out(bool enable){
 }
 
 void Border::complementaire(){
+    m_segment_in |= m_segment_out;
+    m_segment_out |= m_segment_in;
+
     Interval seg_in1, seg_in2;
     m_segment_full.diff(m_segment_in, seg_in1,seg_in2);
     m_segment_in = seg_in1 | seg_in2;
 
     Interval seg_out1, seg_out2;
     m_segment_full.diff(m_segment_out, seg_out1,seg_out2);
-    m_segment_in = seg_out1 | seg_out2;
+    m_segment_out = seg_out1 | seg_out2;
 }
 
 void Border::set_segment(bool in, bool out){

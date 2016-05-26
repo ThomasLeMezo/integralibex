@@ -529,7 +529,8 @@ bool Pave::is_fully_full(){
 const std::vector<Pave *> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
     for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
-        brothers_list.push_back(m_borders[face]->get_inclusion(i)->get_border()->get_pave());
+        if(!m_borders[face]->get_inclusion(i)->get_border()->get_pave()->is_removed_pave())
+            brothers_list.push_back(m_borders[face]->get_inclusion(i)->get_border()->get_pave());
     }
     return brothers_list;
 }
@@ -805,14 +806,14 @@ void Pave::combine(const Pave &p){
         /// Segment OUT
         // Union
         segment_out |= p.get_border_const(face)->get_segment_out();
-//        if(get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
-//            segment_out &= p.get_border_const(face)->get_segment_in();
-//        }
+        //        if(get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
+        //            segment_out &= p.get_border_const(face)->get_segment_in();
+        //        }
 
         /// Segment IN
-//        if(get_border(face)->get_segment_out().is_empty() && !p.get_border_const(face)->get_segment_out().is_empty()){
-//            segment_in &= p.get_border_const(face)->get_segment_out();
-//        }
+        //        if(get_border(face)->get_segment_out().is_empty() && !p.get_border_const(face)->get_segment_out().is_empty()){
+        //            segment_in &= p.get_border_const(face)->get_segment_out();
+        //        }
 
         if(get_border(face)->get_segment_out().is_empty() && p.get_border_const(face)->get_segment_out().is_empty()){
             segment_in &= p.get_border_const(face)->get_segment_in(); // Inter
@@ -820,14 +821,14 @@ void Pave::combine(const Pave &p){
         else{
             segment_in |= p.get_border_const(face)->get_segment_in(); // Union
         }
-//        if(!get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
-//            segment_in &= p.get_border_const(face)->get_segment_in();
-//        }
+        //        if(!get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
+        //            segment_in &= p.get_border_const(face)->get_segment_in();
+        //        }
 
-//        if(get_theta_diam(p.get_active_function())>=2*M_PI){
-//            segment_in &= p.get_border_const(face)->get_segment_in();
-//            segment_out &= p.get_border_const(face)->get_segment_out();
-//        }
+        //        if(get_theta_diam(p.get_active_function())>=2*M_PI){
+        //            segment_in &= p.get_border_const(face)->get_segment_in();
+        //            segment_out &= p.get_border_const(face)->get_segment_out();
+        //        }
 
         get_border(face)->set_empty();
         get_border(face)->set_segment_in(segment_in, false);

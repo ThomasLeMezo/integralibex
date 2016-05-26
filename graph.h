@@ -33,6 +33,7 @@ public:
     void                        set_all_first_process();
     void                        set_active_f(int id);
     void                        set_external_boundary(bool in, bool out);
+    void                        set_all_active();
 
     void                        update_queue();
     void                        clear_node_queue();
