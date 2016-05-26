@@ -208,8 +208,9 @@ void car_on_the_hill_attractor_with_inner_kernel(){
 
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
+    s.draw(1024, true, "attractor");
     s.invert_for_inner();
-    s.cameleon_cycle(2, 5, 1e9, false, false, true);
+    s.cameleon_cycle(4, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

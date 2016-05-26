@@ -322,6 +322,12 @@ void Scheduler::invert_for_inner(){
     // reset removed and active pave
 
     m_graph_list[0]->complementaire();
+    for(auto &p:m_graph_list[0]->get_node_list()){
+        if(p->is_marked_attractor()){
+            p->set_segment(false, true);
+        }
+    }
+
     m_graph_list[0]->set_all_active();
     m_graph_list[0]->update_queue();
 
