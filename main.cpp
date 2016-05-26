@@ -553,9 +553,9 @@ int main()
 //    car_on_the_hill_attractor();
 //      car_on_the_hill_outer_kernel();
 //    car_on_the_hill_capture_bassin();
-//    car_on_the_hill_inner_kernel();
+    car_on_the_hill_inner_kernel();
 
-    car_on_the_hill_attractor_with_inner_kernel();
+//    car_on_the_hill_attractor_with_inner_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();

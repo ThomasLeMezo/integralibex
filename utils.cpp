@@ -352,8 +352,12 @@ void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change
             pave_list[0]->combine(*pave_list[i]);
         }
 
-        if(backward)
-            *p &= *(pave_list[0]);
+        if(backward){
+//            if(pave_list.size()>1)
+//                p->combine(pave_list);
+//            else
+                *p &= *(pave_list[0]);
+        }
         else
             *p |= *(pave_list[0]);
 
