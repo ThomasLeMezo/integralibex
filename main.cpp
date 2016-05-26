@@ -184,7 +184,7 @@ void car_on_the_hill_attractor(){
     s.print_pave_info(0, -0.4,0.15,"b[b]");
 }
 
-void car_on_the_hill_attractor_with_inner_kernel(){
+void car_on_the_hill_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x1, x2;
@@ -211,7 +211,7 @@ void car_on_the_hill_attractor_with_inner_kernel(){
 //    s.draw(1024, true, "attractor");
     s.invert_for_inner();
 //    s.draw(1024, true, "invert");
-    s.cameleon_viability(8, 1e9);
+    s.cameleon_viability(10, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -571,6 +571,105 @@ void van_der_pol_integration(){
     s.draw(1024, true);
 }
 
+void van_der_pol_kernel(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x, y;
+    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x + 0.1));
+    ibex::Function f2(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x - 0.1));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+    f_list.push_back(&f2);
+
+    IntervalVector box(2);
+    box[0] = Interval(-8.0, 8.0);
+    box[1] = Interval(-8.0, 8.0);
+
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
+
+    Scheduler s(box, f_list, u, false, false, true);
+
+    /////////////// Compute ///////////////
+    s.compute_attractor(14, 1e9);
+    s.draw(1024, true, "attractor");
+    s.invert_for_inner();
+    s.draw(1024, true, "invert");
+    s.cameleon_cycle(12, 5, 1e9, false, false, true);
+//    s.cameleon_viability(6, 1e9);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+}
+
+void van_der_pol_inner(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x, y;
+    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x + 0.1));
+    ibex::Function f2(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x - 0.1));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+    f_list.push_back(&f2);
+
+    IntervalVector box(2);
+    box[0] = Interval(-8.0, 8.0);
+    box[1] = Interval(-8.0, 8.0);
+
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
+
+    Scheduler s(box, f_list, u, false, false, false);
+
+    /////////////// Compute ///////////////
+    s.compute_attractor(14, 1e9);
+    s.draw(1024, true, "attractor");
+    s.invert_for_inner();
+    s.draw(1024, true, "invert");
+    s.cameleon_cycle(8, 5, 1e9, false, false, true);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+}
+
+void van_der_pol_outer(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x, y;
+    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x + 0.1));
+    ibex::Function f2(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x - 0.1));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+    f_list.push_back(&f2);
+
+    IntervalVector box(2);
+    box[0] = Interval(-8.0, 8.0);
+    box[1] = Interval(-8.0, 8.0);
+
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
+
+    Scheduler s(box, f_list, u, false, false, true);
+
+    /////////////// Compute ///////////////
+    s.cameleon_cycle(10, 5, 1e9, false, false, false);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+}
+
 int main()
 {
     /// **** BALL ***** //
@@ -585,7 +684,7 @@ int main()
 //    car_on_the_hill_capture_bassin();
 //    car_on_the_hill_inner_kernel();
 
-    car_on_the_hill_attractor_with_inner_kernel();
+//    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
@@ -597,6 +696,9 @@ int main()
     /// **** VAN DER POL ***** //
 //    van_der_pol_cycle();
 //    van_der_pol_integration();
+//    van_der_pol_kernel();
+//    van_der_pol_outer();
+    van_der_pol_inner();
 
     /// **** INTEGRATOR ***** //
 //    integrator();
