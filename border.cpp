@@ -448,3 +448,15 @@ void Border::complementaire(){
     m_segment_full.diff(m_segment_out, seg_out1,seg_out2);
     m_segment_in = seg_out1 | seg_out2;
 }
+
+void Border::set_segment(bool in, bool out){
+    if(in)
+        m_segment_in = m_segment_full;
+    else
+        m_segment_in = Interval::EMPTY_SET;
+
+    if(out)
+        m_segment_out = m_segment_full;
+    else
+        m_segment_out = Interval::EMPTY_SET;
+}

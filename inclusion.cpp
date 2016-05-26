@@ -51,38 +51,53 @@ ibex::Function* Inclusion::get_function() const{
 }
 
 const Interval Inclusion::get_segment_in() const{
-    if(m_shortcut){
-        return m_border->get_segment_in();
+    if(!get_border()->get_pave()->is_removed_pave()){
+        if(m_shortcut){
+            return m_border->get_segment_in();
+        }
+        else{
+            IntervalVector box = m_border->get_position();
+            box[m_brother_face%2] = m_border->get_segment_in();
+            IntervalVector box_out = m_f->eval_vector(box);
+            return box_out[m_brother_face%2];
+        }
     }
     else{
-        IntervalVector box = m_border->get_position();
-        box[m_brother_face%2] = m_border->get_segment_in();
-        IntervalVector box_out = m_f->eval_vector(box);
-        return box_out[m_brother_face%2];
+        return Interval::EMPTY_SET;
     }
 }
 
 const Interval Inclusion::get_segment_out() const{
-    if(m_shortcut){
-        return m_border->get_segment_out();
+    if(!get_border()->get_pave()->is_removed_pave()){
+        if(m_shortcut){
+            return m_border->get_segment_out();
+        }
+        else{
+            IntervalVector box = m_border->get_position();
+            box[m_brother_face%2] = m_border->get_segment_out();
+            IntervalVector box_out(m_f->eval_vector(box));
+            return box_out[m_brother_face%2];
+        }
     }
     else{
-        IntervalVector box = m_border->get_position();
-        box[m_brother_face%2] = m_border->get_segment_out();
-        IntervalVector box_out(m_f->eval_vector(box));
-        return box_out[m_brother_face%2];
+        return Interval::EMPTY_SET;
     }
 }
 
 const Interval Inclusion::get_segment_full() const{
-    if(m_shortcut){
-        return m_border->get_segment_full();
+    if(!get_border()->get_pave()->is_removed_pave()){
+        if(m_shortcut){
+            return m_border->get_segment_full();
+        }
+        else{
+            IntervalVector box = m_border->get_position();
+            box[m_brother_face%2] = m_border->get_segment_full();
+            IntervalVector box_out(m_f->eval_vector(box));
+            return box_out[m_brother_face%2];
+        }
     }
     else{
-        IntervalVector box = m_border->get_position();
-        box[m_brother_face%2] = m_border->get_segment_full();
-        IntervalVector box_out(m_f->eval_vector(box));
-        return box_out[m_brother_face%2];
+        return Interval::EMPTY_SET;
     }
 }
 

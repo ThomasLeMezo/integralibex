@@ -320,3 +320,8 @@ void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Funct
     m_utils.m_imageIntegral = new imageIntegral(range, f, t_range, nbBisectionT, nbBisectionXY);
     m_utils.m_imageIntegral_activated = true;
 }
+
+void Scheduler::invert_for_inner(){
+    m_graph_list[0]->complementaire();
+    m_graph_list[0]->set_external_boundary(true, true);
+}

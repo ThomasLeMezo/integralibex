@@ -111,7 +111,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
         if(m_utils->m_imageIntegral_activated)
             tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
 
-        if(!tmp->is_active()
+        if(!tmp->is_active() || tmp->is_removed_pave()
                 || tmp->get_inner()
                 || ((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full()))
                 || tmp->get_theta_diam()<theta_limit){
@@ -125,7 +125,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
     }
 
     for(int i=0; i<tmp_pave_list.size(); i++){
-        if(backward){
+        if(backward && !tmp_pave_list[i]->is_removed_pave()){
             tmp_pave_list[i]->set_full();
             tmp_pave_list[i]->set_in_queue(true);
             m_node_queue.push_back(tmp_pave_list[i]);
@@ -170,7 +170,7 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
                 if(change_tab[face]){
                     vector<Pave*> brothers_pave = pave->get_brothers(face);
                     for(int i=0; i<brothers_pave.size(); i++){
-                        if(brothers_pave[i]->is_in_queue() == false){
+                        if(brothers_pave[i]->is_in_queue() == false && !brothers_pave[i]->is_removed_pave()){
                             m_node_queue.push_back(brothers_pave[i]);
                             brothers_pave[i]->set_in_queue(true);
                         }
@@ -283,7 +283,10 @@ void Graph::draw(int size, bool filled, string comment){
     }
 
     for(auto &node:m_node_list){
-        node->draw(filled);
+        if(node->is_removed_pave())
+            node->draw(filled, "gray[]");
+        else
+            node->draw(filled);
     }
 
     for(auto &node:m_node_border_list){
@@ -360,6 +363,17 @@ Utils* Graph::get_utils(){
 
 int Graph::size() const{
     return m_node_list.size();
+}
+
+void Graph::mark_empty_node(){
+    for(int i=0; i<m_node_list.size(); i++){
+        if(m_node_list[i]->is_active()){
+            m_node_list[i]->reset_full_empty();
+            if(m_node_list[i]->is_empty()){
+                m_node_list[i]->set_removed_pave(true);
+            }
+        }
+    }
 }
 
 void Graph::remove_empty_node(){
@@ -613,5 +627,11 @@ IntervalVector Graph::get_search_box() const{
 void Graph::complementaire(){
     for(auto &p:m_node_list){
         p->complementaire();
+    }
+}
+
+void Graph::set_external_boundary(bool in, bool out){
+    for(auto &p:m_node_border_list){
+        p->set_segment(in, out);
     }
 }

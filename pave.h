@@ -52,12 +52,14 @@ public:
     bool                        is_test(int face) const;
     bool                        is_marked_attractor() const;
     bool                        is_external_border() const;
+    bool                        is_removed_pave() const;
 
     // Setter
     void                        set_full();
     void                        set_full_in();
     void                        set_full_out();
     void                        set_empty();
+    void                        set_segment(bool in, bool out);
     void                        set_active(bool val);
     void                        set_theta(std::vector<ibex::Interval> theta_list);
     void                        set_theta(ibex::Interval theta);
@@ -74,6 +76,7 @@ public:
 
     void                        set_marker_attractor(bool val);
     void                        set_external_border(bool val);
+    void                        set_removed_pave(bool val);
 
     void                        reset_full_empty();
 
@@ -138,6 +141,7 @@ private:
     bool                        m_diseable_singeleton;
     bool                        m_marker_attractor;
     bool                        m_external_border;
+    bool                        m_removed_pave;
 };
 
 #endif // PAVE_H

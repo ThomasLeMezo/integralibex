@@ -39,6 +39,7 @@ public:
     void                            set_full_segment_in();
     void                            set_full_segment_out();
     void                            set_empty();
+    void                            set_segment(bool in, bool out);
     bool                            set_segment_in(ibex::Interval segment_in, bool inclusion);
     bool                            set_segment_out(ibex::Interval segment_out, bool inclusion);
     void                            set_pave(Pave* pave);

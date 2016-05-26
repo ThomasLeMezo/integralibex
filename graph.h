@@ -16,6 +16,7 @@ public:
     int                         process(int max_iterations, bool backward, bool enable_function_iteration=true);
     void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bool do_not_bisect_full=false, double theta_limit=0.0);
     void                        remove_empty_node();
+    void                        mark_empty_node();
 
     bool                        inter(const Graph &g);
     bool                        diff(const Graph &g);
@@ -31,6 +32,7 @@ public:
     void                        set_empty();
     void                        set_all_first_process();
     void                        set_active_f(int id);
+    void                        set_external_boundary(bool in, bool out);
 
     void                        update_queue();
     void                        clear_node_queue();

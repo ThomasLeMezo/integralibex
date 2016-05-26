@@ -28,6 +28,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_inner = false;
     m_marker_attractor = false;
     m_external_border = false;
+    m_removed_pave = false;
 
     // Border building
     IntervalVector coordinate(2);
@@ -140,6 +141,7 @@ Pave::Pave(const Pave *p):
     m_active = p->is_active();
     m_diseable_singeleton = p->get_diseable_singelton();
     m_external_border = p->is_external_border();
+    m_removed_pave = p->is_removed_pave();
 
     m_theta_list = p->get_theta_list();
     m_u = p->get_u();
@@ -252,6 +254,13 @@ void Pave::set_empty(){
     m_full = false;
 }
 
+void Pave::set_segment(bool in, bool out){
+    for(int face=0; face<4; face++){
+        m_borders[face]->set_segment(in, out);
+    }
+    m_empty = false;
+    m_full = true;
+}
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
@@ -844,4 +853,12 @@ bool Pave::is_external_border() const{
 
 void Pave::set_external_border(bool val){
     m_external_border = val;
+}
+
+bool Pave::is_removed_pave() const{
+    return m_removed_pave;
+}
+
+void Pave::set_removed_pave(bool val){
+    m_removed_pave = val;
 }
