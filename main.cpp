@@ -80,7 +80,7 @@ void ball(){
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u);
+    Scheduler s(box, f_list, u, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(12.0);
@@ -111,7 +111,7 @@ void station_keeping_attractor(){
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u);
+    Scheduler s(box, f_list, u, false);
 
     /////////////// Symetries ///////////////
     ibex::Function f_sym23(phi, d, Return(phi-Interval::TWO_PI, d));
@@ -170,10 +170,12 @@ void car_on_the_hill_attractor(){
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
 
-    Scheduler s(box, f_list, u, true);
+    Scheduler s(box, f_list, u, true, false, false);
+//    vector<IntervalVector> bassin_list;
+//    Scheduler s(box, bassin_list, f_list, u, true, false, false);
 
     /////////////// Compute ///////////////
-    s.compute_attractor(14, 1e9);
+    s.compute_attractor(12, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -421,7 +423,7 @@ void car_on_the_hill_limit_path(){
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u);
+    Scheduler s(box, f_list, u, false);
 
     IntervalVector activated_pave(2);
 //    activated_pave[0] = Interval(11.028646, 11.028647); // Point limite : x0 = 11.02864(6-7)
@@ -454,7 +456,7 @@ void car_on_the_hill_integrator(){
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u);
+    Scheduler s(box, f_list, u, false);
 
     vector<IntervalVector> initial_pave_list;
     IntervalVector activated_pave(2);
@@ -492,7 +494,7 @@ void integrator(){
     IntervalVector u(2);
     u[0] = Interval::ZERO;
     u[1] = Interval(-0.1,0.1);
-    Scheduler s(box, f_list, u);
+    Scheduler s(box, f_list, u, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(0.0);

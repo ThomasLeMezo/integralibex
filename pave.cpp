@@ -693,9 +693,13 @@ bool Pave::is_border() const{
         }
     }
     for(auto &b:m_borders){
+
         Interval segment_border = Interval::EMPTY_SET;
         for(auto &i:b->get_inclusions()){
             segment_border |= i->get_segment_full();
+            if(!i->get_border()->get_pave()->is_active()){
+                return true;
+            }
         }
         if(segment_border != b->get_segment_full()){
             return true;

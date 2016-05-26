@@ -84,6 +84,9 @@ Graph::~Graph(){
     for(auto &node:m_node_empty_list){
         delete(node);
     }
+    for(auto &node:m_node_border_list){
+        delete(node);
+    }
 }
 
 void Graph::clear_node_queue(){
@@ -527,6 +530,8 @@ void Graph::set_active_f(int id){
 }
 
 void Graph::identify_attractor(){
+    if(m_node_list.size()==0)
+        return;
     reset_marker_attractor();
 
     for(auto &p:m_node_list){
@@ -586,4 +591,10 @@ void Graph::reset_marker_attractor(){
 
 IntervalVector Graph::get_search_box() const{
     return m_search_box;
+}
+
+void Graph::complementaire(){
+    for(auto &p:m_node_list){
+        p->complementaire();
+    }
 }

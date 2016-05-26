@@ -23,29 +23,39 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     Graph *g = new Graph(&m_utils, 0);
     m_graph_list.push_back(g);
 
-    vector<IntervalVector> list_boxes;
-    list_boxes.push_back(box);
+    if(bassin_boxes.size()>0){
+        vector<IntervalVector> list_boxes;
+        list_boxes.push_back(box);
 
-    // Build diff boxes
-    for(auto &box_bassin:bassin_boxes){
-        vector<IntervalVector> list_boxes_tmp;
-        for(auto &b:list_boxes){
-            std::vector<IntervalVector> box_result = m_utils.diff(b, box_bassin);
+        // Build diff boxes
+        for(auto &box_bassin:bassin_boxes){
+            vector<IntervalVector> list_boxes_tmp;
+            for(auto &b:list_boxes){
+                std::vector<IntervalVector> box_result = m_utils.diff(b, box_bassin);
 
-            for(int i=0; i<box_result.size(); i++)
-                list_boxes_tmp.push_back(box_result[i]);
+                for(int i=0; i<box_result.size(); i++)
+                    list_boxes_tmp.push_back(box_result[i]);
+            }
+            list_boxes.swap(list_boxes_tmp);
+            list_boxes_tmp.clear();
         }
-        list_boxes.swap(list_boxes_tmp);
-        list_boxes_tmp.clear();
+
+        // Build Paves and push back them
+        for(auto &b:list_boxes){
+            Pave* p = new Pave(b, f_list, u, diseable_singleton);
+            g->get_node_list().push_back(p);
+        }
+
+        /// ****** ADD BASSIN BOXES *******
+
+        for(auto &b:bassin_boxes){
+            Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
+            p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
+            g->get_node_list().push_back(p);
+        }
     }
 
-    // Build Paves and push back them
-    for(auto &b:list_boxes){
-        Pave* p = new Pave(b, f_list, u, diseable_singleton);
-        g->get_node_list().push_back(p);
-    }
-
-    // ****** CREATE BORDER EXTRA BOXES *******
+    /// ****** CREATE BORDER EXTRA BOXES *******
     vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
 
     for(auto &b:list_border){
@@ -57,10 +67,24 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
         g->get_node_list().push_back(p);
     }
 
-    // ****** ADD BASSIN BOXES *******
-    for(auto &b:bassin_boxes){
+    // ****** REBUILD GRAPH *******
+    g->build_graph(); // connect boxes according to continuity
+}
+
+Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out):
+    Scheduler(box, f_list, u, diseable_singleton)
+{
+    Graph *g = m_graph_list[0];
+
+    /// ****** CREATE BORDER EXTRA BOXES *******
+    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
+
+    for(auto &b:list_border){
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
-        p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
+        if(border_out)
+            p->set_full_out();
+        if(border_in)
+            p->set_full_in();
         g->get_node_list().push_back(p);
     }
 
@@ -121,9 +145,9 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
     int iterations = 0;
     m_graph_list[0]->set_full();
 
-    if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
+    if(iterations < iterations_max && this->m_graph_list[0]->size()<(4+4)){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(4,true, false, false, false); // Start with 4 boxes
+        m_graph_list[0]->sivia(8,true, false, false, false); // Start with 4 boxes
         m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
     }
@@ -132,37 +156,38 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
 
-            if(m_graph_list[0]->size()==0 || m_graph_list.size()==0)
+        if(m_graph_list[0]->size()==0 || m_graph_list.size()==0)
+            break;
+        m_graph_list[0]->clear_node_queue();
+        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), true, false, false, false);
+
+        for(int nb_f=0; nb_f<m_graph_list[0]->get_f_size(); nb_f++){
+            m_graph_list[0]->set_active_f(nb_f);
+            if(nb_f>0)
+                m_graph_list[0]->update_queue();
+
+            const clock_t sivia_time = clock();
+            cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+            // Process the backward with the subpaving
+            cout << "GRAPH No "<< 0 << " (" << m_graph_list[0]->size() << ")" << endl;
+            int graph_list_process_cpt = m_graph_list[0]->process(process_iterations_max, true, false);
+
+            cout << "--> processing outer = " << graph_list_process_cpt << endl;
+            cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
+
+            // Remove empty pave
+            m_graph_list[0]->remove_empty_node();
+
+            // Test if the graph is empty
+            if(m_graph_list[0]->is_empty()){
+                delete(m_graph_list[0]);
+                m_graph_list.erase(m_graph_list.begin());
+                cout << " REMOVE EMPTY GRAPH" << endl;
                 break;
-            m_graph_list[0]->clear_node_queue();
-            m_graph_list[0]->sivia(2*m_graph_list[0]->size(), true, false, false, false);
-
-            for(int nb_f=0; nb_f<m_graph_list[0]->get_f_size(); nb_f++){
-                m_graph_list[0]->set_active_f(nb_f);
-                if(nb_f>0)
-                    m_graph_list[0]->update_queue();
-
-                const clock_t sivia_time = clock();
-                cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
-
-                // Process the backward with the subpaving
-                cout << "GRAPH No "<< 0 << " (" << m_graph_list[0]->size() << ")" << endl;
-                int graph_list_process_cpt = m_graph_list[0]->process(process_iterations_max, true, false);
-
-                cout << "--> processing outer = " << graph_list_process_cpt << endl;
-                cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
-
-                // Remove empty pave
-                m_graph_list[0]->remove_empty_node();
-
-                // Test if the graph is empty
-                if(m_graph_list[0]->is_empty()){
-                    delete(m_graph_list[0]);
-                    m_graph_list.erase(m_graph_list.begin());
-                    cout << " REMOVE EMPTY GRAPH" << endl;
-                    break;
-                }
             }
+        }
+        if(m_graph_list.size()!=0)
             m_graph_list[0]->identify_attractor();
 
         cout << "--> time (total) = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;

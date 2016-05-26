@@ -36,6 +36,7 @@ public:
     void                        clear_node_queue();
     void                        add_all_to_queue();
     void                        reset_marker_attractor();
+    void                        complementaire();
 
     // Getter
     Pave*                       get_pave(double x, double y) const;
@@ -67,6 +68,7 @@ public:
 
 private:
     std::vector<Pave*> m_node_list;
+    std::vector<Pave*> m_node_border_list;
     std::vector<Pave*> m_node_empty_list;
     std::vector<Pave*> m_node_queue;
 
