@@ -590,15 +590,14 @@ void van_der_pol_kernel(){
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
 
-    Scheduler s(box, f_list, u, false, false, true);
+    Scheduler s(box, f_list, u, false, false, false);
 
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
     s.draw(1024, true, "attractor");
     s.invert_for_inner();
     s.draw(1024, true, "invert");
-    s.cameleon_cycle(12, 5, 1e9, false, false, true);
-//    s.cameleon_viability(6, 1e9);
+    s.cameleon_viability(4, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -696,9 +695,9 @@ int main()
     /// **** VAN DER POL ***** //
 //    van_der_pol_cycle();
 //    van_der_pol_integration();
-//    van_der_pol_kernel();
+    van_der_pol_kernel();
 //    van_der_pol_outer();
-    van_der_pol_inner();
+//    van_der_pol_inner();
 
     /// **** INTEGRATOR ***** //
 //    integrator();
