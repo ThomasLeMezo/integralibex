@@ -579,7 +579,7 @@ std::vector<IntervalVector> Utils::diff(const IntervalVector &box_initial, const
     return box_result;
 }
 
-std::vector<IntervalVector> Utils::get_segment_from_box(const IntervalVector &box, double size_border){
+std::vector<IntervalVector> Utils::get_segment_from_box(const IntervalVector &box, const double size_border){
 
     vector<IntervalVector> list_border;
     IntervalVector test(2);

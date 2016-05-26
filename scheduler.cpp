@@ -23,36 +23,34 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     Graph *g = new Graph(&m_utils, 0);
     m_graph_list.push_back(g);
 
-    if(bassin_boxes.size()>0){
-        vector<IntervalVector> list_boxes;
-        list_boxes.push_back(box);
+    vector<IntervalVector> list_boxes;
+    list_boxes.push_back(box);
 
-        // Build diff boxes
-        for(auto &box_bassin:bassin_boxes){
-            vector<IntervalVector> list_boxes_tmp;
-            for(auto &b:list_boxes){
-                std::vector<IntervalVector> box_result = m_utils.diff(b, box_bassin);
-
-                for(int i=0; i<box_result.size(); i++)
-                    list_boxes_tmp.push_back(box_result[i]);
-            }
-            list_boxes.swap(list_boxes_tmp);
-            list_boxes_tmp.clear();
-        }
-
-        // Build Paves and push back them
+    // Build diff boxes
+    for(auto &box_bassin:bassin_boxes){
+        vector<IntervalVector> list_boxes_tmp;
         for(auto &b:list_boxes){
-            Pave* p = new Pave(b, f_list, u, diseable_singleton);
-            g->get_node_list().push_back(p);
-        }
+            std::vector<IntervalVector> box_result = m_utils.diff(b, box_bassin);
 
-        /// ****** ADD BASSIN BOXES *******
-
-        for(auto &b:bassin_boxes){
-            Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
-            p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
-            g->get_node_list().push_back(p);
+            for(int i=0; i<box_result.size(); i++)
+                list_boxes_tmp.push_back(box_result[i]);
         }
+        list_boxes.swap(list_boxes_tmp);
+        list_boxes_tmp.clear();
+    }
+
+    // Build Paves and push back them
+    for(auto &b:list_boxes){
+        Pave* p = new Pave(b, f_list, u, diseable_singleton);
+        g->get_node_list().push_back(p);
+    }
+
+    /// ****** ADD BASSIN BOXES *******
+
+    for(auto &b:bassin_boxes){
+        Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
+        p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
+        g->get_node_list().push_back(p);
     }
 
     /// ****** CREATE BORDER EXTRA BOXES *******
@@ -149,7 +147,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(4,true, false, false, false); // Start with 4 boxes
+        m_graph_list[0]->sivia(4,true, false, false, 0.0); // Start with 4 boxes
         m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
     }
@@ -161,7 +159,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
         if(m_graph_list[0]->size()==0 || m_graph_list.size()==0)
             break;
         m_graph_list[0]->clear_node_queue();
-        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), true, false, false, false);
+        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), true, false, false, 0.0);
 
         for(int nb_f=0; nb_f<m_graph_list[0]->get_f_size(); nb_f++){
             m_graph_list[0]->set_active_f(nb_f);
@@ -194,7 +192,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
     }
 }
 
-void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin){
+void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
     int iterations = 0;
@@ -202,16 +200,16 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->set_full();
-        m_graph_list[0]->sivia(4,true, false, false, near_bassin); // Start with 4 boxes
+        m_graph_list[0]->sivia(4,true, false, false); // Start with 4 boxes
         m_graph_list[0]->process(process_iterations_max, true); // ? Usefull ??? ToDo
         iterations++;
     }
 
-//    if(iterations < iterations_max && this->m_graph_list[0]->size()>4){
-//        m_graph_list[0]->remove_empty_node();
-//        m_graph_list[0]->process(process_iterations_max, true);
-//        iterations++;
-//    }
+        if(compute_inner && iterations < iterations_max && this->m_graph_list[0]->size()>4){
+            m_graph_list[0]->remove_empty_node();
+            m_graph_list[0]->process(process_iterations_max, true);
+            iterations++;
+        }
 
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
@@ -222,11 +220,11 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)
                 break;
             m_graph_list[nb_graph]->clear_node_queue();
-            m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->size(), true, false, do_not_bisect_inside, near_bassin);
+            m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->size(), true, false, do_not_bisect_inside);
             const clock_t sivia_time = clock();
             cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-            if(near_bassin){
+            if(compute_inner){
                 m_graph_list[nb_graph]->update_queue();
             }
             // Process the backward with the subpaving
@@ -322,11 +320,6 @@ void Scheduler::invert_for_inner(){
     // reset removed and active pave
 
     m_graph_list[0]->complementaire();
-    for(auto &p:m_graph_list[0]->get_node_list()){
-        if(p->is_marked_attractor()){
-            p->set_segment(false, true);
-        }
-    }
 
     m_graph_list[0]->set_all_active();
     m_graph_list[0]->update_queue();

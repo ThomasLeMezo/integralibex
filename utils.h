@@ -21,7 +21,7 @@ public:
     void translate_segment_and_box(ibex::IntervalVector &Sk, ibex::IntervalVector &box, bool toZero, bool modifyBox);
     ibex::IntervalVector segment2IntervalVector(const ibex::Interval &seg, const int &face, const ibex::IntervalVector &box);
 
-    std::vector<ibex::IntervalVector> get_segment_from_box(const ibex::IntervalVector &box, double size_border=0.0);
+    std::vector<ibex::IntervalVector> get_segment_from_box(const ibex::IntervalVector &box, const double size_border=0.0);
 
     // Contractor Outer
     void CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy);

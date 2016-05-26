@@ -210,12 +210,14 @@ void car_on_the_hill_attractor_with_inner_kernel(){
     s.compute_attractor(14, 1e9);
     s.draw(1024, true, "attractor");
     s.invert_for_inner();
-    s.cameleon_cycle(4, 5, 1e9, false, false, true);
+    s.draw(1024, true, "invert");
+    s.cameleon_cycle(5, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     /////////////// Drawing ///////////////
     s.draw(1024, true);
+    vibes::axisLimits(-1,13, -8,11);
     s.print_pave_info(0, 3.0,0.2,"b[b]");
 }
 
@@ -553,9 +555,9 @@ int main()
 //    car_on_the_hill_attractor();
 //      car_on_the_hill_outer_kernel();
 //    car_on_the_hill_capture_bassin();
-    car_on_the_hill_inner_kernel();
+//    car_on_the_hill_inner_kernel();
 
-//    car_on_the_hill_attractor_with_inner_kernel();
+    car_on_the_hill_attractor_with_inner_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
