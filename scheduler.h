@@ -18,12 +18,14 @@ public:
     void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside=false, bool near_bassin=false);
     void cameleon_propagation(int iterations_max, int process_iterations_max, vector<ibex::IntervalVector> &initial_boxes, bool inner=false);
     void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe, bool inner=false);
+    void compute_attractor(int iterations_max, int process_iterations_max);
+
 
     void set_symetry(ibex::Function *f, int face_in, int face_out);
     void set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY);
 
     // ******** Drawing functions ********
-    void draw(int size, bool filled);
+    void draw(int size, bool filled, string comment="");
     void print_pave_info(int graph, double x, double y, string color);
 
     // Getter

@@ -74,6 +74,19 @@ const Interval Inclusion::get_segment_out() const{
     }
 }
 
+const Interval Inclusion::get_segment_full() const{
+    if(m_shortcut){
+        return m_border->get_segment_full();
+    }
+    else{
+        IntervalVector box = m_border->get_position();
+        box[m_brother_face%2] = m_border->get_segment_full();
+        IntervalVector box_out(m_f->eval_vector(box));
+        return box_out[m_brother_face%2];
+    }
+}
+
+
 Border* Inclusion::get_border() const{
     return m_border;
 }

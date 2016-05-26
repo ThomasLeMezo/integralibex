@@ -17,17 +17,16 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_f_list = f_list;
     m_active_function = 0;
     m_active = active;
-    m_bassin = false;
     m_diseable_singeleton = diseable_singeleton;
 
     m_u_iv = u;
 
+    // Graph markers
     m_in_queue = false;
     m_copy_node = NULL;
-
     m_first_process = false;
-
     m_inner = false;
+    m_marker_attractor = false;
 
     // Border building
     IntervalVector coordinate(2);
@@ -138,7 +137,6 @@ Pave::Pave(const Pave *p):
     m_first_process = p->get_first_process();
     m_inner = p->get_inner();
     m_active = p->is_active();
-    m_bassin = p->is_bassin();
     m_diseable_singeleton = p->get_diseable_singelton();
 
     m_theta_list = p->get_theta_list();
@@ -150,6 +148,7 @@ Pave::Pave(const Pave *p):
         m_borders[face]->set_pave(this);
     }
     m_copy_node = NULL;
+    m_marker_attractor = p->is_marked_attractor();
 }
 
 Pave::~Pave(){
@@ -269,7 +268,8 @@ void Pave::draw(bool filled, string color, bool borders_only) const{
             if(m_active)
                 draw_borders(filled, "y[y]");
             else
-                vibes::drawBox(m_position, "#00BFFF[#00BFFF]");
+                draw_borders(filled, "#00BFFF[#00BFFF]"); // OR vibes::drawBox(m_position, );
+
         }
         // Draw theta
         draw_theta();
@@ -422,6 +422,19 @@ double Pave::get_theta_diam(int active_function){
     }
 }
 
+double Pave::get_theta_diam_min(){
+    double diam_min = 2*M_PI;
+    for(int active_function = 0; active_function<m_f_list.size(); active_function++){
+        double diam = 0.0;
+        for(int i=0; i<m_theta_list[active_function].size(); i++){
+            if(!m_theta_list[active_function][i].is_empty())
+                diam += m_theta_list[active_function][i].diam();
+        }
+        diam_min=min(diam_min, diam);
+    }
+    return diam_min;
+}
+
 void Pave::remove_brothers(Pave* p, int face){
     for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
         if(m_borders[face]->get_inclusion(i)->get_border()->get_pave() == p){
@@ -473,11 +486,14 @@ bool Pave::is_full(){
 
 bool Pave::is_full_geometricaly() const{
     IntervalVector box(2, Interval::EMPTY_SET);
+    int non_empty_face = 0;
     for(int face = 0; face < 4; face++){
         box |= m_borders[face]->get_segment_out_2D();
         box |= m_borders[face]->get_segment_in_2D();
+        if(!m_borders[face]->is_empty())
+            non_empty_face++;
     }
-    if(box == m_position)
+    if(box == m_position && non_empty_face>2)
         return true;
     else
         return false;
@@ -670,27 +686,26 @@ bool Pave::get_diseable_singelton() const{
     return m_diseable_singeleton;
 }
 
-bool Pave::is_near_bassin() const{
-    for(auto &b:m_borders){
-        for(auto &i:b->get_inclusions()){
-            if(i->get_border()->get_pave()->is_bassin()){
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 bool Pave::is_border() const{
     for(auto &b:m_borders){
         if(b->get_inclusions().size() == 0){
             return true;
         }
     }
+    for(auto &b:m_borders){
+        Interval segment_border = Interval::EMPTY_SET;
+        for(auto &i:b->get_inclusions()){
+            segment_border |= i->get_segment_full();
+        }
+        if(segment_border != b->get_segment_full()){
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Pave::is_test(int face) const{
-    if(is_border() || is_near_bassin() || !is_full_geometricaly())
+    if(is_border() || !is_full_geometricaly())
         return true;
     for(auto &b:m_borders){
         for(auto &i:b->get_inclusions()){
@@ -702,21 +717,13 @@ bool Pave::is_test(int face) const{
     return false;
 }
 
-bool Pave::is_bassin() const{
-    return m_bassin;
-}
-
-void Pave::set_bassin(bool val){
-    m_bassin = val;
-}
-
 void Pave::complementaire(){
     for(auto &b:m_borders){
         b->complementaire();
     }
 }
 
-IntervalVector Pave::bounding_pave() const{
+IntervalVector Pave::get_bounding_pave() const{
     IntervalVector box(2, Interval::EMPTY_SET);
 
     for(auto &b:m_borders){
@@ -811,4 +818,16 @@ void Pave::combine(const Pave &p){
         get_border(face)->set_segment_in(segment_in, false);
         get_border(face)->set_segment_out(segment_out, false);
     }
+}
+
+bool Pave::is_marked_attractor() const{
+    return m_marker_attractor;
+}
+
+void Pave::set_marker_attractor(bool val){
+    m_marker_attractor = val;
+}
+
+void Pave::set_active(bool val){
+    m_active = val;
 }

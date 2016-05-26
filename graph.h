@@ -13,8 +13,8 @@ public:
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);
     ~Graph();
 
-    int                         process(int max_iterations, bool backward);
-    void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bool do_not_bisect_full=false, bool near_bassin=false);
+    int                         process(int max_iterations, bool backward, bool enable_function_iteration=true);
+    void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bool do_not_bisect_full=false, double theta_limit=0.0);
     void                        remove_empty_node();
 
     bool                        inter(const Graph &g);
@@ -22,16 +22,20 @@ public:
 
     // Test
     bool                        is_empty();
+    void                        identify_attractor();
 
     // Setter
     void                        set_full();
     void                        set_active_pave(const ibex::IntervalVector &box);
     void                        set_symetry(ibex::Function *f, int face_in, int face_out);
     void                        set_empty();
+    void                        set_all_first_process();
+    void                        set_active_f(int id);
+
+    void                        update_queue();
     void                        clear_node_queue();
     void                        add_all_to_queue();
-    void                        set_all_first_process();
-    void                        update_queue();
+    void                        reset_marker_attractor();
 
     // Getter
     Pave*                       get_pave(double x, double y) const;
@@ -46,6 +50,11 @@ public:
     ibex::Function*             get_f_inclusion_std();
     int                         get_graph_id();
     ibex::IntervalVector        get_bounding_box() const;
+    int                         get_f_size() const;
+    ibex::IntervalVector        get_search_box() const;
+
+    void                        get_recursive_attractor(Pave* p, vector<Pave*> &list);
+
 
     // Other functions
     Pave&                       operator[](int id);
@@ -60,6 +69,8 @@ private:
     std::vector<Pave*> m_node_list;
     std::vector<Pave*> m_node_empty_list;
     std::vector<Pave*> m_node_queue;
+
+    ibex::IntervalVector m_search_box;
 
     Utils *m_utils;
 

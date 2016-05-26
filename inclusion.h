@@ -15,6 +15,7 @@ public:
 
     const ibex::Interval            get_segment_in() const;
     const ibex::Interval            get_segment_out() const;
+    const ibex::Interval            get_segment_full() const;
     const ibex::IntervalVector      get_position() const;
     int                             get_brother_face() const;
     Border*                         get_border() const;

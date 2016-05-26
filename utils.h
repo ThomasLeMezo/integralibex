@@ -21,6 +21,8 @@ public:
     void translate_segment_and_box(ibex::IntervalVector &Sk, ibex::IntervalVector &box, bool toZero, bool modifyBox);
     ibex::IntervalVector segment2IntervalVector(const ibex::Interval &seg, const int &face, const ibex::IntervalVector &box);
 
+    std::vector<ibex::IntervalVector> get_segment_from_box(const ibex::IntervalVector &box, double size_border=0.0);
+
     // Contractor Outer
     void CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const double &dx, const double &dy);
     void CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const ibex::IntervalVector &box);
@@ -35,7 +37,7 @@ public:
 
     void CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_tab);
     void CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_tab);
-    void CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change_tab);
+    void CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool enable_function_iteration=true);
     bool CtcContinuity(Pave *p, bool backward);
 
     // Contractor Inner

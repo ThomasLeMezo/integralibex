@@ -4,21 +4,28 @@
 using namespace std;
 using namespace ibex;
 
-Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, Utils *utils, const IntervalVector &u, int graph_id, bool diseable_singleton){
+Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, Utils *utils, const IntervalVector &u, int graph_id, bool diseable_singleton):
+    m_search_box(2)
+{
     Pave *p = new Pave(box, f_list, u, diseable_singleton);
+    m_search_box = box;
     m_node_list.push_back(p);
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
     m_utils = utils;
 }
 
-Graph::Graph(Utils *utils, int graph_id=0){
+Graph::Graph(Utils *utils, int graph_id=0):
+    m_search_box(2)
+{
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
     m_utils = utils;
 }
 
-Graph::Graph(Graph* g, int graph_id){
+Graph::Graph(Graph* g, int graph_id):
+    m_search_box(2)
+{
     for(auto &node:g->get_node_list()){
         Pave *p = new Pave(node);
         node->set_copy_node(p);
@@ -47,6 +54,7 @@ Graph::Graph(Graph* g, int graph_id){
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
     m_utils = g->get_utils();
+    m_search_box = g->get_search_box();
 }
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
@@ -85,7 +93,7 @@ void Graph::clear_node_queue(){
     m_node_queue.clear();
 }
 
-void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, bool near_bassin){
+void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, double theta_limit){
     int iterations = 0;
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
@@ -100,10 +108,10 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
         if(m_utils->m_imageIntegral_activated)
             tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
 
-        if(!tmp->is_active() ||
-                (tmp->get_inner()
-                 || ((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full()))
-                 && tmp->get_theta_diam()<0.0*M_PI)){// || (not_full_test && tmp->is_full() && diam < M_PI)){
+        if(!tmp->is_active()
+                || tmp->get_inner()
+                || ((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full()))
+                || tmp->get_theta_diam()<theta_limit){
             m_node_list.push_back(tmp);
             iterations++;
         }
@@ -116,22 +124,14 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
     for(int i=0; i<tmp_pave_list.size(); i++){
         if(backward){
             tmp_pave_list[i]->set_full();
-            if(!near_bassin){
-                tmp_pave_list[i]->set_in_queue(true);
-                m_node_queue.push_back(tmp_pave_list[i]);
-            }
-            else{
-                if(tmp_pave_list[i]->is_near_bassin() || tmp_pave_list[i]->is_border()){
-                    tmp_pave_list[i]->set_in_queue(true);
-                    m_node_queue.push_back(tmp_pave_list[i]);
-                }
-            }
+            tmp_pave_list[i]->set_in_queue(true);
+            m_node_queue.push_back(tmp_pave_list[i]);
         }
         m_node_list.push_back(tmp_pave_list[i]);
     }
 }
 
-int Graph::process(int max_iterations, bool backward){
+int Graph::process(int max_iterations, bool backward, bool enable_function_iteration){
     int iterations = 0;
     while(!m_node_queue.empty() & iterations < max_iterations){
         iterations++;
@@ -139,17 +139,17 @@ int Graph::process(int max_iterations, bool backward){
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
-//        IntervalVector test(2);
-//        //        [4.2, 4.85] ; [-1.09375, -0.1]
-//        test[0] = Interval(4.2, 4.85);
-//        test[1] = Interval(-1.09375, -0.1);
-//        if(!(test & pave->get_position()).is_empty()){
-//            cout << "TEST" << endl;
-//        }
+        //        IntervalVector test(2);
+        //        //        [4.2, 4.85] ; [-1.09375, -0.1]
+        //        test[0] = Interval(4.2, 4.85);
+        //        test[1] = Interval(-1.09375, -0.1);
+        //        if(!(test & pave->get_position()).is_empty()){
+        //            cout << "TEST" << endl;
+        //        }
 
-//        if(test == pave->get_position()){
-//            pave->draw_test(512, " before");
-//        }
+        //        if(test == pave->get_position()){
+        //            pave->draw_test(512, " before");
+        //        }
 
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
@@ -159,7 +159,7 @@ int Graph::process(int max_iterations, bool backward){
             std::vector<bool> change_tab;
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
-            m_utils->CtcPaveConsistency(pave, backward, change_tab);
+            m_utils->CtcPaveConsistency(pave, backward, change_tab, enable_function_iteration);
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
@@ -179,15 +179,15 @@ int Graph::process(int max_iterations, bool backward){
         }
 
 
-//        if(test == pave->get_position()){
+        //        if(test == pave->get_position()){
 
-//            this->draw(1024, true);
-//            vibes::axisLimits(-30, 35, -16,16);
-//            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
-//            pave->draw_test(512, " after");
-////            cin.ignore();
-//            cout << "PAUSE" << endl;
-//        }
+        //            this->draw(1024, true);
+        //            vibes::axisLimits(-30, 35, -16,16);
+        //            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
+        //            pave->draw_test(512, " after");
+        ////            cin.ignore();
+        //            cout << "PAUSE" << endl;
+        //        }
     }
 
     m_node_queue.clear();
@@ -504,9 +504,86 @@ void Graph::update_queue(){
         p->set_in_queue(false);
         p->reset_full_empty();
 
-        if((!p->is_full() && !p->is_empty()) || p->is_near_bassin() || p->is_border()){
+        if((!p->is_full() && !p->is_empty()) || p->is_border()){
             p->set_in_queue(true);
             m_node_queue.push_back(p);
         }
     }
+}
+
+int Graph::get_f_size() const{
+    if(m_node_list.size()>0){
+        return m_node_list[0]->get_f_list().size();
+    }
+    else{
+        return -1;
+    }
+}
+
+void Graph::set_active_f(int id){
+    for(auto &p:m_node_list){
+        p->set_active_function(id);
+    }
+}
+
+void Graph::identify_attractor(){
+    reset_marker_attractor();
+
+    for(auto &p:m_node_list){
+
+        // Study the subgraph starting with p
+        if(p->is_active() && !p->is_marked_attractor()){
+            vector<Pave*> attractor_list;
+            attractor_list.push_back(p);
+            get_recursive_attractor(p, attractor_list);
+
+            // Test if the subgraph is an attractor
+            bool test_attractor = true;
+
+            IntervalVector bounding_box(2, Interval::EMPTY_SET);
+            for(auto &p:attractor_list){
+                if(p->is_border() && p->get_theta_diam()>=M_PI){
+                    test_attractor = false;
+                }
+                bounding_box |= p->get_bounding_pave();
+            }
+
+            vector<IntervalVector> list_search_box = m_utils->get_segment_from_box(m_search_box);
+            cout << "bounding box = " <<  bounding_box << endl;
+            for(auto &b:list_search_box){
+                if(!((bounding_box & b).is_empty()))
+                    test_attractor = false;
+            }
+
+            if(test_attractor){
+                cout << "FIND AN ATTRACTOR" << endl;
+                for(auto &p:attractor_list){
+                    p->set_active(false);
+                }
+            }
+        }
+    }
+}
+
+void Graph::get_recursive_attractor(Pave* p, vector<Pave*> &list){
+    for(int face=0; face<4; face++){
+        vector<Pave*> brothers_face = p->get_brothers(face);
+        for(auto &p_brother:brothers_face){
+            if(!p_brother->is_marked_attractor()){
+                list.push_back(p_brother);
+                p_brother->set_marker_attractor(true);
+                get_recursive_attractor(p_brother, list);
+            }
+        }
+    }
+}
+
+void Graph::reset_marker_attractor(){
+    for(auto &p:m_node_list){
+        p->set_marker_attractor(false);
+    }
+}
+
+IntervalVector Graph::get_search_box() const{
+    return m_search_box;
 }

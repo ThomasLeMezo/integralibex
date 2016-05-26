@@ -24,7 +24,6 @@ public:
     void                        combine(std::vector<Pave *> &pave_list);
     void                        combine(const Pave &p);
     void                        complementaire();
-    ibex::IntervalVector        bounding_pave() const;
     ibex::IntervalVector        bounding_pave_in() const;
     ibex::IntervalVector        bounding_pave_out() const;
     void                        intersect_face(const ibex::IntervalVector &box_in, const ibex::IntervalVector &box_out);
@@ -49,16 +48,16 @@ public:
     bool                        is_fully_full();
     bool                        is_in_queue() const;
     bool                        is_active() const;
-    bool                        is_near_bassin() const;
     bool                        is_border() const;
-    bool                        is_bassin() const;
     bool                        is_test(int face) const;
+    bool                        is_marked_attractor() const;
 
     // Setter
     void                        set_full();
     void                        set_full_in();
     void                        set_full_out();
     void                        set_empty();
+    void                        set_active(bool val);
     void                        set_theta(std::vector<ibex::Interval> theta_list);
     void                        set_theta(ibex::Interval theta);
     void                        set_in_queue(bool flag);
@@ -72,13 +71,13 @@ public:
 
     void                        set_active_function(int id);
 
-    void                        set_contaminated(bool val);
-    void                        set_bassin(bool val);
+    void                        set_marker_attractor(bool val);
 
     void                        reset_full_empty();
 
     // Getters
     double                              get_theta_diam(int active_function=-1);
+    double                              get_theta_diam_min();
     const std::vector<Pave*>            get_brothers(int face);
     const ibex::Interval&               get_theta(int i) const;
     const std::vector<ibex::Interval>   get_theta() const;
@@ -101,6 +100,8 @@ public:
     bool                                get_first_process() const;
     bool                                get_inner() const;
     bool                                get_diseable_singelton() const;
+
+    ibex::IntervalVector                get_bounding_pave() const;
 
     // Other functions
     const std::vector<ibex::Interval>   compute_theta(ibex::Function *f);
@@ -132,8 +133,8 @@ private:
     bool                        m_inner;
 
     bool                        m_active;
-    bool                        m_bassin;
     bool                        m_diseable_singeleton;
+    bool                        m_marker_attractor;
 };
 
 #endif // PAVE_H

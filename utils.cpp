@@ -321,14 +321,18 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 // ********************************************************************************
 // ****************** Algorithm functions      ************************************
 
-void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change_tab){
+void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool enable_function_iteration){
     int nb_f = p->get_f_list().size();
+    if(!enable_function_iteration)
+        nb_f=1;
+
 
     for(int i=0; i<nb_f; i++){ //to reach fix point (more iteration might be necessary)
         std::vector<Pave*> pave_list;
         for(int num_f=0; num_f<nb_f; num_f++){
             Pave *p_cpy = new Pave(p);
-            p_cpy->set_active_function(num_f);
+            if(enable_function_iteration)
+                p_cpy->set_active_function(num_f);
 
             if(backward){
                 this->CtcPaveBackward(p_cpy, true, change_tab);
@@ -360,6 +364,15 @@ void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change
             delete(pave);
         }
     }
+
+    int nb_not_empty = 0;
+    for(auto &b:p->get_borders()){
+        if(!b->is_empty()){
+            nb_not_empty++;
+        }
+    }
+    if(nb_not_empty==1)
+        p->set_empty();
 
     if(backward){
         for(int face = 0; face<4; face++){
@@ -560,5 +573,25 @@ std::vector<IntervalVector> Utils::diff(const IntervalVector &box_initial, const
     }
 
     return box_result;
+}
+
+std::vector<IntervalVector> Utils::get_segment_from_box(const IntervalVector &box, double size_border){
+
+    vector<IntervalVector> list_border;
+    IntervalVector test(2);
+    test[0] = Interval(box[0].lb(), box[0].ub());
+    test[1] = Interval(box[1].lb()-size_border, box[1].lb());
+    list_border.push_back(test);
+    test[0] = Interval(box[0].ub(), box[0].ub()+size_border);
+    test[1] = Interval(box[1].lb(), box[1].ub());
+    list_border.push_back(test);
+    test[0] = Interval(box[0].lb(), box[0].ub());
+    test[1] = Interval(box[1].ub(), box[1].ub()+size_border);
+    list_border.push_back(test);
+    test[0] = Interval(box[0].lb()-size_border, box[0].lb());
+    test[1] = Interval(box[1].lb(), box[1].ub());
+    list_border.push_back(test);
+
+    return list_border;
 }
 
