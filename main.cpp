@@ -175,7 +175,7 @@ void car_on_the_hill_attractor(){
 //    Scheduler s(box, bassin_list, f_list, u, true, false, false);
 
     /////////////// Compute ///////////////
-    s.compute_attractor(12, 1e9);
+    s.compute_attractor(14, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

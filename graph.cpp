@@ -285,6 +285,11 @@ void Graph::draw(int size, bool filled, string comment){
     for(auto &node:m_node_list){
         node->draw(filled);
     }
+
+    for(auto &node:m_node_border_list){
+        node->draw(filled, "gray[gray]");
+    }
+
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     m_drawing_cpt++;
 }
@@ -497,6 +502,13 @@ void Graph::build_graph(){
         }
     }
 
+    for(int i = 0; i<m_node_list.size(); i++){
+        if(m_node_list[i]->is_external_border()){
+            m_node_border_list.push_back(m_node_list[i]);
+            m_node_list.erase(m_node_list.begin()+i);
+            i--;
+        }
+    }
 }
 
 void Graph::update_queue(){
@@ -529,10 +541,11 @@ void Graph::set_active_f(int id){
     }
 }
 
-void Graph::identify_attractor(){
+bool Graph::identify_attractor(){
     if(m_node_list.size()==0)
-        return;
+        return true;
     reset_marker_attractor();
+    bool found_all_attractor = true;
 
     for(auto &p:m_node_list){
 
@@ -566,8 +579,12 @@ void Graph::identify_attractor(){
                     p->set_active(false);
                 }
             }
+            else{
+                found_all_attractor = false;
+            }
         }
     }
+    return found_all_attractor;
 }
 
 void Graph::get_recursive_attractor(Pave* p, vector<Pave*> &list){

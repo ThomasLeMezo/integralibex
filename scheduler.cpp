@@ -81,6 +81,7 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
 
     for(auto &b:list_border){
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
+        p->set_external_border(true);
         if(border_out)
             p->set_full_out();
         if(border_in)
@@ -89,7 +90,8 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
     }
 
     // ****** REBUILD GRAPH *******
-    g->build_graph(); // connect boxes according to continuity
+    g->build_graph(); // connect boxes according to continuity and remove external boundary boxes
+
 }
 
 void Scheduler::set_symetry(Function *f, int face_in, int face_out){
@@ -145,9 +147,9 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
     int iterations = 0;
     m_graph_list[0]->set_full();
 
-    if(iterations < iterations_max && this->m_graph_list[0]->size()<(4+4)){
+    if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(8,true, false, false, false); // Start with 4 boxes
+        m_graph_list[0]->sivia(4,true, false, false, false); // Start with 4 boxes
         m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
     }
@@ -183,12 +185,16 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
             if(m_graph_list[0]->is_empty()){
                 delete(m_graph_list[0]);
                 m_graph_list.erase(m_graph_list.begin());
-                cout << " REMOVE EMPTY GRAPH" << endl;
+                cout << "REMOVE EMPTY GRAPH" << endl;
                 break;
             }
         }
-        if(m_graph_list.size()!=0)
-            m_graph_list[0]->identify_attractor();
+        if(m_graph_list.size()!=0){
+            if(m_graph_list[0]->identify_attractor()){
+                cout << "NO MORE ATTRACTOR TO FIND" << endl;
+                break;
+            }
+        }
 
         cout << "--> time (total) = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;

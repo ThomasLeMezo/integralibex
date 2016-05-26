@@ -51,6 +51,7 @@ public:
     bool                        is_border() const;
     bool                        is_test(int face) const;
     bool                        is_marked_attractor() const;
+    bool                        is_external_border() const;
 
     // Setter
     void                        set_full();
@@ -72,6 +73,7 @@ public:
     void                        set_active_function(int id);
 
     void                        set_marker_attractor(bool val);
+    void                        set_external_border(bool val);
 
     void                        reset_full_empty();
 
@@ -135,6 +137,7 @@ private:
     bool                        m_active;
     bool                        m_diseable_singeleton;
     bool                        m_marker_attractor;
+    bool                        m_external_border;
 };
 
 #endif // PAVE_H

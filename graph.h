@@ -22,7 +22,7 @@ public:
 
     // Test
     bool                        is_empty();
-    void                        identify_attractor();
+    bool                        identify_attractor();
 
     // Setter
     void                        set_full();
