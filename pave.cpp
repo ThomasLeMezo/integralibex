@@ -709,7 +709,8 @@ bool Pave::is_border() const{
         Interval segment_border = Interval::EMPTY_SET;
         for(auto &i:b->get_inclusions()){
             segment_border |= i->get_segment_full();
-            if(!i->get_border()->get_pave()->is_active()){
+
+            if(!i->get_border()->get_pave()->is_active() || i->get_border()->get_pave()->is_external_border()){
                 return true;
             }
         }
@@ -815,11 +816,14 @@ void Pave::combine(const Pave &p){
         //            segment_in &= p.get_border_const(face)->get_segment_out();
         //        }
 
+        segment_in |= p.get_border_const(face)->get_segment_in(); // Union
+
         if(get_border(face)->get_segment_out().is_empty() && p.get_border_const(face)->get_segment_out().is_empty()){
-            segment_in &= p.get_border_const(face)->get_segment_in(); // Inter
-        }
-        else{
-            segment_in |= p.get_border_const(face)->get_segment_in(); // Union
+            if(!(get_border(face)->get_segment_full().lb() & segment_in).is_empty() || !(get_border(face)->get_segment_full().ub() & segment_in).is_empty()){
+                if(!(p.get_border_const(face)->get_segment_full().lb() & segment_in).is_empty() || !(p.get_border_const(face)->get_segment_full().ub() & segment_in).is_empty()){
+                    segment_in &= p.get_border_const(face)->get_segment_in();
+                }
+            }
         }
         //        if(!get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
         //            segment_in &= p.get_border_const(face)->get_segment_in();

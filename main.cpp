@@ -204,14 +204,14 @@ void car_on_the_hill_attractor_with_inner_kernel(){
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
 
-    Scheduler s(box, f_list, u, true, false, false);
+    Scheduler s(box, f_list, u, false, false, false);
 
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
-    s.draw(1024, true, "attractor");
+//    s.draw(1024, true, "attractor");
     s.invert_for_inner();
-    s.draw(1024, true, "invert");
-    s.cameleon_cycle(5, 5, 1e9, false, false, true);
+//    s.draw(1024, true, "invert");
+    s.cameleon_viability(8, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -543,6 +543,34 @@ void integrator(){
     s.draw(1024, true);
 }
 
+void van_der_pol_integration(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x, y;
+    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(-6.0, 6.0);
+    box[1] = Interval(-6.0, 6.0);
+
+    IntervalVector u(2);
+    u[0] = Interval::ZERO;
+    u[1] = Interval::ZERO;
+    Scheduler s(box, f_list, u, false);
+
+    IntervalVector activated_pave(2);
+    activated_pave[0] = Interval(-3.0);
+    activated_pave[1] = Interval(3.0);
+
+    s.cameleon_propagation(20, 1e9, activated_pave); // 25
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.draw(1024, true);
+}
+
 int main()
 {
     /// **** BALL ***** //
@@ -568,6 +596,7 @@ int main()
 
     /// **** VAN DER POL ***** //
 //    van_der_pol_cycle();
+//    van_der_pol_integration();
 
     /// **** INTEGRATOR ***** //
 //    integrator();

@@ -96,13 +96,13 @@ void Scheduler::set_symetry(Function *f, int face_in, int face_out){
     m_graph_list[0]->set_symetry(f, face_in, face_out);
 }
 
-void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe, bool inner){
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe){
     vector<IntervalVector> initial_boxes;
     initial_boxes.push_back(initial_boxe);
-    cameleon_propagation(iterations_max, process_iterations_max, initial_boxes, inner);
+    cameleon_propagation(iterations_max, process_iterations_max, initial_boxes);
 }
 
-void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, vector<IntervalVector> &initial_boxes, bool inner){
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, vector<IntervalVector> &initial_boxes){
     if(m_graph_list.size()!=1 && m_graph_list[0]->size() !=1)
         return;
     int iterations = 0;
@@ -123,7 +123,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         m_graph_list[0]->remove_empty_node();
-        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), false, true, true);
+        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), false, false, false);
 
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
@@ -192,6 +192,57 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
     }
 }
 
+void Scheduler::cameleon_viability(int iterations_max, int process_iterations_max){
+    if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
+        return;
+    int iterations = 0;
+    m_graph_list[0]->set_external_boundary(false, true);
+
+    if(iterations < iterations_max && this->m_graph_list[0]->size()>4){
+        m_graph_list[0]->remove_empty_node();
+        m_graph_list[0]->process(process_iterations_max, true);
+        iterations++;
+    }
+
+    while(iterations < iterations_max){
+        const clock_t begin_time = clock();
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+        int nb_graph=0;
+
+        if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)
+            break;
+        m_graph_list[nb_graph]->clear_node_queue();
+        //int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, double theta_limit
+        m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->size(), true, false);
+        const clock_t sivia_time = clock();
+        cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+        m_graph_list[nb_graph]->update_queue();
+
+        // Process the backward with the subpaving
+        cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
+
+//        m_graph_list[nb_graph]->draw(512, true,"before");
+        int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true);
+        cout << "--> processing outer = " << graph_list_process_cpt << endl;
+        cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
+//        m_graph_list[nb_graph]->draw(512, true,"after");
+
+        // Remove empty pave
+        m_graph_list[nb_graph]->remove_empty_node();
+
+        // Test if the graph is empty
+        if(m_graph_list[nb_graph]->is_empty()){
+            m_graph_list.erase(m_graph_list.begin()+nb_graph);
+            delete(m_graph_list[nb_graph]);
+            break;
+        }
+
+        cout << "--> time (total) = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        iterations++;
+    }
+}
+
 void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
@@ -205,11 +256,11 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         iterations++;
     }
 
-        if(compute_inner && iterations < iterations_max && this->m_graph_list[0]->size()>4){
-            m_graph_list[0]->remove_empty_node();
-            m_graph_list[0]->process(process_iterations_max, true);
-            iterations++;
-        }
+    if(compute_inner && iterations < iterations_max && this->m_graph_list[0]->size()>4){
+        m_graph_list[0]->remove_empty_node();
+        m_graph_list[0]->process(process_iterations_max, true);
+        iterations++;
+    }
 
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
