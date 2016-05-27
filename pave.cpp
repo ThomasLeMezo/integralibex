@@ -291,7 +291,7 @@ void Pave::draw_theta() const{
     double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
 
     std::vector<std::string> color_map;
-    color_map.push_back("r[]");
+    color_map.push_back("black[gray]");
     color_map.push_back("b[]");
     color_map.push_back("g[]");
 

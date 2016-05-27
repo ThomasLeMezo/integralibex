@@ -256,11 +256,11 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         iterations++;
     }
 
-    if(compute_inner && iterations < iterations_max && this->m_graph_list[0]->size()>4){
-        m_graph_list[0]->remove_empty_node();
-        m_graph_list[0]->process(process_iterations_max, true);
-        iterations++;
-    }
+//    if(compute_inner && iterations < iterations_max && this->m_graph_list[0]->size()>4){
+//        m_graph_list[0]->remove_empty_node();
+//        m_graph_list[0]->process(process_iterations_max, true);
+//        iterations++;
+//    }
 
     while(iterations < iterations_max){
         const clock_t begin_time = clock();

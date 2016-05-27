@@ -279,14 +279,19 @@ void Graph::draw(int size, bool filled, string comment){
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
     for(auto &node:m_node_empty_list){
-        node->draw(filled, "gray[]");
+        node->draw(filled, "gray[red]");
     }
 
     for(auto &node:m_node_list){
-        if(node->is_removed_pave())
-            node->draw(filled, "gray[]");
-        else
-            node->draw(filled);
+        if(node->is_active()){
+            if(node->is_removed_pave())
+                node->draw(filled, "gray[red]");
+            else
+                node->draw(filled, "gray[red]");
+        }
+        else{
+            //            node->draw(filled, "gray[red]");
+        }
     }
 
     for(auto &node:m_node_border_list){
