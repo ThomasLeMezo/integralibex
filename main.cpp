@@ -175,7 +175,8 @@ void car_on_the_hill_attractor(){
 //    Scheduler s(box, bassin_list, f_list, u, true, false, false);
 
     /////////////// Compute ///////////////
-    s.compute_attractor(14, 1e9);
+//    s.compute_attractor(14, 1e9);
+    s.cameleon_cycle(12, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -285,7 +286,7 @@ void car_on_the_hill_inner_kernel(){
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
 
-    Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, u, true, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_cycle(12, 5, 1e9, false, false, true);

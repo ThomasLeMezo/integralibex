@@ -273,24 +273,27 @@ Pave& Graph::operator[](int id){
 
 void Graph::draw(int size, bool filled, string comment){
 
+    // Magenta = #FF00FF
+    // Gray light =  #D3D3D3
+
     stringstream ss;
     ss << "integralIbex" << m_graph_id<< "-" << m_drawing_cpt << " " << comment;
     vibes::newFigure(ss.str());
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
     for(auto &node:m_node_empty_list){
-        node->draw(filled, "gray[red]");
+        node->draw(filled, "#D3D3D3[#FF00FF]");
     }
 
     for(auto &node:m_node_list){
         if(node->is_active()){
             if(node->is_removed_pave())
-                node->draw(filled, "gray[red]");
+                node->draw(filled, "#D3D3D3[#FF00FF]");
             else
-                node->draw(filled, "gray[red]");
+                node->draw(filled, "#D3D3D3[#FF00FF]");
         }
         else{
-            //            node->draw(filled, "gray[red]");
+//            node->draw(filled, "#D3D3D3[blue]");
         }
     }
 
