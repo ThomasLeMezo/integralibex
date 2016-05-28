@@ -18,7 +18,7 @@ Utils::~Utils(){
 }
 
 // ********************************************************************************
-// ****************** Contractors functions OUTERS ********************************
+// ****************** Contractors functions ***************************************
 /**
  ** CtcPropagateFront supposed that the down left box corner is (0,0)
  **
@@ -78,107 +78,6 @@ void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ib
 
 void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const ibex::Interval &theta, const IntervalVector &box){
     this->CtcPropagateRightSide(x, y, theta, box[0].ub(), box[1].ub());
-}
-
-// ********************************************************************************
-// ****************** Contractors functions INNERS ********************************
-
-void Utils::CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, const ibex::Interval &u, bool backward){
-    if(x_front.is_empty() || x.is_empty()){
-        x = Interval::EMPTY_SET;
-        x_front = Interval::EMPTY_SET;
-        return;
-    }
-
-    Interval X = Interval(0.0, dx);
-
-    Interval theta2;
-    if(theta_list[1].is_empty()){
-        theta2 = (Interval(theta_list[0].lb()) + u) & (Interval(theta_list[0].ub()) + u);
-    }
-    else{
-        Interval theta2_0, theta2_1;
-        // theta[0] in [0, pi]
-        // theta[1] in [-pi, 0]
-        theta2_0 = (Interval(theta_list[0].lb()) + u) & (Interval(theta_list[0].ub()) + u);
-        theta2_1 = (Interval((theta_list[1]+Interval::TWO_PI).lb()) + u) & (Interval((theta_list[1]+Interval::TWO_PI).ub()) + u);
-        theta2 = theta2_0 & theta2_1;
-    }
-
-
-    Interval Dx_lb = Interval(-dx, dx);
-    Interval Dy_lb = Interval(dy);
-    Interval rho_lb = Interval::POS_REALS;
-    contract_polar.contract(Dx_lb, Dy_lb, rho_lb, theta2);
-
-    Interval Dx_ub = Interval(-dx, dx);
-    Interval Dy_ub = Interval(dy);
-    Interval rho_ub = Interval::POS_REALS;
-    contract_polar.contract(Dx_ub, Dy_ub, rho_ub, theta2);
-
-    if(!backward)
-        x_front &= ((Interval(x.lb()) + Dx_lb) & (Interval(x.ub()) + Dx_ub)) & X;
-    else
-        x &= ((Interval(x_front.lb()) - Dx_ub) & (Interval(x_front.ub()) - Dx_lb)) & X;
-}
-
-void Utils::CtcPropagateFrontInner(ibex::Interval &x, ibex::Interval &x_front, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box, const ibex::Interval &u, bool backward){
-    this->CtcPropagateFrontInner(x, x_front, theta_list, box[0].ub(), box[1].ub(), u, backward);
-}
-
-void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, const ibex::Interval &u, bool final, bool backward){
-    std::vector<ibex::Interval> theta_frame = {Interval::PI - theta_list[0], Interval::PI - theta_list[1]};
-
-    Interval theta2;
-    if(theta_frame[1].is_empty()){
-        theta2 = (Interval(theta_frame[0].lb()) + u) & (Interval(theta_frame[0].ub()) + u);
-    }
-    else{
-        Interval theta2_0, theta2_1;
-        // theta[0] in [0, pi]
-        // theta[1] in [-pi, 0]
-        theta2_0 = (Interval(theta_frame[0].lb()) + u) & (Interval(theta_frame[0].ub()) + u);
-        theta2_1 = (Interval((theta_frame[1]+Interval::TWO_PI).lb()) + u) & (Interval((theta_frame[1]+Interval::TWO_PI).ub()) + u);
-        theta2 = theta2_0 & theta2_1;
-    }
-
-    Interval x_lb = Interval(x.lb()) & Interval(0.0, dx);
-    Interval y_lb = y & Interval(0.0, dy);
-    Interval rho_lb = Interval::POS_REALS;
-    CtcPolarCorrection(x_lb, y_lb, rho_lb, theta2);
-
-    Interval x_ub = Interval(x.ub()) & Interval(0.0, dx);
-    Interval y_ub = y & Interval(0.0, dy);
-    Interval rho_ub = Interval::POS_REALS;
-    CtcPolarCorrection(x_ub, y_ub, rho_ub, theta2);
-
-    Interval y_cpy(y);
-    y &= (y_lb & y_ub);
-
-    if(!final){
-        Interval x_bwd = Interval(dy) - y_cpy;
-        Interval y_bwd = x;
-        vector<Interval> theta_bwd = {Interval::PI+theta_frame[0], Interval::PI+theta_frame[1]};
-        Interval u_bwd = Interval::PI + u;
-        this->CtcPropagateRightSideInner(x_bwd, y_bwd, theta_bwd, dy, dx, u_bwd, true, false);
-        x = y_bwd;
-    }
-}
-
-void Utils::CtcPropagateLeftSideInner(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box, const ibex::Interval &u, bool final, bool backward){
-    this->CtcPropagateLeftSideInner(x, y, theta_list, box[0].ub(), box[1].ub(), u, final, backward);
-}
-
-void Utils::CtcPropagateRightSideInner(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, const ibex::Interval &u, bool final, bool backward){
-    Interval x_frame = Interval(dx) - x;
-    vector<Interval> theta_frame = {Interval::PI-theta_list[0], Interval::PI-theta_list[1]};
-    Interval u_frame(-u);    // Because of Symetry
-    this->CtcPropagateLeftSideInner(x_frame, y, theta_frame, dx, dy, u_frame, final, backward);
-    x = Interval(dx) - x_frame;
-}
-
-void Utils::CtcPropagateRightSideInner(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box, const ibex::Interval &u, bool final, bool backward){
-    this->CtcPropagateRightSideInner(x, y, theta_list, box[0].ub(), box[1].ub(), u, final, backward);
 }
 
 // ********************************************************************************
@@ -580,7 +479,6 @@ std::vector<IntervalVector> Utils::diff(const IntervalVector &box_initial, const
 }
 
 std::vector<IntervalVector> Utils::get_segment_from_box(const IntervalVector &box, const double size_border){
-
     vector<IntervalVector> list_border;
     IntervalVector test(2);
     test[0] = Interval(box[0].lb(), box[0].ub());
