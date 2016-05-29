@@ -72,6 +72,9 @@ public:
     void                        mark_full_pave_as_inner();
     int                         get_alive_node();
 
+    void                        propagate_inner();
+    void                        recursive_mark_inner(Pave* p);
+
 private:
     std::vector<Pave*> m_node_list;
     std::vector<Pave*> m_node_border_list;

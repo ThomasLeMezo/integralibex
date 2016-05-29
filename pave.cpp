@@ -403,6 +403,11 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
         pave2->set_full();
     }
 
+    if(backward){
+        pave1->set_full();
+        pave2->set_full();
+    }
+
     result.push_back(pave1);
     result.push_back(pave2);
 }
@@ -531,6 +536,16 @@ const std::vector<Pave *> Pave::get_brothers(int face){
     for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
         if(!m_borders[face]->get_inclusion(i)->get_border()->get_pave()->is_removed_pave())
             brothers_list.push_back(m_borders[face]->get_inclusion(i)->get_border()->get_pave());
+    }
+    return brothers_list;
+}
+
+const std::vector<Pave *> Pave::get_all_brothers(){
+    vector<Pave*> brothers_list;
+    for(int face = 0; face<4; face++){
+        for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
+            brothers_list.push_back(m_borders[face]->get_inclusion(i)->get_border()->get_pave());
+        }
     }
     return brothers_list;
 }
@@ -869,12 +884,10 @@ void Pave::set_removed_pave(bool val){
 }
 
 bool Pave::is_near_inner(){
-    for(int face = 0; face<4; face++){
-        vector<Pave*> brothers = get_brothers(face);
-        for(auto &p:brothers){
-            if(p->is_inner()){
-                return true;
-            }
+    vector<Pave*> brothers = get_all_brothers();
+    for(auto &p:brothers){
+        if(p->is_inner()){
+            return true;
         }
     }
     return false;

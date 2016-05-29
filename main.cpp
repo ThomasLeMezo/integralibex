@@ -696,7 +696,7 @@ int main()
 //    car_on_the_hill_capture_bassin();
 //    car_on_the_hill_inner_kernel();
 
-//    car_on_the_hill_kernel();
+    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
@@ -706,7 +706,7 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_outer();

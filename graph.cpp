@@ -129,7 +129,6 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
 
     for(int i=0; i<tmp_pave_list.size(); i++){
         if(backward && !tmp_pave_list[i]->is_removed_pave()){
-            tmp_pave_list[i]->set_full();
             tmp_pave_list[i]->set_in_queue(true);
             m_node_queue.push_back(tmp_pave_list[i]);
         }
@@ -287,25 +286,25 @@ void Graph::draw(int size, bool filled, string comment){
     vibes::newFigure(ss.str());
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
-    for(auto &node:m_node_empty_list){
-        if(node->is_active()){
-            if(node->is_inner())
-                node->draw(filled, "#D3D3D3[#FF00FF]");
-            else
-                node->draw(filled, "#D3D3D3[#4C4CFF]");
-        }
-    }
+    //    for(auto &node:m_node_empty_list){
+    //        if(node->is_active()){
+    //            if(node->is_inner())
+    //                node->draw(filled, "#D3D3D3[#FF00FF]");
+    //            else
+    //                node->draw(filled, "#D3D3D3[#4C4CFF]");
+    //        }
+    //    }
 
     for(auto &node:m_node_list){
-//        if(node->is_active()){
-            if(node->is_near_inner())
-                node->draw(filled, "#D3D3D3[#FF00FF]");
-            else
-                node->draw(filled, "#D3D3D3[#4C4CFF]");
-//        }
-//        else{
-//            node->draw(filled, "#D3D3D3[blue]");
-//        }
+        //        if(node->is_active()){
+        if(node->is_near_inner())
+            node->draw(filled, "#D3D3D3[#FF00FF]");
+        else
+            node->draw(filled, "#D3D3D3[#4C4CFF]");
+        //        }
+        //        else{
+        //            node->draw(filled, "#D3D3D3[blue]");
+        //        }
     }
 
     for(auto &node:m_node_border_list){
@@ -385,19 +384,20 @@ int Graph::size() const{
 }
 
 void Graph::mark_empty_node(){
-    for(int i=0; i<m_node_list.size(); i++){
-        if(!m_node_list[i]->is_removed_pave() && m_node_list[i]->is_active()){
-            m_node_list[i]->reset_full_empty();
-            if(m_node_list[i]->is_empty()){
-                if(m_node_list[i]->is_near_inner()){
-                    m_node_list[i]->set_inner(true);
+    for(auto &pave:m_node_list){
+        if(!pave->is_removed_pave() && pave->is_active()){
+            pave->reset_full_empty();
+            if(pave->is_empty()){
+                if(pave->is_near_inner()){
+                    pave->set_inner(true);
                 }
-                m_node_list[i]->set_removed_pave(true);
-                m_node_list[i]->set_active(false);
+                pave->set_removed_pave(true);
+                pave->set_active(false);
                 m_count_alive--;
             }
         }
     }
+    propagate_inner();
 }
 
 void Graph::remove_empty_node(){
@@ -674,6 +674,24 @@ void Graph::mark_full_pave_as_inner(){
     for(auto &p:m_node_list){
         if(p->is_full()){
             p->set_inner(true);
+        }
+    }
+}
+
+void Graph::propagate_inner(){
+    for(auto &p:m_node_list){
+        if(p->is_inner()){
+            recursive_mark_inner(p);
+        }
+    }
+}
+
+void Graph::recursive_mark_inner(Pave* p){
+    vector<Pave *> brothers = p->get_all_brothers();
+    for(auto &bro:brothers){
+        if(!bro->is_inner() && bro->is_empty()){
+            bro->set_inner(true);
+            recursive_mark_inner(bro);
         }
     }
 }

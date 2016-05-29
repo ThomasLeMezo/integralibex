@@ -86,6 +86,7 @@ public:
     double                              get_theta_diam(int active_function=-1);
     double                              get_theta_diam_min();
     const std::vector<Pave*>            get_brothers(int face);
+    const std::vector<Pave *>           get_all_brothers();
     const ibex::Interval&               get_theta(int i) const;
     const std::vector<ibex::Interval>   get_theta() const;
     std::vector<std::vector<ibex::Interval>>  get_theta_list() const;
