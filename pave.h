@@ -34,6 +34,7 @@ public:
     void                        draw_test(int size, std::string comment) const;
     void                        draw_theta() const;
     void                        print();
+    void                        print_theta_list();
 
     // ******** Graph building ********
     void                        bisect(std::vector<Pave *> &result, bool backward=false);

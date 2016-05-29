@@ -286,15 +286,6 @@ void Graph::draw(int size, bool filled, string comment){
     vibes::newFigure(ss.str());
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
-    //    for(auto &node:m_node_empty_list){
-    //        if(node->is_active()){
-    //            if(node->is_inner())
-    //                node->draw(filled, "#D3D3D3[#FF00FF]");
-    //            else
-    //                node->draw(filled, "#D3D3D3[#4C4CFF]");
-    //        }
-    //    }
-
     for(auto &node:m_node_list){
         //        if(node->is_active()){
         if(node->is_near_inner())
@@ -332,7 +323,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
     cout << "*******************" << endl;
     cout << "BOX = " << p->get_position() << endl;
     cout << p << endl;
-    cout << "theta " << p->get_theta(0) << " " << p->get_theta(1) << " diam=" << p->get_theta_diam() << endl;
+    p->print_theta_list();
     cout << "nb\t" << "position\t" << "in\t" << "out\t" << "contaminated_in\t" << "contaminated_out\t" << "continuity_in\t" << "continuity_out" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
         cout << i << '\t'

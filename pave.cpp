@@ -406,6 +406,35 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
     if(backward){
         pave1->set_full();
         pave2->set_full();
+
+//        if(m_borders[indice1]->is_empty()){
+//            bool theta_inside = false;
+//            for(auto &theta_list:m_theta_list){
+//                double sum_theta = 0.0;
+//                for(auto &theta:theta_list){
+//                    sum_theta += theta.diam();
+//                }
+//                if(sum_theta>=M_PI/4.0)
+//                    break;
+
+//                for(auto &theta:theta_list){
+//                    switch(indice1){
+//                    case 2:
+//                        if((!(theta & -Interval::HALF_PI).is_empty() || !(theta & Interval::HALF_PI).is_empty()))
+//                            theta_inside = true;
+//                        break;
+//                    case 1:
+//                        if((!(theta & Interval::ZERO).is_empty() || !(theta & Interval::PI).is_empty()))
+//                            theta_inside = true;
+//                        break;
+//                    }
+//                }
+//            }
+//            if(theta_inside){
+//                pave1->get_border((indice1+1)%4)->set_empty();
+//                pave1->get_border((indice2+1)%4)->set_empty();
+//            }
+//        }
     }
 
     result.push_back(pave1);
@@ -891,4 +920,16 @@ bool Pave::is_near_inner(){
         }
     }
     return false;
+}
+
+void Pave::print_theta_list(){
+    int count = 0;
+    cout << "theta ";
+    for(auto &theta_list:m_theta_list){
+        cout << "(" << count << ") ";
+        for(auto &theta:theta_list){
+            cout << theta << " ";
+        }
+    }
+    cout << endl;
 }
