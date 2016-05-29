@@ -404,37 +404,9 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
     }
 
     if(backward){
+        /// ToDo : improve continuity
         pave1->set_full();
         pave2->set_full();
-
-//        if(m_borders[indice1]->is_empty()){
-//            bool theta_inside = false;
-//            for(auto &theta_list:m_theta_list){
-//                double sum_theta = 0.0;
-//                for(auto &theta:theta_list){
-//                    sum_theta += theta.diam();
-//                }
-//                if(sum_theta>=M_PI/4.0)
-//                    break;
-
-//                for(auto &theta:theta_list){
-//                    switch(indice1){
-//                    case 2:
-//                        if((!(theta & -Interval::HALF_PI).is_empty() || !(theta & Interval::HALF_PI).is_empty()))
-//                            theta_inside = true;
-//                        break;
-//                    case 1:
-//                        if((!(theta & Interval::ZERO).is_empty() || !(theta & Interval::PI).is_empty()))
-//                            theta_inside = true;
-//                        break;
-//                    }
-//                }
-//            }
-//            if(theta_inside){
-//                pave1->get_border((indice1+1)%4)->set_empty();
-//                pave1->get_border((indice2+1)%4)->set_empty();
-//            }
-//        }
     }
 
     result.push_back(pave1);
@@ -444,7 +416,7 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
 // ********************************************************************************
 // ****************** UTILS functions *********************************************
 
-double Pave::get_theta_diam(int active_function){
+double Pave::get_theta_diam(int active_function) const{
     if(active_function =-1){
         double diam_max = 0.0;
         for(int active_function = 0; active_function<m_f_list.size(); active_function++){
@@ -849,17 +821,9 @@ void Pave::combine(const Pave &p){
         Interval segment_in = get_border(face)->get_segment_in();
 
         /// Segment OUT
-        // Union
-        segment_out |= p.get_border_const(face)->get_segment_out();
-        //        if(get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
-        //            segment_out &= p.get_border_const(face)->get_segment_in();
-        //        }
+        segment_out |= p.get_border_const(face)->get_segment_out(); // Union
 
         /// Segment IN
-        //        if(get_border(face)->get_segment_out().is_empty() && !p.get_border_const(face)->get_segment_out().is_empty()){
-        //            segment_in &= p.get_border_const(face)->get_segment_out();
-        //        }
-
         segment_in |= p.get_border_const(face)->get_segment_in(); // Union
 
         if(get_border(face)->get_segment_out().is_empty() && p.get_border_const(face)->get_segment_out().is_empty()){
@@ -869,14 +833,15 @@ void Pave::combine(const Pave &p){
                 }
             }
         }
-        //        if(!get_border(face)->get_segment_in().is_empty() && !p.get_border_const(face)->get_segment_in().is_empty()){
-        //            segment_in &= p.get_border_const(face)->get_segment_in();
-        //        }
 
-        //        if(get_theta_diam(p.get_active_function())>=2*M_PI){
-        //            segment_in &= p.get_border_const(face)->get_segment_in();
-        //            segment_out &= p.get_border_const(face)->get_segment_out();
-        //        }
+        if(get_theta_diam()>=M_PI && p.get_theta_diam() < M_PI){
+            segment_out = get_border(face)->get_segment_out();
+            segment_in = get_border(face)->get_segment_in();
+        }
+        if(get_theta_diam()<M_PI && p.get_theta_diam() >= M_PI){
+            segment_out = p.get_border_const(face)->get_segment_out();
+            segment_in = p.get_border_const(face)->get_segment_in();
+        }
 
         get_border(face)->set_empty();
         get_border(face)->set_segment_in(segment_in, false);

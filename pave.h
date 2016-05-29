@@ -84,7 +84,7 @@ public:
     void                        reset_full_empty();
 
     // Getters
-    double                              get_theta_diam(int active_function=-1);
+    double                              get_theta_diam(int active_function=-1) const;
     double                              get_theta_diam_min();
     const std::vector<Pave*>            get_brothers(int face);
     const std::vector<Pave *>           get_all_brothers();
