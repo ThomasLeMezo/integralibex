@@ -114,7 +114,8 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         for(auto &initial_box:initial_boxes)
             m_graph_list[0]->set_active_pave(initial_box);
         m_graph_list[0]->process(process_iterations_max, false);
-        m_graph_list[0]->remove_empty_node();
+//        m_graph_list[0]->remove_empty_node();
+        m_graph_list[0]->mark_empty_node();
         iterations++;
     }
     int nb_graph = 0;
@@ -122,8 +123,9 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->remove_empty_node();
-        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), false, false, false);
+//        m_graph_list[0]->remove_empty_node();
+        m_graph_list[0]->mark_empty_node();
+        m_graph_list[0]->sivia(2*m_graph_list[0]->get_alive_node(), false, false, false);
 
         m_graph_list[0]->set_empty();
         for(auto &initial_box:initial_boxes)
@@ -156,10 +158,10 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
 
-        if(m_graph_list[0]->size()==0 || m_graph_list.size()==0)
+        if(m_graph_list[0]->get_alive_node()==0 || m_graph_list.size()==0)
             break;
         m_graph_list[0]->clear_node_queue();
-        m_graph_list[0]->sivia(2*m_graph_list[0]->size(), true, false, false, 0.0);
+        m_graph_list[0]->sivia(2*m_graph_list[0]->get_alive_node(), true, false, false, 0.0);
 
         for(int nb_f=0; nb_f<m_graph_list[0]->get_f_size(); nb_f++){
             m_graph_list[0]->set_active_f(nb_f);
@@ -199,7 +201,8 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
     m_graph_list[0]->set_external_boundary(false, true);
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()>4){
-        m_graph_list[0]->remove_empty_node();
+//        m_graph_list[0]->remove_empty_node();
+        m_graph_list[0]->mark_empty_node();
         m_graph_list[0]->process(process_iterations_max, true);
         iterations++;
     }
@@ -209,11 +212,11 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         int nb_graph=0;
 
-        if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)
+        if(m_graph_list[nb_graph]->get_alive_node()==0 || m_graph_list.size()==0)
             break;
         m_graph_list[nb_graph]->clear_node_queue();
         //int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, double theta_limit
-        m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->size(), true, false);
+        m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->get_alive_node(), true, false);
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -229,7 +232,8 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 //        m_graph_list[nb_graph]->draw(512, true,"after");
 
         // Remove empty pave
-        m_graph_list[nb_graph]->remove_empty_node();
+//        m_graph_list[nb_graph]->remove_empty_node();
+        m_graph_list[0]->mark_empty_node();
 
         // Test if the graph is empty
         if(m_graph_list[nb_graph]->is_empty()){
@@ -256,22 +260,16 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         iterations++;
     }
 
-//    if(compute_inner && iterations < iterations_max && this->m_graph_list[0]->size()>4){
-//        m_graph_list[0]->remove_empty_node();
-//        m_graph_list[0]->process(process_iterations_max, true);
-//        iterations++;
-//    }
-
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
 
         for(int nb_graph=0; nb_graph<m_graph_list.size(); nb_graph++){
 
-            if(m_graph_list[nb_graph]->size()==0 || m_graph_list.size()==0)
+            if(m_graph_list[nb_graph]->get_alive_node()==0 || m_graph_list.size()==0)
                 break;
             m_graph_list[nb_graph]->clear_node_queue();
-            m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->size(), true, false, do_not_bisect_inside);
+            m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->get_alive_node(), true, false, do_not_bisect_inside);
             const clock_t sivia_time = clock();
             cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -286,7 +284,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
             // Remove empty pave
-            m_graph_list[nb_graph]->remove_empty_node();
+//            m_graph_list[nb_graph]->remove_empty_node();
+            m_graph_list[nb_graph]->mark_empty_node();
 
             // Test if the graph is empty
             if(m_graph_list[nb_graph]->is_empty()){
@@ -329,7 +328,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 //                else{
                 //                    delete(graph_diff);
                 //                }
-                m_graph_list[nb_graph]->remove_empty_node();
+//                m_graph_list[nb_graph]->remove_empty_node();
+                m_graph_list[nb_graph]->mark_empty_node();
 
                 delete(graph_propagation);
 
@@ -369,7 +369,7 @@ void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Funct
 
 void Scheduler::invert_for_inner(){
     // reset removed and active pave
-
+    m_graph_list[0]->mark_full_pave_as_inner();
     m_graph_list[0]->complementaire();
 
     m_graph_list[0]->set_all_active();

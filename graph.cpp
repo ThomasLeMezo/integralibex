@@ -98,6 +98,7 @@ void Graph::clear_node_queue(){
 
 void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, double theta_limit){
     int iterations = 0;
+    m_count_alive = 0;
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
     m_node_list.reserve(nb_node);
@@ -112,14 +113,16 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
             tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
 
         if(!tmp->is_active() || tmp->is_removed_pave()
-                || tmp->get_inner()
                 || ((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full()))
                 || tmp->get_theta_diam()<theta_limit){
             m_node_list.push_back(tmp);
-            iterations++;
+            if(!tmp->is_removed_pave()){
+                iterations++;
+                m_count_alive++;
+            }
         }
         else{
-            tmp->bisect(tmp_pave_list);
+            tmp->bisect(tmp_pave_list, backward);
             delete(tmp);
         }
     }
@@ -131,7 +134,9 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
             m_node_queue.push_back(tmp_pave_list[i]);
         }
         m_node_list.push_back(tmp_pave_list[i]);
+        m_count_alive++;
     }
+    cout << "SIVIA node_queue.size() = " << m_node_queue.size() << endl;
 }
 
 int Graph::process(int max_iterations, bool backward, bool enable_function_iteration){
@@ -275,6 +280,7 @@ void Graph::draw(int size, bool filled, string comment){
 
     // Magenta = #FF00FF
     // Gray light =  #D3D3D3
+    // Blue = #4C4CFF
 
     stringstream ss;
     ss << "integralIbex" << m_graph_id<< "-" << m_drawing_cpt << " " << comment;
@@ -282,19 +288,24 @@ void Graph::draw(int size, bool filled, string comment){
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
     for(auto &node:m_node_empty_list){
-        node->draw(filled, "#D3D3D3[#FF00FF]");
+        if(node->is_active()){
+            if(node->is_inner())
+                node->draw(filled, "#D3D3D3[#FF00FF]");
+            else
+                node->draw(filled, "#D3D3D3[#4C4CFF]");
+        }
     }
 
     for(auto &node:m_node_list){
-        if(node->is_active()){
-            if(node->is_removed_pave())
+//        if(node->is_active()){
+            if(node->is_near_inner())
                 node->draw(filled, "#D3D3D3[#FF00FF]");
             else
-                node->draw(filled, "#D3D3D3[#FF00FF]");
-        }
-        else{
+                node->draw(filled, "#D3D3D3[#4C4CFF]");
+//        }
+//        else{
 //            node->draw(filled, "#D3D3D3[blue]");
-        }
+//        }
     }
 
     for(auto &node:m_node_border_list){
@@ -370,7 +381,7 @@ Utils* Graph::get_utils(){
 }
 
 int Graph::size() const{
-    return m_node_list.size();
+    return m_node_list.size() + m_node_empty_list.size();
 }
 
 void Graph::mark_empty_node(){
@@ -378,8 +389,12 @@ void Graph::mark_empty_node(){
         if(!m_node_list[i]->is_removed_pave() && m_node_list[i]->is_active()){
             m_node_list[i]->reset_full_empty();
             if(m_node_list[i]->is_empty()){
+                if(m_node_list[i]->is_near_inner()){
+                    m_node_list[i]->set_inner(true);
+                }
                 m_node_list[i]->set_removed_pave(true);
                 m_node_list[i]->set_active(false);
+                m_count_alive--;
             }
         }
     }
@@ -390,6 +405,10 @@ void Graph::remove_empty_node(){
         if(m_node_list[i]->is_active()){
             m_node_list[i]->reset_full_empty();
             if(m_node_list[i]->is_empty()){
+                if(m_node_list[i]->is_near_inner()){
+                    m_node_list[i]->set_inner(true);
+                }
+
                 m_node_list[i]->remove_from_brothers();
                 m_node_empty_list.push_back(m_node_list[i]);
                 m_node_list.erase(m_node_list.begin() + i);
@@ -649,4 +668,16 @@ void Graph::set_all_active(){
         p->set_active(true);
         p->set_removed_pave(false);
     }
+}
+
+void Graph::mark_full_pave_as_inner(){
+    for(auto &p:m_node_list){
+        if(p->is_full()){
+            p->set_inner(true);
+        }
+    }
+}
+
+int Graph::get_alive_node(){
+    return m_count_alive;
 }

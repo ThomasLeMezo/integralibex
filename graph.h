@@ -69,6 +69,9 @@ public:
     void                        draw(int size, bool filled, string comment="");
     void                        drawInner(bool filled);
 
+    void                        mark_full_pave_as_inner();
+    int                         get_alive_node();
+
 private:
     std::vector<Pave*> m_node_list;
     std::vector<Pave*> m_node_border_list;
@@ -81,6 +84,7 @@ private:
 
     int m_graph_id;
     int m_drawing_cpt;
+    int m_count_alive;
 };
 
 #endif // GRAPH_H

@@ -36,7 +36,7 @@ public:
     void                        print();
 
     // ******** Graph building ********
-    void                        bisect(std::vector<Pave *> &result);
+    void                        bisect(std::vector<Pave *> &result, bool backward=false);
     void                        remove_from_brothers();
     void                        remove_brothers(Pave* p, int face);
 
@@ -53,6 +53,8 @@ public:
     bool                        is_marked_attractor() const;
     bool                        is_external_border() const;
     bool                        is_removed_pave() const;
+    bool                        is_inner() const;
+    bool                        is_near_inner();
 
     // Setter
     void                        set_full();
@@ -103,7 +105,7 @@ public:
     int                                 get_active_function() const;
 
     bool                                get_first_process() const;
-    bool                                get_inner() const;
+
     bool                                get_diseable_singelton() const;
 
     ibex::IntervalVector                get_bounding_pave() const;

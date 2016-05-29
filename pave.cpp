@@ -137,7 +137,7 @@ Pave::Pave(const Pave *p):
     m_empty = false;
     m_in_queue = p->is_in_queue();
     m_first_process = p->get_first_process();
-    m_inner = p->get_inner();
+    m_inner = p->is_inner();
     m_active = p->is_active();
     m_diseable_singeleton = p->get_diseable_singelton();
     m_external_border = p->is_external_border();
@@ -341,7 +341,7 @@ void Pave::draw_test(int size, string comment) const{
 // ********************************************************************************
 // ****************** Paving building *********************************************
 
-void Pave::bisect(vector<Pave*> &result){
+void Pave::bisect(vector<Pave*> &result, bool backward){
     // Create 4 new paves
     ibex::LargestFirst bisector(0.0, 0.5);
 
@@ -656,7 +656,7 @@ void Pave::set_first_process_false(){
     m_first_process = false;
 }
 
-bool Pave::get_inner() const{
+bool Pave::is_inner() const{
     return m_inner;
 }
 
@@ -866,4 +866,16 @@ bool Pave::is_removed_pave() const{
 
 void Pave::set_removed_pave(bool val){
     m_removed_pave = val;
+}
+
+bool Pave::is_near_inner(){
+    for(int face = 0; face<4; face++){
+        vector<Pave*> brothers = get_brothers(face);
+        for(auto &p:brothers){
+            if(p->is_inner()){
+                return true;
+            }
+        }
+    }
+    return false;
 }
