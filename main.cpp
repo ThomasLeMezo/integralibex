@@ -688,7 +688,7 @@ int main()
 //    ball();
 
     /// **** STATION KEEPING ***** //
-//    station_keeping_attractor();
+    station_keeping_attractor();
 
     /// **** CAR ON THE HILL ***** //
 //    car_on_the_hill_attractor();
@@ -696,7 +696,7 @@ int main()
 //    car_on_the_hill_capture_bassin();
 //    car_on_the_hill_inner_kernel();
 
-    car_on_the_hill_kernel();
+//    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
