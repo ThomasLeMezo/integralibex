@@ -448,6 +448,11 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
             if(theta_inside){
                 pave1->get_border(indice1)->set_empty();
                 pave2->get_border(indice2)->set_empty();
+
+                pave1->get_border((indice1+1)%4)->set_empty();
+                pave1->get_border((indice1+3)%4)->set_empty();
+                pave2->get_border((indice2+1)%4)->set_empty();
+                pave2->get_border((indice2+3)%4)->set_empty();
             }
         }
     }
