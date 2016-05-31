@@ -853,15 +853,15 @@ void Pave::intersect_face(const IntervalVector &box_in, const IntervalVector &bo
     }
 }
 
-void Pave::combine(std::vector<Pave *> &pave_list){
-    IntervalVector inter_pave_in(2, Interval::ALL_REALS);
-    IntervalVector inter_pave_out(2, Interval::ALL_REALS);
-    for(auto &p:pave_list){
-        inter_pave_in &= p->bounding_pave_in();
-        inter_pave_out &= p->bounding_pave_out();
-    }
-    intersect_face(inter_pave_in, inter_pave_out);
-}
+//void Pave::combine(std::vector<Pave *> &pave_list){
+//    IntervalVector inter_pave_in(2, Interval::ALL_REALS);
+//    IntervalVector inter_pave_out(2, Interval::ALL_REALS);
+//    for(auto &p:pave_list){
+//        inter_pave_in &= p->bounding_pave_in();
+//        inter_pave_out &= p->bounding_pave_out();
+//    }
+//    intersect_face(inter_pave_in, inter_pave_out);
+//}
 
 void Pave::combine(const Pave &p){
     for(int face = 0; face<m_borders.size(); face++){
@@ -892,8 +892,14 @@ void Pave::combine(const Pave &p){
         }
 
         get_border(face)->set_empty();
-        get_border(face)->set_segment_in(segment_in, false);
-        get_border(face)->set_segment_out(segment_out, false);
+        if(get_theta_diam(get_active_function())<M_PI && p.get_theta_diam(p.get_active_function())<M_PI){
+            get_border(face)->set_segment_in(segment_in, false);
+            get_border(face)->set_segment_out(segment_out, false);
+        }
+        else if(get_theta_diam(get_active_function())>=M_PI){
+            get_border(face)->set_segment_in(p.get_border_const(face)->get_segment_in(), false);
+            get_border(face)->set_segment_out(p.get_border_const(face)->get_segment_out(), false);
+        }
     }
 }
 
