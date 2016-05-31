@@ -216,7 +216,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
             break;
         m_graph_list[nb_graph]->clear_node_queue();
         //int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, double theta_limit
-        m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->get_alive_node(), true, false);
+        m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->get_alive_node(), true, false, false, 0.0);
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 

@@ -404,11 +404,10 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
     }
 
     if(backward){
-        /// ToDo : improve continuity
         pave1->set_full();
         pave2->set_full();
 
-        if(m_borders[indice1]->is_empty() || m_borders[indice2]->is_empty()){
+        if(m_borders[(indice1+1)%4]->is_empty() || m_borders[(indice1+3)%4]->is_empty()){
             bool theta_inside = false;
             for(auto &theta_list:m_theta_list){
 
@@ -417,7 +416,8 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
                         break;
 
                     switch(indice1){
-                    case 2:
+                    case 1:
+                        // Case LEFT/RIGHT bisection
                         if(!(theta & -Interval::HALF_PI).is_empty()){
                             Interval theta_centered = theta + Interval::HALF_PI;
                             if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
@@ -429,7 +429,8 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
                                 theta_inside = true;
                         }
                         break;
-                    case 1:
+                    case 2:
+                        // Case UP/DOWN bisection
                         if(!(theta & Interval::ZERO).is_empty()){
                             Interval theta_centered = theta - Interval::ZERO;
                             if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
@@ -445,8 +446,8 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
                 }
             }
             if(theta_inside){
-                pave1->get_border((indice1+1)%4)->set_empty();
-                pave1->get_border((indice2+1)%4)->set_empty();
+                pave1->get_border(indice1)->set_empty();
+                pave2->get_border(indice2)->set_empty();
             }
         }
     }
