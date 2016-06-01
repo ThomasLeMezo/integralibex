@@ -65,7 +65,7 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, u, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin
-    s.cameleon_cycle(12, 5, 1e9, false, false, false);
+    s.cameleon_cycle(4, 5, 1e9, true, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -297,7 +297,7 @@ void car_on_the_hill_inner_kernel(){
     Scheduler s(box, list_boxes_removed, f_list, u, true, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(12, 5, 1e9, false, false, true);
+    s.cameleon_cycle(5, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -696,7 +696,7 @@ int main()
 //    car_on_the_hill_capture_bassin();
 //    car_on_the_hill_inner_kernel();
 
-    car_on_the_hill_kernel();
+//    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
@@ -706,7 +706,7 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-//    van_der_pol_cycle();
+    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_outer();

@@ -247,20 +247,17 @@ void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change
         }
 
         // Union of Pave
+        Pave p_cpy(pave_list[0]);
         for(int i=1; i<pave_list.size(); i++){
-            pave_list[0]->combine(*pave_list[i]);
+            p_cpy.combine(*pave_list[i]);
         }
 
         if(backward){
-//            if(pave_list.size()>1)
-//                p->combine(pave_list);
-//            else
-                *p &= *(pave_list[0]);
+            *p &= p_cpy;
         }
-        else
-            *p |= *(pave_list[0]);
-
-        //        p->combine(pave_list[i]);
+        else{
+            *p |= p_cpy;
+        }
 
         // Delete Pave
         for(auto &pave:pave_list){

@@ -42,6 +42,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     // Build Paves and push back them
     for(auto &b:list_boxes){
         Pave* p = new Pave(b, f_list, u, diseable_singleton);
+        p->set_full();
         g->get_node_list().push_back(p);
     }
 
@@ -254,7 +255,6 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->set_full();
         m_graph_list[0]->sivia(4,true, false, false); // Start with 4 boxes
         m_graph_list[0]->process(process_iterations_max, true); // ? Usefull ??? ToDo
         iterations++;

@@ -449,10 +449,31 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
                 pave1->get_border(indice1)->set_empty();
                 pave2->get_border(indice2)->set_empty();
 
+                if(m_borders[(indice1+1)%4]->is_empty()){
                 pave1->get_border((indice1+1)%4)->set_empty();
-                pave1->get_border((indice1+3)%4)->set_empty();
                 pave2->get_border((indice2+1)%4)->set_empty();
-                pave2->get_border((indice2+3)%4)->set_empty();
+
+                }
+                if(m_borders[(indice1+3)%4]->is_empty()){
+                    pave1->get_border((indice1+3)%4)->set_empty();
+                    pave2->get_border((indice2+3)%4)->set_empty();
+                }
+            }
+
+            if(!is_border()){
+                for(int face=0; face<4; face++){
+                    if(face!=indice1){
+                        if((get_border(face)->get_segment_in() & pave1->get_border(face)->get_segment_in()).is_empty()
+                                && (get_border(face)->get_segment_out() & pave1->get_border(face)->get_segment_out()).is_empty())
+                            pave1->get_border(face)->set_empty();
+
+                    }
+                    if(face!=indice2){
+                        if((get_border(face)->get_segment_in() & pave2->get_border(face)->get_segment_in()).is_empty()
+                                && (get_border(face)->get_segment_out() & pave2->get_border(face)->get_segment_out()).is_empty())
+                            pave2->get_border(face)->set_empty();
+                    }
+                }
             }
         }
     }
@@ -882,24 +903,24 @@ void Pave::combine(const Pave &p){
             }
         }
 
-        if(get_theta_diam()>=M_PI && p.get_theta_diam() < M_PI){
-            segment_out = get_border(face)->get_segment_out();
-            segment_in = get_border(face)->get_segment_in();
-        }
-        if(get_theta_diam()<M_PI && p.get_theta_diam() >= M_PI){
-            segment_out = p.get_border_const(face)->get_segment_out();
-            segment_in = p.get_border_const(face)->get_segment_in();
-        }
+//        if(get_theta_diam()>=M_PI && p.get_theta_diam() < M_PI){
+//            segment_out = get_border(face)->get_segment_out();
+//            segment_in = get_border(face)->get_segment_in();
+//        }
+//        if(get_theta_diam()<M_PI && p.get_theta_diam() >= M_PI){
+//            segment_out = p.get_border_const(face)->get_segment_out();
+//            segment_in = p.get_border_const(face)->get_segment_in();
+//        }
 
-        get_border(face)->set_empty();
-        if(get_theta_diam(get_active_function())<M_PI && p.get_theta_diam(p.get_active_function())<M_PI){
+//        get_border(face)->set_empty();
+//        if(get_theta_diam(get_active_function())<M_PI && p.get_theta_diam(p.get_active_function())<M_PI){
             get_border(face)->set_segment_in(segment_in, false);
             get_border(face)->set_segment_out(segment_out, false);
-        }
-        else if(get_theta_diam(get_active_function())>=M_PI){
-            get_border(face)->set_segment_in(p.get_border_const(face)->get_segment_in(), false);
-            get_border(face)->set_segment_out(p.get_border_const(face)->get_segment_out(), false);
-        }
+//        }
+//        else if(get_theta_diam(get_active_function())>=M_PI){
+//            get_border(face)->set_segment_in(p.get_border_const(face)->get_segment_in(), false);
+//            get_border(face)->set_segment_out(p.get_border_const(face)->get_segment_out(), false);
+//        }
     }
 }
 
