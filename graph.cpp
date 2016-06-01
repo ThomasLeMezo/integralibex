@@ -8,6 +8,7 @@ Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_l
     m_search_box(2)
 {
     Pave *p = new Pave(box, f_list, u, diseable_singleton);
+    m_count_alive = 1;
     m_search_box = box;
     m_node_list.push_back(p);
     m_graph_id = graph_id;
@@ -55,10 +56,11 @@ Graph::Graph(Graph* g, int graph_id):
     m_drawing_cpt = 0;
     m_utils = g->get_utils();
     m_search_box = g->get_search_box();
+    m_count_alive = g->get_alive_node();
 }
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
-
+    cout << "COPY GRAPH size = " << size();
     for(auto &node:m_node_list){
         node->set_empty();
     }
@@ -66,22 +68,18 @@ Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
     Pave* copy_node = activated_node->get_copy_node();
     copy_node->set_full();
     *(copy_node) &= *(activated_node);
-    for(int face=0; face<4; face++){
-        vector<Pave*> brothers_pave = copy_node->get_brothers(face);
-        for(int i=0; i<brothers_pave.size(); i++){
-            if(!brothers_pave[i]->is_in_queue()){
-                m_node_queue.push_back(brothers_pave[i]);
-                brothers_pave[i]->set_in_queue(true);
-            }
+
+    vector<Pave*> brothers_pave = copy_node->get_all_brothers();
+    for(auto &p:brothers_pave){
+        if(!p->is_in_queue()){
+            m_node_queue.push_back(p);
+            p->set_in_queue(true);
         }
     }
 }
 
 Graph::~Graph(){
     for(auto &node:m_node_list){
-        delete(node);
-    }
-    for(auto &node:m_node_empty_list){
         delete(node);
     }
     for(auto &node:m_node_border_list){
@@ -259,6 +257,12 @@ std::vector<Pave *> &Graph::get_node_list() {
     return m_node_list;
 }
 
+void Graph::push_back(Pave* p){
+    m_node_list.push_back(p);
+    if(p->is_active())
+        m_count_alive++;
+}
+
 const std::vector<Pave *> Graph::get_node_queue() const {
     return m_node_queue;
 }
@@ -371,7 +375,7 @@ Utils* Graph::get_utils(){
 }
 
 int Graph::size() const{
-    return m_node_list.size() + m_node_empty_list.size();
+    return m_node_list.size();
 }
 
 void Graph::mark_empty_node(){
@@ -391,24 +395,6 @@ void Graph::mark_empty_node(){
     propagate_inner();
 }
 
-void Graph::remove_empty_node(){
-    for(int i=0; i<m_node_list.size(); i++){
-        if(m_node_list[i]->is_active()){
-            m_node_list[i]->reset_full_empty();
-            if(m_node_list[i]->is_empty()){
-                if(m_node_list[i]->is_near_inner()){
-                    m_node_list[i]->set_inner(true);
-                }
-
-                m_node_list[i]->remove_from_brothers();
-                m_node_empty_list.push_back(m_node_list[i]);
-                m_node_list.erase(m_node_list.begin() + i);
-                i--;
-            }
-        }
-    }
-}
-
 bool Graph::is_empty(){
     bool empty = true;
     for(auto &node:m_node_list){
@@ -421,20 +407,20 @@ bool Graph::is_empty(){
 
 Pave* Graph::get_semi_full_node(){
     for(auto &node:m_node_list){
-        if(node->is_border() && node->get_theta_diam()<M_PI/2.0){
+        if(!node->is_removed_pave() && node->is_border() && node->get_theta_diam()<M_PI/2.0){
             return node;
         }
     }
 
     for(auto &node:m_node_list){
-        if(!node->is_empty() && !node->is_full()){
+        if(!node->is_removed_pave() && !node->is_empty() && !node->is_full()){
             return node;
         }
     }
 
     // Case all full or empty
     for(auto &node:m_node_list){
-        if(!node->is_empty()){
+        if(!node->is_removed_pave() && !node->is_empty()){
             return node;
         }
     }

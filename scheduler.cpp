@@ -43,7 +43,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     for(auto &b:list_boxes){
         Pave* p = new Pave(b, f_list, u, diseable_singleton);
         p->set_full();
-        g->get_node_list().push_back(p);
+        g->push_back(p);
     }
 
     /// ****** ADD BASSIN BOXES *******
@@ -51,7 +51,8 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     for(auto &b:bassin_boxes){
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
         p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
-        g->get_node_list().push_back(p);
+        p->set_inner(true);
+        g->push_back(p); // Inactive box
     }
 
     /// ****** CREATE BORDER EXTRA BOXES *******
@@ -63,6 +64,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
             p->set_full_out();
         if(border_in)
             p->set_full_in();
+        p->set_external_border(true);
         g->get_node_list().push_back(p);
     }
 
@@ -85,7 +87,8 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
             p->set_full_out();
         if(border_in)
             p->set_full_in();
-        g->get_node_list().push_back(p);
+        p->set_external_border(true);
+        g->push_back(p);
     }
 
     // ****** REBUILD GRAPH *******
@@ -305,8 +308,10 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             /// TODO : improve the algorithm
             if(remove_inside && m_graph_list.size() < graph_max){
                 Pave *pave_start = m_graph_list[nb_graph]->get_semi_full_node(); // Find a pave semi full (border pave)
-                if(pave_start == NULL)
+                if(pave_start == NULL){
+                    cout << "REMOVE INSIDE - NO START PAVE FOUND" << endl;
                     break;
+                }
 
                 Graph* graph_propagation = new Graph(m_graph_list[nb_graph], pave_start); // copy graph with 1 activated node (pave_start)
                 //                Graph* graph_diff = new Graph(m_graph_list[nb_graph], m_graph_list.size());
@@ -314,7 +319,6 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 graph_propagation->process(process_iterations_max, false); // process forward
 
                 m_graph_list[nb_graph]->inter(*graph_propagation); // intersect the graph with the propagation graph
-
 
                 //                graph_diff->diff(*m_graph_list[nb_graph]);
 

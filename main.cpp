@@ -65,7 +65,7 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, u, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin
-    s.cameleon_cycle(4, 5, 1e9, true, false, false);
+    s.cameleon_cycle(12, 5, 1e9, true, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -297,7 +297,8 @@ void car_on_the_hill_inner_kernel(){
     Scheduler s(box, list_boxes_removed, f_list, u, true, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(5, 5, 1e9, false, false, true);
+    // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
+    s.cameleon_cycle(15, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

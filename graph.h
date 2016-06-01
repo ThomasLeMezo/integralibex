@@ -21,6 +21,8 @@ public:
     bool                        inter(const Graph &g);
     bool                        diff(const Graph &g);
 
+    void                        push_back(Pave* p);
+
     // Test
     bool                        is_empty();
     bool                        identify_attractor();
@@ -78,7 +80,6 @@ public:
 private:
     std::vector<Pave*> m_node_list;
     std::vector<Pave*> m_node_border_list;
-    std::vector<Pave*> m_node_empty_list;
     std::vector<Pave*> m_node_queue;
 
     ibex::IntervalVector m_search_box;
