@@ -265,18 +265,18 @@ void car_on_the_hill_inner_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x1, x2;
-//    ibex::Function f1(x1, x2, Return(x2,
-//                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
+    ibex::Function f1(x1, x2, Return(x2,
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
 
-//    ibex::Function f2(x1, x2, Return(x2,
-//                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
-    ibex::Function f3(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+    ibex::Function f2(x1, x2, Return(x2,
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
+//    ibex::Function f3(x1, x2, Return(x2,
+//                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
     std::vector<ibex::Function*> f_list;
-//    f_list.push_back(&f1);
-//    f_list.push_back(&f2);
-    f_list.push_back(&f3);
+    f_list.push_back(&f1);
+    f_list.push_back(&f2);
+//    f_list.push_back(&f3);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
@@ -697,7 +697,7 @@ int main()
 //    car_on_the_hill_capture_bassin();
 //    car_on_the_hill_inner_kernel();
 
-//    car_on_the_hill_kernel();
+    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
@@ -707,7 +707,7 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_outer();
