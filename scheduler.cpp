@@ -241,6 +241,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
         // Test if the graph is empty
         if(m_graph_list[nb_graph]->is_empty()){
+            cout << "EMPTY GRAPH" << endl;
             m_graph_list.erase(m_graph_list.begin()+nb_graph);
             delete(m_graph_list[nb_graph]);
             break;

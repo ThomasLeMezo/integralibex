@@ -897,14 +897,14 @@ void Pave::combine(const Pave &p){
         outR = out1 | out2;
         inR = in1 | in2;
 
-//        if(in2.is_empty() && in1.is_empty() && !out1.is_empty() && !out2.is_empty()){
-//            outf = out1 | out2;
-//            inf = Interval::EMPTY_SET;
-//        }
-//        if(out2.is_empty() && out1.is_empty() && !in1.is_empty() && !in2.is_empty()){
-//            outf = Interval::EMPTY_SET;
-//            inf = in1 | in2;
-//        }
+        if(in2.is_empty() && in1.is_empty() && !out1.is_empty() && !out2.is_empty()){
+            outf = out1 | out2;
+            inf = Interval::EMPTY_SET;
+        }
+        if(out2.is_empty() && out1.is_empty() && !in1.is_empty() && !in2.is_empty()){
+            outf = Interval::EMPTY_SET;
+            inf = in1 | in2;
+        }
         if(out1.is_empty() && in2.is_empty() && !out2.is_empty() && !in1.is_empty()){
             if(in1.is_subset(out2)){
                 inR = in1 & out2;
@@ -937,21 +937,6 @@ void Pave::combine(const Pave &p){
                      || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
                 outR = out1 & out2;
         }
-
-
-//        /// Segment OUT
-//        segment_out |= p.get_border_const(face)->get_segment_out(); // Union
-
-//        /// Segment IN
-//        segment_in |= p.get_border_const(face)->get_segment_in(); // Union
-
-//        if(get_border(face)->get_segment_out().is_empty() && p.get_border_const(face)->get_segment_out().is_empty()){
-//            if(!(get_border(face)->get_segment_full().lb() & segment_in).is_empty() || !(get_border(face)->get_segment_full().ub() & segment_in).is_empty()){
-//                if(!(p.get_border_const(face)->get_segment_full().lb() & segment_in).is_empty() || !(p.get_border_const(face)->get_segment_full().ub() & segment_in).is_empty()){
-//                    segment_in &= p.get_border_const(face)->get_segment_in();
-//                }
-//            }
-//        }
 
         get_border(face)->set_empty();
         get_border(face)->set_segment_in(inR, false);
