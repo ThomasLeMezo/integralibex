@@ -126,6 +126,8 @@ const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
             cout << "ERROR - Pave "<< theta << dx << dy << m_position << endl;
         }
     }
+    if(theta_list[1].is_empty())
+        theta_list.pop_back();
 
     return theta_list;
 }
@@ -150,7 +152,7 @@ Pave::Pave(const Pave *p):
     m_removed_pave = p->is_removed_pave();
 
     m_theta_list = p->get_theta_list();
-    m_theta = p->get_all_theta();
+    m_theta = p->get_all_theta(true);
     m_u = p->get_u();
 
     for(int face = 0; face < 4; face++){
@@ -710,11 +712,11 @@ const std::vector<Interval> Pave::get_theta() const{
     return m_theta_list[m_active_function];
 }
 
-const std::vector<Interval> Pave::get_all_theta() const{
-    if(m_active_function==-1)
-        return m_theta;
-    else
+const std::vector<Interval> Pave::get_all_theta(bool all) const{
+    if(!all && m_active_function!=-1)
         return get_theta();
+    else
+        return m_theta;
 }
 
 void Pave::print(){
@@ -1019,6 +1021,7 @@ void Pave::print_theta_list(){
         for(auto &theta:theta_list){
             cout << theta << " ";
         }
+        count++;
     }
     cout << endl;
 }

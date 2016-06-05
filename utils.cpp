@@ -38,7 +38,6 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
         Interval rho = Interval::POS_REALS;
         Interval theta2(theta);
 
-
         contract_polar.contract(Dx, Dy, rho, theta2);
 
         ibex::Interval x_front_tmp = x_front & (x + Dx);
@@ -51,7 +50,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
     }
 
     Interval x_out(Interval::EMPTY_SET), x_front_out(Interval::EMPTY_SET);
-    for(int i=0; i<theta_list.size(); i++){
+    for(int i=0; i<x_list.size(); i++){
         x_out |= x_list[i];
         x_front_out |= x_front_list[i];
     }
@@ -63,10 +62,8 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
                 x_out_inner &= x_list[i];
             }
         }
-        if(!x_out.is_empty() && x_out_inner.is_empty()){
-            x_out_inner = x_out;
-        }
-        x_out = x_out_inner;
+        if(!x_out_inner.is_empty())
+            x_out = x_out_inner;
     }
 
     x = x_out & X;
@@ -79,7 +76,6 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
 }
 
 void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner){
-//    x = x & Interval(0.0, dx);
     y = y & Interval(0.0, dy);
     vector<Interval> theta2_list, x_out, y_out;
     for(auto &theta:theta_list){
@@ -102,7 +98,7 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
 
     if(inner){
         Interval x_inner(x);
-        for(int i=0; i<theta_list.size(); i++){
+        for(int i=0; i<x_out.size(); i++){
             x_inner &= x_out[i];
         }
 
