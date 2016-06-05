@@ -41,25 +41,36 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
 
         contract_polar.contract(Dx, Dy, rho, theta2);
 
-        ibex::Interval x_front_tmp = x_front & (x + Dx) & X;
+        ibex::Interval x_front_tmp = x_front & (x + Dx);
         x_front_list.push_back(x_front_tmp);
+        x_front_tmp &= X;
         if(Dx.is_empty() && Dx.is_empty())
             x_list.push_back(Interval::EMPTY_SET);
         else
-            x_list.push_back(x & Interval(x_front_tmp.lb()-Dx.lb(), x_front_tmp.ub()-Dx.ub()) | Interval(x_front_tmp.lb()-Dx.ub(), x_front_tmp.ub()-Dx.lb()));
+            x_list.push_back(Interval(x_front_tmp.lb()-Dx.lb(), x_front_tmp.ub()-Dx.ub()) | Interval(x_front_tmp.lb()-Dx.ub(), x_front_tmp.ub()-Dx.lb()));
+    }
+
+    Interval x_out(Interval::EMPTY_SET), x_front_out(Interval::EMPTY_SET);
+    for(int i=0; i<theta_list.size(); i++){
+        x_out |= x_list[i];
+        x_front_out |= x_front_list[i];
     }
 
     if(inner){
-
-    }
-    else{
-        x = Interval::EMPTY_SET;
-        x_front = Interval::EMPTY_SET;
+        Interval x_out_inner(x_out);
         for(int i=0; i<theta_list.size(); i++){
-            x |= x_list[i];
-            x_front |= x_front_list[i];
+            if(!x_list[i].is_empty()){
+                x_out_inner &= x_list[i];
+            }
         }
+        if(!x_out.is_empty() && x_out_inner.is_empty()){
+            x_out_inner = x_out;
+        }
+        x_out = x_out_inner;
     }
+
+    x = x_out & X;
+    x_front = x_front_out & X;
 
 }
 
@@ -68,7 +79,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
 }
 
 void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner){
-    x = x & Interval(0.0, dx);
+//    x = x & Interval(0.0, dx);
     y = y & Interval(0.0, dy);
     vector<Interval> theta2_list, x_out, y_out;
     for(auto &theta:theta_list){
@@ -83,16 +94,23 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
         y_out.push_back(y_tmp);
     }
 
-    if(inner){
+    x = Interval::EMPTY_SET; y = Interval::EMPTY_SET;
+    for(int i=0; i<x_out.size(); i++){
+        x |= x_out[i];
+        y |= y_out[i];
+    }
 
-    }
-    else{
-        x = Interval::EMPTY_SET; y = Interval::EMPTY_SET;
-        for(int i=0; i<x_out.size(); i++){
-            x |= x_out[i];
-            y |= y_out[i];
+    if(inner){
+        Interval x_inner(x);
+        for(int i=0; i<theta_list.size(); i++){
+            x_inner &= x_out[i];
         }
+
+        if(!x_inner.is_empty())
+            x = x_inner;
     }
+
+    x &= Interval(0.0, dx);
 }
 
 void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner){
