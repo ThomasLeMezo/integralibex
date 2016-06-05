@@ -26,6 +26,7 @@ public:
     // Test
     bool                        is_empty();
     bool                        identify_attractor();
+    bool                        is_no_active_function();
 
     // Setter
     void                        set_full();

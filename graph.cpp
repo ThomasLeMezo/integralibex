@@ -653,3 +653,12 @@ void Graph::recursive_mark_inner(Pave* p){
 int Graph::get_alive_node(){
     return m_count_alive;
 }
+
+bool Graph::is_no_active_function(){
+    for(auto &p:m_node_list){
+        if(p->get_active_function()!=-1){
+            return false;
+        }
+    }
+    return true;
+}

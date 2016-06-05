@@ -236,6 +236,9 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
             seg_out.push_back(Interval::ALL_REALS);
         }
 
+        if(inner && p->get_all_theta().size()==1){
+            cout << "ERROR" << endl;
+        }
         this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), inner);
 
         int k=0;

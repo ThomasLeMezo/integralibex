@@ -15,7 +15,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_position = position;    // Box corresponding to the Pave
     m_borders.reserve(4);
     m_f_list = f_list;
-    m_active_function = 0;
+    m_active_function = -1;
     m_active = active;
     m_diseable_singeleton = diseable_singeleton;
 
@@ -305,7 +305,7 @@ void Pave::draw_theta() const{
     color_map.push_back("g[]");
 
     for(int k=0; k<m_theta_list.size(); k++){
-        for(int i=0; i<m_theta_list[0].size(); i++){
+        for(int i=0; i<m_theta_list[k].size(); i++){
             vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta_list[k][i].lb())*180.0/M_PI, (-m_theta_list[k][i].ub())*180.0/M_PI, color_map[k%color_map.size()]);
         }
     }
@@ -358,6 +358,9 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
 
     Pave *pave1 = new Pave(result_boxes.first, m_f_list, m_u_iv, m_diseable_singeleton, m_active); // Left or Up
     Pave *pave2 = new Pave(result_boxes.second, m_f_list, m_u_iv, m_diseable_singeleton, m_active); // Right or Down
+
+    pave1->set_active_function(get_active_function());
+    pave2->set_active_function(get_active_function());
 
     int indice1, indice2;
 
