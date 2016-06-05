@@ -644,6 +644,7 @@ void Graph::set_all_active(){
     for(auto &p:m_node_list){
         p->set_active(true);
         p->set_removed_pave(false);
+        p->set_active_function(-1);
     }
 }
 

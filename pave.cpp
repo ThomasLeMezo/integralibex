@@ -711,7 +711,10 @@ const std::vector<Interval> Pave::get_theta() const{
 }
 
 const std::vector<Interval> Pave::get_all_theta() const{
-    return m_theta;
+    if(m_active_function==-1)
+        return m_theta;
+    else
+        return get_theta();
 }
 
 void Pave::print(){
