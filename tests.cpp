@@ -70,8 +70,9 @@ void test_CtcPropagateLeftSide(){
 
     //    Interval theta = Interval::PI/4.0 | Interval::HALF_PI;
     Interval theta = Interval::PI | 4*Interval::PI/5.0;
+    vector<Interval> theta_list; theta_list.push_back(theta);
 
-    u.CtcPropagateLeftSide(x, y, theta, box);
+    u.CtcPropagateLeftSide(x, y, theta_list, box);
 
     cout << x << endl;
     cout << y << endl;
@@ -89,8 +90,9 @@ void test_CtcPropagateRightSide(){
     box[1] = Interval(0.0, 1.0);
 
     Interval theta = Interval::ZERO | Interval::PI/5.0;
+    vector<Interval> theta_list; theta_list.push_back(theta);
 
-    u.CtcPropagateRightSide(x, y, theta, box);
+    u.CtcPropagateRightSide(x, y, theta_list, box);
 
     cout << x << endl;
     cout << y << endl;
@@ -107,8 +109,9 @@ void test_CtcPropagateFront(){
     box[1] = Interval(0.0, 1.0);
 
     Interval theta = Interval::ZERO | Interval::PI/4.0;
+    vector<Interval> theta_list; theta_list.push_back(theta);
 
-    u.CtcPropagateFront(x, x_front, theta, box);
+    u.CtcPropagateFront(x, x_front, theta_list, box);
 
     cout << "x=" << x << endl;
     cout << "x_front=" << x_front << endl;
@@ -133,10 +136,7 @@ void test_CtcPropagateSegment(){
     cout << "seg_in = " << seg_in << endl;
     cout << "seg_out = " << seg_out[0] << seg_out[1] << seg_out[2] << endl;
 
-    std::vector<Interval> command;
-    command.push_back(Interval::ZERO);
-    command.push_back(Interval::ZERO);
-    u.CtcPropagateSegment(seg_in, seg_out, face, theta, box, command);
+    u.CtcPropagateSegment(seg_in, seg_out, face, theta, box);
 
     cout << "----------" << endl;
     cout << "seg_in = " << seg_in << endl;

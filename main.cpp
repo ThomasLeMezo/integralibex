@@ -708,9 +708,9 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-//    van_der_pol_cycle();
+    van_der_pol_cycle();
 //    van_der_pol_integration();
-    van_der_pol_kernel();
+//    van_der_pol_kernel();
 //    van_der_pol_outer();
 //    van_der_pol_inner();
 

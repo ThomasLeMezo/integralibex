@@ -60,7 +60,7 @@ Graph::Graph(Graph* g, int graph_id):
 }
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
-    cout << "COPY GRAPH size = " << size();
+    cout << "COPY GRAPH size = " << size() << endl;
     for(auto &node:m_node_list){
         node->set_empty();
     }
@@ -136,7 +136,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
     cout << "SIVIA node_queue.size() = " << m_node_queue.size() << endl;
 }
 
-int Graph::process(int max_iterations, bool backward, bool enable_function_iteration){
+int Graph::process(int max_iterations, bool backward, bool enable_function_iteration, bool inner){
     int iterations = 0;
     while(!m_node_queue.empty() & iterations < max_iterations){
         iterations++;
@@ -164,7 +164,7 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
             std::vector<bool> change_tab;
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
-            m_utils->CtcPaveConsistency(pave, backward, change_tab, enable_function_iteration);
+            m_utils->CtcPaveConsistency(pave, backward, change_tab, enable_function_iteration, inner);
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave

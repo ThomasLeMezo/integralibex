@@ -45,7 +45,13 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     for(int i=0; i<f_list.size(); i++){
         std::vector<ibex::Interval> theta = compute_theta(f_list[i]);
         m_theta_list.push_back(theta);
+        for(auto &t:theta){
+            if(!t.is_empty())
+                m_theta.push_back(t);
+        }
     }
+    if(m_theta.size()==0)
+        m_theta.push_back(Interval::EMPTY_SET);
 
     /////////////////////////////// CASE CMD U ///////////////////////////////
     //    if(u[0] == Interval::ZERO && u[1] == Interval::ZERO){
@@ -884,10 +890,13 @@ void Pave::intersect_face(const IntervalVector &box_in, const IntervalVector &bo
 //    intersect_face(inter_pave_in, inter_pave_out);
 //}
 
-void Pave::combine(const Pave &p){
+void Pave::combine(Pave &p){
     for(int face = 0; face<m_borders.size(); face++){
+        Interval seg_full = get_border(face)->get_segment_full();
+
         Interval out1 = get_border(face)->get_segment_out();
         Interval in1 = get_border(face)->get_segment_in();
+
 
         Interval out2 = p.get_border_const(face)->get_segment_out();
         Interval in2 = p.get_border_const(face)->get_segment_in();
@@ -897,46 +906,58 @@ void Pave::combine(const Pave &p){
         outR = out1 | out2;
         inR = in1 | in2;
 
-        if(in2.is_empty() && in1.is_empty() && !out1.is_empty() && !out2.is_empty()){
-            outf = out1 | out2;
-            inf = Interval::EMPTY_SET;
-        }
-        if(out2.is_empty() && out1.is_empty() && !in1.is_empty() && !in2.is_empty()){
-            outf = Interval::EMPTY_SET;
-            inf = in1 | in2;
-        }
-        if(out1.is_empty() && in2.is_empty() && !out2.is_empty() && !in1.is_empty()){
-            if(in1.is_subset(out2)){
-                inR = in1 & out2;
-            }
-            if(out2.is_subset(in1)){
-                outR = out2 & in1;
-            }
-        }
-        if(out2.is_empty() && in1.is_empty() && !out1.is_empty() && !in2.is_empty()){
-            if(in2.is_subset(out1)){
-                inR = in2 & out1;
-            }
-            if(out1.is_subset(in2)){
-                outR = out1 & in2;
-            }
-        }
+        if(!in2.is_empty() && !in1.is_empty()){
+            bool lower1 = !(in1 & seg_full.lb()).is_empty();
+            bool upper1 = !(in1 & seg_full.ub()).is_empty();
 
-        if(out1.is_empty() && out2.is_empty() && !in2.is_empty() && !in1.is_empty()){
-            Interval test = in1&in2;
-            if(!test.is_empty() &&
-                    (!(test & get_border(face)->get_segment_full().lb()).is_empty()
-                     || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
+            bool lower2 = !(in2 & seg_full.lb()).is_empty();
+            bool upper2 = !(in2 & seg_full.ub()).is_empty();
+
+            if((lower1 && lower2 && !upper1 && !upper2) || (!lower1 && !lower2 && upper1 && upper2)){
                 inR = in1 & in2;
+            }
         }
 
-        if(in1.is_empty() && in2.is_empty() && !out2.is_empty() && !out1.is_empty()){
-            Interval test = out1&out2;
-            if(!test.is_empty() &&
-                    (!(test & get_border(face)->get_segment_full().lb()).is_empty()
-                     || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
-                outR = out1 & out2;
-        }
+//        if(in2.is_empty() && in1.is_empty() && !out1.is_empty() && !out2.is_empty()){
+//            outf = out1 | out2;
+//            inf = Interval::EMPTY_SET;
+//        }
+//        if(out2.is_empty() && out1.is_empty() && !in1.is_empty() && !in2.is_empty()){
+//            outf = Interval::EMPTY_SET;
+//            inf = in1 | in2;
+//        }
+//        if(out1.is_empty() && in2.is_empty() && !out2.is_empty() && !in1.is_empty()){
+//            if(in1.is_subset(out2)){
+//                inR = in1 & out2;
+//            }
+//            if(out2.is_subset(in1)){
+//                outR = out2 & in1;
+//            }
+//        }
+//        if(out2.is_empty() && in1.is_empty() && !out1.is_empty() && !in2.is_empty()){
+//            if(in2.is_subset(out1)){
+//                inR = in2 & out1;
+//            }
+//            if(out1.is_subset(in2)){
+//                outR = out1 & in2;
+//            }
+//        }
+
+//        if(out1.is_empty() && out2.is_empty() && !in2.is_empty() && !in1.is_empty()){
+//            Interval test = in1&in2;
+//            if(!test.is_empty() &&
+//                    (!(test & get_border(face)->get_segment_full().lb()).is_empty()
+//                     || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
+//                inR = in1 & in2;
+//        }
+
+//        if(in1.is_empty() && in2.is_empty() && !out2.is_empty() && !out1.is_empty()){
+//            Interval test = out1&out2;
+//            if(!test.is_empty() &&
+//                    (!(test & get_border(face)->get_segment_full().lb()).is_empty()
+//                     || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
+//                outR = out1 & out2;
+//        }
 
         get_border(face)->set_empty();
         get_border(face)->set_segment_in(inR, false);

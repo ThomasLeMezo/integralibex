@@ -22,7 +22,7 @@ public:
     bool                        diff(const Pave &p);
 
     void                        combine(std::vector<Pave *> &pave_list);
-    void                        combine(const Pave &p);
+    void                        combine(Pave &p);
     void                        complementaire();
     ibex::IntervalVector        bounding_pave_in() const;
     ibex::IntervalVector        bounding_pave_out() const;
@@ -121,6 +121,7 @@ public:
 private:
 //    std::vector<ibex::Interval> m_theta;
     std::vector< std::vector<ibex::Interval>> m_theta_list;
+    std::vector< ibex::Interval> m_theta;
 
     std::vector<ibex::Interval> m_u;
     ibex::IntervalVector        m_u_iv;
