@@ -150,6 +150,7 @@ Pave::Pave(const Pave *p):
     m_removed_pave = p->is_removed_pave();
 
     m_theta_list = p->get_theta_list();
+    m_theta = p->get_all_theta();
     m_u = p->get_u();
 
     for(int face = 0; face < 4; face++){
@@ -707,6 +708,10 @@ Pave* Pave::get_copy_node(){
 
 const std::vector<Interval> Pave::get_theta() const{
     return m_theta_list[m_active_function];
+}
+
+const std::vector<Interval> Pave::get_all_theta() const{
+    return m_theta;
 }
 
 void Pave::print(){

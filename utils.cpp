@@ -222,7 +222,7 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_t
             seg_out.push_back(p->get_border(j)->get_segment_out());
         }
 
-        this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), inner);
+        this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), inner);
 
         change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
     }
@@ -240,7 +240,7 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
             seg_out.push_back(Interval::ALL_REALS);
         }
 
-        this->CtcPropagateSegment(seg_in, seg_out, face, p->get_theta(), p->get_position(), inner);
+        this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), inner);
 
         int k=0;
         for(int i=(face+1)%4; i!=face; i=(i+1)%4){
