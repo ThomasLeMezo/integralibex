@@ -277,7 +277,7 @@ void car_on_the_hill_inner_kernel(){
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-    f_list.push_back(&f2);
+//    f_list.push_back(&f2);
 //    f_list.push_back(&f3);
 
     IntervalVector box(2);
@@ -697,9 +697,9 @@ int main()
 //    car_on_the_hill_attractor();
 //      car_on_the_hill_outer_kernel();
 //    car_on_the_hill_capture_bassin();
-//    car_on_the_hill_inner_kernel();
+    car_on_the_hill_inner_kernel();
 
-    car_on_the_hill_kernel();
+//    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
