@@ -40,9 +40,8 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
 
         contract_polar.contract(Dx, Dy, rho, theta2);
 
-        ibex::Interval x_front_tmp = x_front & (x + Dx);
-        x_front_list.push_back(x_front_tmp);
-        x_front_tmp &= X;
+        ibex::Interval x_front_tmp =  (x + Dx);
+        x_front_list.push_back(x_front & X & x_front_tmp);
         if(Dx.is_empty() && Dx.is_empty())
             x_list.push_back(Interval::EMPTY_SET);
         else
@@ -54,20 +53,32 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
         x_out |= x_list[i];
         x_front_out |= x_front_list[i];
     }
+    x_out &= X;
+    x_front_out &= X;
 
     if(inner){
-        Interval x_out_inner(x_out);
-        for(int i=0; i<theta_list.size(); i++){
+        Interval x_out_inner(Interval::ALL_REALS);
+        for(int i=0; i<x_list.size(); i++){
+            if(x_list.size()>i+1){
+                if((x_list[i] & x_list[i+1]).is_degenerated()){
+                    x_list[i] += x_list[i+1];
+                    x_list.erase(x_list.begin()+i+1);
+                    i--;
+                }
+            }
+        }
+        for(int i=0; i<x_list.size(); i++){
             if(!x_list[i].is_empty()){
                 x_out_inner &= x_list[i];
             }
         }
+        x_out_inner &= X & x;
         if(!x_out_inner.is_empty())
             x_out = x_out_inner;
     }
 
-    x = x_out & X;
-    x_front = x_front_out & X;
+    x = x_out;
+    x_front = x_front_out;
 
 }
 
@@ -99,8 +110,18 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
     if(inner){
         Interval x_inner(x);
         for(int i=0; i<x_out.size(); i++){
+            if(x_out.size()>i+1){
+                if((x_out[i] & x_out[i+1]).is_degenerated()){
+                    x_out[i] += x_out[i+1];
+                    x_out.erase(x_out.begin()+i+1);
+                    i--;
+                }
+            }
+        }
+        for(int i=0; i<x_out.size(); i++){
             x_inner &= x_out[i];
         }
+        x_inner &= Interval(0.0, dx);
 
         if(!x_inner.is_empty())
             x = x_inner;
