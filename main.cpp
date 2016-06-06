@@ -300,7 +300,7 @@ void car_on_the_hill_inner_kernel(){
 
     /////////////// Compute ///////////////
     // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
-    s.cameleon_cycle(15, 5, 1e9, false, false, true);
+    s.cameleon_cycle(8, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

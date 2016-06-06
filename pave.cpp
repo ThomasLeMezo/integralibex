@@ -15,7 +15,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_position = position;    // Box corresponding to the Pave
     m_borders.reserve(4);
     m_f_list = f_list;
-    m_active_function = -1;
+    m_active_function = 0;
     m_active = active;
     m_diseable_singeleton = diseable_singeleton;
 
