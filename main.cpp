@@ -272,12 +272,12 @@ void car_on_the_hill_inner_kernel(){
 
     ibex::Function f2(x1, x2, Return(x2,
                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
-//    ibex::Function f3(x1, x2, Return(x2,
-//                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+    ibex::Function f3(x1, x2, Return(x2,
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
     std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f1);
-//    f_list.push_back(&f2);
+//    f_list.push_back(&f1);
+    f_list.push_back(&f2);
 //    f_list.push_back(&f3);
 
     IntervalVector box(2);
@@ -288,8 +288,8 @@ void car_on_the_hill_inner_kernel(){
     std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
 
-    box_remove[0] = Interval(2.2,8.8) + Interval(-0.5, 0.5);
-    box_remove[1] = Interval(-1.0,1.0);
+    box_remove[0] = Interval(2.2,8.8) + Interval(-0.1, 0.1);
+    box_remove[1] = Interval(-0.5,0.5);
     list_boxes_removed.push_back(box_remove);
 
     IntervalVector u(2);
@@ -300,7 +300,7 @@ void car_on_the_hill_inner_kernel(){
 
     /////////////// Compute ///////////////
     // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
-    s.cameleon_cycle(8, 5, 1e9, false, false, true);
+    s.cameleon_cycle(18, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -581,7 +581,7 @@ void van_der_pol_integration(){
     activated_pave[0] = Interval(-3.0);
     activated_pave[1] = Interval(3.0);
 
-    s.cameleon_propagation(20, 1e9, activated_pave); // 25
+    s.cameleon_propagation(15, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);

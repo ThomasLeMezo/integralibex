@@ -90,6 +90,9 @@ private:
     int m_graph_id;
     int m_drawing_cpt;
     int m_count_alive;
+
+public:
+    bool debug_marker1, debug_marker2;
 };
 
 #endif // GRAPH_H

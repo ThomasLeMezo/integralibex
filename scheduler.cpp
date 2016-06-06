@@ -272,6 +272,11 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
         for(int nb_graph=0; nb_graph<m_graph_list.size(); nb_graph++){
 
+            if(iterations == 8){
+                m_graph_list[nb_graph]->debug_marker1 = false;
+                m_graph_list[nb_graph]->debug_marker2 = true;
+            }
+
             if(m_graph_list[nb_graph]->get_alive_node()==0 || m_graph_list.size()==0)
                 break;
             m_graph_list[nb_graph]->clear_node_queue();
@@ -282,6 +287,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             if(compute_inner){
                 m_graph_list[nb_graph]->update_queue();
             }
+
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
             int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true);

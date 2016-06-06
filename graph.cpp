@@ -14,6 +14,9 @@ Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_l
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
     m_utils = utils;
+
+    debug_marker1 = false;
+    debug_marker2 = false;
 }
 
 Graph::Graph(Utils *utils, int graph_id=0):
@@ -22,6 +25,9 @@ Graph::Graph(Utils *utils, int graph_id=0):
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
     m_utils = utils;
+
+    debug_marker1 = false;
+    debug_marker2 = false;
 }
 
 Graph::Graph(Graph* g, int graph_id):
@@ -57,6 +63,9 @@ Graph::Graph(Graph* g, int graph_id):
     m_utils = g->get_utils();
     m_search_box = g->get_search_box();
     m_count_alive = g->get_alive_node();
+
+    debug_marker1 = false;
+    debug_marker2 = false;
 }
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
@@ -144,9 +153,24 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
+        IntervalVector test(2);
+        test[0] = Interval(0.4);
+        test[1] = Interval(-1.7);
+//        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
+//            draw(1024, "debug");
+//            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
+//            cout << "DEBUG" << endl;
+//        }
+
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
         if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
+
+//            if(debug_marker2 && !(test & pave->get_position()).is_empty()){
+//                draw(1024, "debug");
+//                print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
+//                cout << "DEBUG" << endl;
+//            }
 
             /// ******* PROCESS CONSISTENCY *******
             std::vector<bool> change_tab;
@@ -170,6 +194,18 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
 
             pave->set_first_process_false();
         }
+
+//        if(debug_marker1 && iterations%100==0){
+//            draw(4048, true);
+//            cout << "SAVE image " << iterations << endl;
+//            stringstream ss; ss << "/home/lemezoth/Images/VIBES/iteration_" << iterations << ".png";
+//            vibes::saveImage(ss.str());
+//        }
+//        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
+//            draw(1024, "debug");
+//            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
+//            cout << "DEBUG" << endl;
+//        }
     }
 
     m_node_queue.clear();
@@ -270,9 +306,9 @@ void Graph::draw(int size, bool filled, string comment){
     for(auto &node:m_node_list){
         //        if(node->is_active()){
         if(node->is_near_inner())
-            node->draw(filled, "#D3D3D3[#FF00FF]");
+            node->draw(filled, "#D3D3D3[#FF00FF]"); // magenta
         else
-            node->draw(filled, "#D3D3D3[#4C4CFF]");
+            node->draw(filled, "#D3D3D3[#4C4CFF]"); // blue
         //        }
         //        else{
         //            node->draw(filled, "#D3D3D3[blue]");
@@ -284,7 +320,7 @@ void Graph::draw(int size, bool filled, string comment){
     }
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-    m_drawing_cpt++;
+//    m_drawing_cpt++;
 }
 
 void Graph::drawInner(bool filled){

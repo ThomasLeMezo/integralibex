@@ -127,7 +127,7 @@ const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
         }
     }
     if(theta_list[1].is_empty())
-        theta_list.pop_back();
+        theta_list.erase(theta_list.begin()+1);
 
     return theta_list;
 }
@@ -282,15 +282,11 @@ void Pave::draw(bool filled, string color, bool borders_only) const{
 
         vibes::drawBox(m_position, color);
 
-        if(m_inner)
-            draw_borders(filled, "g[g]");
-        else{
-            if(m_active)
-                draw_borders(filled, "y[y]");
-            else
-                draw_borders(filled, "#00BFFF[#00BFFF]"); // OR vibes::drawBox(m_position, );
+        if(m_active)
+            draw_borders(filled, "y[y]"); // yellow
+        else
+            draw_borders(filled, "#00BFFF[#00BFFF]"); // gray
 
-        }
         // Draw theta
         draw_theta();
     }
@@ -419,75 +415,75 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
         pave1->set_full();
         pave2->set_full();
 
-        if(m_borders[(indice1+1)%4]->is_empty() || m_borders[(indice1+3)%4]->is_empty()){
-            bool theta_inside = false;
-            for(auto &theta_list:m_theta_list){
+//        if(m_borders[(indice1+1)%4]->is_empty() || m_borders[(indice1+3)%4]->is_empty()){
+//            bool theta_inside = false;
+//            for(auto &theta_list:m_theta_list){
 
-                for(auto &theta:theta_list){
-                    if(theta.is_empty())
-                        break;
+//                for(auto &theta:theta_list){
+//                    if(theta.is_empty())
+//                        break;
 
-                    switch(indice1){
-                    case 1:
-                        // Case LEFT/RIGHT bisection
-                        if(!(theta & -Interval::HALF_PI).is_empty()){
-                            Interval theta_centered = theta + Interval::HALF_PI;
-                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
-                                theta_inside = true;
-                        }
-                        if(!(theta & Interval::HALF_PI).is_empty()){
-                            Interval theta_centered = theta - Interval::HALF_PI;
-                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
-                                theta_inside = true;
-                        }
-                        break;
-                    case 2:
-                        // Case UP/DOWN bisection
-                        if(!(theta & Interval::ZERO).is_empty()){
-                            Interval theta_centered = theta - Interval::ZERO;
-                            if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
-                                theta_inside = true;
-                        }
-                        if(!(theta & Interval::PI).is_empty()){
-                            Interval theta_centered = theta - Interval::PI;
-                            if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
-                                theta_inside = true;
-                        }
-                        break;
-                    }
-                }
-            }
-            if(theta_inside){
-                pave1->get_border(indice1)->set_empty();
-                pave2->get_border(indice2)->set_empty();
+//                    switch(indice1){
+//                    case 1:
+//                        // Case LEFT/RIGHT bisection
+//                        if(!(theta & -Interval::HALF_PI).is_empty()){
+//                            Interval theta_centered = theta + Interval::HALF_PI;
+//                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
+//                                theta_inside = true;
+//                        }
+//                        if(!(theta & Interval::HALF_PI).is_empty()){
+//                            Interval theta_centered = theta - Interval::HALF_PI;
+//                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
+//                                theta_inside = true;
+//                        }
+//                        break;
+//                    case 2:
+//                        // Case UP/DOWN bisection
+//                        if(!(theta & Interval::ZERO).is_empty()){
+//                            Interval theta_centered = theta - Interval::ZERO;
+//                            if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
+//                                theta_inside = true;
+//                        }
+//                        if(!(theta & Interval::PI).is_empty()){
+//                            Interval theta_centered = theta - Interval::PI;
+//                            if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
+//                                theta_inside = true;
+//                        }
+//                        break;
+//                    }
+//                }
+//            }
+//            if(theta_inside){
+//                pave1->get_border(indice1)->set_empty();
+//                pave2->get_border(indice2)->set_empty();
 
-                if(m_borders[(indice1+1)%4]->is_empty()){
-                    pave1->get_border((indice1+1)%4)->set_empty();
-                    pave2->get_border((indice2+1)%4)->set_empty();
+//                if(m_borders[(indice1+1)%4]->is_empty()){
+//                    pave1->get_border((indice1+1)%4)->set_empty();
+//                    pave2->get_border((indice2+1)%4)->set_empty();
 
-                }
-                if(m_borders[(indice1+3)%4]->is_empty()){
-                    pave1->get_border((indice1+3)%4)->set_empty();
-                    pave2->get_border((indice2+3)%4)->set_empty();
-                }
-            }
+//                }
+//                if(m_borders[(indice1+3)%4]->is_empty()){
+//                    pave1->get_border((indice1+3)%4)->set_empty();
+//                    pave2->get_border((indice2+3)%4)->set_empty();
+//                }
+//            }
 
-            if(!is_border()){
-                for(int face=0; face<4; face++){
-                    if(face!=indice1){
-                        if((get_border(face)->get_segment_in() & pave1->get_border(face)->get_segment_in()).is_empty()
-                                && (get_border(face)->get_segment_out() & pave1->get_border(face)->get_segment_out()).is_empty())
-                            pave1->get_border(face)->set_empty();
+//            if(!is_border()){
+//                for(int face=0; face<4; face++){
+//                    if(face!=indice1){
+//                        if((get_border(face)->get_segment_in() & pave1->get_border(face)->get_segment_in()).is_empty()
+//                                && (get_border(face)->get_segment_out() & pave1->get_border(face)->get_segment_out()).is_empty())
+//                            pave1->get_border(face)->set_empty();
 
-                    }
-                    if(face!=indice2){
-                        if((get_border(face)->get_segment_in() & pave2->get_border(face)->get_segment_in()).is_empty()
-                                && (get_border(face)->get_segment_out() & pave2->get_border(face)->get_segment_out()).is_empty())
-                            pave2->get_border(face)->set_empty();
-                    }
-                }
-            }
-        }
+//                    }
+//                    if(face!=indice2){
+//                        if((get_border(face)->get_segment_in() & pave2->get_border(face)->get_segment_in()).is_empty()
+//                                && (get_border(face)->get_segment_out() & pave2->get_border(face)->get_segment_out()).is_empty())
+//                            pave2->get_border(face)->set_empty();
+//                    }
+//                }
+//            }
+//        }
     }
 
     result.push_back(pave1);
@@ -931,46 +927,46 @@ void Pave::combine(Pave &p){
             }
         }
 
-//        if(in2.is_empty() && in1.is_empty() && !out1.is_empty() && !out2.is_empty()){
-//            outf = out1 | out2;
-//            inf = Interval::EMPTY_SET;
-//        }
-//        if(out2.is_empty() && out1.is_empty() && !in1.is_empty() && !in2.is_empty()){
-//            outf = Interval::EMPTY_SET;
-//            inf = in1 | in2;
-//        }
-//        if(out1.is_empty() && in2.is_empty() && !out2.is_empty() && !in1.is_empty()){
-//            if(in1.is_subset(out2)){
-//                inR = in1 & out2;
-//            }
-//            if(out2.is_subset(in1)){
-//                outR = out2 & in1;
-//            }
-//        }
-//        if(out2.is_empty() && in1.is_empty() && !out1.is_empty() && !in2.is_empty()){
-//            if(in2.is_subset(out1)){
-//                inR = in2 & out1;
-//            }
-//            if(out1.is_subset(in2)){
-//                outR = out1 & in2;
-//            }
-//        }
+        //        if(in2.is_empty() && in1.is_empty() && !out1.is_empty() && !out2.is_empty()){
+        //            outf = out1 | out2;
+        //            inf = Interval::EMPTY_SET;
+        //        }
+        //        if(out2.is_empty() && out1.is_empty() && !in1.is_empty() && !in2.is_empty()){
+        //            outf = Interval::EMPTY_SET;
+        //            inf = in1 | in2;
+        //        }
+        //        if(out1.is_empty() && in2.is_empty() && !out2.is_empty() && !in1.is_empty()){
+        //            if(in1.is_subset(out2)){
+        //                inR = in1 & out2;
+        //            }
+        //            if(out2.is_subset(in1)){
+        //                outR = out2 & in1;
+        //            }
+        //        }
+        //        if(out2.is_empty() && in1.is_empty() && !out1.is_empty() && !in2.is_empty()){
+        //            if(in2.is_subset(out1)){
+        //                inR = in2 & out1;
+        //            }
+        //            if(out1.is_subset(in2)){
+        //                outR = out1 & in2;
+        //            }
+        //        }
 
-//        if(out1.is_empty() && out2.is_empty() && !in2.is_empty() && !in1.is_empty()){
-//            Interval test = in1&in2;
-//            if(!test.is_empty() &&
-//                    (!(test & get_border(face)->get_segment_full().lb()).is_empty()
-//                     || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
-//                inR = in1 & in2;
-//        }
+        //        if(out1.is_empty() && out2.is_empty() && !in2.is_empty() && !in1.is_empty()){
+        //            Interval test = in1&in2;
+        //            if(!test.is_empty() &&
+        //                    (!(test & get_border(face)->get_segment_full().lb()).is_empty()
+        //                     || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
+        //                inR = in1 & in2;
+        //        }
 
-//        if(in1.is_empty() && in2.is_empty() && !out2.is_empty() && !out1.is_empty()){
-//            Interval test = out1&out2;
-//            if(!test.is_empty() &&
-//                    (!(test & get_border(face)->get_segment_full().lb()).is_empty()
-//                     || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
-//                outR = out1 & out2;
-//        }
+        //        if(in1.is_empty() && in2.is_empty() && !out2.is_empty() && !out1.is_empty()){
+        //            Interval test = out1&out2;
+        //            if(!test.is_empty() &&
+        //                    (!(test & get_border(face)->get_segment_full().lb()).is_empty()
+        //                     || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
+        //                outR = out1 & out2;
+        //        }
 
         get_border(face)->set_empty();
         get_border(face)->set_segment_in(inR, false);

@@ -40,12 +40,12 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
 
         contract_polar.contract(Dx, Dy, rho, theta2);
 
-        ibex::Interval x_front_tmp =  (x + Dx);
-        x_front_list.push_back(x_front & X & x_front_tmp);
+        ibex::Interval x_front_tmp =  (x + Dx) & X & x_front;
+        x_front_list.push_back(x_front_tmp);
         if(Dx.is_empty() && Dx.is_empty())
             x_list.push_back(Interval::EMPTY_SET);
         else
-            x_list.push_back(Interval(x_front_tmp.lb()-Dx.lb(), x_front_tmp.ub()-Dx.ub()) | Interval(x_front_tmp.lb()-Dx.ub(), x_front_tmp.ub()-Dx.lb()));
+            x_list.push_back(x & Interval(x_front_tmp.lb()-Dx.lb(), x_front_tmp.ub()-Dx.ub()) | Interval(x_front_tmp.lb()-Dx.ub(), x_front_tmp.ub()-Dx.lb()));
     }
 
     Interval x_out(Interval::EMPTY_SET), x_front_out(Interval::EMPTY_SET);
@@ -53,11 +53,11 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
         x_out |= x_list[i];
         x_front_out |= x_front_list[i];
     }
-    x_out &= X;
-    x_front_out &= X;
+//    x_out &= X & x;
+//    x_front_out &= X & x_front;
 
     if(inner){
-        Interval x_out_inner(Interval::ALL_REALS);
+//        Interval x_out_inner(Interval::ALL_REALS);
         //        for(int i=0; i<x_list.size(); i++){
         //            if(x_list.size()>i+1){
         //                if((x_list[i] & x_list[i+1]).is_degenerated()){
@@ -67,14 +67,14 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
         //                }
         //            }
         //        }
-        for(int i=0; i<x_list.size(); i++){
-            if(!x_list[i].is_empty()){
-                x_out_inner &= x_list[i];
-            }
-        }
-        x_out_inner &= X & x;
-        if(!x_out_inner.is_empty())
-            x_out = x_out_inner;
+//        for(int i=0; i<x_list.size(); i++){
+//            if(!x_list[i].is_empty()){
+//                x_out_inner &= x_list[i];
+//            }
+//        }
+//        x_out_inner &= X & x;
+//        if(!x_out_inner.is_empty())
+//            x_out = x_out_inner;
     }
 
     x = x_out;
@@ -87,7 +87,14 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
 }
 
 void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner){
-    y = y & Interval(0.0, dy);
+    if(x.is_empty() || y.is_empty() || theta_list.size()==0){
+        x = Interval::EMPTY_SET;
+        y = Interval::EMPTY_SET;
+        return;
+    }
+
+    y &= Interval(0.0, dy);
+    x &= Interval(0.0, dx);
     vector<Interval> theta2_list, x_out, y_out;
     for(auto &theta:theta_list){
         theta2_list.push_back(Interval::PI - theta);
@@ -108,7 +115,7 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
     }
 
     if(inner){
-        Interval x_inner(x);
+//        Interval x_inner(x);
         //        for(int i=0; i<x_out.size(); i++){
         //            if(x_out.size()>i+1){
         //                if((x_out[i] & x_out[i+1]).is_degenerated()){
@@ -118,17 +125,17 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
         //                }
         //            }
         //        }
-        for(int i=0; i<x_out.size(); i++){
-            x_inner &= x_out[i];
-        }
-        x_inner &= Interval(0.0, dx);
+//        for(int i=0; i<x_out.size(); i++){
+//            x_inner &= x_out[i];
+//        }
+//        x_inner &= Interval(0.0, dx);
 
-        if(!x_inner.is_empty())
-            x = x_inner;
+//        if(!x_inner.is_empty())
+//            x = x_inner;
     }
 
-    x &= Interval(0.0, dx);
-    y &= Interval(0.0, dy);
+//    x &= Interval(0.0, dx);
+//    y &= Interval(0.0, dy);
 }
 
 void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner){
@@ -305,13 +312,13 @@ void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change
     if(nb_not_empty==1)
         p->set_empty();
 
-    // Reduce impact of change when backward
-//    if(backward){
-//        for(int face = 0; face<4; face++){
-//            if(p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out()))
-//                change_tab[face] = false;
-//        }
-//    }
+    // Reduce impact of change when backward (mandatory)
+    if(backward){
+        for(int face = 0; face<4; face++){
+            if(p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out()))
+                change_tab[face] = false;
+        }
+    }
 }
 
 bool Utils::CtcContinuity(Pave *p, bool backward){
