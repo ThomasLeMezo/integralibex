@@ -1014,6 +1014,16 @@ bool Pave::is_near_inner(){
     return false;
 }
 
+bool Pave::is_near_empty(){
+    vector<Pave*> brothers = get_all_brothers();
+    for(auto &p:brothers){
+        if(p->is_empty()){
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Pave::is_inner_exclusive(){
     if(is_inner())
         return true;

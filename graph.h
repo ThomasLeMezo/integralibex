@@ -22,6 +22,7 @@ public:
     bool                        diff(const Graph &g);
 
     void                        push_back(Pave* p);
+    void                        push_back_external_border(Pave *p);
 
     // Test
     bool                        is_empty();
@@ -38,7 +39,7 @@ public:
     void                        set_external_boundary(bool in, bool out);
     void                        set_all_active();
 
-    void                        update_queue();
+    void                        update_queue(bool border_condition=true, bool empty_condition=false);
     void                        clear_node_queue();
     void                        add_all_to_queue();
     void                        reset_marker_attractor();

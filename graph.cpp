@@ -276,6 +276,10 @@ void Graph::push_back(Pave* p){
         m_count_alive++;
 }
 
+void Graph::push_back_external_border(Pave *p){
+    m_node_border_list.push_back(p);
+}
+
 const std::vector<Pave *> Graph::get_node_queue() const {
     return m_node_queue;
 }
@@ -543,7 +547,7 @@ void Graph::build_graph(){
     }
 }
 
-void Graph::update_queue(){
+void Graph::update_queue(bool border_condition, bool empty_condition){
 
     m_node_queue.clear();
     for(auto &p:m_node_list){
@@ -551,7 +555,7 @@ void Graph::update_queue(){
         p->set_in_queue(false);
         p->reset_full_empty();
 
-        if((!p->is_full() && !p->is_empty()) || p->is_border()){
+        if((!p->is_full() && !p->is_empty()) || (border_condition && p->is_border()) || (empty_condition && p->is_near_empty())){
             p->set_in_queue(true);
             m_node_queue.push_back(p);
         }

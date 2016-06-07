@@ -89,8 +89,7 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
             p->set_full_out();
         if(border_in)
             p->set_full_in();
-        p->set_external_border(true);
-        g->push_back(p);
+        g->push_back_external_border(p);
     }
 
     // ****** REBUILD GRAPH *******
@@ -228,7 +227,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-        m_graph_list[nb_graph]->update_queue();
+        m_graph_list[nb_graph]->update_queue(false, true);
 
         // Process the backward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
@@ -384,11 +383,11 @@ void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Funct
 
 void Scheduler::invert_for_inner(){
     // reset removed and active pave
+    m_graph_list[0]->set_external_boundary(true, true);
+
     m_graph_list[0]->mark_full_pave_as_inner();
     m_graph_list[0]->complementaire();
 
     m_graph_list[0]->set_all_active();
-    m_graph_list[0]->update_queue();
-
-    m_graph_list[0]->set_external_boundary(true, true);
+    m_graph_list[0]->update_queue(false);
 }
