@@ -38,6 +38,7 @@ public:
     void                        set_active_f(int id);
     void                        set_external_boundary(bool in, bool out);
     void                        set_all_active();
+    bool                        set_all_inner(bool inner);
 
     void                        update_queue(bool border_condition=true, bool empty_condition=false);
     void                        clear_node_queue();

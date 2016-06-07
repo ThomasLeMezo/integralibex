@@ -228,6 +228,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
         m_graph_list[nb_graph]->update_queue(false, true);
+        m_graph_list[nb_graph]->set_all_inner(true);
 
         // Process the backward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;

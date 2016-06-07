@@ -79,9 +79,9 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
             }
         }
         x_inner &= X & x;
-//        if(!x_inner.is_empty()){
+        if(!x_inner.is_empty()){
             x_out = x_inner;
-//        }
+        }
     }
 
     x = x_out;
@@ -138,7 +138,7 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
         }
         x_inner &= x;
 
-//        if(!x_inner.is_empty())
+        if(!x_inner.is_empty())
             x_out = x_inner;
     }
     x = x_out;

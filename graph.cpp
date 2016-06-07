@@ -702,3 +702,9 @@ bool Graph::is_no_active_function(){
     }
     return true;
 }
+
+bool Graph::set_all_inner(bool inner){
+    for(auto &p:m_node_list){
+        p->set_inner(inner);
+    }
+}
