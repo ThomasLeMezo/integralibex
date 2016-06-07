@@ -218,17 +218,17 @@ void car_on_the_hill_kernel(){
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-//    s.draw(1024, true, "attractor");
+    s.draw(1024, true, "attractor");
     s.invert_for_inner();
 //    s.print_pave_info(0, 6.5, -2.5,"b[b]");
-//    s.draw(1024, true, "invert");
-    s.cameleon_viability(5, 1e9);
+    s.draw(1024, true, "invert");
+    s.cameleon_viability(8, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     /////////////// Drawing ///////////////
     s.draw(1024, true);
-    vibes::axisLimits(-1,13, -8,11);
+    vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
     s.print_pave_info(0, -0.078, -0.004,"b[b]");
 }
 

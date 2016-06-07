@@ -210,7 +210,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
     if(iterations < iterations_max && this->m_graph_list[0]->size()>4){
 //        m_graph_list[0]->remove_empty_node();
         m_graph_list[0]->mark_empty_node();
-        m_graph_list[0]->process(process_iterations_max, true, false, true);
+        m_graph_list[0]->process(process_iterations_max, true, true, true);
         iterations++;
     }
 
@@ -234,7 +234,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
 
 //        m_graph_list[nb_graph]->draw(512, true,"before");
-        int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true, false, true);
+        int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true, true, true);
         cout << "--> processing outer = " << graph_list_process_cpt << endl;
         cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 //        m_graph_list[nb_graph]->draw(512, true,"after");

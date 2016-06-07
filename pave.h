@@ -56,6 +56,7 @@ public:
     bool                        is_removed_pave() const;
     bool                        is_inner() const;
     bool                        is_near_inner();
+    bool                        is_inner_exclusive();
 
     // Setter
     void                        set_full();

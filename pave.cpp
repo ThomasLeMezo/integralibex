@@ -297,12 +297,13 @@ void Pave::draw_theta() const{
 
     std::vector<std::string> color_map;
     color_map.push_back("black[gray]");
-    color_map.push_back("b[]");
+    color_map.push_back("black[#A8A8A8]");
     color_map.push_back("g[]");
 
     for(int k=0; k<m_theta_list.size(); k++){
+        double size_ratio = size * (1-0.1*k);
         for(int i=0; i<m_theta_list[k].size(); i++){
-            vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size, size, (-m_theta_list[k][i].lb())*180.0/M_PI, (-m_theta_list[k][i].ub())*180.0/M_PI, color_map[k%color_map.size()]);
+            vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size_ratio, size_ratio, (-m_theta_list[k][i].lb())*180.0/M_PI, (-m_theta_list[k][i].ub())*180.0/M_PI, color_map[k%color_map.size()]);
         }
     }
 }
@@ -1011,6 +1012,22 @@ bool Pave::is_near_inner(){
         }
     }
     return false;
+}
+
+bool Pave::is_inner_exclusive(){
+    if(is_inner())
+        return true;
+//    bool test_is_inner = true;
+    vector<Pave*> brothers = get_all_brothers();
+    for(auto &p:brothers){
+        if(!p->is_full() && !p->is_inner()){
+            return false;
+        }
+//        if(p->is_empty() && !p->is_inner())
+//            test_is_inner = false;
+    }
+//    m_inner = test_is_inner;
+    return true;
 }
 
 void Pave::print_theta_list(){
