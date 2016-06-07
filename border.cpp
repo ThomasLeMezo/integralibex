@@ -50,7 +50,7 @@ Border::~Border(){
     }
 }
 
-void Border::draw(bool same_size, double offset, bool test) const{
+void Border::draw(bool same_size, double offset, bool test, bool two_offset) const{
     // Create an IntervalVector (2D) from the segment (1D)
     IntervalVector segment_in = get_segment_in_2D();
     IntervalVector segment_out =get_segment_out_2D();
@@ -62,7 +62,10 @@ void Border::draw(bool same_size, double offset, bool test) const{
     double pourcentage_out = min(m_segment_full.diam()*0.01, 0.01);
 
     segment_in[(m_face+1)%2] += Interval(-pourcentage_in, pourcentage_in) + offset;
-    segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out) + 2*offset;
+    if(two_offset)
+        segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out) + 2*offset;
+    else
+        segment_out[(m_face+1)%2] += Interval(-pourcentage_out, pourcentage_out) + offset;
 
     vibes::drawBox(segment_out, "b[b]");
     vibes::drawBox(segment_in, "r[r]");

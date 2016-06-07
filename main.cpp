@@ -218,10 +218,10 @@ void car_on_the_hill_kernel(){
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-    s.draw(1024, true, "attractor");
+//    s.draw(1024, true, "attractor");
     s.invert_for_inner();
-    s.print_pave_info(0, 6.5, -2.5,"b[b]");
-    s.draw(1024, true, "invert");
+//    s.print_pave_info(0, 6.5, -2.5,"b[b]");
+//    s.draw(1024, true, "invert");
     s.cameleon_viability(5, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -277,8 +277,8 @@ void car_on_the_hill_inner_kernel(){
 
     std::vector<ibex::Function*> f_list;
 //    f_list.push_back(&f1);
-    f_list.push_back(&f2);
-//    f_list.push_back(&f3);
+//    f_list.push_back(&f2);
+    f_list.push_back(&f3);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
@@ -296,20 +296,22 @@ void car_on_the_hill_inner_kernel(){
     u[0] = Interval::ZERO;
     u[1] = Interval::ZERO;
 
+    // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
+    // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
     Scheduler s(box, list_boxes_removed, f_list, u, true, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
-    s.cameleon_cycle(9, 5, 1e9, false, false, true);
+    s.cameleon_cycle(15, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     /////////////// Drawing ///////////////
-    s.draw(1024, true);
+    s.draw(1024, true, "before");
 //    s.draw(1024, false);
 
 
-    s.print_pave_info(0, 10.28, 0.0,"b[b]");
+    s.print_pave_info(0, 5.5, 0.0,"b[b]");
 //    s.print_pave_info(0, -0.5, 0.44,"b[b]");
 
 }
@@ -494,12 +496,15 @@ void car_on_the_hill_integrator(){
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 + 2.0));
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
+
     ibex::Function f2(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 - 2.0));
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
+    ibex::Function f3(x1, x2, Return(x2,
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
     std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f1);
+//    f_list.push_back(&f1);
     f_list.push_back(&f2);
 
     IntervalVector box(2);
@@ -517,13 +522,13 @@ void car_on_the_hill_integrator(){
 //    activated_pave[0] = Interval(-1.0);
 //    activated_pave[1] = Interval(0.0);
 
-    activated_pave[0] = Interval(2.3116, 2.31167);
-    activated_pave[1] = Interval(0.0);
+    activated_pave[0] = Interval(6.5); // 0.4
+    activated_pave[1] = Interval(4.5);
     initial_pave_list.push_back(activated_pave);
-    activated_pave[0] = Interval(7.7809, 7.7810);
-    initial_pave_list.push_back(activated_pave);
+//    activated_pave[0] = Interval(7.7809, 7.7810);
+//    initial_pave_list.push_back(activated_pave);
 
-    s.cameleon_propagation(13, 1e9, activated_pave); // 25
+    s.cameleon_propagation(18, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -697,9 +702,9 @@ int main()
 //    car_on_the_hill_attractor();
 //      car_on_the_hill_outer_kernel();
 //    car_on_the_hill_capture_bassin();
-    car_on_the_hill_inner_kernel();
+//    car_on_the_hill_inner_kernel();
 
-//    car_on_the_hill_kernel();
+    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();

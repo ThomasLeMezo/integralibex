@@ -311,7 +311,8 @@ void Pave::draw_borders(bool filled, string color_polygon) const{
     if(!filled){
         // Draw Segments
         for(int i=0; i<m_borders.size(); i++){
-            m_borders[i]->draw();
+            //bool same_size, double offset, bool test
+            m_borders[i]->draw(false, -0.01*m_position[i%2].diam(), false, false);
         }
     }
     else{

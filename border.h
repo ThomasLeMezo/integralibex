@@ -16,7 +16,7 @@ public:
     ~Border();
 
     // ******** Drawing functions ********
-    void                            draw(bool same_size=false, double offset=0.0, bool test=false) const;
+    void                            draw(bool same_size=false, double offset=0.0, bool test=false, bool two_offset=true) const;
 
     // ******** Graph building ********
     void                            update_brothers_inclusion(Border *border_pave1, Border *border_pave2);

@@ -52,6 +52,8 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
         Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
         p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
         p->set_inner(true);
+        p->set_continuity_in(false);
+        p->set_continuity_out(false);
         g->push_back(p); // Inactive box
     }
 
