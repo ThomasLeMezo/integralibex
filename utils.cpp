@@ -49,7 +49,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const 
     }
 
     Interval x_out(Interval::EMPTY_SET), x_front_out(Interval::EMPTY_SET);
-    for(int i=0; i<x_list.size(); i++){
+    for(int i=0; i<x_front_list.size(); i++){
         x_out |= x_list[i];
         x_front_out |= x_front_list[i];
     }
