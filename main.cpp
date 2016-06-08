@@ -229,7 +229,7 @@ void car_on_the_hill_kernel(){
     /////////////// Drawing ///////////////
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.print_pave_info(0, -0.078, -0.004,"b[b]");
+    s.print_pave_info(0, 2.14, -0.54,"b[b]");
 }
 
 void car_on_the_hill_outer_kernel(){

@@ -319,7 +319,7 @@ void Utils::CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change
     // Reduce impact of change when backward (mandatory)
     if(backward){
         for(int face = 0; face<4; face++){
-            if(p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out()))
+            if((p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out())))
                 change_tab[face] = false;
         }
     }
