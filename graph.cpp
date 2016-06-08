@@ -154,8 +154,12 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
         pave->set_in_queue(false);
 
         IntervalVector test(2);
-        test[0] = Interval(0.4);
-        test[1] = Interval(-1.7);
+        test[0] = Interval(2.16);
+        test[1] = Interval(-0.53);
+
+        if(debug_marker2 && !(pave->get_position() & test).is_empty()){
+            cout << "TEST" << endl;
+        }
 //        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
 //            draw(1024, "debug");
 //            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
@@ -176,7 +180,7 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
             std::vector<bool> change_tab;
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
-            m_utils->CtcPaveConsistency(pave, backward, change_tab, enable_function_iteration, inner);
+            m_utils->CtcConsistency(pave, backward, change_tab, enable_function_iteration, inner);
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
@@ -555,7 +559,8 @@ void Graph::update_queue(bool border_condition, bool empty_condition){
         p->set_in_queue(false);
         p->reset_full_empty();
 
-        if((!p->is_full() && !p->is_empty()) || (border_condition && p->is_border()) || (empty_condition && p->is_near_empty())){
+        if((!p->is_full() && !p->is_empty()) || (border_condition && p->is_border())
+                || (empty_condition && p->is_near_empty())){
             p->set_in_queue(true);
             m_node_queue.push_back(p);
         }

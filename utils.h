@@ -37,7 +37,7 @@ public:
 
     void CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_tab, bool inner=false);
     void CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_tab, bool inner=false);
-    void CtcPaveConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool enable_function_iteration=true, bool inner=false);
+    void CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool enable_function_iteration=true, bool inner=false);
     bool CtcContinuity(Pave *p, bool backward);
 
     void CtcPolarCorrection(ibex::Interval &x, ibex::Interval &y, ibex::Interval &rho, ibex::Interval &theta);

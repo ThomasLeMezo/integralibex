@@ -177,7 +177,7 @@ std:vector<bool> change_tab;
     test_draw(&p, "test_after");
 }
 
-void test_CtcPaveConsistency(){
+void test_CtcConsistency(){
     Utils u;
     IntervalVector box(2);
     box[0] = Interval(3, 3.05);
@@ -234,14 +234,14 @@ void test_CtcPaveConsistency(){
     std:vector<bool> change_tab;
     for(int i=0; i<4; i++)
         change_tab.push_back(false);
-    u.CtcPaveConsistency(&p, true, change_tab);
+    u.CtcConsistency(&p, true, change_tab);
 
     test_draw(&p, "test_after");
     cout << setprecision(80) << endl;
     p.print();
 }
 
-void test_CtcPaveConsistency2(){
+void test_CtcConsistency2(){
     Utils u;
     IntervalVector box(2);
     box[0] = Interval(4.2, 4.85);
@@ -289,14 +289,14 @@ void test_CtcPaveConsistency2(){
     std:vector<bool> change_tab;
     for(int i=0; i<4; i++)
         change_tab.push_back(false);
-    u.CtcPaveConsistency(&p, true, change_tab);
+    u.CtcConsistency(&p, true, change_tab);
 
     test_draw(&p, "test_after");
     //cout << setprecision(80) << endl;
     p.print();
 }
 
-void test_CtcPaveConsistency3(){
+void test_CtcConsistency3(){
     Utils u;
     IntervalVector box(2);
     box[0] = Interval(0, 1);
@@ -337,7 +337,7 @@ void test_CtcPaveConsistency3(){
     std:vector<bool> change_tab;
     for(int i=0; i<4; i++)
         change_tab.push_back(false);
-    u.CtcPaveConsistency(&p, true, change_tab);
+    u.CtcConsistency(&p, true, change_tab);
 
     test_draw(&p, "test_after");
     //cout << setprecision(80) << endl;

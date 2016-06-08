@@ -1017,7 +1017,7 @@ bool Pave::is_near_inner(){
 bool Pave::is_near_empty(){
     vector<Pave*> brothers = get_all_brothers();
     for(auto &p:brothers){
-        if(p->is_empty()){
+        if(p->is_empty() || p->is_removed_pave()){
             return true;
         }
     }

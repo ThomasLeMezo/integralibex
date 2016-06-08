@@ -22,9 +22,9 @@ void test(){
 //    test_CtcPropagateSegment();
 
 //    test_CtcPaveForward();
-//    test_CtcPaveConsistency();
-//    test_CtcPaveConsistency2();
-//    test_CtcPaveConsistency3();
+//    test_CtcConsistency();
+//    test_CtcConsistency2();
+//    test_CtcConsistency3();
 
 //    test_contractor_polar();
 
