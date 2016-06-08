@@ -62,6 +62,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
 
     if(inner){
         Interval x_inner(Interval::ALL_REALS);
+        // To improve !
         for(int i=0; i<x_list.size(); i++){
             if(x_list.size()>i+1){
                 Interval test = x_list[i] & x_list[i+1];
@@ -78,9 +79,8 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
                 x_inner &= x_list[i];
             }
         }
-        x_inner &= X & x;
         if(!x_inner.is_empty()){
-            x_out = x_inner;
+            x_out = x_inner & X & x;
         }
     }
 
@@ -136,10 +136,9 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
         for(int i=0; i<x_list.size(); i++){
             x_inner &= x_list[i];
         }
-        x_inner &= x;
 
         if(!x_inner.is_empty())
-            x_out = x_inner;
+            x_out = x_inner & x;
     }
     x = x_out;
     y = y_out;
