@@ -155,7 +155,7 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
 
         IntervalVector test(2);
         test[0] = Interval(2.55);
-        test[1] = Interval(-6.96);
+        test[1] = Interval(-6.9);
 
         if(debug_marker2 && !(pave->get_position() & test).is_empty()){
             cout << "TEST" << endl;

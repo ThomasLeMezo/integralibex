@@ -75,7 +75,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
 //        }
         for(int i=0; i<x_list.size(); i++){
 //            if(!x_list[i].is_empty())
-            if(!(theta_list[i] & (Interval::ZERO | Interval::PI)).is_empty())
+            if(!(theta_list[i] & (-Interval::HALF_PI | Interval::HALF_PI)).is_empty())
                 x_inner &= x_list[i];
         }
 //        if(!x_inner.is_empty())
