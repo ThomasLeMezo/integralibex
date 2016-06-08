@@ -154,11 +154,12 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
         pave->set_in_queue(false);
 
         IntervalVector test(2);
-        test[0] = Interval(2.16);
-        test[1] = Interval(-0.53);
+        test[0] = Interval(2.55);
+        test[1] = Interval(-6.96);
 
         if(debug_marker2 && !(pave->get_position() & test).is_empty()){
             cout << "TEST" << endl;
+            pave->draw_test(512, "test");
         }
 //        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
 //            draw(1024, "debug");
@@ -169,6 +170,9 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
         if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
+
+            if(debug_marker2 && !(pave->get_position() & test).is_empty())
+                pave->draw_test(512, "contintuity");
 
 //            if(debug_marker2 && !(test & pave->get_position()).is_empty()){
 //                draw(1024, "debug");
@@ -181,6 +185,9 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
             m_utils->CtcConsistency(pave, backward, change_tab, enable_function_iteration, inner);
+
+            if(debug_marker2 && !(pave->get_position() & test).is_empty())
+                pave->draw_test(512, "consistence");
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
@@ -236,6 +243,11 @@ Pave* Graph::get_pave(double x, double y) const{
     position[1] = Interval(y);
 
     for(auto &node:m_node_list){
+        if(!(position & node->get_position()).is_empty()){
+            return node;
+        }
+    }
+    for(auto &node:m_node_border_list){
         if(!(position & node->get_position()).is_empty()){
             return node;
         }

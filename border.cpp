@@ -75,7 +75,7 @@ void Border::draw(bool same_size, double offset, bool test, bool two_offset) con
         center[(m_face+1)%2] = m_position[(m_face+1)%2].mid() + offset;
         center[(m_face)%2] = m_position[(m_face)%2].mid();
 
-        vibes::drawCircle(center[0], center[1], 0.01, "black[black]");
+        vibes::drawCircle(center[0], center[1], 0.01*m_segment_full.diam(), "black[black]");
     }
 
     if(test && m_segment_out.is_empty()){
@@ -83,7 +83,7 @@ void Border::draw(bool same_size, double offset, bool test, bool two_offset) con
         center[(m_face+1)%2] = m_position[(m_face+1)%2].mid() + 2*offset;
         center[(m_face)%2] = m_position[(m_face)%2].mid();
 
-        vibes::drawCircle(center[0], center[1], 0.01, "black[black]");
+        vibes::drawCircle(center[0], center[1], 0.01*m_segment_full.diam(), "black[black]");
     }
 }
 
@@ -272,9 +272,9 @@ bool Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
     else
         i = (m_segment_out | segment_out) & m_segment_full;
 
-    if(i!=m_segment_out){
-        change = true;
+    if(i != m_segment_out){
         m_segment_out = i;
+        change = true;
     }
 
     if(m_pave->get_diseable_singelton() && m_segment_out.is_degenerated())

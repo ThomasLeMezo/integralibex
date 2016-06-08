@@ -57,31 +57,29 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
         x_out |= x_list[i] & x & X;
         y_out |= y_list[i] & y & X;
     }
-    //    y_out &= X & y;
-    //    x_out &= X & x;
 
     if(inner && !x_out.is_empty()){
         Interval x_inner(Interval::ALL_REALS);
         // To improve !
-//        for(int i=0; i<x_list.size(); i++){
-//            if(x_list.size()>i+1){
-//                Interval test = x_list[i] & x_list[i+1];
-//                if(test.is_degenerated() && !test.is_empty()){
-//                    x_list[i] |= x_list[i+1];
-//                    x_list.erase(x_list.begin()+i+1);
-//                    i--;
+//        if(x_list.size()>2){
+//            for(int i=0; i<x_list.size(); i++){
+//                if(x_list.size()>i+1){
+//                    Interval test = x_list[i] & x_list[i+1];
+//                    if(test.is_degenerated() && !test.is_empty()){
+//                        x_list[i] |= x_list[i+1];
+//                        x_list.erase(x_list.begin()+i+1);
+//                        i--;
+//                    }
 //                }
 //            }
 //        }
-
         for(int i=0; i<x_list.size(); i++){
-            if(!x_list[i].is_empty()){
+//            if(!x_list[i].is_empty())
+            if(!(theta_list[i] & (Interval::ZERO | Interval::PI)).is_empty())
                 x_inner &= x_list[i];
-            }
         }
-        if(!x_inner.is_empty()){
-            x_out = x_inner & X & x;
-        }
+//        if(!x_inner.is_empty())
+            x_out &= x_inner & X & x;
     }
 
     x = x_out;
@@ -122,23 +120,28 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
     }
 
     if(inner && !x_out.is_empty()){
-        Interval x_inner(x);
-//        for(int i=0; i<x_list.size(); i++){
-//            if(x_list.size()>i+1){
-//                Interval test = x_list[i] & x_list[i+1];
-//                if(test.is_degenerated() && !test.is_empty()){
-//                    x_list[i] |= x_list[i+1];
-//                    x_list.erase(x_list.begin()+i+1);
-//                    i--;
+        Interval x_inner(Interval::ALL_REALS);
+//        if(x_list.size()>2){
+//            for(int i=0; i<x_list.size(); i++){
+//                if(x_list.size()>i+1){
+//                    Interval test = x_list[i] & x_list[i+1];
+//                    if(test.is_degenerated() && !test.is_empty()){
+//                        x_list[i] |= x_list[i+1];
+//                        x_list.erase(x_list.begin()+i+1);
+//                        i--;
+//                    }
 //                }
 //            }
 //        }
+
         for(int i=0; i<x_list.size(); i++){
-            x_inner &= x_list[i];
+//            if(!x_list[i].is_empty())
+            if(!(theta_list[i] & (-Interval::HALF_PI | Interval::HALF_PI)).is_empty())
+                x_inner &= x_list[i];
         }
 
         if(!x_inner.is_empty())
-            x_out = x_inner & x;
+            x_out &= x_inner & x;
     }
     x = x_out;
     y = y_out;
@@ -296,11 +299,11 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
         if(backward){
             this->CtcPaveBackward(p, true, change_tab, inner);
             Pave *p2 = new Pave(p);
-            this->CtcPaveForward(p2, true, change_tab, inner);
+            this->CtcPaveForward(p2, true, change_tab, false);
             *p &= *(p2);
         }
         else{
-            this->CtcPaveForward(p, false, change_tab, inner);
+            this->CtcPaveForward(p, false, change_tab, false);
         }
     }
 

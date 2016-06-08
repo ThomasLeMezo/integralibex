@@ -67,7 +67,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
         if(border_in)
             p->set_full_in();
         p->set_external_border(true);
-        g->get_node_list().push_back(p);
+        g->push_back(p); // Box is put into external box list when building the graph
     }
 
     // ****** REBUILD GRAPH *******
@@ -89,7 +89,7 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
             p->set_full_out();
         if(border_in)
             p->set_full_in();
-        g->push_back_external_border(p);
+        g->push_back(p); // Box is put into external box list when building the graph
     }
 
     // ****** REBUILD GRAPH *******
@@ -203,7 +203,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
     int iterations = 0;
-    m_graph_list[0]->set_external_boundary(false, true);
+    m_graph_list[0]->set_external_boundary(true, true);
     m_graph_list[0]->set_active_f(-1);
 
     if(iterations < iterations_max && this->m_graph_list[0]->size()>4){
@@ -387,11 +387,11 @@ void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Funct
 
 void Scheduler::invert_for_inner(){
     // reset removed and active pave
-    m_graph_list[0]->set_external_boundary(true, true);
-
     m_graph_list[0]->mark_full_pave_as_inner();
     m_graph_list[0]->complementaire();
 
     m_graph_list[0]->set_all_active();
     m_graph_list[0]->update_queue(false);
+
+    m_graph_list[0]->set_external_boundary(true, true);
 }
