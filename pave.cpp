@@ -272,9 +272,9 @@ void Pave::draw_theta() const{
 void Pave::draw_borders(bool filled, string color_polygon) const{
     if(!filled){
         // Draw Segments
-        for(int i=0; i<get_borders_const().size(); i++){
+        for(int face=0; face<get_borders_const().size(); face++){
             //bool same_size, double offset, bool test
-            get_border_const(face)->draw(false, -0.01*m_position[i%2].diam(), false, false);
+            get_border_const(face)->draw(false, -0.01*m_position[face%2].diam(), false, false);
         }
     }
     else{

@@ -88,7 +88,7 @@ void Border::draw(bool same_size, double offset, bool test, bool two_offset) con
 }
 
 void Border::get_points(std::vector<double> &x, std::vector<double> &y) const{
-    Interval segment = m_segment_in | m_segment_out;
+    Interval segment = get_segment_in() | get_segment_out();
 
     if(!segment.is_empty()){
         if(m_face == 0){
@@ -130,7 +130,7 @@ bool Border::add_inclusion(Inclusion *inclusion){
     // ToDo : error with inclusion.get_position() if returning a reference !!
     //    if(inclusion->get_owner()->is_empty()) // Test if the border exist
     //        return false;
-    IntervalVector test = m_position & inclusion->get_position();
+    IntervalVector test = get_position() & inclusion->get_position();
     if(!(test.is_empty()) && (test[0].is_degenerated() != test[1].is_degenerated())){
         m_inclusions.push_back(inclusion);
         inclusion->set_owner(this);
