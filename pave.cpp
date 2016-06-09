@@ -380,7 +380,7 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
 
 //        if(m_borders[(indice1+1)%4]->is_empty() || m_borders[(indice1+3)%4]->is_empty()){
 //            bool theta_inside = false;
-//            for(Interval &theta_list:m_theta_list){
+//            for(vector<Interval> &theta_list:m_theta_list){
 
 //                for(Interval &theta:theta_list){
 //                    if(theta.is_empty())
