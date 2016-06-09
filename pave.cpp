@@ -274,7 +274,7 @@ void Pave::draw_borders(bool filled, string color_polygon) const{
         // Draw Segments
         for(int i=0; i<get_borders_const().size(); i++){
             //bool same_size, double offset, bool test
-            m_borders[i]->draw(false, -0.01*m_position[i%2].diam(), false, false);
+            get_border_const(face)->draw(false, -0.01*m_position[i%2].diam(), false, false);
         }
     }
     else{
