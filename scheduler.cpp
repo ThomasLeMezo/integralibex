@@ -129,7 +129,6 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-//        graph->remove_empty_node();
         graph->mark_empty_node();
         graph->sivia(2*graph->get_alive_node(), false, false, false);
 
@@ -151,12 +150,13 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
         return;
 
     int iterations = 0;
-    m_graph_list[0]->set_full();
+    Graph *graph = m_graph_list[0];
+    graph->set_full();
 
-    if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
+    if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(4,true, false, false, 0.0); // Start with 4 boxes
-        m_graph_list[0]->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
+        graph->sivia(4,true, false, false, 0.0); // Start with 4 boxes
+        graph->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
         iterations++;
     }
 
@@ -164,32 +164,32 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
 
-        if(m_graph_list[0]->get_alive_node()==0 || m_graph_list.size()==0)
+        if(graph->get_alive_node()==0 || m_graph_list.size()==0)
             break;
-        m_graph_list[0]->clear_node_queue();
-        m_graph_list[0]->sivia(2*m_graph_list[0]->get_alive_node(), true, false, false, 0.0);
+        graph->clear_node_queue();
+        graph->sivia(2*graph->get_alive_node(), true, false, false, 0.0);
 
-        for(int nb_f=0; nb_f<m_graph_list[0]->get_f_size(); nb_f++){
-            m_graph_list[0]->set_active_f(nb_f);
+        for(int nb_f=0; nb_f<graph->get_f_size(); nb_f++){
+            graph->set_active_f(nb_f);
             if(nb_f>0)
-                m_graph_list[0]->update_queue();
+                graph->update_queue();
 
             const clock_t sivia_time = clock();
             cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
             // Process the backward with the subpaving
-            cout << "GRAPH No "<< 0 << " (" << m_graph_list[0]->size() << ")" << endl;
-            int graph_list_process_cpt = m_graph_list[0]->process(process_iterations_max, true, false);
+            cout << "GRAPH No "<< 0 << " (" << graph->size() << ")" << endl;
+            int graph_list_process_cpt = graph->process(process_iterations_max, true, false);
 
             cout << "--> processing outer = " << graph_list_process_cpt << endl;
             cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
             // Remove empty pave
-            m_graph_list[0]->mark_empty_node();
+            graph->mark_empty_node();
 
         }
 
-        if(m_graph_list[0]->identify_attractor()){
+        if(graph->identify_attractor()){
             cout << "NO MORE ATTRACTOR TO FIND" << endl;
             break;
         }
