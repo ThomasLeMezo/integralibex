@@ -73,12 +73,15 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
 //                }
 //            }
 //        }
+        bool one_not_empty = false;
         for(int i=0; i<x_list.size(); i++){
 //            if(!x_list[i].is_empty())
-            if(!(theta_list[i] & (-Interval::HALF_PI | Interval::HALF_PI)).is_empty())
+            if(!(theta_list[i] & (-Interval::HALF_PI | Interval::HALF_PI)).is_empty()){
                 x_inner &= x_list[i];
+                one_not_empty = true;
+            }
         }
-//        if(!x_inner.is_empty())
+        if(one_not_empty)
             x_out &= x_inner & X & x;
     }
 
@@ -134,13 +137,16 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
 //            }
 //        }
 
+        bool one_not_empty = false;
         for(int i=0; i<x_list.size(); i++){
 //            if(!x_list[i].is_empty())
-            if(!(theta_list[i] & (-Interval::HALF_PI | Interval::HALF_PI)).is_empty())
+            if(!(theta_list[i] & (-Interval::HALF_PI | Interval::HALF_PI)).is_empty()){
                 x_inner &= x_list[i];
+                one_not_empty = true;
+            }
         }
 
-        if(!x_inner.is_empty())
+        if(one_not_empty)
             x_out &= x_inner & x;
     }
     x = x_out;

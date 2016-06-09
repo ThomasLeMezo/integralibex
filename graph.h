@@ -93,6 +93,8 @@ private:
     int m_drawing_cpt;
     int m_count_alive;
 
+    bool m_compute_inner;
+
 public:
     bool debug_marker1, debug_marker2;
 };

@@ -149,15 +149,11 @@ void test_CtcPaveForward(){
     box[0] = Interval(-2.03, -1.955);
     box[1] = Interval(0.47, 0.545);
 
-    IntervalVector command(2);
-    command[0] = Interval(1);
-    command[1] = Interval(-1, 1);
-
     Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f);
-    Pave p(box, f_list, command);
+    Pave p(box, f_list);
 
     //    p.set_theta(-Interval::HALF_PI/4.0 | Interval::HALF_PI/4.0);
     //    p.set_theta((Interval::HALF_PI | 5.0*Interval::HALF_PI/4.0) + Interval::PI/3);
@@ -189,9 +185,6 @@ void test_CtcConsistency(){
     ////    Interval command = -5*Interval::HALF_PI/6.0| 5*Interval::HALF_PI/6.0;
     ////    Interval command = -Interval::PI/4 | Interval::PI/4;
     ////    Interval command = Interval(-1.0472, 1.0472);
-    IntervalVector command(2);
-    command[0] = Interval::ZERO;
-    command[1] = Interval::ZERO;
 
     //    Variable x, y;
     //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
@@ -206,7 +199,7 @@ void test_CtcConsistency(){
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f);
-    Pave p(box, f_list, command);
+    Pave p(box, f_list);
     //    p.set_theta(p.get_theta()[0] + (-Interval::PI/40.0 | Interval::PI/40.0) + Interval::HALF_PI);
 
     //    p.set_theta(Interval::HALF_PI + Interval::PI/4);
@@ -246,9 +239,6 @@ void test_CtcConsistency2(){
     IntervalVector box(2);
     box[0] = Interval(4.2, 4.85);
     box[1] = Interval(-1.09375, -0.1);
-    IntervalVector command(2);
-    command[0] = Interval::ZERO;
-    command[1] = Interval::ZERO;
 
     Variable x1, x2, x, y;
     //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
@@ -262,7 +252,7 @@ void test_CtcConsistency2(){
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
     f_list.push_back(&f2);
-    Pave p(box, f_list, command);
+    Pave p(box, f_list);
 
     //    p.get_border(0)->set_segment_in(Interval(-3, -2), false);
     //    p.get_border(0)->set_segment_out(Interval(-0.277939, -0.2), false);
@@ -301,16 +291,13 @@ void test_CtcConsistency3(){
     IntervalVector box(2);
     box[0] = Interval(0, 1);
     box[1] = Interval(0,1);
-    IntervalVector command(2);
-    command[0] = Interval::ZERO;
-    command[1] = Interval::ZERO;
 
     Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f);
-    Pave p(box, f_list, command, false);
+    Pave p(box, f_list, false);
 
     vector<Interval> theta_list;
     theta_list.push_back(Interval::ZERO | Interval::HALF_PI/2.0);
@@ -409,13 +396,10 @@ void test_diff(){
     box[1] = Interval(0,1);
     Function f;
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f);
-    Pave p1(box, f_list, u);
-    Pave p2(box, f_list, u);
+    Pave p1(box, f_list);
+    Pave p2(box, f_list);
 
     p1.get_border(0)->set_full();
     p1.get_border(1)->set_full();

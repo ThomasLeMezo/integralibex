@@ -11,7 +11,7 @@ class Pave
 
     /***************** Functions ******************/
 public:
-    Pave(const ibex::IntervalVector &position, const std::vector<ibex::Function *> &f_list, const ibex::IntervalVector &u, bool diseable_singeleton=false, bool active=true);
+    Pave(const ibex::IntervalVector &position, const std::vector<ibex::Function *> &f_list, bool diseable_singeleton=false, bool active=true);
     Pave(const Pave *p);
     ~Pave();
 
@@ -21,12 +21,7 @@ public:
     bool                        inter(const Pave &p);
     bool                        diff(const Pave &p);
 
-    void                        combine(std::vector<Pave *> &pave_list);
-    void                        combine(Pave &p);
     void                        complementaire();
-    ibex::IntervalVector        bounding_pave_in() const;
-    ibex::IntervalVector        bounding_pave_out() const;
-    void                        intersect_face(const ibex::IntervalVector &box_in, const ibex::IntervalVector &box_out);
 
     // ******** Drawing functions ********
     void                        draw(bool filled, std::string color="black[]", bool borders_only=false) const;
@@ -50,14 +45,12 @@ public:
     bool                        is_in_queue() const;
     bool                        is_active() const;
     bool                        is_border() const;
-    bool                        is_test(int face) const;
     bool                        is_marked_attractor() const;
     bool                        is_external_border() const;
     bool                        is_removed_pave() const;
     bool                        is_inner() const;
     bool                        is_near_inner();
     bool                        is_near_empty();
-    bool                        is_inner_exclusive();
 
     // Setter
     void                        set_full();
@@ -95,12 +88,10 @@ public:
     std::vector<std::vector<ibex::Interval>>  get_theta_list() const;
     const std::vector<ibex::Interval>   get_all_theta(bool all=false) const;
 
-    const ibex::Interval&               get_u(int i) const;
-    const std::vector<ibex::Interval>   get_u() const;    
-    const ibex::IntervalVector&         get_u_iv() const;
     const ibex::IntervalVector&         get_position() const;
 
-    const std::vector<Border *> &       get_borders();
+    std::vector<Border *> &             get_borders();
+    const std::vector<Border *>         get_borders_const() const;
     Border*                             get_border(int face);
     const Border*                       get_border_const(int face) const;
 
@@ -123,11 +114,9 @@ public:
     /***************** Variables ******************/
 private:
 //    std::vector<ibex::Interval> m_theta;
-    std::vector< std::vector<ibex::Interval>> m_theta_list;
-    std::vector< ibex::Interval> m_theta;
+    std::vector< std::vector<ibex::Interval>>   m_theta_list;
+    std::vector< ibex::Interval>                m_theta;
 
-    std::vector<ibex::Interval> m_u;
-    ibex::IntervalVector        m_u_iv;
     ibex::IntervalVector        m_position;
     std::vector<Border*>        m_borders;
 

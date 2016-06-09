@@ -8,9 +8,8 @@
 using namespace std;
 using namespace ibex;
 
-Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f_list, const ibex::IntervalVector &u, bool diseable_singeleton, bool active):
-    m_position(2),
-    m_u_iv(2)
+Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f_list, bool diseable_singeleton, bool active):
+    m_position(2)
 {
     m_position = position;    // Box corresponding to the Pave
     m_borders.reserve(4);
@@ -18,8 +17,6 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_active_function = 0;
     m_active = active;
     m_diseable_singeleton = diseable_singeleton;
-
-    m_u_iv = u;
 
     // Graph markers
     m_in_queue = false;
@@ -41,7 +38,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_fully_full = true;
     m_empty = false;
 
-    /////////////////////////////// CASE THETA ///////////////////////////////
+    /////////////////////////////// THETA ///////////////////////////////
     for(int i=0; i<f_list.size(); i++){
         std::vector<ibex::Interval> theta = compute_theta(f_list[i]);
         m_theta_list.push_back(theta);
@@ -52,39 +49,6 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     }
     if(m_theta.size()==0)
         m_theta.push_back(Interval::EMPTY_SET);
-
-    /////////////////////////////// CASE CMD U ///////////////////////////////
-    //    if(u[0] == Interval::ZERO && u[1] == Interval::ZERO){
-    m_u.push_back(Interval::ZERO);
-    //    }
-    //    else{
-    //        Interval theta_u = atan2(u[1], u[0]);
-    //        if(theta_u==(-Interval::PI|Interval::PI)){
-    //            Interval thetaR_u = atan2(-u[1], -u[0]); // PI rotation ({dx, dy} -> {-dx, -dy})
-    //            if(thetaR_u.diam()<theta_u.diam()){
-    //                if(thetaR_u.is_subset(-Interval::PI | Interval::PI)){
-    //                    m_u.push_back((thetaR_u + Interval::PI) & (Interval::ZERO | Interval::PI)); // theta[0] in [0, pi]
-    //                    m_u.push_back(((thetaR_u + Interval::PI) & (Interval::PI | Interval::TWO_PI)) - Interval::TWO_PI); // theta[1] in [-pi, 0]
-    //                }
-    //                else{
-    //                    cout << "****************** ERROR ******************" << endl;
-    //                }
-
-    //            }
-    //            else{
-    //                m_u.push_back(theta_u);
-    //            }
-    //        }
-    //        else if(theta_u.is_empty()){
-    //            m_u.push_back(-Interval::PI|Interval::PI);
-    //        }
-    //        else{
-    //            m_u.push_back(theta_u);
-    //        }
-    //        if(m_u[0].is_empty()){
-    //            cout << "ERROR - Pave "<< theta_u << u[0] << u[1] << m_position << endl;
-    //        }
-    //    }
 }
 
 const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
@@ -95,8 +59,8 @@ const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
     if(f!=NULL){
         IntervalVector dposition = f->eval_vector(m_position);
 
-        Interval dx = dposition[0] + m_u_iv[0];
-        Interval dy = dposition[1] + m_u_iv[1];
+        Interval dx = dposition[0];
+        Interval dy = dposition[1];
 
         Interval theta = atan2(dy, dx);
 
@@ -133,13 +97,11 @@ const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
 }
 
 Pave::Pave(const Pave *p):
-    m_position(2),
-    m_u_iv(2)
+    m_position(2)
 {
     m_position = p->get_position();    // Box corresponding to the Pave
     m_f_list = p->get_f_list();
     m_active_function = p->get_active_function();
-    m_u_iv = p->get_u_iv();
     m_full = true; // Force to recompute results
     m_fully_full = true;
     m_empty = false;
@@ -153,7 +115,6 @@ Pave::Pave(const Pave *p):
 
     m_theta_list = p->get_theta_list();
     m_theta = p->get_all_theta(true);
-    m_u = p->get_u();
 
     for(int face = 0; face < 4; face++){
         Border *b = new Border(p->get_border_const(face));
@@ -213,7 +174,7 @@ void Pave::set_theta(ibex::Interval theta){
 void Pave::set_theta(std::vector<ibex::Interval> theta_list){
     m_theta_list.clear();
 
-    for(auto &theta:theta_list){
+    for(Interval &theta:theta_list){
         std::vector<ibex::Interval> thetas;
         for(int i=0; i<2; i++)
             thetas.push_back(Interval::EMPTY_SET);
@@ -354,8 +315,8 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
 
     std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
 
-    Pave *pave1 = new Pave(result_boxes.first, m_f_list, m_u_iv, m_diseable_singeleton, m_active); // Left or Up
-    Pave *pave2 = new Pave(result_boxes.second, m_f_list, m_u_iv, m_diseable_singeleton, m_active); // Right or Down
+    Pave *pave1 = new Pave(result_boxes.first, m_f_list, m_diseable_singeleton, m_active); // Left or Up
+    Pave *pave2 = new Pave(result_boxes.second, m_f_list, m_diseable_singeleton, m_active); // Right or Down
 
     pave1->set_active_function(get_active_function());
     pave2->set_active_function(get_active_function());
@@ -634,7 +595,7 @@ void Pave::reset_full_empty(){
     m_empty = false;
     m_full = true;
     m_fully_full = true;
-    for(auto &border: m_borders){
+    for(Border *border: m_borders){
         border->reset_full_empty();
     }
 }
@@ -648,28 +609,11 @@ const Interval &Pave::get_theta(int i) const{
         return NULL;
 }
 
-const Interval &Pave::get_u(int i) const{
-    if(i==0)
-        return m_u[0];
-    else if(i==1)
-        return m_u[1];
-    else
-        return NULL;
-}
-
-const std::vector<Interval> Pave::get_u() const{
-    return m_u;
-}
-
-const IntervalVector &Pave::get_u_iv() const{
-    return m_u_iv;
-}
-
 const IntervalVector &Pave::get_position() const{
     return m_position;
 }
 
-const std::vector<Border*> &Pave::get_borders(){
+std::vector<Border*> &Pave::get_borders(){
     return m_borders;
 }
 
@@ -722,24 +666,24 @@ const std::vector<Interval> Pave::get_all_theta(bool all) const{
 
 void Pave::print(){
     cout << "********" << endl;
-    cout << "PAVE x=" << m_position[0] << " y= " << m_position[1] << endl;
+    cout << "PAVE x=" << get_position()[0] << " y= " << m_position[1] << endl;
     cout << this << endl;
-    cout << "theta[0]=" << m_theta_list[m_active_function][0] << " theta[1]=" << m_theta_list[m_active_function][1] << " u=" << m_u_iv << endl;
+    cout << "theta[0]=" << m_theta_list[m_active_function][0] << " theta[1]=" << m_theta_list[m_active_function][1] << endl;
     for(int face = 0; face < 4; face++){
-        if(m_borders[face]->get_inclusions().size()==0){
-            cout << "border=" << face << " " << &(m_borders[face])
-                 << " segment_in=" << m_borders[face]->get_segment_in()
-                 << " segment_out=" << m_borders[face]->get_segment_out()
+        if(get_border(face)->get_inclusions().size()==0){
+            cout << "border=" << face << " " << (get_border(face))
+                 << " segment_in=" << get_border(face)->get_segment_in()
+                 << " segment_out=" << get_border(face)->get_segment_out()
                  << endl;
         }
         else{
-            for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
-                cout << "border=" << face << " " << &(m_borders[face])
-                     << " segment_in=" << m_borders[face]->get_segment_in()
-                     << " segment_out=" << m_borders[face]->get_segment_out()
+            for(int i=0; i<get_border(face)->get_inclusions().size(); i++){
+                cout << "border=" << face << " " << (get_border(face))
+                     << " segment_in=" << get_border(face)->get_segment_in()
+                     << " segment_out=" << get_border(face)->get_segment_out()
                      << " inclusion=" << i
-                     << " *border=" << m_borders[face]->get_inclusion(i)->get_border()
-                     << " segment_full=" << m_borders[face]->get_inclusion(i)->get_border()->get_segment_full()
+                     << " *border=" << get_border(face)->get_inclusion(i)->get_border()
+                     << " segment_full=" << get_border(face)->get_inclusion(i)->get_border()->get_segment_full()
                      << endl;
             }
         }
@@ -787,13 +731,13 @@ bool Pave::is_active() const{
 }
 
 void Pave::set_continuity_out(bool enable){
-    for(int face=0; face<4; face++)
-        m_borders[face]->set_continuity_out(enable);
+    for(Border *b:get_borders())
+        b->set_continuity_out(enable);
 }
 
 void Pave::set_continuity_in(bool enable){
-    for(int face=0; face<4; face++)
-        m_borders[face]->set_continuity_in(enable);
+    for(Border *b:get_borders())
+        b->set_continuity_in(enable);
 }
 
 bool Pave::get_diseable_singelton() const{
@@ -801,15 +745,15 @@ bool Pave::get_diseable_singelton() const{
 }
 
 bool Pave::is_border() const{
-    for(auto &b:m_borders){
+    for(Border *b:get_borders_const()){
         if(b->get_inclusions().size() == 0){
             return true;
         }
     }
-    for(auto &b:m_borders){
+    for(Border *b:get_borders_const()){
 
         Interval segment_border = Interval::EMPTY_SET;
-        for(auto &i:b->get_inclusions()){
+        for(Inclusion *i:b->get_inclusions()){
             segment_border |= i->get_segment_full();
 
             if(!i->get_border()->get_pave()->is_active() || i->get_border()->get_pave()->is_external_border()){
@@ -823,21 +767,8 @@ bool Pave::is_border() const{
     return false;
 }
 
-bool Pave::is_test(int face) const{
-    if(is_border() || !is_full_geometricaly())
-        return true;
-    for(auto &b:m_borders){
-        for(auto &i:b->get_inclusions()){
-            if(!i->get_border()->get_pave()->is_full_geometricaly()){
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 void Pave::complementaire(){
-    for(auto &b:m_borders){
+    for(Border *b:get_borders()){
         b->complementaire();
     }
 }
@@ -845,135 +776,11 @@ void Pave::complementaire(){
 IntervalVector Pave::get_bounding_pave() const{
     IntervalVector box(2, Interval::EMPTY_SET);
 
-    for(auto &b:m_borders){
+    for(Border *b:get_borders_const()){
         box |= b->get_segment_in_2D();
         box |= b->get_segment_out_2D();
     }
     return box;
-}
-
-IntervalVector Pave::bounding_pave_in() const{
-    IntervalVector box(2, Interval::EMPTY_SET);
-    for(auto &b:m_borders){
-        box |= b->get_segment_in_2D();
-    }
-    return box;
-}
-
-IntervalVector Pave::bounding_pave_out() const{
-    IntervalVector box(2, Interval::EMPTY_SET);
-    for(auto &b:m_borders){
-        box |= b->get_segment_out_2D();
-    }
-    return box;
-}
-
-void Pave::intersect_face(const IntervalVector &box_in, const IntervalVector &box_out){
-    IntervalVector box2_in(box_in);
-    IntervalVector box2_out(box_out);
-    if(!box_in[0].is_empty() && (box_in[0] & m_position[0].lb()).is_empty() && (box_in[0] & m_position[0].ub()).is_empty()){
-        box2_in[0] = m_position[0];
-    }
-    if(!box_in[1].is_empty() && (box_in[1] & m_position[1].lb()).is_empty() && (box_in[1] & m_position[1].ub()).is_empty()){
-        box2_in[1] = m_position[1];
-    }
-
-    if(!box_out[0].is_empty() && (box_out[0] & m_position[0].lb()).is_empty() && (box_out[0] & m_position[0].ub()).is_empty()){
-        box2_out[0] = m_position[0];
-    }
-    if(!box_out[1].is_empty() && (box_out[1] & m_position[1].lb()).is_empty() && (box_out[1] & m_position[1].ub()).is_empty()){
-        box2_out[1] = m_position[1];
-    }
-
-    for(int face=0; face<4; face++){
-        get_border(face)->set_segment_in(box2_in[face%2], true);
-        get_border(face)->set_segment_out(box2_out[face%2], true);
-    }
-}
-
-//void Pave::combine(std::vector<Pave *> &pave_list){
-//    IntervalVector inter_pave_in(2, Interval::ALL_REALS);
-//    IntervalVector inter_pave_out(2, Interval::ALL_REALS);
-//    for(auto &p:pave_list){
-//        inter_pave_in &= p->bounding_pave_in();
-//        inter_pave_out &= p->bounding_pave_out();
-//    }
-//    intersect_face(inter_pave_in, inter_pave_out);
-//}
-
-void Pave::combine(Pave &p){
-    for(int face = 0; face<m_borders.size(); face++){
-        Interval seg_full = get_border(face)->get_segment_full();
-
-        Interval out1 = get_border(face)->get_segment_out();
-        Interval in1 = get_border(face)->get_segment_in();
-
-
-        Interval out2 = p.get_border_const(face)->get_segment_out();
-        Interval in2 = p.get_border_const(face)->get_segment_in();
-
-        Interval outR, inR;
-
-        outR = out1 | out2;
-        inR = in1 | in2;
-
-        if(!in2.is_empty() && !in1.is_empty()){
-            bool lower1 = !(in1 & seg_full.lb()).is_empty();
-            bool upper1 = !(in1 & seg_full.ub()).is_empty();
-
-            bool lower2 = !(in2 & seg_full.lb()).is_empty();
-            bool upper2 = !(in2 & seg_full.ub()).is_empty();
-
-            if((lower1 && lower2 && !upper1 && !upper2) || (!lower1 && !lower2 && upper1 && upper2)){
-                inR = in1 & in2;
-            }
-        }
-
-        //        if(in2.is_empty() && in1.is_empty() && !out1.is_empty() && !out2.is_empty()){
-        //            outf = out1 | out2;
-        //            inf = Interval::EMPTY_SET;
-        //        }
-        //        if(out2.is_empty() && out1.is_empty() && !in1.is_empty() && !in2.is_empty()){
-        //            outf = Interval::EMPTY_SET;
-        //            inf = in1 | in2;
-        //        }
-        //        if(out1.is_empty() && in2.is_empty() && !out2.is_empty() && !in1.is_empty()){
-        //            if(in1.is_subset(out2)){
-        //                inR = in1 & out2;
-        //            }
-        //            if(out2.is_subset(in1)){
-        //                outR = out2 & in1;
-        //            }
-        //        }
-        //        if(out2.is_empty() && in1.is_empty() && !out1.is_empty() && !in2.is_empty()){
-        //            if(in2.is_subset(out1)){
-        //                inR = in2 & out1;
-        //            }
-        //            if(out1.is_subset(in2)){
-        //                outR = out1 & in2;
-        //            }
-        //        }
-
-        //        if(out1.is_empty() && out2.is_empty() && !in2.is_empty() && !in1.is_empty()){
-        //            Interval test = in1&in2;
-        //            if(!test.is_empty() &&
-        //                    (!(test & get_border(face)->get_segment_full().lb()).is_empty()
-        //                     || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
-        //                inR = in1 & in2;
-        //        }
-
-        //        if(in1.is_empty() && in2.is_empty() && !out2.is_empty() && !out1.is_empty()){
-        //            Interval test = out1&out2;
-        //            if(!test.is_empty() &&
-        //                    (!(test & get_border(face)->get_segment_full().lb()).is_empty()
-        //                     || !(test & get_border(face)->get_segment_full().ub()).is_empty()))
-        //                outR = out1 & out2;
-        //        }
-
-        get_border(face)->set_empty();
-        get_border(face)->set_segment_in(inR, false);
-        get_border(face)->set_segment_out(outR, false);
-    }
 }
 
 bool Pave::is_marked_attractor() const{
@@ -1006,7 +813,7 @@ void Pave::set_removed_pave(bool val){
 
 bool Pave::is_near_inner(){
     vector<Pave*> brothers = get_all_brothers();
-    for(auto &p:brothers){
+    for(Pave *p:brothers){
         if(p->is_inner()){
             return true;
         }
@@ -1016,7 +823,7 @@ bool Pave::is_near_inner(){
 
 bool Pave::is_near_empty(){
     vector<Pave*> brothers = get_all_brothers();
-    for(auto &p:brothers){
+    for(Pave *p:brothers){
         if(p->is_empty() || p->is_removed_pave()){
             return true;
         }
@@ -1024,31 +831,19 @@ bool Pave::is_near_empty(){
     return false;
 }
 
-bool Pave::is_inner_exclusive(){
-    if(is_inner())
-        return true;
-//    bool test_is_inner = true;
-    vector<Pave*> brothers = get_all_brothers();
-    for(auto &p:brothers){
-        if(!p->is_full() && !p->is_inner()){
-            return false;
-        }
-//        if(p->is_empty() && !p->is_inner())
-//            test_is_inner = false;
-    }
-//    m_inner = test_is_inner;
-    return true;
-}
-
 void Pave::print_theta_list(){
     int count = 0;
     cout << "theta ";
-    for(auto &theta_list:m_theta_list){
+    for(vector<Interval> &theta_list:get_theta_list()){
         cout << "(" << count << ") ";
-        for(auto &theta:theta_list){
+        for(Interval &theta:theta_list){
             cout << theta << " ";
         }
         count++;
     }
     cout << endl;
+}
+
+const std::vector<Border *> Pave::get_borders_const() const{
+    return m_borders;
 }

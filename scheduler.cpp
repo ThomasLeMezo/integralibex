@@ -41,7 +41,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
 
     // Build Paves and push back them
     for(auto &b:list_boxes){
-        Pave* p = new Pave(b, f_list, u, diseable_singleton);
+        Pave* p = new Pave(b, f_list, diseable_singleton);
         p->set_full();
         g->push_back(p);
     }
@@ -49,7 +49,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     /// ****** ADD BASSIN BOXES *******
 
     for(auto &b:bassin_boxes){
-        Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
+        Pave* p = new Pave(b, f_list, diseable_singleton, false);
         p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
         p->set_inner(true);
         p->set_continuity_in(false);
@@ -61,7 +61,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
 
     for(auto &b:list_border){
-        Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
+        Pave* p = new Pave(b, f_list, diseable_singleton, false);
         if(border_out)
             p->set_full_out();
         if(border_in)
@@ -83,7 +83,7 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
     vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
 
     for(auto &b:list_border){
-        Pave* p = new Pave(b, f_list, u, diseable_singleton, false);
+        Pave* p = new Pave(b, f_list, diseable_singleton, false);
         p->set_external_border(true);
         if(border_out)
             p->set_full_out();
@@ -203,13 +203,16 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
     int iterations = 0;
-    m_graph_list[0]->set_external_boundary(true, true);
-    m_graph_list[0]->set_active_f(-1);
 
-    if(iterations < iterations_max && this->m_graph_list[0]->size()>4){
-//        m_graph_list[0]->remove_empty_node();
-        m_graph_list[0]->mark_empty_node();
-        m_graph_list[0]->process(process_iterations_max, true, true, true);
+    Graph *graph = m_graph_list[0];
+
+    graph->set_external_boundary(false, true);
+
+    graph->set_active_f(-1);
+
+    if(iterations < iterations_max && graph->size()>4){
+        graph->mark_empty_node();
+        graph->process(process_iterations_max, true, true, true);
         iterations++;
     }
 
@@ -218,39 +221,33 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         int nb_graph=0;
 
-        if(m_graph_list[nb_graph]->get_alive_node()==0 || m_graph_list.size()==0)
+        if(graph->get_alive_node()==0)
             break;
-        m_graph_list[nb_graph]->clear_node_queue();
-        //int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, double theta_limit
+        graph->clear_node_queue();
 
-        m_graph_list[nb_graph]->sivia(2*m_graph_list[nb_graph]->get_alive_node(), true, false, false, 0.0);
+        graph->sivia(2*graph->get_alive_node(), true, false, false, 0.0);
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-        m_graph_list[nb_graph]->update_queue(false, true);
-        m_graph_list[nb_graph]->set_all_inner(true);
+        graph->update_queue(false, true);
+        graph->set_all_inner(true);
 
         if(iterations == 7)
-            m_graph_list[nb_graph]->debug_marker2 = true;
+            graph->debug_marker2 = true;
 
         // Process the backward with the subpaving
-        cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[nb_graph]->size() << ")" << endl;
+        cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
 
-//        m_graph_list[nb_graph]->draw(512, true,"before");
-        int graph_list_process_cpt = m_graph_list[nb_graph]->process(process_iterations_max, true, true, true);
+        int graph_list_process_cpt = graph->process(process_iterations_max, true, true, true);
         cout << "--> processing outer = " << graph_list_process_cpt << endl;
         cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
-//        m_graph_list[nb_graph]->draw(512, true,"after");
 
         // Remove empty pave
-//        m_graph_list[nb_graph]->remove_empty_node();
-        m_graph_list[0]->mark_empty_node();
+        graph->mark_empty_node();
 
         // Test if the graph is empty
-        if(m_graph_list[nb_graph]->is_empty()){
+        if(graph->is_empty()){
             cout << "EMPTY GRAPH" << endl;
-            m_graph_list.erase(m_graph_list.begin()+nb_graph);
-            delete(m_graph_list[nb_graph]);
             break;
         }
 

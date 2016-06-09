@@ -7,7 +7,7 @@ using namespace ibex;
 Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, Utils *utils, const IntervalVector &u, int graph_id, bool diseable_singleton):
     m_search_box(2)
 {
-    Pave *p = new Pave(box, f_list, u, diseable_singleton);
+    Pave *p = new Pave(box, f_list, diseable_singleton);
     m_count_alive = 1;
     m_search_box = box;
     m_node_list.push_back(p);
@@ -429,6 +429,8 @@ void Graph::mark_empty_node(){
 }
 
 bool Graph::is_empty(){
+    if(get_alive_node()==0)
+        return true;
     bool empty = true;
     for(auto &node:m_node_list){
         node->reset_full_empty();
@@ -566,7 +568,7 @@ void Graph::build_graph(){
 void Graph::update_queue(bool border_condition, bool empty_condition){
 
     m_node_queue.clear();
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
         p->set_first_process_true();
         p->set_in_queue(false);
         p->reset_full_empty();
@@ -589,7 +591,7 @@ int Graph::get_f_size() const{
 }
 
 void Graph::set_active_f(int id){
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
         p->set_active_function(id);
     }
 }
