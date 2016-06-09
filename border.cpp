@@ -17,6 +17,9 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     m_segment_in = Interval::EMPTY_SET;
     m_segment_out = Interval::EMPTY_SET;
 
+    m_segment_in_inner = Interval::EMPTY_SET;
+    m_segment_out_inner = Interval::EMPTY_SET;
+
     m_segment_full = position[face%2];
 
     m_empty = false;
@@ -25,6 +28,8 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
 
     m_enable_continuity_in = true;
     m_enable_continuity_out = true;
+
+    m_compute_inner = false;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -42,6 +47,7 @@ Border::Border(const Border *border): m_position(2)
     //    m_inclusions_receving = border->get_inclusions_receving();
     m_enable_continuity_in = border->get_continuity_in();
     m_enable_continuity_out = border->get_continuity_out();
+    m_compute_inner = border->get_compute_inner();
 }
 
 Border::~Border(){
@@ -284,11 +290,17 @@ bool Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
 }
 
 bool Border::set_segment_in(ibex::Interval segment_in){
-    m_segment_in = segment_in & m_segment_full;
+    if(!m_compute_inner)
+        m_segment_in = segment_in & m_segment_full;
+    else
+        m_segment_in_inner = segment_in & m_segment_full;
 }
 
 bool Border::set_segment_out(ibex::Interval segment_out){
-    m_segment_out = segment_out & m_segment_full;
+    if(!m_compute_inner)
+        m_segment_out = segment_out & m_segment_full;
+    else
+        m_segment_out_inner = segment_out & m_segment_full;
 }
 
 void Border::set_pave(Pave* pave){
@@ -296,11 +308,17 @@ void Border::set_pave(Pave* pave){
 }
 
 const ibex::Interval Border::get_segment_in() const{
-    return m_segment_in;
+    if(!m_compute_inner)
+        return m_segment_in;
+    else
+        return m_segment_in_inner;
 }
 
 const ibex::Interval Border::get_segment_out() const{
-    return m_segment_out;
+    if(!m_compute_inner)
+        return m_segment_out;
+    else
+        return m_segment_out_inner;
 }
 
 const ibex::Interval& Border::get_segment_full() const{
@@ -473,3 +491,13 @@ void Border::set_segment(bool in, bool out){
     else
         set_segment_out(Interval::EMPTY_SET);
 }
+
+void Border::set_compute_inner(bool val){
+    m_compute_inner = val;
+}
+
+bool Border::get_compute_inner() const{
+    return m_compute_inner;
+}
+
+

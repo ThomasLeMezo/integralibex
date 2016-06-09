@@ -847,3 +847,14 @@ void Pave::print_theta_list(){
 const std::vector<Border *> Pave::get_borders_const() const{
     return m_borders;
 }
+
+void Pave::set_compute_inner(bool val){
+    m_compute_inner = val;
+    for(Border *b:m_borders){
+        b->set_compute_inner(val);
+    }
+}
+
+bool Pave::get_compute_inner() const{
+    return m_compute_inner;
+}

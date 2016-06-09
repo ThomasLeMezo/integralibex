@@ -76,6 +76,8 @@ public:
     void                        set_external_border(bool val);
     void                        set_removed_pave(bool val);
 
+    void                        set_compute_inner(bool val);
+
     void                        reset_full_empty();
 
     // Getters
@@ -105,6 +107,7 @@ public:
     bool                                get_diseable_singelton() const;
 
     ibex::IntervalVector                get_bounding_pave() const;
+    bool                                get_compute_inner() const;
 
     // Other functions
     const std::vector<ibex::Interval>   compute_theta(ibex::Function *f);
@@ -139,6 +142,8 @@ private:
     bool                        m_marker_attractor;
     bool                        m_external_border;
     bool                        m_removed_pave;
+
+    bool                        m_compute_inner;
 };
 
 #endif // PAVE_H
