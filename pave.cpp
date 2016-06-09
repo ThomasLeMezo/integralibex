@@ -42,7 +42,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     for(int i=0; i<f_list.size(); i++){
         std::vector<ibex::Interval> theta = compute_theta(f_list[i]);
         m_theta_list.push_back(theta);
-        for(auto &t:theta){
+        for(Interval t:theta){
             if(!t.is_empty())
                 m_theta.push_back(t);
         }
@@ -380,9 +380,9 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
 
 //        if(m_borders[(indice1+1)%4]->is_empty() || m_borders[(indice1+3)%4]->is_empty()){
 //            bool theta_inside = false;
-//            for(auto &theta_list:m_theta_list){
+//            for(Interval &theta_list:m_theta_list){
 
-//                for(auto &theta:theta_list){
+//                for(Interval &theta:theta_list){
 //                    if(theta.is_empty())
 //                        break;
 

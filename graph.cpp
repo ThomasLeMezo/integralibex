@@ -33,12 +33,12 @@ Graph::Graph(Utils *utils, int graph_id=0):
 Graph::Graph(Graph* g, int graph_id):
     m_search_box(2)
 {
-    for(auto &node:g->get_node_list()){
+    for(Pave *node:g->get_node_list()){
         Pave *p = new Pave(node);
         node->set_copy_node(p);
         m_node_list.push_back(p);
     }
-    for(auto &node:g->get_node_queue()){
+    for(Pave *node:g->get_node_queue()){
         m_node_queue.push_back(node->get_copy_node());
         node->get_copy_node()->set_in_queue(true);
     }
@@ -70,7 +70,7 @@ Graph::Graph(Graph* g, int graph_id):
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
     cout << "COPY GRAPH size = " << size() << endl;
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         node->set_empty();
     }
 
@@ -79,7 +79,7 @@ Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
     *(copy_node) &= *(activated_node);
 
     vector<Pave*> brothers_pave = copy_node->get_all_brothers();
-    for(auto &p:brothers_pave){
+    for(Pave *p:brothers_pave){
         if(!p->is_in_queue()){
             m_node_queue.push_back(p);
             p->set_in_queue(true);
@@ -88,16 +88,16 @@ Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
 }
 
 Graph::~Graph(){
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         delete(node);
     }
-    for(auto &node:m_node_border_list){
+    for(Pave *node:m_node_border_list){
         delete(node);
     }
 }
 
 void Graph::clear_node_queue(){
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         node->set_in_queue(false);
     }
     m_node_queue.clear();
@@ -223,7 +223,7 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
 }
 
 void Graph::set_full(){
-    for(auto &node : m_node_list){
+    for(Pave *node : m_node_list){
         if(node->is_active() && !node->is_removed_pave())
             node->set_full();
     }
@@ -231,7 +231,7 @@ void Graph::set_full(){
 
 void Graph::add_all_to_queue(){
     m_node_queue.clear();
-    for(auto &node: m_node_list){
+    for(Pave *node: m_node_list){
         m_node_queue.push_back(node);
     }
 }
@@ -241,12 +241,12 @@ Pave* Graph::get_pave(double x, double y) const{
     position[0] = Interval(x);
     position[1] = Interval(y);
 
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         if(!(position & node->get_position()).is_empty()){
             return node;
         }
     }
-    for(auto &node:m_node_border_list){
+    for(Pave *node:m_node_border_list){
         if(!(position & node->get_position()).is_empty()){
             return node;
         }
@@ -256,7 +256,7 @@ Pave* Graph::get_pave(double x, double y) const{
 
 const std::vector<Pave *> Graph::get_pave(const ibex::IntervalVector &box) const{
     std::vector<Pave*> node_list_inter;
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         if(!(box & node->get_position()).is_empty()){
             node_list_inter.push_back(node);
         }
@@ -267,11 +267,11 @@ const std::vector<Pave *> Graph::get_pave(const ibex::IntervalVector &box) const
 void Graph::set_active_pave(const IntervalVector &box){
     vector<Pave*> pave_activated = get_pave(box);
 
-    for(auto &pave : pave_activated){
+    for(Pave *pave:pave_activated){
         pave->set_full();
         for(int face=0; face<4; face++){
             vector<Pave*> pave_brother_list = pave->get_brothers(face);
-            for(auto &pave_brother : pave_brother_list){
+            for(Pave *pave_brother : pave_brother_list){
                 if(!pave_brother->is_in_queue()){
                     m_node_queue.push_back(pave_brother);
                     pave_brother->set_in_queue(true);
@@ -322,7 +322,7 @@ void Graph::draw(int size, bool filled, string comment){
     vibes::newFigure(ss.str());
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         //        if(node->is_active()){
         if(node->is_near_inner())
             node->draw(filled, "#D3D3D3[#FF00FF]"); // magenta
@@ -334,7 +334,7 @@ void Graph::draw(int size, bool filled, string comment){
         //        }
     }
 
-    for(auto &node:m_node_border_list){
+    for(Pave *node:m_node_border_list){
         node->draw(filled, "gray[gray]");
     }
 
@@ -343,7 +343,7 @@ void Graph::draw(int size, bool filled, string comment){
 }
 
 void Graph::drawInner(bool filled){
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         node->draw(filled, "[]", true);
     }
 }
@@ -397,7 +397,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
 void Graph::print() const{
     cout << "********" << endl;
     cout << "GRAPH id= " << m_graph_id << endl;
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         node->print();
     }
 }
@@ -411,7 +411,7 @@ int Graph::size() const{
 }
 
 void Graph::mark_empty_node(){
-    for(auto &pave:m_node_list){
+    for(Pave *pave:m_node_list){
         if(!pave->is_removed_pave() && pave->is_active()){
             pave->reset_full_empty();
             if(pave->is_empty()){
@@ -431,7 +431,7 @@ bool Graph::is_empty(){
     if(get_alive_node()==0)
         return true;
     bool empty = true;
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         node->reset_full_empty();
         if(!node->is_empty())
             empty = false;
@@ -440,20 +440,20 @@ bool Graph::is_empty(){
 }
 
 Pave* Graph::get_semi_full_node(){
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         if(!node->is_removed_pave() && node->is_border() && node->get_theta_diam()<M_PI/2.0){
             return node;
         }
     }
 
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         if(!node->is_removed_pave() && !node->is_empty() && !node->is_full()){
             return node;
         }
     }
 
     // Case all full or empty
-    for(auto &node:m_node_list){
+    for(Pave *node:m_node_list){
         if(!node->is_removed_pave() && !node->is_empty()){
             return node;
         }
@@ -462,17 +462,12 @@ Pave* Graph::get_semi_full_node(){
     return NULL;
 }
 
-bool Graph::diff(const Graph &g){
-    bool change = false;
+void Graph::diff(const Graph &g){
     if(this->size() == g.size()){
         for(int i=0; i<g.size(); i++){
-            if(m_node_list[i]->diff(*(g.get_node_const(i)))){
-                m_node_queue.push_back(m_node_list[i]);
-                change = true;
-            }
+            m_node_list[i]->diff(*(g.get_node_const(i)));
         }
     }
-    return change;
 }
 
 void Graph::inter(const Graph &g){
@@ -484,7 +479,7 @@ void Graph::inter(const Graph &g){
 }
 
 void Graph::set_empty(){
-    for(auto &pave : m_node_list){
+    for(Pave *pave : m_node_list){
         if(pave->is_active())
             pave->set_empty();
     }
@@ -496,8 +491,8 @@ void Graph::set_symetry(Function* f, int face_in, int face_out){
 }
 
 void Graph::set_all_first_process(){
-    for(auto& node:m_node_list){
-        node->set_first_process_true();
+    for(Pave *pave:m_node_list){
+        pave->set_first_process_true();
     }
 }
 
@@ -510,7 +505,7 @@ IntervalVector Graph::get_bounding_box() const{
     boundingBox[0] = Interval::EMPTY_SET;
     boundingBox[1] = Interval::EMPTY_SET;
 
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
         boundingBox |= p->get_position();
     }
 
@@ -596,7 +591,7 @@ bool Graph::identify_attractor(){
     reset_marker_attractor();
     bool found_all_attractor = true;
 
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
 
         // Study the subgraph starting with p
         if(p->is_active() && !p->is_marked_attractor() && !p->is_removed_pave()){
@@ -608,7 +603,7 @@ bool Graph::identify_attractor(){
             bool test_attractor = true;
 
             IntervalVector bounding_box(2, Interval::EMPTY_SET);
-            for(auto &p:attractor_list){
+            for(Pave *p:attractor_list){
                 if(p->is_border() && p->get_theta_diam()>=M_PI){
                     test_attractor = false;
                 }
@@ -616,14 +611,14 @@ bool Graph::identify_attractor(){
             }
 
             vector<IntervalVector> list_search_box = m_utils->get_segment_from_box(m_search_box);
-            for(auto &b:list_search_box){
-                if(!((bounding_box & b).is_empty()))
+            for(IntervalVector &iv:list_search_box){
+                if(!((bounding_box & iv).is_empty()))
                     test_attractor = false;
             }
 
             if(test_attractor){
                 cout << "FIND AN ATTRACTOR" << endl;
-                for(auto &p:attractor_list){
+                for(Pave *p:attractor_list){
                     p->set_active(false);
                 }
             }
@@ -638,7 +633,7 @@ bool Graph::identify_attractor(){
 void Graph::get_recursive_attractor(Pave* p, vector<Pave*> &list){
     for(int face=0; face<4; face++){
         vector<Pave*> brothers_face = p->get_brothers(face);
-        for(auto &p_brother:brothers_face){
+        for(Pave *p_brother:brothers_face){
             if(!p_brother->is_removed_pave() && !p_brother->is_marked_attractor()){
                 list.push_back(p_brother);
                 p_brother->set_marker_attractor(true);
@@ -649,7 +644,7 @@ void Graph::get_recursive_attractor(Pave* p, vector<Pave*> &list){
 }
 
 void Graph::reset_marker_attractor(){
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
         p->set_marker_attractor(false);
     }
 }
@@ -659,26 +654,26 @@ IntervalVector Graph::get_search_box() const{
 }
 
 void Graph::complementaire(){
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
         p->complementaire();
     }
 }
 
 void Graph::set_external_boundary(bool in, bool out){
-    for(auto &p:m_node_border_list){
+    for(Pave *p:m_node_border_list){
         p->set_segment(in, out);
     }
 }
 
 void Graph::set_all_active(){
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
         p->set_active(true);
         p->set_removed_pave(false);
     }
 }
 
 void Graph::mark_full_pave_as_inner(){
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
         if(p->is_full()){
             p->set_inner(true);
         }
@@ -686,7 +681,7 @@ void Graph::mark_full_pave_as_inner(){
 }
 
 void Graph::propagate_inner(){
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
         if(p->is_inner()){
             recursive_mark_inner(p);
         }
@@ -695,7 +690,7 @@ void Graph::propagate_inner(){
 
 void Graph::recursive_mark_inner(Pave* p){
     vector<Pave *> brothers = p->get_all_brothers();
-    for(auto &bro:brothers){
+    for(Pave *bro:brothers){
         if(!bro->is_inner() && bro->is_empty()){
             bro->set_inner(true);
             recursive_mark_inner(bro);
@@ -708,7 +703,7 @@ int Graph::get_alive_node(){
 }
 
 bool Graph::is_no_active_function(){
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
         if(p->get_active_function()!=-1){
             return false;
         }
@@ -717,7 +712,7 @@ bool Graph::is_no_active_function(){
 }
 
 bool Graph::set_all_inner(bool inner){
-    for(auto &p:m_node_list){
+    for(Pave *p:m_node_list){
         p->set_inner(inner);
     }
 }

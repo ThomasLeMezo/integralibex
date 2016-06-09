@@ -462,7 +462,7 @@ void test_imageIntegral(){
     for(int i=0; i<10; i++){
         std::vector<Interval> tmp_list_t(list_t);
         list_t.clear();
-        for(auto &i:tmp_list_t){
+        for(Interval &i:tmp_list_t){
             list_t.push_back(Interval(i.lb(), i.mid()));
             list_t.push_back(Interval(i.mid(), i.ub()));
         }
@@ -472,7 +472,7 @@ void test_imageIntegral(){
     double factorY = sizeY/range[1].diam();
 
     Mat img(sizeX,sizeY, CV_8U, Scalar(0));
-    for(auto &i:list_t){
+    for(Interval &i:list_t){
         IntervalVector tmp(2);
         tmp[0] = i;
         IntervalVector p(f.eval_vector(tmp));

@@ -36,7 +36,7 @@ void imageIntegral::compute_image(){
     for(int i=0; i<m_nbBisectionT; i++){
         std::vector<Interval> tmp_list_t(list_t);
         list_t.clear();
-        for(auto &i:tmp_list_t){
+        for(Interval &i:tmp_list_t){
             list_t.push_back(Interval(i.lb(), i.mid()));
             list_t.push_back(Interval(i.mid(), i.ub()));
         }
@@ -46,7 +46,7 @@ void imageIntegral::compute_image(){
     m_factor[1] = m_img_size[1]/m_range[1].diam();
 
     Mat img(m_img_size[0],m_img_size[1], CV_8U, Scalar(0));
-    for(auto &i:list_t){
+    for(Interval &i:list_t){
         IntervalVector tmp(2);
         tmp[0] = i;
         IntervalVector p(m_f->eval_vector(tmp));

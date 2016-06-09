@@ -14,7 +14,7 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
 }
 
 Scheduler::~Scheduler(){
-    for(auto &graph:m_graph_list){
+    for(Graph *graph:m_graph_list){
         delete(graph);
     }
 }
@@ -27,9 +27,9 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     list_boxes.push_back(box);
 
     // Build diff boxes
-    for(auto &box_bassin:bassin_boxes){
+    for(IntervalVector box_bassin:bassin_boxes){
         vector<IntervalVector> list_boxes_tmp;
-        for(auto &b:list_boxes){
+        for(IntervalVector b:list_boxes){
             std::vector<IntervalVector> box_result = m_utils.diff(b, box_bassin);
 
             for(int i=0; i<box_result.size(); i++)
@@ -40,7 +40,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     }
 
     // Build Paves and push back them
-    for(auto &b:list_boxes){
+    for(IntervalVector b:list_boxes){
         Pave* p = new Pave(b, f_list, diseable_singleton);
         p->set_full();
         g->push_back(p);
@@ -48,7 +48,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
 
     /// ****** ADD BASSIN BOXES *******
 
-    for(auto &b:bassin_boxes){
+    for(IntervalVector b:bassin_boxes){
         Pave* p = new Pave(b, f_list, diseable_singleton, false);
         p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
         p->set_inner(true);
@@ -60,7 +60,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     /// ****** CREATE BORDER EXTRA BOXES *******
     vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
 
-    for(auto &b:list_border){
+    for(IntervalVector b:list_border){
         Pave* p = new Pave(b, f_list, diseable_singleton, false);
         if(border_out)
             p->set_full_out();
@@ -82,7 +82,7 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
     /// ****** CREATE BORDER EXTRA BOXES *******
     vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
 
-    for(auto &b:list_border){
+    for(IntervalVector b:list_border){
         Pave* p = new Pave(b, f_list, diseable_singleton, false);
         p->set_external_border(true);
         if(border_out)
@@ -107,7 +107,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     cameleon_propagation(iterations_max, process_iterations_max, initial_boxes);
 }
 
-void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, vector<IntervalVector> &initial_boxes){
+void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, const vector<IntervalVector> &initial_boxes){
 
     Graph *graph = m_graph_list[0];
     if(m_graph_list.size()!=1 && graph->size() !=1)
@@ -118,10 +118,9 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph->sivia(4,false, false, false); // Start with 4 boxes
         graph->set_empty();
-        for(auto &initial_box:initial_boxes)
+        for(IntervalVector initial_box:initial_boxes)
             graph->set_active_pave(initial_box);
         graph->process(process_iterations_max, false);
-//        graph->remove_empty_node();
         graph->mark_empty_node();
         iterations++;
     }
@@ -135,7 +134,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         graph->sivia(2*graph->get_alive_node(), false, false, false);
 
         graph->set_empty();
-        for(auto &initial_box:initial_boxes)
+        for(IntervalVector initial_box:initial_boxes)
             graph->set_active_pave(initial_box);
 
         // Process the forward with the subpaving

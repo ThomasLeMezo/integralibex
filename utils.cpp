@@ -32,7 +32,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
     Interval X = Interval(0.0, dx);
     std::vector<ibex::Interval> x_list, y_list;
 
-    for(auto &theta:theta_list){
+    for(Interval theta:theta_list){
         Interval Dx = Interval(-dx, dx);
         Interval Dy = Interval(dy);
         Interval rho = Interval::POS_REALS;
@@ -103,11 +103,11 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
     y &= Interval(0.0, dy);
     x &= Interval(0.0, dx);
     vector<Interval> theta2_list, x_list, y_list;
-    for(auto &theta:theta_list){
+    for(Interval theta:theta_list){
         theta2_list.push_back(Interval::PI - theta);
     }
 
-    for(auto &theta:theta2_list){
+    for(Interval &theta:theta2_list){
         Interval x_tmp(x), y_tmp(y);
         Interval rho(Interval::POS_REALS);
         this->contract_polar.contract(x_tmp, y_tmp, rho, theta);
@@ -165,7 +165,7 @@ void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const st
 
     x = Interval(dx) - x;
     vector<Interval> theta2_list;
-    for(auto &theta:theta_list){
+    for(Interval theta:theta_list){
         theta2_list.push_back(Interval::PI - theta);
     }
     this->CtcPropagateLeftSide(x, y, theta2_list, dx, dy, inner);
@@ -207,7 +207,7 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     }
 
     std::vector<ibex::Interval> theta_list_rotate;
-    for(auto &theta:theta_list){
+    for(Interval theta:theta_list){
         theta_list_rotate.push_back(theta + tab_rotation[face]);
     }
 
@@ -315,7 +315,7 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
 
     // Test if only one border is not empty
     int nb_not_empty = 0;
-    for(auto &b:p->get_borders()){
+    for(Border *b:p->get_borders()){
         if(!b->is_empty()){
             nb_not_empty++;
         }

@@ -19,7 +19,7 @@ public:
     void                        mark_empty_node();
 
     void                        inter(const Graph &g);
-    bool                        diff(const Graph &g);
+    void                        diff(const Graph &g);
 
     void                        push_back(Pave* p);
     void                        push_back_external_border(Pave *p);
