@@ -70,7 +70,7 @@ void Border::draw(bool same_size, double offset, bool test, bool two_offset) con
     vibes::drawBox(segment_out, "b[b]");
     vibes::drawBox(segment_in, "r[r]");
 
-    if(test && m_segment_in.is_empty()){
+    if(test && get_segment_in().is_empty()){
         double center[2];
         center[(m_face+1)%2] = m_position[(m_face+1)%2].mid() + offset;
         center[(m_face)%2] = m_position[(m_face)%2].mid();
@@ -78,7 +78,7 @@ void Border::draw(bool same_size, double offset, bool test, bool two_offset) con
         vibes::drawCircle(center[0], center[1], 0.01*m_segment_full.diam(), "black[black]");
     }
 
-    if(test && m_segment_out.is_empty()){
+    if(test && get_segment_out().is_empty()){
         double center[2];
         center[(m_face+1)%2] = m_position[(m_face+1)%2].mid() + 2*offset;
         center[(m_face)%2] = m_position[(m_face)%2].mid();
@@ -179,25 +179,25 @@ void Border::update_brothers_inclusion(Border* border_pave1, Border* border_pave
 // ****************** Other functions *********************************************
 
 void Border::set_full(){
-    m_segment_in = m_segment_full;
-    m_segment_out = m_segment_full;
+    set_segment_in(m_segment_full);
+    set_segment_out(m_segment_full);
     m_empty = false;
     m_full = true;
 }
 
 void Border::set_full_segment_in(){
-    m_segment_in = m_segment_full;
+    set_segment_in(m_segment_full);
     m_empty = false;
 }
 
 void Border::set_full_segment_out(){
-    m_segment_out = m_segment_full;
+    set_segment_out(m_segment_full);
     m_empty = false;
 }
 
 void Border::set_empty(){
-    m_segment_in = Interval::EMPTY_SET;
-    m_segment_out = Interval::EMPTY_SET;
+    set_segment_in(Interval::EMPTY_SET);
+    set_segment_out(Interval::EMPTY_SET);
     m_empty = true;
     m_full = false;
 }
@@ -206,7 +206,7 @@ bool Border::is_empty(){
     if(m_empty){
         return true;
     }
-    else if(m_segment_in.is_empty() && m_segment_out.is_empty()){
+    else if(get_segment_in().is_empty() && get_segment_out().is_empty()){
         m_empty = true;
         return true;
     }
@@ -220,7 +220,7 @@ bool Border::is_full(){
         return false;
     }
     else{
-        if((m_segment_in | m_segment_out) != m_segment_full){
+        if((get_segment_in() | get_segment_out()) != m_segment_full){
             m_full = false;
             return false;
         }
@@ -235,7 +235,7 @@ bool Border::is_fully_full(){
         return false;
     }
     else{
-        if((m_segment_in & m_segment_out) != m_segment_full){
+        if((get_segment_in() & get_segment_out()) != m_segment_full){
             m_fully_full = false;
             return false;
         }
@@ -249,17 +249,17 @@ bool Border::set_segment_in(ibex::Interval segment_in, bool inclusion){
     bool change = false;
     Interval i(Interval::EMPTY_SET);
     if(inclusion)
-        i = m_segment_in & segment_in & m_segment_full;
+        i = get_segment_in() & segment_in & m_segment_full;
     else
-        i = (m_segment_in | segment_in) & m_segment_full;
+        i = (get_segment_in() | segment_in) & m_segment_full;
 
-    if(i != m_segment_in){
-        m_segment_in = i;
+    if(i != get_segment_in()){
+        set_segment_in(i);
         change = true;
     }
 
-    if(m_pave->get_diseable_singelton() && m_segment_in.is_degenerated())
-        m_segment_in = Interval::EMPTY_SET;
+    if(m_pave->get_diseable_singelton() && get_segment_in().is_degenerated())
+        set_segment_in(Interval::EMPTY_SET);
 
     return change;
 }
@@ -268,19 +268,27 @@ bool Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
     bool change = false;
     Interval i(Interval::EMPTY_SET);
     if(inclusion)
-        i = m_segment_out & segment_out & m_segment_full;
+        i = get_segment_out() & segment_out & m_segment_full;
     else
-        i = (m_segment_out | segment_out) & m_segment_full;
+        i = (get_segment_out() | segment_out) & m_segment_full;
 
     if(i != m_segment_out){
-        m_segment_out = i;
+        set_segment_out(i);
         change = true;
     }
 
-    if(m_pave->get_diseable_singelton() && m_segment_out.is_degenerated())
-        m_segment_out = Interval::EMPTY_SET;
+    if(m_pave->get_diseable_singelton() && get_segment_out().is_degenerated())
+        set_segment_out(Interval::EMPTY_SET);
 
     return change;
+}
+
+bool Border::set_segment_in(ibex::Interval segment_in){
+    m_segment_in = segment_in & m_segment_full;
+}
+
+bool Border::set_segment_out(ibex::Interval segment_out){
+    m_segment_out = segment_out & m_segment_full;
 }
 
 void Border::set_pave(Pave* pave){
@@ -291,24 +299,24 @@ const ibex::Interval Border::get_segment_in() const{
     return m_segment_in;
 }
 
-const ibex::IntervalVector Border::get_segment_in_2D() const{
-    IntervalVector segment_in = m_position;
-    segment_in[m_face%2] = m_segment_in;
-    return segment_in;
-}
-
-const ibex::IntervalVector Border::get_segment_out_2D() const{
-    IntervalVector segment_out = m_position;
-    segment_out[m_face%2] = m_segment_out;
-    return segment_out;
-}
-
 const ibex::Interval Border::get_segment_out() const{
     return m_segment_out;
 }
 
 const ibex::Interval& Border::get_segment_full() const{
     return m_segment_full;
+}
+
+const ibex::IntervalVector Border::get_segment_in_2D() const{
+    IntervalVector segment_in = m_position;
+    segment_in[m_face%2] = get_segment_in();
+    return segment_in;
+}
+
+const ibex::IntervalVector Border::get_segment_out_2D() const{
+    IntervalVector segment_out = m_position;
+    segment_out[m_face%2] = get_segment_out();
+    return segment_out;
 }
 
 const std::vector<Inclusion *> Border::get_inclusions() const{
@@ -336,44 +344,43 @@ int Border::get_face() const{
 }
 
 Border& Border::operator&=(const Border &b){
-    m_segment_in &= b.get_segment_in();
-    m_segment_out &= b.get_segment_out();
+    set_segment_in(b.get_segment_in(), true);
+    set_segment_out(b.get_segment_out(), true);
     return *this;
 }
 
 Border& Border::operator|=(const Border &b){
-    m_segment_in |= b.get_segment_in();
-    m_segment_out |= b.get_segment_out();
+    set_segment_in(b.get_segment_in(), false);
+    set_segment_out(b.get_segment_out(), false);
     return *this;
 }
 
 bool Border::inter(const Border &b){
     bool change = false;
-    if((m_segment_in & b.get_segment_in()) != m_segment_in)
+    if((get_segment_in() & b.get_segment_in()) != get_segment_in())
         change = true;
-    if((m_segment_out & b.get_segment_out()) != m_segment_out)
+    if((get_segment_out() & b.get_segment_out()) != get_segment_out())
         change = true;
 
-    m_segment_in &= b.get_segment_in();
-    m_segment_out &= b.get_segment_out();
+    set_segment_in(b.get_segment_in(), true);
+    set_segment_out(b.get_segment_out(), true);
     return change;
 }
 
 bool Border::diff(const Border &b){
     bool change = false;
     Interval segment_in_r, segment_in_l;
-    m_segment_in.diff(b.get_segment_in(), segment_in_r, segment_in_l);
+    get_segment_in().diff(b.get_segment_in(), segment_in_r, segment_in_l);
 
-    if(m_segment_in != (segment_in_r | segment_in_l))
+    if(get_segment_in() != (segment_in_r | segment_in_l))
         change = true;
-    m_segment_in = segment_in_r | segment_in_l;
+    set_segment_in(segment_in_r | segment_in_l);
 
     Interval segment_out_r, segment_out_l;
-    m_segment_out.diff(b.get_segment_out(), segment_out_r, segment_out_l);
-    if(m_segment_out != (segment_out_r | segment_out_l))
+    get_segment_out().diff(b.get_segment_out(), segment_out_r, segment_out_l);
+    if(get_segment_out() != (segment_out_r | segment_out_l))
         change = true;
-    m_segment_out = segment_out_r | segment_out_l;
-
+    set_segment_out(segment_out_r | segment_out_l);
 }
 
 void Border::remove_inclusion(int indice){
@@ -443,26 +450,26 @@ void Border::set_continuity_out(bool enable){
 }
 
 void Border::complementaire(){
-    m_segment_in |= m_segment_out;
-    m_segment_out |= m_segment_in;
+    set_segment_in(get_segment_out(), false);
+    set_segment_out(get_segment_in(), false);
 
     Interval seg_in1, seg_in2;
-    m_segment_full.diff(m_segment_in, seg_in1,seg_in2);
-    m_segment_in = seg_in1 | seg_in2;
+    m_segment_full.diff(get_segment_in(), seg_in1,seg_in2);
+    set_segment_in(seg_in1 | seg_in2);
 
     Interval seg_out1, seg_out2;
-    m_segment_full.diff(m_segment_out, seg_out1,seg_out2);
-    m_segment_out = seg_out1 | seg_out2;
+    m_segment_full.diff(get_segment_out(), seg_out1,seg_out2);
+    set_segment_out(seg_out1 | seg_out2);
 }
 
 void Border::set_segment(bool in, bool out){
     if(in)
-        m_segment_in = m_segment_full;
+        set_segment_in(m_segment_full);
     else
-        m_segment_in = Interval::EMPTY_SET;
+        set_segment_in(Interval::EMPTY_SET);
 
     if(out)
-        m_segment_out = m_segment_full;
+        set_segment_out(m_segment_full);
     else
-        m_segment_out = Interval::EMPTY_SET;
+        set_segment_out(Interval::EMPTY_SET);
 }

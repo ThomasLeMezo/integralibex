@@ -18,7 +18,7 @@ public:
     void                        remove_empty_node();
     void                        mark_empty_node();
 
-    bool                        inter(const Graph &g);
+    void                        inter(const Graph &g);
     bool                        diff(const Graph &g);
 
     void                        push_back(Pave* p);

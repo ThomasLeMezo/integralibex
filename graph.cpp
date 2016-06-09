@@ -475,17 +475,12 @@ bool Graph::diff(const Graph &g){
     return change;
 }
 
-bool Graph::inter(const Graph &g){
-    bool change = false;
+void Graph::inter(const Graph &g){
     if(this->size() == g.size()){
         for(int i=0; i<g.size(); i++){
-            if(m_node_list[i]->inter(*(g.get_node_const(i)))){
-                m_node_queue.push_back(m_node_list[i]);
-                change = true;
-            }
+            m_node_list[i]->inter(*(g.get_node_const(i)));
         }
     }
-    return change;
 }
 
 void Graph::set_empty(){

@@ -100,6 +100,10 @@ private:
 private:
     bool                            m_enable_continuity_in, m_enable_continuity_out;
     bool                            m_active_in, m_active_out;
+
+private:
+    bool                            set_segment_in(ibex::Interval segment_in);
+    bool                            set_segment_out(ibex::Interval segment_out);
 };
 
 #endif // BORDER_H
