@@ -9,8 +9,8 @@
 using namespace std;
 using namespace ibex;
 
-Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, const IntervalVector &u, bool diseable_singleton){
-    m_graph_list.push_back(new Graph(box, f_list, &m_utils, u, 0, diseable_singleton));
+Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton){
+    m_graph_list.push_back(new Graph(box, f_list, &m_utils, 0, diseable_singleton));
 }
 
 Scheduler::~Scheduler(){
@@ -19,7 +19,7 @@ Scheduler::~Scheduler(){
     }
 }
 
-Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list, const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out){
+Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_in, bool border_out){
     Graph *g = new Graph(&m_utils, 0);
     m_graph_list.push_back(g);
 
@@ -74,8 +74,8 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     g->build_graph(); // connect boxes according to continuity
 }
 
-Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out):
-    Scheduler(box, f_list, u, diseable_singleton)
+Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_in, bool border_out):
+    Scheduler(box, f_list, diseable_singleton)
 {
     Graph *g = m_graph_list[0];
 
@@ -108,19 +108,21 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 }
 
 void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, vector<IntervalVector> &initial_boxes){
-    if(m_graph_list.size()!=1 && m_graph_list[0]->size() !=1)
+
+    Graph *graph = m_graph_list[0];
+    if(m_graph_list.size()!=1 && graph->size() !=1)
         return;
     int iterations = 0;
 
-    if(iterations < iterations_max && this->m_graph_list[0]->size()<4){
+    if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        m_graph_list[0]->sivia(4,false, false, false); // Start with 4 boxes
-        m_graph_list[0]->set_empty();
+        graph->sivia(4,false, false, false); // Start with 4 boxes
+        graph->set_empty();
         for(auto &initial_box:initial_boxes)
-            m_graph_list[0]->set_active_pave(initial_box);
-        m_graph_list[0]->process(process_iterations_max, false);
-//        m_graph_list[0]->remove_empty_node();
-        m_graph_list[0]->mark_empty_node();
+            graph->set_active_pave(initial_box);
+        graph->process(process_iterations_max, false);
+//        graph->remove_empty_node();
+        graph->mark_empty_node();
         iterations++;
     }
     int nb_graph = 0;
@@ -128,17 +130,17 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-//        m_graph_list[0]->remove_empty_node();
-        m_graph_list[0]->mark_empty_node();
-        m_graph_list[0]->sivia(2*m_graph_list[0]->get_alive_node(), false, false, false);
+//        graph->remove_empty_node();
+        graph->mark_empty_node();
+        graph->sivia(2*graph->get_alive_node(), false, false, false);
 
-        m_graph_list[0]->set_empty();
+        graph->set_empty();
         for(auto &initial_box:initial_boxes)
-            m_graph_list[0]->set_active_pave(initial_box);
+            graph->set_active_pave(initial_box);
 
         // Process the forward with the subpaving
-        cout << "GRAPH No "<< nb_graph << " (" << m_graph_list[0]->size() << ")" << endl;
-        m_graph_list[0]->process(process_iterations_max, false);
+        cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
+        graph->process(process_iterations_max, false);
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;

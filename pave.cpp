@@ -119,7 +119,7 @@ Pave::Pave(const Pave *p):
     for(int face = 0; face < 4; face++){
         Border *b = new Border(p->get_border_const(face));
         m_borders.push_back(b); // Copy the border !
-        m_borders[face]->set_pave(this);
+        get_border(face)->set_pave(this);
     }
     m_copy_node = NULL;
     m_marker_attractor = p->is_marked_attractor();
@@ -133,14 +133,14 @@ Pave::~Pave(){
 
 Pave& Pave::operator&=(const Pave &p){
     for(int face = 0; face <4; face++){
-        *(m_borders[face]) &= *(p.get_border_const(face));
+        *(get_border(face)) &= *(p.get_border_const(face));
     }
     return *this;
 }
 
 Pave& Pave::operator|=(const Pave &p){
     for(int face = 0; face <4; face++){
-        *(m_borders[face]) |= *(p.get_border_const(face));
+        *(get_border(face)) |= *(p.get_border_const(face));
     }
     return *this;
 }
@@ -148,7 +148,7 @@ Pave& Pave::operator|=(const Pave &p){
 bool Pave::inter(const Pave &p){
     bool change = false;
     for(int face = 0; face <4; face++){
-        if(m_borders[face]->inter(*(p.get_border_const(face))))
+        if(get_border(face)->inter(*(p.get_border_const(face))))
             change = true;
     }
     return change;
@@ -157,7 +157,7 @@ bool Pave::inter(const Pave &p){
 bool Pave::diff(const Pave &p){
     bool change = false;
     for(int face = 0; face<4; face++){
-        if(m_borders[face]->diff(*(p.get_border_const(face)))){
+        if(get_border(face)->diff(*(p.get_border_const(face)))){
             change = true;
         }
     }
@@ -197,28 +197,28 @@ void Pave::set_theta(std::vector<ibex::Interval> theta_list){
 
 void Pave::set_full(){
     for(int face=0; face<4; face++){
-        m_borders[face]->set_full();
+        get_border(face)->set_full();
     }
     m_full = true;
 }
 
 void Pave::set_full_in(){
     for(int face=0; face<4; face++){
-        m_borders[face]->set_full_segment_in();
+        get_border(face)->set_full_segment_in();
     }
     m_full = true;
 }
 
 void Pave::set_full_out(){
     for(int face=0; face<4; face++){
-        m_borders[face]->set_full_segment_out();
+        get_border(face)->set_full_segment_out();
     }
     m_full = true;
 }
 
 void Pave::set_empty(){
     for(int face=0; face<4; face++){
-        m_borders[face]->set_empty();
+        get_border(face)->set_empty();
     }
     m_empty = true;
     m_full = false;
@@ -226,7 +226,7 @@ void Pave::set_empty(){
 
 void Pave::set_segment(bool in, bool out){
     for(int face=0; face<4; face++){
-        m_borders[face]->set_segment(in, out);
+        get_border(face)->set_segment(in, out);
     }
     m_empty = false;
     m_full = true;
@@ -272,7 +272,7 @@ void Pave::draw_theta() const{
 void Pave::draw_borders(bool filled, string color_polygon) const{
     if(!filled){
         // Draw Segments
-        for(int i=0; i<m_borders.size(); i++){
+        for(int i=0; i<get_borders_const().size(); i++){
             //bool same_size, double offset, bool test
             m_borders[i]->draw(false, -0.01*m_position[i%2].diam(), false, false);
         }

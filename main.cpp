@@ -59,10 +59,7 @@ void van_der_pol_cycle(){
     box[0] = Interval(-4.0, 4.0);
     box[1] = Interval(-4.0, 4.0);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u, false);
+    Scheduler s(box, f_list, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin
     s.cameleon_cycle(12, 5, 1e9, true, false, false);
@@ -85,10 +82,7 @@ void ball(){
     box[0] = Interval(0.0, 20.0);
     box[1] = Interval(-20.0, 20.0);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u, false);
+    Scheduler s(box, f_list, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(12.0);
@@ -116,10 +110,7 @@ void station_keeping_attractor(){
     box[0] = -Interval::PI | Interval::PI;
     box[1] = Interval(0.01, 10.0);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u, false);
+    Scheduler s(box, f_list, false);
 
     /////////////// Symetries ///////////////
     ibex::Function f_sym23(phi, d, Return(phi-Interval::TWO_PI, d));
@@ -174,11 +165,7 @@ void car_on_the_hill_attractor(){
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-
-    Scheduler s(box, f_list, u, true, false, false);
+    Scheduler s(box, f_list, true, false, false);
 //    vector<IntervalVector> bassin_list;
 //    Scheduler s(box, bassin_list, f_list, u, true, false, false);
 
@@ -209,16 +196,12 @@ void car_on_the_hill_kernel(){
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-
-    Scheduler s(box, f_list, u, false, false, false);
+    Scheduler s(box, f_list, false, false, false);
 
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-//    s.draw(1024, true, "attractor");
+    s.draw(1024, true, "attractor");
     s.invert_for_inner();
 //    s.print_pave_info(0, 6.5, -2.5,"b[b]");
 //    s.draw(1024, true, "invert");
@@ -237,21 +220,20 @@ void car_on_the_hill_outer_kernel(){
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2+2.0));
+    ibex::Function f2(x1, x2, Return(x2,
+                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2-2.0));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
+    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval(-2.0, 2.0);
-
     vector<ibex::IntervalVector> list_boxes_removed; // empty list
-    Scheduler s(box, list_boxes_removed, f_list, u, true, false, true);
+    Scheduler s(box, list_boxes_removed, f_list, true, false, true);
 
     /////////////// Compute ///////////////
     s.cameleon_cycle(12, 5, 1e9, false, false, false);
@@ -292,13 +274,9 @@ void car_on_the_hill_inner_kernel(){
     box_remove[1] = Interval(-0.5,0.5);
     list_boxes_removed.push_back(box_remove);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-
     // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
     // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
-    Scheduler s(box, list_boxes_removed, f_list, u, true, false, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
@@ -345,11 +323,7 @@ void car_on_the_hill_capture_bassin(){
     box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-
-    Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_cycle(12, 5, 1e9, false, false, true);
@@ -398,11 +372,7 @@ void cercle_capture_bassin(){
 
     list_boxes_removed.push_back(box_remove);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-
-    Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_cycle(15, 5, 1e9, false, false, true);
@@ -441,11 +411,7 @@ void pendulum_capture_bassin(){
     box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-
-    Scheduler s(box, list_boxes_removed, f_list, u, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_cycle(14, 5, 1e9, false, false);
@@ -475,10 +441,7 @@ void car_on_the_hill_limit_path(){
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u, false);
+    Scheduler s(box, f_list, false);
 
     IntervalVector activated_pave(2);
 //    activated_pave[0] = Interval(11.028646, 11.028647); // Point limite : x0 = 11.02864(6-7)
@@ -511,10 +474,7 @@ void car_on_the_hill_integrator(){
     box[0] = Interval(-2.0, 13.0);
     box[1] = Interval(-6, 6);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u, false);
+    Scheduler s(box, f_list, false);
 
     vector<IntervalVector> initial_pave_list;
     IntervalVector activated_pave(2);
@@ -540,19 +500,19 @@ void integrator(){
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(1.0+0.0*x1,
-                                    -sin(x2)));
+                                    -sin(x2)-0.1));
+    ibex::Function f2(x1, x2, Return(1.0+0.0*x1,
+                                    -sin(x2)+0.1));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
+    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(0.0,5.0);
     box[1] = Interval(-2, 2);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval(-0.1,0.1);
-    Scheduler s(box, f_list, u, false);
+    Scheduler s(box, f_list, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(0.0);
@@ -577,10 +537,7 @@ void van_der_pol_integration(){
     box[0] = Interval(-6.0, 6.0);
     box[1] = Interval(-6.0, 6.0);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-    Scheduler s(box, f_list, u, false);
+    Scheduler s(box, f_list, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(-3.0);
@@ -607,11 +564,7 @@ void van_der_pol_kernel(){
     box[0] = Interval(-8.0, 8.0);
     box[1] = Interval(-8.0, 8.0);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-
-    Scheduler s(box, f_list, u, false, false, false);
+    Scheduler s(box, f_list, false, false, false);
 
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
@@ -641,11 +594,7 @@ void van_der_pol_inner(){
     box[0] = Interval(-8.0, 8.0);
     box[1] = Interval(-8.0, 8.0);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-
-    Scheduler s(box, f_list, u, false, false, false);
+    Scheduler s(box, f_list, false, false, false);
 
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
@@ -675,11 +624,7 @@ void van_der_pol_outer(){
     box[0] = Interval(-8.0, 8.0);
     box[1] = Interval(-8.0, 8.0);
 
-    IntervalVector u(2);
-    u[0] = Interval::ZERO;
-    u[1] = Interval::ZERO;
-
-    Scheduler s(box, f_list, u, false, false, true);
+    Scheduler s(box, f_list, false, false, true);
 
     /////////////// Compute ///////////////
     s.cameleon_cycle(10, 5, 1e9, false, false, false);

@@ -7,7 +7,7 @@
 class Graph
 {
 public:
-    Graph(const ibex::IntervalVector &box, const std::vector<ibex::Function *> &f_list, Utils *utils, const ibex::IntervalVector &u, int graph_id=0, bool diseable_singleton=false);
+    Graph(const ibex::IntervalVector &box, const std::vector<ibex::Function *> &f_list, Utils *utils, int graph_id=0, bool diseable_singleton=false);
     Graph(Utils *utils, int graph_id);
     Graph(Graph* g, int graph_id=-1);
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);

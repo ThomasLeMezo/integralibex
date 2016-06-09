@@ -420,15 +420,11 @@ void test_copy_graph(){
     box[1] = Interval(0,1);
     Variable x, y;
     ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-    Utils u;
-
-    IntervalVector command(2);
-    command[0] = Interval::ZERO;
-    command[1] = Interval::ZERO;
+    Utils utils;
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f);
-    Graph g(box, f_list, &u, command, 1);
+    Graph g(box, f_list, &utils, 1);
     g.sivia(0.0, 4, false, false);
 
     GraphDot graphDot(&g);
