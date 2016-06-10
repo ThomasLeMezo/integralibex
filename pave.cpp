@@ -608,7 +608,7 @@ bool Pave::is_empty_inner(){
         return true;
     else{
         for(Border *b:m_borders){
-            if(b->is_empty_inner())
+            if(!b->is_empty_inner())
                 return false;
         }
         m_empty_inner = true;
@@ -621,7 +621,7 @@ bool Pave::is_empty_outer(){
         return true;
     else{
         for(Border *b:m_borders){
-            if(b->is_empty_outer())
+            if(!b->is_empty_outer())
                 return false;
         }
         m_empty_outer = true;
