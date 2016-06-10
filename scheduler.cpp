@@ -152,7 +152,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
     int iterations = 0;
     Graph *graph = m_graph_list[0];
     ///////////////////////////// INNER MODE //////////////////////////////
-    graph->set_all_inner_mode(true);
+    graph->set_inner_mode(true);
     graph->set_full();
 
     if(iterations < iterations_max && graph->size()<4){
@@ -233,7 +233,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
         graph->update_queue(false, true);
-        graph->set_all_inner_mode(true);
+        graph->set_inner_mode(true);
 
         if(iterations == 7)
             graph->debug_marker2 = true;
@@ -389,7 +389,7 @@ void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Funct
 void Scheduler::invert_for_inner(){
     // reset removed and active pave
     Graph *graph = m_graph_list[0];
-    graph->set_all_inner_mode(true);
+    graph->set_inner_mode(true);
     graph->complementaire();
 
     graph->set_all_active();

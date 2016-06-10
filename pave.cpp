@@ -19,7 +19,8 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_diseable_singeleton = diseable_singeleton;
 
     // Graph markers
-    m_in_queue = false;
+    m_in_queue_inner = false;
+    m_in_queue_outer = false;
     m_copy_node = NULL;
     m_first_process = false;
     m_inner_mode = false;
@@ -111,7 +112,8 @@ Pave::Pave(const Pave *p):
     m_empty_outer = false;
     m_full_inner = true;
     m_full_outer = true;
-    m_in_queue = p->is_in_queue();
+    m_in_queue_inner = p->is_in_queue_inner();
+    m_in_queue_outer = p->is_in_queue_outer();
     m_first_process = p->get_first_process();
     m_active = p->is_active();
     m_diseable_singeleton = p->get_diseable_singelton();
@@ -746,11 +748,25 @@ const Border* Pave::get_border_const(int face) const{
 }
 
 bool Pave::is_in_queue() const{
-    return m_in_queue;
+    if(!m_compute_inner)
+        return is_in_queue_outer();
+    else{
+        if(m_inner_mode)
+            return is_in_queue_inner();
+        else
+            return is_in_queue_outer();
+    }
 }
 
 void Pave::set_in_queue(bool flag){
-    m_in_queue = flag;
+    if(!m_compute_inner)
+        set_in_queue_outer(flag);
+    else{
+        if(m_inner_mode)
+            set_in_queue_inner(flag);
+        else
+            set_in_queue_outer(flag);
+    }
 }
 
 ibex::Function* Pave::get_f() const{
@@ -963,7 +979,8 @@ void Pave::set_compute_inner(bool val){
 }
 
 void Pave::set_inner_mode(bool val){
-    m_compute_inner = true;
+    if(!m_compute_inner)
+            set_compute_inner(true);
     m_inner_mode = val;
     for(Border *b:m_borders){
         b->set_inner_mode(val);
@@ -984,4 +1001,20 @@ bool Pave::is_removed_pave_outer() const{
 
 bool Pave::is_removed_pave_inner() const{
     return m_removed_pave_inner;
+}
+
+void Pave::set_in_queue_inner(bool flag){
+    m_in_queue_inner = flag;
+}
+
+void Pave::set_in_queue_outer(bool flag){
+    m_in_queue_outer = flag;
+}
+
+bool Pave::is_in_queue_inner() const{
+    return m_in_queue_inner;
+}
+
+bool Pave::is_in_queue_outer() const{
+    return m_in_queue_outer;
 }

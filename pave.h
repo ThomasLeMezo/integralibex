@@ -43,6 +43,8 @@ public:
     bool                        is_full_geometricaly() const;
     bool                        is_fully_full();
     bool                        is_in_queue() const;
+    bool                        is_in_queue_outer() const;
+    bool                        is_in_queue_inner() const;
     bool                        is_active() const;
     bool                        is_border() const;
     bool                        is_marked_attractor() const;
@@ -66,6 +68,8 @@ public:
     void                        set_theta(std::vector<ibex::Interval> theta_list);
     void                        set_theta(ibex::Interval theta);
     void                        set_in_queue(bool flag);
+    void                        set_in_queue_inner(bool flag);
+    void                        set_in_queue_outer(bool flag);
     void                        set_copy_node(Pave *p);
     void                        set_first_process_true();
     void                        set_first_process_false();
@@ -138,7 +142,8 @@ private:
     bool                        m_full_outer;
     bool                        m_full_inner;
 
-    bool                        m_in_queue;
+    bool                        m_in_queue_inner;
+    bool                        m_in_queue_outer;
 
     bool                        m_first_process;
 

@@ -27,6 +27,7 @@ public:
 
     // Test
     bool                        is_empty();
+    bool                        is_empty_node_queue();
     bool                        identify_attractor();
     bool                        is_no_active_function();
 
@@ -39,12 +40,19 @@ public:
     void                        set_active_f(int id);
     void                        set_external_boundary(bool in, bool out);
     void                        set_all_active();
-    void                        set_all_inner_mode(bool inner);
-    void                        set_active_inner(bool inner);
+
+    void                        set_inner_mode(bool val);
+    void                        set_compute_inner(bool val);
 
     void                        update_queue(bool border_condition=true, bool empty_condition=false);
     void                        clear_node_queue();
+    void                        clear_node_queue_outer();
+    void                        clear_node_queue_inner();
     void                        add_all_to_queue();
+    void                        add_to_all_queue(Pave *p);
+    void                        add_to_queue_inner(Pave *p);
+    void                        add_to_queue_outer(Pave *p);
+    void                        add_to_queue(Pave *p);
     void                        reset_marker_attractor();
     void                        complementaire();
 
@@ -52,8 +60,8 @@ public:
     Pave*                       get_pave(double x, double y) const;
     const std::vector<Pave *>   get_pave(const ibex::IntervalVector &box) const;
     std::vector<Pave *>&        get_node_list();
-    const std::vector<Pave *>   get_node_queue() const;
-    std::vector<Pave *>&        get_node_queue_access();
+    const std::list<Pave *> &   get_node_queue() const;
+    std::list<Pave *> &         get_node_queue_access();
     Pave*                       get_node_const(int i) const;
     Pave*                       get_semi_full_node();
     Utils*                      get_utils();
@@ -65,11 +73,14 @@ public:
     ibex::IntervalVector        get_search_box() const;
     void                        get_recursive_attractor(Pave* p, vector<Pave*> &list);
     int                         get_alive_node();
+    bool                        get_inner_mode();
+    bool                        get_compute_inner();
 
 
     // Other functions
     Pave&                       operator[](int id);
     void                        build_graph();
+    void                        pop_front_queue();
 
     void                        print_pave_info(double x, double y, string color) const;
     void                        print() const;
@@ -81,8 +92,8 @@ public:
 private:
     std::vector<Pave*> m_node_list;
     std::vector<Pave*> m_node_border_list;
-    std::vector<Pave*> m_node_queue;
-    std::vector<Pave*> m_node_queue_inner;
+    std::list<Pave*> m_node_queue_inner;
+    std::list<Pave*> m_node_queue_outer;
 
     ibex::IntervalVector m_search_box;
 
@@ -91,9 +102,9 @@ private:
     int m_graph_id;
     int m_drawing_cpt;
     int m_count_alive;
-    int m_count_alive_inner;
 
     bool m_compute_inner;
+    bool m_inner_mode;
 
 public:
     bool debug_marker1, debug_marker2;
