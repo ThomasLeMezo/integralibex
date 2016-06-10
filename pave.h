@@ -48,6 +48,8 @@ public:
     bool                        is_marked_attractor() const;
     bool                        is_external_border() const;
     bool                        is_removed_pave() const;
+    bool                        is_removed_pave_inner() const;
+    bool                        is_removed_pave_outer() const;
     bool                        is_near_empty();
     bool                        is_empty_inner();
     bool                        is_empty_outer();
@@ -144,7 +146,8 @@ private:
     bool                        m_diseable_singeleton;
     bool                        m_marker_attractor;
     bool                        m_external_border;
-    bool                        m_removed_pave;
+    bool                        m_removed_pave_outer;
+    bool                        m_removed_pave_inner;
 
     bool                        m_compute_inner;
     bool                        m_inner_mode;

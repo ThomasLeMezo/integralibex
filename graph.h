@@ -93,7 +93,7 @@ private:
     int m_count_alive;
     int m_count_alive_inner;
 
-    bool m_active_inner;
+    bool m_compute_inner;
 
 public:
     bool debug_marker1, debug_marker2;

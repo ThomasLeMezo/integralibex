@@ -264,7 +264,6 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         return;
     int iterations = 0;
     Graph *graph_initial = m_graph_list[0];
-    graph_initial->set_active_inner(true);
 
     if(iterations < iterations_max && graph_initial->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;

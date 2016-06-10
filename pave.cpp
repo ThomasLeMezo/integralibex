@@ -27,7 +27,8 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
 
     m_marker_attractor = false;
     m_external_border = false;
-    m_removed_pave = false;
+    m_removed_pave_inner = false;
+    m_removed_pave_outer = false;
 
     // Border building
     IntervalVector coordinate(2);
@@ -115,7 +116,8 @@ Pave::Pave(const Pave *p):
     m_active = p->is_active();
     m_diseable_singeleton = p->get_diseable_singelton();
     m_external_border = p->is_external_border();
-    m_removed_pave = p->is_removed_pave();
+    m_removed_pave_inner = p->is_removed_pave_inner();
+    m_removed_pave_outer = p->is_removed_pave_outer();
     m_inner_mode = p->get_inner_mode();
     m_compute_inner = p->get_compute_inner();
 
@@ -591,7 +593,7 @@ void Pave::remove_from_brothers(){
 }
 
 bool Pave::is_empty(){
-    if(m_compute_inner)
+    if(!m_compute_inner)
         return is_empty_outer();
     else{
         if(is_empty_inner() && is_empty_outer())
@@ -656,7 +658,7 @@ bool Pave::is_full_outer(){
 }
 
 bool Pave::is_full(){
-    if(m_compute_inner)
+    if(!m_compute_inner)
         return is_full_outer();
     else{
         if(is_full_inner() && is_full_outer())
@@ -906,11 +908,25 @@ void Pave::set_external_border(bool val){
 }
 
 bool Pave::is_removed_pave() const{
-    return m_removed_pave;
+    if(m_compute_inner){
+        if(m_inner_mode)
+            return is_removed_pave_inner();
+        else
+            return is_removed_pave_outer();
+    }
+    else
+        return is_removed_pave_outer();
 }
 
 void Pave::set_removed_pave(bool val){
-    m_removed_pave = val;
+    if(m_compute_inner){
+        if(m_inner_mode)
+            m_removed_pave_inner = val;
+        else
+            m_removed_pave_outer = val;
+    }
+    else
+        m_removed_pave_inner = val;
 }
 
 bool Pave::is_near_empty(){
@@ -960,4 +976,12 @@ bool Pave::get_inner_mode() const{
 
 bool Pave::get_compute_inner() const{
     return m_compute_inner;
+}
+
+bool Pave::is_removed_pave_outer() const{
+    return m_removed_pave_outer;
+}
+
+bool Pave::is_removed_pave_inner() const{
+    return m_removed_pave_inner;
 }

@@ -17,6 +17,7 @@ Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_l
 
     debug_marker1 = false;
     debug_marker2 = false;
+    m_compute_inner = false;
 }
 
 Graph::Graph(Utils *utils, int graph_id=0):
@@ -28,6 +29,7 @@ Graph::Graph(Utils *utils, int graph_id=0):
 
     debug_marker1 = false;
     debug_marker2 = false;
+    m_compute_inner = false;
 }
 
 Graph::Graph(Graph* g, int graph_id):
@@ -136,12 +138,12 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
         }
     }
 
-    for(int i=0; i<tmp_pave_list.size(); i++){
-        if(backward && !tmp_pave_list[i]->is_removed_pave()){
-            tmp_pave_list[i]->set_in_queue(true);
-            m_node_queue.push_back(tmp_pave_list[i]);
+    for(Pave *p:tmp_pave_list){
+        if(backward && !p->is_removed_pave()){
+            p->set_in_queue(true);
+            m_node_queue.push_back(p);
         }
-        m_node_list.push_back(tmp_pave_list[i]);
+        m_node_list.push_back(p);
         m_count_alive++;
     }
     cout << "SIVIA node_queue.size() = " << m_node_queue.size() << endl;
@@ -408,8 +410,7 @@ void Graph::mark_empty_node(){
     for(Pave *pave:m_node_list){
         if(!pave->is_removed_pave() && pave->is_active()){
             pave->reset_full_empty();
-            if((m_active_inner && pave->is_empty_outer() && pave->is_empty_inner())
-                    || (!m_active_inner && pave->is_empty())){
+            if(pave->is_empty()){
                 pave->set_removed_pave(true);
                 pave->set_active(false);
                 m_count_alive--;
@@ -683,5 +684,5 @@ void Graph::set_all_inner_mode(bool inner){
 }
 
 void Graph::set_active_inner(bool inner){
-    m_active_inner = inner;
+    m_compute_inner = inner;
 }
