@@ -407,16 +407,12 @@ void Graph::mark_empty_node(){
         if(!pave->is_removed_pave() && pave->is_active()){
             pave->reset_full_empty();
             if(pave->is_empty()){
-                if(pave->is_near_inner()){
-                    pave->set_inner(true);
-                }
                 pave->set_removed_pave(true);
                 pave->set_active(false);
                 m_count_alive--;
             }
         }
     }
-    propagate_inner();
 }
 
 bool Graph::is_empty(){
@@ -664,32 +660,6 @@ void Graph::set_all_active(){
     }
 }
 
-void Graph::mark_full_pave_as_inner(){
-    for(Pave *p:m_node_list){
-        if(p->is_full()){
-            p->set_inner(true);
-        }
-    }
-}
-
-void Graph::propagate_inner(){
-    for(Pave *p:m_node_list){
-        if(p->is_inner()){
-            recursive_mark_inner(p);
-        }
-    }
-}
-
-void Graph::recursive_mark_inner(Pave* p){
-    vector<Pave *> brothers = p->get_all_brothers();
-    for(Pave *bro:brothers){
-        if(!bro->is_inner() && bro->is_empty()){
-            bro->set_inner(true);
-            recursive_mark_inner(bro);
-        }
-    }
-}
-
 int Graph::get_alive_node(){
     return m_count_alive;
 }
@@ -703,9 +673,9 @@ bool Graph::is_no_active_function(){
     return true;
 }
 
-void Graph::set_all_inner(bool inner){
+void Graph::set_all_inner_mode(bool inner){
     for(Pave *p:m_node_list){
-        p->set_inner(inner);
+        p->set_inner_mode(inner);
     }
 }
 

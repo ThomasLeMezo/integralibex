@@ -29,7 +29,7 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     m_enable_continuity_in = true;
     m_enable_continuity_out = true;
 
-    m_compute_inner = false;
+    m_inner_mode = false;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -47,7 +47,7 @@ Border::Border(const Border *border): m_position(2)
     //    m_inclusions_receving = border->get_inclusions_receving();
     m_enable_continuity_in = border->get_continuity_in();
     m_enable_continuity_out = border->get_continuity_out();
-    m_compute_inner = border->get_compute_inner();
+    m_inner_mode = border->get_inner_mode();
 }
 
 Border::~Border(){
@@ -290,14 +290,14 @@ bool Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
 }
 
 bool Border::set_segment_in(ibex::Interval segment_in){
-    if(!m_compute_inner)
+    if(!m_inner_mode)
         m_segment_in = segment_in & m_segment_full;
     else
         m_segment_in_inner = segment_in & m_segment_full;
 }
 
 bool Border::set_segment_out(ibex::Interval segment_out){
-    if(!m_compute_inner)
+    if(!m_inner_mode)
         m_segment_out = segment_out & m_segment_full;
     else
         m_segment_out_inner = segment_out & m_segment_full;
@@ -308,14 +308,14 @@ void Border::set_pave(Pave* pave){
 }
 
 const ibex::Interval Border::get_segment_in() const{
-    if(!m_compute_inner)
+    if(!m_inner_mode)
         return m_segment_in;
     else
         return m_segment_in_inner;
 }
 
 const ibex::Interval Border::get_segment_out() const{
-    if(!m_compute_inner)
+    if(!m_inner_mode)
         return m_segment_out;
     else
         return m_segment_out_inner;
@@ -492,12 +492,12 @@ void Border::set_segment(bool in, bool out){
         set_segment_out(Interval::EMPTY_SET);
 }
 
-void Border::set_compute_inner(bool val){
-    m_compute_inner = val;
+void Border::set_inner_mode(bool val){
+    m_inner_mode = val;
 }
 
-bool Border::get_compute_inner() const{
-    return m_compute_inner;
+bool Border::get_inner_mode() const{
+    return m_inner_mode;
 }
 
 

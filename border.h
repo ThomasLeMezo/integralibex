@@ -45,7 +45,7 @@ public:
     void                            set_pave(Pave* pave);
     void                            set_continuity_in(bool enable);
     void                            set_continuity_out(bool enable);
-    void                            set_compute_inner(bool val);
+    void                            set_inner_mode(bool val);
 
     void                            set_inclusion(Border *border, int id_brother);
     void                            set_inclusion_receving(Border* border, int id_brother);
@@ -75,7 +75,7 @@ public:
     bool                            get_continuity_in() const;
     bool                            get_continuity_out() const;
 
-    bool                            get_compute_inner() const;
+    bool                            get_inner_mode() const;
 
     // Tests
     bool                            is_empty();
@@ -108,7 +108,7 @@ private:
 private:
     bool                            set_segment_in(ibex::Interval segment_in);
     bool                            set_segment_out(ibex::Interval segment_out);
-    bool                            m_compute_inner;
+    bool                            m_inner_mode;
 };
 
 #endif // BORDER_H

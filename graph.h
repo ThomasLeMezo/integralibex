@@ -39,7 +39,7 @@ public:
     void                        set_active_f(int id);
     void                        set_external_boundary(bool in, bool out);
     void                        set_all_active();
-    void                        set_all_inner(bool inner);
+    void                        set_all_inner_mode(bool inner);
     void                        set_active_inner(bool inner);
 
     void                        update_queue(bool border_condition=true, bool empty_condition=false);
@@ -63,8 +63,8 @@ public:
     ibex::IntervalVector        get_bounding_box() const;
     int                         get_f_size() const;
     ibex::IntervalVector        get_search_box() const;
-
     void                        get_recursive_attractor(Pave* p, vector<Pave*> &list);
+    int                         get_alive_node();
 
 
     // Other functions
@@ -76,11 +76,7 @@ public:
     void                        draw(int size, bool filled, string comment="");
     void                        drawInner(bool filled);
 
-    void                        mark_full_pave_as_inner();
-    int                         get_alive_node();
 
-    void                        propagate_inner();
-    void                        recursive_mark_inner(Pave* p);
 
 private:
     std::vector<Pave*> m_node_list;

@@ -76,6 +76,7 @@ public:
     void                        set_removed_pave(bool val);
 
     void                        set_compute_inner(bool val);
+    void                        set_inner_mode(bool val);
 
     void                        reset_full_empty();
 
@@ -107,6 +108,7 @@ public:
 
     ibex::IntervalVector                get_bounding_pave() const;
     bool                                get_compute_inner() const;
+    bool                                get_inner_mode() const;
 
     // Other functions
     const std::vector<ibex::Interval>   compute_theta(ibex::Function *f);
@@ -136,7 +138,6 @@ private:
     bool                        m_in_queue;
 
     bool                        m_first_process;
-    bool                        m_inner;
 
     bool                        m_active;
     bool                        m_diseable_singeleton;
@@ -145,6 +146,7 @@ private:
     bool                        m_removed_pave;
 
     bool                        m_compute_inner;
+    bool                        m_inner_mode;
 };
 
 #endif // PAVE_H
