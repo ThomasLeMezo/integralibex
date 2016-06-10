@@ -204,7 +204,7 @@ void car_on_the_hill_kernel(){
     s.draw(1024, true, "attractor");
     s.invert_for_inner();
 //    s.print_pave_info(0, 6.5, -2.5,"b[b]");
-//    s.draw(1024, true, "invert");
+    s.draw(1024, true, "invert");
     s.cameleon_viability(8, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;

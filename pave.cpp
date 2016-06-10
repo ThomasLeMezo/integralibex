@@ -34,9 +34,10 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     coordinate[0] = position[0]; coordinate[1] = Interval(position[1].ub()); m_borders.push_back(new Border(coordinate, 2, this));
     coordinate[1] = position[1]; coordinate[0] = Interval(position[0].lb()); m_borders.push_back(new Border(coordinate, 3, this));
 
-    m_fully_full = true;
-    m_full = true;
-    m_empty = false;
+    m_empty_inner = false;
+    m_empty_outer = false;
+    m_full_inner = true;
+    m_full_outer = true;
 
     /////////////////////////////// THETA ///////////////////////////////
     for(int i=0; i<f_list.size(); i++){
@@ -102,9 +103,11 @@ Pave::Pave(const Pave *p):
     m_position = p->get_position();    // Box corresponding to the Pave
     m_f_list = p->get_f_list();
     m_active_function = p->get_active_function();
-    m_full = true; // Force to recompute results
-    m_fully_full = true;
-    m_empty = false;
+    // Force to recompute results
+    m_empty_inner = false;
+    m_empty_outer = false;
+    m_full_inner = true;
+    m_full_outer = true;
     m_in_queue = p->is_in_queue();
     m_first_process = p->get_first_process();
     m_active = p->is_active();
@@ -161,8 +164,10 @@ bool Pave::diff(const Pave &p){
             change = true;
         }
     }
-    m_empty=false; // forces to recompute the value
-    m_full=true;
+    m_empty_inner = false;
+    m_empty_outer = false;
+    m_full_inner = true;
+    m_full_outer = true;
 }
 
 void Pave::set_theta(ibex::Interval theta){
@@ -199,42 +204,63 @@ void Pave::set_full(){
     for(int face=0; face<4; face++){
         get_border(face)->set_full();
     }
-    m_full = true;
+    if(m_inner_mode)
+        m_full_inner = true;
+    else
+        m_full_outer = true;
 }
 
 void Pave::set_full_in(){
     for(int face=0; face<4; face++){
         get_border(face)->set_full_segment_in();
     }
-    m_full = true;
+    if(m_inner_mode)
+        m_full_inner = true;
+    else
+        m_full_outer = true;
 }
 
 void Pave::set_full_out(){
     for(int face=0; face<4; face++){
         get_border(face)->set_full_segment_out();
     }
-    m_full = true;
+    if(m_inner_mode)
+        m_full_inner = true;
+    else
+        m_full_outer = true;
 }
 
 void Pave::set_empty(){
     for(int face=0; face<4; face++){
         get_border(face)->set_empty();
     }
-    m_empty = true;
-    m_full = false;
+    if(m_inner_mode){
+        m_empty_inner = true;
+        m_full_inner = false;
+    }
+    else{
+        m_empty_outer = true;
+        m_full_outer = false;
+    }
 }
 
 void Pave::set_segment(bool in, bool out){
     for(int face=0; face<4; face++){
         get_border(face)->set_segment(in, out);
     }
-    m_empty = false;
-    m_full = true;
+    if(m_inner_mode){
+        m_empty_inner = false;
+        m_full_inner = true;
+    }
+    else{
+        m_empty_outer = false;
+        m_full_outer = true;
+    }
 }
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Pave::draw(bool filled, string color, bool borders_only) const{
+void Pave::draw(bool filled, string color, bool borders_only){
     // Magenta = #FF00FF
     // Gray light =  #D3D3D3
     // Blue = #4C4CFF
@@ -244,24 +270,34 @@ void Pave::draw(bool filled, string color, bool borders_only) const{
         draw_borders(filled, "[#00FF00AA]");
     }
     else{
-        vibes::drawBox(m_position, color);
+        vibes::drawBox(m_position, "[#D3D3D3]");
+        set_inner_mode(false);
 
-        Pave *p_outer = new Pave(this);
-        p_outer->set_inner_mode(false);
-        p_outer->complementaire();
-        p_outer->draw_borders(true, "#4C4CFF[]");
+        //        Pave *p_outer = new Pave(this);
+        //        p_outer->set_inner_mode(false);
+        //        p_outer->complementaire();
+        //        if(!m_external_border)
+        //            p_outer->draw_borders(true, "[#4C4CFF]");
+        //        else
+        //            p_outer->draw_borders(true, "[#D3D3D3]");
+        //        delete(p_outer);
 
         if(m_compute_inner){
-            Pave *p_inner = new Pave(this);
-            p_inner->set_inner_mode(true);
-            p_inner->complementaire();
-            p_inner->draw_borders(true, "#FF00FF[]");
-        }
+            //            Pave *p_inner = new Pave(this);
+            //            p_inner->set_inner_mode(true);
+            //            p_inner->complementaire();
+            //            p_inner->draw_borders(true, "[#FF00FF]");
+            //            delete(p_inner);
 
-        if(m_active)
+            //            Pave *p_polygon = new Pave(this);
+            //            p_polygon->set_inner_mode(true);
+            //            p_polygon->inter(*this);
+            //            p_polygon->draw_borders(true, "[y]");
+            //            delete(p_polygon);
+        }
+        else{
             draw_borders(filled, "y[y]"); // yellow
-        else
-            draw_borders(filled, "#00BFFF[#00BFFF]"); // gray
+        }
 
         // Draw theta
         draw_theta();
@@ -287,7 +323,7 @@ void Pave::draw_theta() const{
 void Pave::draw_borders(bool filled, string color_polygon) const{
     if(!filled){
         // Draw Segments
-        for(int face=0; face<get_borders_const().size(); face++){
+        for(int face=0; face<(int)get_borders_const().size(); face++){
             //bool same_size, double offset, bool test
             get_border_const(face)->draw(false, -0.01*m_position[face%2].diam(), false, false);
         }
@@ -303,7 +339,7 @@ void Pave::draw_borders(bool filled, string color_polygon) const{
         int nb_point = x.size();
         if(nb_point>0){
             vector<int> starting_point;
-            for(int i=0; i<x.size(); i++){
+            for(int i=0; i<(int)x.size(); i++){
                 if(!((x[i]==x[(i+1)%nb_point] && y[i]==y[(i+1)%nb_point]) || (x[i]==x[(i-1+nb_point)%nb_point] && y[i]==y[(i-1+nb_point)%nb_point])))
                     alone_points++;
                 else
@@ -551,58 +587,88 @@ void Pave::remove_from_brothers(){
 }
 
 bool Pave::is_empty(){
-    if(m_empty){
-        return true;
-    }
+    if(m_compute_inner)
+        return is_empty_outer();
     else{
-        for(int i=0; i<4; i++){
-            if(!m_borders[i]->is_empty()){
-                return false;
-            }
-        }
-
-        m_empty = true;
-        return true;
+        if(is_empty_inner() && is_empty_outer())
+            return true;
+        else
+            return false;
     }
 }
 
 bool Pave::is_empty_inner(){
-    set_inner_mode(true);
-    bool empty = is_empty();
-    set_inner_mode(false);
-    return empty;
+    if(m_empty_inner)
+        return true;
+    else{
+        for(Border *b:m_borders){
+            if(b->is_empty_inner())
+                return false;
+        }
+        m_empty_inner = true;
+        return true;
+    }
+}
+
+bool Pave::is_empty_outer(){
+    if(m_empty_outer)
+        return true;
+    else{
+        for(Border *b:m_borders){
+            if(b->is_empty_outer())
+                return false;
+        }
+        m_empty_outer = true;
+        return true;
+    }
 }
 
 bool Pave::is_full_inner(){
-    set_inner_mode(true);
-    bool empty = is_full();
-    set_inner_mode(false);
-    return empty;
+    if(!m_full_inner)
+        return false;
+    else{
+        for(Border *b:m_borders){
+            if(!b->is_full_inner())
+                m_full_inner = false;
+            return false;
+        }
+    }
+    m_full_inner = true;
+    return true;
+}
+
+bool Pave::is_full_outer(){
+    if(!m_full_outer)
+        return false;
+    else{
+        for(Border *b:m_borders){
+            if(!b->is_full_outer())
+                m_full_outer = false;
+            return false;
+        }
+    }
+    m_full_outer = true;
+    return true;
 }
 
 bool Pave::is_full(){
-    if(!m_full){
-        return false;
-    }
+    if(m_compute_inner)
+        return is_full_outer();
     else{
-        for(int face=0; face<4; face++){
-            if(!m_borders[face]->is_full()){
-                m_full = false;
-                return false;
-            }
-        }
-        m_full = true;
-        return true;
+        if(is_full_inner() && is_full_outer())
+            return true;
+        else
+            return false;
     }
 }
 
 bool Pave::is_full_geometricaly() const{
     IntervalVector box(2, Interval::EMPTY_SET);
     int non_empty_face = 0;
-    for(int face = 0; face < 4; face++){
-        box |= m_borders[face]->get_segment_out_2D();
-        box |= m_borders[face]->get_segment_in_2D();
-        if(!m_borders[face]->is_empty())
+    for(Border *b:m_borders){
+        box |= b->get_segment_out_2D();
+        box |= b->get_segment_in_2D();
+        if(!b->is_empty())
             non_empty_face++;
     }
     if(box == m_position && non_empty_face>2)
@@ -610,22 +676,6 @@ bool Pave::is_full_geometricaly() const{
     else
         return false;
 }
-
-//bool Pave::is_fully_full(){
-//    if(!m_fully_full){
-//        return false;
-//    }
-//    else{
-//        for(int face=0; face<4; face++){
-//            if(!m_borders[face]->is_fully_full()){
-//                m_fully_full = false;
-//                return false;
-//            }
-//        }
-//        m_fully_full = true;
-//        return true;
-//    }
-//}
 
 const std::vector<Pave *> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
@@ -647,9 +697,10 @@ const std::vector<Pave *> Pave::get_all_brothers(){
 }
 
 void Pave::reset_full_empty(){
-    m_empty = false;
-    m_full = true;
-    m_fully_full = true;
+    m_empty_inner = false;
+    m_empty_outer = false;
+    m_full_inner = true;
+    m_full_outer = true;
     for(Border *border: m_borders){
         border->reset_full_empty();
     }
@@ -887,13 +938,13 @@ const std::vector<Border *> Pave::get_borders_const() const{
 
 void Pave::set_compute_inner(bool val){
     m_compute_inner = val;
+    for(Border *b:m_borders)
+        b->set_compute_inner(val);
 }
 
 void Pave::set_inner_mode(bool val){
     m_compute_inner = true;
     m_inner_mode = val;
-    m_full = true;
-    m_empty = false;
     for(Border *b:m_borders){
         b->set_inner_mode(val);
     }

@@ -24,7 +24,7 @@ public:
     void                        complementaire();
 
     // ******** Drawing functions ********
-    void                        draw(bool filled, std::string color="black[]", bool borders_only=false) const;
+    void                        draw(bool filled, std::string color="black[]", bool borders_only=false);
     void                        draw_borders(bool filled, std::string color_polygon="g[g]") const;
     void                        draw_test(int size, std::string comment) const;
     void                        draw_theta() const;
@@ -50,7 +50,9 @@ public:
     bool                        is_removed_pave() const;
     bool                        is_near_empty();
     bool                        is_empty_inner();
+    bool                        is_empty_outer();
     bool                        is_full_inner();
+    bool                        is_full_outer();
 
     // Setter
     void                        set_full();
@@ -129,11 +131,10 @@ private:
     Pave*                       m_copy_node;
 
 private:
-    bool                        m_empty;
-    bool                        m_full;
+    bool                        m_empty_outer;
     bool                        m_empty_inner;
+    bool                        m_full_outer;
     bool                        m_full_inner;
-    bool                        m_fully_full;
 
     bool                        m_in_queue;
 

@@ -104,20 +104,22 @@ void Graph::clear_node_queue(){
 }
 
 void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, double theta_limit){
+    if(nb_node<=(int)m_node_list.size())
+        return;
     int iterations = 0;
     m_count_alive = 0;
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
     m_node_list.reserve(nb_node);
 
-    while(tmp_pave_list.size()!=0 & (iterations+tmp_pave_list.size())<nb_node){
+    while(((int)tmp_pave_list.size()!=0) & (iterations+((int)tmp_pave_list.size())<nb_node)){
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
         if(do_not_bisect_empty || do_not_bisect_full)
             tmp->reset_full_empty();
-//        if(m_utils->m_imageIntegral_activated)
-//            tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
+        //        if(m_utils->m_imageIntegral_activated)
+        //            tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
 
         if(!tmp->is_active() || tmp->is_removed_pave()
                 || ((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full()))
@@ -153,31 +155,31 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
         m_node_queue.erase(m_node_queue.begin());
         pave->set_in_queue(false);
 
-//        IntervalVector test(2);
-//        test[0] = Interval(2.55);
-//        test[1] = Interval(-6.9);
+        //        IntervalVector test(2);
+        //        test[0] = Interval(2.55);
+        //        test[1] = Interval(-6.9);
 
-//        if(debug_marker2 && !(pave->get_position() & test).is_empty()){
-//            cout << "TEST" << endl;
-//            pave->draw_test(512, "test");
-//        }
-//        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
-//            draw(1024, "debug");
-//            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
-//            cout << "DEBUG" << endl;
-//        }
+        //        if(debug_marker2 && !(pave->get_position() & test).is_empty()){
+        //            cout << "TEST" << endl;
+        //            pave->draw_test(512, "test");
+        //        }
+        //        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
+        //            draw(1024, "debug");
+        //            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
+        //            cout << "DEBUG" << endl;
+        //        }
 
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
         if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
 
-//            if(debug_marker2 && !(pave->get_position() & test).is_empty())
-//                pave->draw_test(512, "contintuity");
-//            if(debug_marker2 && !(test & pave->get_position()).is_empty()){
-//                draw(1024, "debug");
-//                print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
-//                cout << "DEBUG" << endl;
-//            }
+            //            if(debug_marker2 && !(pave->get_position() & test).is_empty())
+            //                pave->draw_test(512, "contintuity");
+            //            if(debug_marker2 && !(test & pave->get_position()).is_empty()){
+            //                draw(1024, "debug");
+            //                print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
+            //                cout << "DEBUG" << endl;
+            //            }
 
             /// ******* PROCESS CONSISTENCY *******
             std::vector<bool> change_tab;
@@ -185,8 +187,8 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
                 change_tab.push_back(false);
             m_utils->CtcConsistency(pave, backward, change_tab, enable_function_iteration, inner);
 
-//            if(debug_marker2 && !(pave->get_position() & test).is_empty())
-//                pave->draw_test(512, "consistence");
+            //            if(debug_marker2 && !(pave->get_position() & test).is_empty())
+            //                pave->draw_test(512, "consistence");
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
@@ -205,17 +207,17 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
             pave->set_first_process_false();
         }
 
-//        if(debug_marker1 && iterations%100==0){
-//            draw(4048, true);
-//            cout << "SAVE image " << iterations << endl;
-//            stringstream ss; ss << "/home/lemezoth/Images/VIBES/iteration_" << iterations << ".png";
-//            vibes::saveImage(ss.str());
-//        }
-//        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
-//            draw(1024, "debug");
-//            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
-//            cout << "DEBUG" << endl;
-//        }
+        //        if(debug_marker1 && iterations%100==0){
+        //            draw(4048, true);
+        //            cout << "SAVE image " << iterations << endl;
+        //            stringstream ss; ss << "/home/lemezoth/Images/VIBES/iteration_" << iterations << ".png";
+        //            vibes::saveImage(ss.str());
+        //        }
+        //        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
+        //            draw(1024, "debug");
+        //            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
+        //            cout << "DEBUG" << endl;
+        //        }
     }
 
     m_node_queue.clear();
@@ -331,7 +333,7 @@ void Graph::draw(int size, bool filled, string comment){
     }
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-//    m_drawing_cpt++;
+    //    m_drawing_cpt++;
 }
 
 void Graph::drawInner(bool filled){
@@ -355,7 +357,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
     cout << "nb\t" << "position\t" << "in\t" << "out\t" << "contaminated_in\t" << "contaminated_out\t" << "continuity_in\t" << "continuity_out" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
         cout << i << '\t'
-             //<< p->get_border(i)->get_position() << "       \t"
+                //<< p->get_border(i)->get_position() << "       \t"
              << p->get_border(i)->get_segment_in() << "       \t"
              << p->get_border(i)->get_segment_out() << '\t'
              << p->get_border(i)->get_continuity_in() << '\t'
@@ -406,7 +408,8 @@ void Graph::mark_empty_node(){
     for(Pave *pave:m_node_list){
         if(!pave->is_removed_pave() && pave->is_active()){
             pave->reset_full_empty();
-            if(pave->is_empty()){
+            if((m_active_inner && pave->is_empty_outer() && pave->is_empty_inner())
+                    || (!m_active_inner && pave->is_empty())){
                 pave->set_removed_pave(true);
                 pave->set_active(false);
                 m_count_alive--;

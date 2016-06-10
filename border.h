@@ -49,11 +49,12 @@ public:
 
     void                            set_inclusion(Border *border, int id_brother);
     void                            set_inclusion_receving(Border* border, int id_brother);
+    void                            set_compute_inner(bool val);
     void                            reset_full_empty();
 
     void                            add_inclusions(const std::vector<Inclusion *> &inclusion_list);
     bool                            add_inclusion(Inclusion *inclusion);
-    bool                            add_inclusion_copy(Inclusion *inclusion);
+    void                            add_inclusion_copy(Inclusion *inclusion);
     void                            add_inclusion_receving(Inclusion* inclusion);
 
     // Getters
@@ -62,6 +63,12 @@ public:
     const ibex::IntervalVector      get_segment_out_2D() const;
     const ibex::Interval            get_segment_out() const;
     const ibex::IntervalVector      get_segment_in_2D() const;
+
+    const ibex::Interval            get_segment_in_inner() const;
+    const ibex::Interval            get_segment_in_outer() const;
+    const ibex::Interval            get_segment_out_inner() const;
+    const ibex::Interval            get_segment_out_outer() const;
+
     const std::vector<Inclusion *>  get_inclusions() const ;
     const std::vector<Inclusion*>&  get_inclusions_receving() const;
     Inclusion *get_inclusion(int i);
@@ -78,13 +85,16 @@ public:
     bool                            get_inner_mode() const;
 
     // Tests
+    bool                            is_empty_inner();
+    bool                            is_empty_outer();
+    bool                            is_full_inner();
+    bool                            is_full_outer();
     bool                            is_empty();
     bool                            is_full();
-    bool                            is_fully_full();
 
 /***************** Variables ******************/
 private:
-    ibex::Interval                  m_segment_in, m_segment_out;
+    ibex::Interval                  m_segment_in_outer, m_segment_out_outer;
     ibex::Interval                  m_segment_in_inner, m_segment_out_inner;
     ibex::Interval                  m_segment_full;
 
@@ -97,18 +107,20 @@ private:
     Pave *                          m_pave;                     // Pointer to its container
 
 private:
-    bool                            m_empty;
-    bool                            m_full;
-    bool                            m_fully_full;
+    bool                            m_empty_inner;
+    bool                            m_empty_outer;
+    bool                            m_full_inner;
+    bool                            m_full_outer;
 
 private:
     bool                            m_enable_continuity_in, m_enable_continuity_out;
     bool                            m_active_in, m_active_out;
 
 private:
+    bool                            m_mode_inner;
+    bool                            m_compute_inner;
     bool                            set_segment_in(ibex::Interval segment_in);
-    bool                            set_segment_out(ibex::Interval segment_out);
-    bool                            m_inner_mode;
+    bool                            set_segment_out(ibex::Interval segment_in);
 };
 
 #endif // BORDER_H

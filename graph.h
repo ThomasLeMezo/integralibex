@@ -91,6 +91,7 @@ private:
     int m_graph_id;
     int m_drawing_cpt;
     int m_count_alive;
+    int m_count_alive_inner;
 
     bool m_active_inner;
 
