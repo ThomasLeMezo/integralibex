@@ -22,6 +22,7 @@ public:
     void                        diff(const Graph &g);
 
     void                        push_back(Pave* p);
+    void                        push_back_queue(Pave *p);
     void                        push_back_external_border(Pave *p);
 
     // Test
@@ -38,7 +39,8 @@ public:
     void                        set_active_f(int id);
     void                        set_external_boundary(bool in, bool out);
     void                        set_all_active();
-    bool                        set_all_inner(bool inner);
+    void                        set_all_inner(bool inner);
+    void                        set_active_inner(bool inner);
 
     void                        update_queue(bool border_condition=true, bool empty_condition=false);
     void                        clear_node_queue();
@@ -84,6 +86,7 @@ private:
     std::vector<Pave*> m_node_list;
     std::vector<Pave*> m_node_border_list;
     std::vector<Pave*> m_node_queue;
+    std::vector<Pave*> m_node_queue_inner;
 
     ibex::IntervalVector m_search_box;
 
@@ -93,7 +96,7 @@ private:
     int m_drawing_cpt;
     int m_count_alive;
 
-    bool m_compute_inner;
+    bool m_active_inner;
 
 public:
     bool debug_marker1, debug_marker2;

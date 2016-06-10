@@ -50,8 +50,8 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
 
     for(IntervalVector b:bassin_boxes){
         Pave* p = new Pave(b, f_list, diseable_singleton, false);
+        p->set_compute_inner(true);
         p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
-        p->set_inner(true);
         p->set_continuity_in(false);
         p->set_continuity_out(false);
         g->push_back(p); // Inactive box
@@ -151,6 +151,8 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
     int iterations = 0;
     Graph *graph = m_graph_list[0];
+    ///////////////////////////// INNER MODE //////////////////////////////
+    graph->set_all_inner(true);
     graph->set_full();
 
     if(iterations < iterations_max && graph->size()<4){
@@ -262,6 +264,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         return;
     int iterations = 0;
     Graph *graph_initial = m_graph_list[0];
+    graph_initial->set_active_inner(true);
 
     if(iterations < iterations_max && graph_initial->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
@@ -386,11 +389,10 @@ void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Funct
 
 void Scheduler::invert_for_inner(){
     // reset removed and active pave
-    m_graph_list[0]->mark_full_pave_as_inner();
-    m_graph_list[0]->complementaire();
+    Graph *graph = m_graph_list[0];
+    graph->set_all_inner(true);
+    graph->complementaire();
 
-    m_graph_list[0]->set_all_active();
-    m_graph_list[0]->update_queue(false);
-
-    m_graph_list[0]->set_external_boundary(true, true);
+    graph->set_all_active();
+    graph->set_external_boundary(true, true);
 }

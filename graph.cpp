@@ -116,8 +116,8 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
 
         if(do_not_bisect_empty || do_not_bisect_full)
             tmp->reset_full_empty();
-        if(m_utils->m_imageIntegral_activated)
-            tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
+//        if(m_utils->m_imageIntegral_activated)
+//            tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
 
         if(!tmp->is_active() || tmp->is_removed_pave()
                 || ((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full()))
@@ -323,15 +323,7 @@ void Graph::draw(int size, bool filled, string comment){
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
     for(Pave *node:m_node_list){
-        //        if(node->is_active()){
-        if(node->is_near_inner())
-            node->draw(filled, "#D3D3D3[#FF00FF]"); // magenta
-        else
-            node->draw(filled, "#D3D3D3[#4C4CFF]"); // blue
-        //        }
-        //        else{
-        //            node->draw(filled, "#D3D3D3[blue]");
-        //        }
+        node->draw(filled);
     }
 
     for(Pave *node:m_node_border_list){
@@ -711,8 +703,12 @@ bool Graph::is_no_active_function(){
     return true;
 }
 
-bool Graph::set_all_inner(bool inner){
+void Graph::set_all_inner(bool inner){
     for(Pave *p:m_node_list){
         p->set_inner(inner);
     }
+}
+
+void Graph::set_active_inner(bool inner){
+    m_active_inner = inner;
 }

@@ -34,8 +34,8 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     coordinate[0] = position[0]; coordinate[1] = Interval(position[1].ub()); m_borders.push_back(new Border(coordinate, 2, this));
     coordinate[1] = position[1]; coordinate[0] = Interval(position[0].lb()); m_borders.push_back(new Border(coordinate, 3, this));
 
-    m_full = true;
     m_fully_full = true;
+    m_full = true;
     m_empty = false;
 
     /////////////////////////////// THETA ///////////////////////////////
@@ -107,7 +107,6 @@ Pave::Pave(const Pave *p):
     m_empty = false;
     m_in_queue = p->is_in_queue();
     m_first_process = p->get_first_process();
-    m_inner = p->is_inner();
     m_active = p->is_active();
     m_diseable_singeleton = p->get_diseable_singelton();
     m_external_border = p->is_external_border();
@@ -235,12 +234,15 @@ void Pave::set_segment(bool in, bool out){
 // ****************** Drawing functions *******************************************
 
 void Pave::draw(bool filled, string color, bool borders_only) const{
+    // Magenta = #FF00FF
+    // Gray light =  #D3D3D3
+    // Blue = #4C4CFF
+
     // Draw the pave
     if(borders_only){
         draw_borders(filled, "[#00FF00AA]");
     }
     else{
-
         vibes::drawBox(m_position, color);
 
         if(m_active)
@@ -280,9 +282,15 @@ void Pave::draw_borders(bool filled, string color_polygon) const{
     else{
         // Draw Polygone
         vector<double> x, y;
-        for(int i=0; i<m_borders.size(); i++){
-            m_borders[i]->get_points(x, y);
+        for(Border *b:m_borders){
+            b->get_points(x, y);
         }
+
+        int alone_points;
+        for(int i=0; i<x.size(); i++){
+            bool alone = false;
+        }
+
         vibes::drawPolygon(x, y, color_polygon);
     }
 }
@@ -525,6 +533,20 @@ bool Pave::is_empty(){
     }
 }
 
+bool Pave::is_empty_inner(){
+    set_compute_inner(true);
+    bool empty = is_empty();
+    set_compute_inner(false);
+    return empty;
+}
+
+bool Pave::is_full_inner(){
+    set_compute_inner(true);
+    bool empty = is_full();
+    set_compute_inner(false);
+    return empty;
+}
+
 bool Pave::is_full(){
     if(!m_full){
         return false;
@@ -556,21 +578,21 @@ bool Pave::is_full_geometricaly() const{
         return false;
 }
 
-bool Pave::is_fully_full(){
-    if(!m_fully_full){
-        return false;
-    }
-    else{
-        for(int face=0; face<4; face++){
-            if(!m_borders[face]->is_fully_full()){
-                m_fully_full = false;
-                return false;
-            }
-        }
-        m_fully_full = true;
-        return true;
-    }
-}
+//bool Pave::is_fully_full(){
+//    if(!m_fully_full){
+//        return false;
+//    }
+//    else{
+//        for(int face=0; face<4; face++){
+//            if(!m_borders[face]->is_fully_full()){
+//                m_fully_full = false;
+//                return false;
+//            }
+//        }
+//        m_fully_full = true;
+//        return true;
+//    }
+//}
 
 const std::vector<Pave *> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
@@ -702,14 +724,6 @@ void Pave::set_first_process_false(){
     m_first_process = false;
 }
 
-bool Pave::is_inner() const{
-    return m_inner;
-}
-
-void Pave::set_inner(bool inner){
-    m_inner = inner;
-}
-
 std::vector<ibex::Function *> Pave::get_f_list() const{
     return m_f_list;
 }
@@ -811,16 +825,6 @@ void Pave::set_removed_pave(bool val){
     m_removed_pave = val;
 }
 
-bool Pave::is_near_inner(){
-    vector<Pave*> brothers = get_all_brothers();
-    for(Pave *p:brothers){
-        if(p->is_inner()){
-            return true;
-        }
-    }
-    return false;
-}
-
 bool Pave::is_near_empty(){
     vector<Pave*> brothers = get_all_brothers();
     for(Pave *p:brothers){
@@ -850,6 +854,8 @@ const std::vector<Border *> Pave::get_borders_const() const{
 
 void Pave::set_compute_inner(bool val){
     m_compute_inner = val;
+    m_full = true;
+    m_empty = false;
     for(Border *b:m_borders){
         b->set_compute_inner(val);
     }

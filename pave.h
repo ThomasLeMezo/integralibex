@@ -48,9 +48,9 @@ public:
     bool                        is_marked_attractor() const;
     bool                        is_external_border() const;
     bool                        is_removed_pave() const;
-    bool                        is_inner() const;
-    bool                        is_near_inner();
     bool                        is_near_empty();
+    bool                        is_empty_inner();
+    bool                        is_full_inner();
 
     // Setter
     void                        set_full();
@@ -65,7 +65,6 @@ public:
     void                        set_copy_node(Pave *p);
     void                        set_first_process_true();
     void                        set_first_process_false();
-    void                        set_inner(bool inner);
 
     void                        set_continuity_in(bool enable);
     void                        set_continuity_out(bool enable);
@@ -130,6 +129,8 @@ private:
 private:
     bool                        m_empty;
     bool                        m_full;
+    bool                        m_empty_inner;
+    bool                        m_full_inner;
     bool                        m_fully_full;
 
     bool                        m_in_queue;
