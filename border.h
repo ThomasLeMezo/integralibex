@@ -83,6 +83,7 @@ public:
     bool                            get_continuity_out() const;
 
     bool                            get_inner_mode() const;
+    bool                            get_compute_inner() const;
 
     // Tests
     bool                            is_empty_inner();

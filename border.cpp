@@ -31,6 +31,7 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     m_enable_continuity_out = true;
 
     m_mode_inner = false;
+    m_compute_inner = false;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -54,6 +55,7 @@ Border::Border(const Border *border): m_position(2)
     m_enable_continuity_in = border->get_continuity_in();
     m_enable_continuity_out = border->get_continuity_out();
     m_mode_inner = border->get_inner_mode();
+    m_compute_inner = border->get_compute_inner();
 }
 
 Border::~Border(){
@@ -564,6 +566,10 @@ bool Border::get_inner_mode() const{
 
 void Border::set_compute_inner(bool val){
     m_compute_inner = val;
+}
+
+bool Border::get_compute_inner() const{
+    return m_compute_inner;
 }
 
 

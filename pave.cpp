@@ -23,6 +23,8 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_copy_node = NULL;
     m_first_process = false;
     m_inner_mode = false;
+    m_compute_inner = false;
+
     m_marker_attractor = false;
     m_external_border = false;
     m_removed_pave = false;
@@ -40,8 +42,8 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_full_outer = true;
 
     /////////////////////////////// THETA ///////////////////////////////
-    for(int i=0; i<f_list.size(); i++){
-        std::vector<ibex::Interval> theta = compute_theta(f_list[i]);
+    for(ibex::Function* f:f_list){
+        std::vector<ibex::Interval> theta = compute_theta(f);
         m_theta_list.push_back(theta);
         for(Interval t:theta){
             if(!t.is_empty())
@@ -115,6 +117,7 @@ Pave::Pave(const Pave *p):
     m_external_border = p->is_external_border();
     m_removed_pave = p->is_removed_pave();
     m_inner_mode = p->get_inner_mode();
+    m_compute_inner = p->get_compute_inner();
 
     m_theta_list = p->get_theta_list();
     m_theta = p->get_all_theta(true);
@@ -168,6 +171,7 @@ bool Pave::diff(const Pave &p){
     m_empty_outer = false;
     m_full_inner = true;
     m_full_outer = true;
+    return change;
 }
 
 void Pave::set_theta(ibex::Interval theta){
@@ -270,19 +274,17 @@ void Pave::draw(bool filled, string color, bool borders_only){
         draw_borders(filled, "[#00FF00AA]");
     }
     else{
-        vibes::drawBox(m_position, "[#D3D3D3]");
-        set_inner_mode(false);
-
-        //        Pave *p_outer = new Pave(this);
-        //        p_outer->set_inner_mode(false);
-        //        p_outer->complementaire();
-        //        if(!m_external_border)
-        //            p_outer->draw_borders(true, "[#4C4CFF]");
-        //        else
-        //            p_outer->draw_borders(true, "[#D3D3D3]");
-        //        delete(p_outer);
-
         if(m_compute_inner){
+            vibes::drawBox(m_position, "#D3D3D3[]");
+            //        Pave *p_outer = new Pave(this);
+            //        p_outer->set_inner_mode(false);
+            //        p_outer->complementaire();
+            //        if(!m_external_border)
+            //            p_outer->draw_borders(true, "[#4C4CFF]");
+            //        else
+            //            p_outer->draw_borders(true, "[#D3D3D3]");
+            //        delete(p_outer);
+
             //            Pave *p_inner = new Pave(this);
             //            p_inner->set_inner_mode(true);
             //            p_inner->complementaire();
@@ -296,6 +298,7 @@ void Pave::draw(bool filled, string color, bool borders_only){
             //            delete(p_polygon);
         }
         else{
+            vibes::drawBox(m_position, "#D3D3D3[#4C4CFF]");
             draw_borders(filled, "y[y]"); // yellow
         }
 
@@ -312,10 +315,10 @@ void Pave::draw_theta() const{
     color_map.push_back("black[#A8A8A8]");
     color_map.push_back("g[]");
 
-    for(int k=0; k<m_theta_list.size(); k++){
+    for(int k=0; k<(int)m_theta_list.size(); k++){
         double size_ratio = size * (1-0.1*k);
-        for(int i=0; i<m_theta_list[k].size(); i++){
-            vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size_ratio, size_ratio, (-m_theta_list[k][i].lb())*180.0/M_PI, (-m_theta_list[k][i].ub())*180.0/M_PI, color_map[k%color_map.size()]);
+        for(Interval i:m_theta_list[k]){
+            vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size_ratio, size_ratio, (-i.lb())*180.0/M_PI, (-i.ub())*180.0/M_PI, color_map[k%color_map.size()]);
         }
     }
 }
@@ -334,33 +337,34 @@ void Pave::draw_borders(bool filled, string color_polygon) const{
         for(Border *b:m_borders){
             b->get_points(x, y);
         }
+        vibes::drawPolygon(x, y, color_polygon);
 
-        int alone_points;
-        int nb_point = x.size();
-        if(nb_point>0){
-            vector<int> starting_point;
-            for(int i=0; i<(int)x.size(); i++){
-                if(!((x[i]==x[(i+1)%nb_point] && y[i]==y[(i+1)%nb_point]) || (x[i]==x[(i-1+nb_point)%nb_point] && y[i]==y[(i-1+nb_point)%nb_point])))
-                    alone_points++;
-                else
-                    starting_point.push_back(i);
-            }
+//        int alone_points;
+//        int nb_point = x.size();
+//        if(nb_point>0){
+//            vector<int> starting_point;
+//            for(int i=0; i<(int)x.size(); i++){
+//                if(!((x[i]==x[(i+1)%nb_point] && y[i]==y[(i+1)%nb_point]) || !(x[i]==x[(i-1+nb_point)%nb_point] && y[i]==y[(i-1+nb_point)%nb_point])))
+//                    alone_points++;
+//                else
+//                    starting_point.push_back(i);
+//            }
 
-            if(nb_point == 8 && alone_points == 4){
-                for(int start:starting_point){
-                    vector<double> xp, yp;
-                    for(int i=(start-1+nb_point)%nb_point; i<=(start+1+nb_point)%nb_point; i++){
-                        xp.push_back(x[i]);
-                        yp.push_back(y[i]);
-                    }
-                    vibes::drawPolygon(xp, yp, color_polygon);
-                }
+//            if(nb_point == 8 && alone_points == 4){
+//                for(int start:starting_point){
+//                    vector<double> xp, yp;
+//                    for(int i=(start-1+nb_point)%nb_point; i<=(start+1+nb_point)%nb_point; i++){
+//                        xp.push_back(x[i]);
+//                        yp.push_back(y[i]);
+//                    }
+//                    vibes::drawPolygon(xp, yp, color_polygon);
+//                }
 
-            }
-            else{
-                vibes::drawPolygon(x, y, color_polygon);
-            }
-        }
+//            }
+//            else{
+//                vibes::drawPolygon(x, y, color_polygon);
+//            }
+//        }
     }
 }
 
@@ -374,7 +378,7 @@ void Pave::draw_test(int size, string comment) const{
     draw_borders(true, "y[y]");
     double offset[2] = {m_position[0].diam()*0.1, m_position[1].diam()*0.1};
 
-    for(int i=0; i<m_borders.size(); i++){
+    for(int i=0; i<(int)m_borders.size(); i++){
         m_borders[i]->draw(true, offset[i%2]*(((i+3)%4>1)?-1:1), true);
     }
     draw_theta();
@@ -534,13 +538,13 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
 // ****************** UTILS functions *********************************************
 
 double Pave::get_theta_diam(int active_function) const{
-    if(active_function =-1){
+    if((active_function =-1)){
         double diam_max = 0.0;
-        for(int active_function = 0; active_function<m_f_list.size(); active_function++){
+        for(int active_function = 0; active_function<(int)m_f_list.size(); active_function++){
             double diam = 0.0;
-            for(int i=0; i<m_theta_list[active_function].size(); i++){
-                if(!m_theta_list[active_function][i].is_empty())
-                    diam += m_theta_list[active_function][i].diam();
+            for(Interval theta:m_theta_list[active_function]){
+                if(!theta.is_empty())
+                    diam += theta.diam();
             }
             diam_max=max(diam_max, diam);
         }
@@ -548,9 +552,9 @@ double Pave::get_theta_diam(int active_function) const{
     }
     else{
         double diam = 0.0;
-        for(int i=0; i<m_theta_list[active_function].size(); i++){
-            if(!m_theta_list[active_function][i].is_empty())
-                diam += m_theta_list[active_function][i].diam();
+        for(Interval theta:m_theta_list[active_function]){
+            if(!theta.is_empty())
+                diam += theta.diam();
         }
         return diam;
     }
@@ -558,11 +562,11 @@ double Pave::get_theta_diam(int active_function) const{
 
 double Pave::get_theta_diam_min(){
     double diam_min = 2*M_PI;
-    for(int active_function = 0; active_function<m_f_list.size(); active_function++){
+    for(int active_function = 0; active_function<(int)m_f_list.size(); active_function++){
         double diam = 0.0;
-        for(int i=0; i<m_theta_list[active_function].size(); i++){
-            if(!m_theta_list[active_function][i].is_empty())
-                diam += m_theta_list[active_function][i].diam();
+        for(Interval theta:m_theta_list[active_function]){
+            if(!theta.is_empty())
+                diam += theta.diam();
         }
         diam_min=min(diam_min, diam);
     }
@@ -570,7 +574,7 @@ double Pave::get_theta_diam_min(){
 }
 
 void Pave::remove_brothers(Pave* p, int face){
-    for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
+    for(int i=0; i<(int)m_borders[face]->get_inclusions().size(); i++){
         if(m_borders[face]->get_inclusion(i)->get_border()->get_pave() == p){
             m_borders[face]->remove_inclusion(i);
             return;
@@ -580,7 +584,7 @@ void Pave::remove_brothers(Pave* p, int face){
 
 void Pave::remove_from_brothers(){
     for(int face=0; face<4; face++){
-        for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
+        for(int i=0; i<(int)m_borders[face]->get_inclusions().size(); i++){
             m_borders[face]->get_inclusion(i)->get_border()->get_pave()->remove_brothers(this, m_borders[face]->get_inclusion(i)->get_brother_face());
         }
     }
@@ -679,7 +683,7 @@ bool Pave::is_full_geometricaly() const{
 
 const std::vector<Pave *> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
-    for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
+    for(int i=0; i<(int)m_borders[face]->get_inclusions().size(); i++){
         if(!m_borders[face]->get_inclusion(i)->get_border()->get_pave()->is_removed_pave())
             brothers_list.push_back(m_borders[face]->get_inclusion(i)->get_border()->get_pave());
     }
@@ -689,8 +693,8 @@ const std::vector<Pave *> Pave::get_brothers(int face){
 const std::vector<Pave *> Pave::get_all_brothers(){
     vector<Pave*> brothers_list;
     for(int face = 0; face<4; face++){
-        for(int i=0; i<m_borders[face]->get_inclusions().size(); i++){
-            brothers_list.push_back(m_borders[face]->get_inclusion(i)->get_border()->get_pave());
+        for(Inclusion *i:m_borders[face]->get_inclusions()){
+            brothers_list.push_back(i->get_border()->get_pave());
         }
     }
     return brothers_list;
@@ -952,4 +956,8 @@ void Pave::set_inner_mode(bool val){
 
 bool Pave::get_inner_mode() const{
     return m_inner_mode;
+}
+
+bool Pave::get_compute_inner() const{
+    return m_compute_inner;
 }
