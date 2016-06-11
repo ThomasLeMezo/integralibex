@@ -13,7 +13,7 @@ public:
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);
     ~Graph();
 
-    int                         process(int max_iterations, bool backward, bool enable_function_iteration=true, bool inner=false);
+    int                         process(int max_iterations, bool backward, bool enable_function_iteration=true);
     void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bool do_not_bisect_full=false, double theta_limit=0.0);
     void                        remove_empty_node();
     void                        mark_empty_node();
@@ -48,6 +48,7 @@ public:
 
     void                        update_queue(bool border_condition=true, bool empty_condition=false);
     void                        clear_node_queue();
+    void                        clear_node_queue_all();
     void                        clear_node_queue_outer();
     void                        clear_node_queue_inner();
     void                        add_all_to_queue();

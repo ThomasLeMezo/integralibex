@@ -152,7 +152,6 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
     int iterations = 0;
     Graph *graph = m_graph_list[0];
     ///////////////////////////// INNER MODE //////////////////////////////
-//    graph->set_inner_mode(true);
     graph->set_full();
 
     if(iterations < iterations_max && graph->size()<4){
@@ -207,51 +206,58 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 }
 
 void Scheduler::cameleon_viability(int iterations_max, int process_iterations_max){
+    cout << endl << endl;
+    cout << "************ COMPUTE KERNEL ************" << endl;
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
     int iterations = 0;
 
     Graph *graph = m_graph_list[0];
-
-    graph->set_external_boundary(false, true);
-
     graph->set_active_f(-1);
 
     if(iterations < iterations_max && graph->size()>4){
+        const clock_t begin_time = clock();
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+        cout << "GRAPH No 0 (" << graph->size() << ")" << endl;
         graph->mark_empty_node();
-        graph->process(process_iterations_max, true, true, true);
+
+        graph->set_inner_mode(true);
+        graph->update_queue(false, true);
+        graph->process(process_iterations_max, true, true);
+
+        graph->set_inner_mode(false);
+        graph->update_queue(true, true);
+        graph->process(process_iterations_max, true, true);
+
+        cout << "--> time (processing) = " << float( clock() - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
     }
 
     while(iterations < iterations_max){
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        int nb_graph=0;
 
         if(graph->get_alive_node()==0)
             break;
-        graph->clear_node_queue();
 
         graph->sivia(2*graph->get_alive_node(), true, false, false, 0.0);
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-        graph->set_inner_mode(true);
-        graph->update_queue(false, true);
-
-        if(iterations == 7)
-            graph->debug_marker2 = true;
+//        if(iterations == 7)
+//            graph->debug_marker2 = true;
 
         // Process the backward with the subpaving
-        cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
+        cout << "GRAPH No 0 (" << graph->size() << ")" << endl;
 
         graph->set_inner_mode(true);
-        int graph_list_process_cpt = graph->process(process_iterations_max, true, true, true);
-        if(graph->get_inner_mode())
-            cout << "--> processing inner = " ;
-        else
-            cout << "--> processing outer = " ;
-        cout << graph_list_process_cpt << endl;
+        graph->update_queue(false, true);
+        graph->process(process_iterations_max, true, true);
+
+        graph->set_inner_mode(false);
+        graph->update_queue(true, true);
+        graph->process(process_iterations_max, true, true);
+
         cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
         // Remove empty pave
@@ -380,7 +386,8 @@ Graph* Scheduler::get_graph_list(int i){
 
 void Scheduler::print_pave_info(int graph, double x, double y, string color){
     if(m_graph_list.size()>graph){
-        m_graph_list[graph]->print_pave_info(x, y, color);
+        Graph *g = m_graph_list[graph];
+        g->print_pave_info(x, y, color);
     }
     else{
         cout << "GRAPH NOT FOUND" << endl;
@@ -401,11 +408,12 @@ void Scheduler::attractor_to_kernel(){
     graph->set_inner_mode(false);
     graph->copy_to_inner();
     graph->set_full();
-    graph->set_external_boundary(true, false);
+    graph->set_external_boundary(false, true);
 
     /// INNER
     graph->set_inner_mode(true);
     graph->complementaire();
     graph->set_external_boundary(true, true);
 
+    graph->mark_empty_node();
 }

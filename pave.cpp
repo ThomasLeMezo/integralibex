@@ -218,6 +218,14 @@ void Pave::set_full(){
         m_full_outer = true;
 }
 
+void Pave::set_full_all(){
+    for(int face=0; face<4; face++){
+        get_border(face)->set_full_all();
+    }
+    m_full_inner = true;
+    m_full_outer = true;
+}
+
 void Pave::set_full_in(){
     for(int face=0; face<4; face++){
         get_border(face)->set_full_segment_in();
@@ -462,8 +470,8 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
     }
 
     if(backward){
-        pave1->set_full();
-        pave2->set_full();
+        pave1->set_full_all();
+        pave2->set_full_all();
 
 #if 0
         if(m_borders[(indice1+1)%4]->is_empty() || m_borders[(indice1+3)%4]->is_empty()){
@@ -651,12 +659,13 @@ bool Pave::is_full_inner(){
         return false;
     else{
         for(Border *b:m_borders){
-            if(!b->is_full_inner())
+            if(!b->is_full_inner()){
                 m_full_inner = false;
-            return false;
+                return false;
+            }
         }
     }
-    m_full_inner = true;
+    //m_full_inner = true;
     return true;
 }
 
@@ -665,9 +674,10 @@ bool Pave::is_full_outer(){
         return false;
     else{
         for(Border *b:m_borders){
-            if(!b->is_full_outer())
+            if(!b->is_full_outer()){
                 m_full_outer = false;
-            return false;
+                return false;
+            }
         }
     }
     m_full_outer = true;
@@ -962,7 +972,7 @@ bool Pave::is_removed_pave() const{
 
 bool Pave::is_removed_pave_union() const{
     if(m_compute_inner){
-        return is_removed_pave_inner() || is_removed_pave_outer();
+        return is_removed_pave_outer() || is_removed_pave_inner() ;
     }
     else
         return is_removed_pave_outer();
@@ -990,7 +1000,7 @@ void Pave::set_removed_pave_outer(bool val){
 bool Pave::is_near_empty(){
     vector<Pave*> brothers = get_all_brothers();
     for(Pave *p:brothers){
-        if(p->is_empty() || p->is_removed_pave()){
+        if(!p->is_external_border() && (p->is_empty() || p->is_removed_pave())){
             return true;
         }
     }

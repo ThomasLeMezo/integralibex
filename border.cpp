@@ -220,6 +220,17 @@ void Border::set_full(){
     }
 }
 
+void Border::set_full_all(){
+    m_segment_in_inner = m_segment_full;
+    m_segment_in_outer = m_segment_full;
+    m_segment_out_inner = m_segment_full;
+    m_segment_out_outer = m_segment_full;
+    m_empty_outer = false;
+    m_full_outer = true;
+    m_empty_inner = false;
+    m_full_inner = true;
+}
+
 void Border::set_full_segment_in(){
     set_segment_in(m_segment_full);
     if(m_mode_inner)

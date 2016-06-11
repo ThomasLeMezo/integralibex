@@ -37,6 +37,7 @@ public:
     // Setters
 
     void                            set_full();
+    void                            set_full_all();
     void                            set_full_segment_in();
     void                            set_full_segment_out();
     void                            set_empty();

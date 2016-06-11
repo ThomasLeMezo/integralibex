@@ -64,6 +64,7 @@ public:
 
     // Setter
     void                        set_full();
+    void                        set_full_all();
     void                        set_full_in();
     void                        set_full_out();
     void                        set_empty();

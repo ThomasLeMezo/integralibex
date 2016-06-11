@@ -115,6 +115,15 @@ void Graph::clear_node_queue(){
     }
 }
 
+void Graph::clear_node_queue_all(){
+    clear_node_queue_inner();
+    clear_node_queue_outer();
+
+    for(Pave *node:m_node_list){
+        node->set_in_queue(false);
+    }
+}
+
 void Graph::clear_node_queue_inner(){
     for(Pave *node:m_node_list){
         node->set_in_queue_inner(false);
@@ -130,8 +139,8 @@ void Graph::clear_node_queue_outer(){
 }
 
 void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, double theta_limit){
-    if(nb_node<=m_count_alive)
-        return;
+//    if(nb_node<=m_count_alive)
+//        return;
     int iterations = 0;
     m_count_alive = 0;
     vector<Pave *> tmp_pave_list(m_node_list);
@@ -174,7 +183,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
     cout << "SIVIA outer(" << m_node_queue_outer.size() << ") inner(" <<  m_node_queue_inner.size() << ")" << endl;
 }
 
-int Graph::process(int max_iterations, bool backward, bool enable_function_iteration, bool inner){
+int Graph::process(int max_iterations, bool backward, bool enable_function_iteration){
     int iterations = 0;
     while(!is_empty_node_queue() & iterations < max_iterations){
         iterations++;
@@ -212,7 +221,7 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
             std::vector<bool> change_tab;
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
-            m_utils->CtcConsistency(pave, backward, change_tab, enable_function_iteration, inner);
+            m_utils->CtcConsistency(pave, backward, change_tab, enable_function_iteration);
 
             //            if(debug_marker2 && !(pave->get_position() & test).is_empty())
             //                pave->draw_test(512, "consistence");
@@ -246,6 +255,10 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
     }
 
     clear_node_queue();
+    if(get_inner_mode())
+        cout << "--> processing inner (" << iterations << ")" << endl;
+    else
+        cout << "--> processing outer (" << iterations << ")" << endl;
     return iterations;
 }
 
@@ -397,6 +410,10 @@ void Graph::print_pave_info(double x, double y, string color) const{
     cout << "BOX = " << p->get_position() << endl;
     cout << p << endl;
     p->print_theta_list();
+    cout << "inner mode = " << p->get_inner_mode() << endl;
+    p->reset_full_empty();
+    cout << "is_full_inner = " << p->is_full_inner() << " is_empty_inner = " << p->is_empty_inner() << endl;
+    cout << "is_full_outer = " << p->is_full_outer() << " is_empty_outer = " << p->is_empty_outer() << endl;
     cout << "nb\t" << "position\t" << "in\t" << "out\t" << "contaminated_in\t" << "contaminated_out\t" << "continuity_in\t" << "continuity_out" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
         cout << i << '\t'
@@ -451,13 +468,16 @@ void Graph::mark_empty_node(){
     for(Pave *pave:m_node_list){
         if(!pave->is_removed_pave() && pave->is_active()){
             pave->reset_full_empty();
+            bool empty = false;
             if(pave->is_empty_outer()){
                 pave->set_removed_pave_outer(true);
-                pave->set_active(false);
-                m_count_alive--;
+                empty = true;
             }
             if(m_compute_inner && pave->is_empty_inner()){
                 pave->set_removed_pave_inner(true);
+                empty = true;
+            }
+            if(empty){
                 pave->set_active(false);
                 m_count_alive--;
             }
@@ -600,13 +620,17 @@ void Graph::update_queue(bool border_condition, bool empty_condition){
         p->set_in_queue(false);
         p->reset_full_empty();
 
-        if((!p->is_full() && !p->is_empty()) || (border_condition && p->is_border())
-                || (empty_condition && p->is_near_empty())){
+        if(p->is_active() && (
+                    (!p->is_full() && !p->is_empty())
+                || (border_condition && p->is_border())
+                || (empty_condition && p->is_near_empty()))){
             add_to_queue(p);
         }
     }
-
-    cout << "--> queue = inner (" << m_node_queue_inner.size() << ") outer (" << m_node_queue_outer.size() << ")" << endl;
+    if(get_inner_mode())
+        cout << "--> queue inner (" << m_node_queue_inner.size() << ")" << endl;
+    else
+        cout << "--> queue outer (" << m_node_queue_outer.size() << ")" << endl;
 }
 
 int Graph::get_f_size() const{
@@ -749,6 +773,9 @@ void Graph::set_inner_mode(bool val){
         set_compute_inner(true);
     m_inner_mode = val;
     for(Pave *p:m_node_list){
+        p->set_inner_mode(val);
+    }
+    for(Pave *p:m_node_border_list){
         p->set_inner_mode(val);
     }
 }
