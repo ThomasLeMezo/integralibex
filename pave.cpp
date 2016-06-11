@@ -678,6 +678,17 @@ bool Pave::is_full(){
     if(!m_compute_inner)
         return is_full_outer();
     else{
+        if(m_inner_mode)
+            return is_full_inner();
+        else
+            return is_full_outer();
+    }
+}
+
+bool Pave::is_full_inter(){
+    if(!m_compute_inner)
+        return is_full_outer();
+    else{
         if(is_full_inner() && is_full_outer())
             return true;
         else

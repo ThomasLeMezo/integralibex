@@ -42,6 +42,7 @@ public:
     bool                        is_empty();
     bool                        is_empty_inter();
     bool                        is_full();
+    bool                        is_full_inter();
     bool                        is_full_geometricaly() const;
     bool                        is_fully_full();
     bool                        is_in_queue() const;

@@ -130,7 +130,7 @@ void Graph::clear_node_queue_outer(){
 }
 
 void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, double theta_limit){
-    if(nb_node<=(int)m_node_list.size())
+    if(nb_node<=m_count_alive)
         return;
     int iterations = 0;
     m_count_alive = 0;
@@ -148,7 +148,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
         //            tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
 
         if(!tmp->is_active() || tmp->is_removed_pave_union()
-                || ((do_not_bisect_empty && tmp->is_empty_inter()) || (do_not_bisect_full && tmp->is_full()))
+                || ((do_not_bisect_empty && tmp->is_empty_inter()) || (do_not_bisect_full && tmp->is_full_inter()))
                 || tmp->get_theta_diam()<theta_limit){
             m_node_list.push_back(tmp);
             if(!tmp->is_removed_pave_union()){

@@ -245,6 +245,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         // Process the backward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
 
+        graph->set_inner_mode(true);
         int graph_list_process_cpt = graph->process(process_iterations_max, true, true, true);
         if(graph->get_inner_mode())
             cout << "--> processing inner = " ;
