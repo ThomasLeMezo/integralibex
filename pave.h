@@ -40,6 +40,7 @@ public:
     // ******** Pave Properties ********
     // Tests
     bool                        is_empty();
+    bool                        is_empty_inter();
     bool                        is_full();
     bool                        is_full_geometricaly() const;
     bool                        is_fully_full();
@@ -53,6 +54,7 @@ public:
     bool                        is_removed_pave() const;
     bool                        is_removed_pave_inner() const;
     bool                        is_removed_pave_outer() const;
+    bool                        is_removed_pave_union() const;
     bool                        is_near_empty();
     bool                        is_empty_inner();
     bool                        is_empty_outer();
@@ -83,6 +85,8 @@ public:
     void                        set_marker_attractor(bool val);
     void                        set_external_border(bool val);
     void                        set_removed_pave(bool val);
+    void                        set_removed_pave_inner(bool val);
+    void                        set_removed_pave_outer(bool val);
 
     void                        set_compute_inner(bool val);
     void                        set_inner_mode(bool val);
@@ -152,8 +156,8 @@ private:
     bool                        m_diseable_singeleton;
     bool                        m_marker_attractor;
     bool                        m_external_border;
-    bool                        m_removed_pave_outer;
     bool                        m_removed_pave_inner;
+    bool                        m_removed_pave_outer;
 
     bool                        m_compute_inner;
     bool                        m_inner_mode;

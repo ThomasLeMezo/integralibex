@@ -109,9 +109,9 @@ void Border::get_points(std::vector<double> &x, std::vector<double> &y, bool com
         Interval c1, c2;
         m_segment_full.diff(segment_union, c1, c2);
         if(!c1.is_empty())
-        segment_list.push_back(c1);
+            segment_list.push_back(c1);
         if(!c2.is_empty())
-        segment_list.push_back(c2);
+            segment_list.push_back(c2);
     }
     else{
         if(!segment_union.is_empty())

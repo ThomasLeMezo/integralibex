@@ -183,7 +183,11 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
             cout << "GRAPH No "<< 0 << " (" << graph->size() << ")" << endl;
             int graph_list_process_cpt = graph->process(process_iterations_max, true, false);
 
-            cout << "--> processing outer = " << graph_list_process_cpt << endl;
+            if(graph->get_inner_mode())
+                cout << "--> processing inner = " ;
+            else
+                cout << "--> processing outer = " ;
+            cout << graph_list_process_cpt << endl;
             cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
             // Remove empty pave
@@ -232,8 +236,8 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-        graph->update_queue(false, true);
         graph->set_inner_mode(true);
+        graph->update_queue(false, true);
 
         if(iterations == 7)
             graph->debug_marker2 = true;
@@ -242,7 +246,11 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
 
         int graph_list_process_cpt = graph->process(process_iterations_max, true, true, true);
-        cout << "--> processing outer = " << graph_list_process_cpt << endl;
+        if(graph->get_inner_mode())
+            cout << "--> processing inner = " ;
+        else
+            cout << "--> processing outer = " ;
+        cout << graph_list_process_cpt << endl;
         cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
         // Remove empty pave
@@ -383,14 +391,20 @@ void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Funct
     m_utils.m_imageIntegral_activated = true;
 }
 
-void Scheduler::invert_for_inner(){
+void Scheduler::attractor_to_kernel(){
     // reset removed and active pave
     Graph *graph = m_graph_list[0];
+    graph->set_all_active();
+
+    /// OUTER
+    graph->set_inner_mode(false);
     graph->copy_to_inner();
     graph->set_full();
+    graph->set_external_boundary(true, false);
+
+    /// INNER
     graph->set_inner_mode(true);
     graph->complementaire();
-
-    graph->set_all_active();
     graph->set_external_boundary(true, true);
+
 }

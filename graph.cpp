@@ -147,11 +147,11 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
         //        if(m_utils->m_imageIntegral_activated)
         //            tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
 
-        if(!tmp->is_active() || tmp->is_removed_pave()
-                || ((do_not_bisect_empty && tmp->is_empty()) || (do_not_bisect_full && tmp->is_full()))
+        if(!tmp->is_active() || tmp->is_removed_pave_union()
+                || ((do_not_bisect_empty && tmp->is_empty_inter()) || (do_not_bisect_full && tmp->is_full()))
                 || tmp->get_theta_diam()<theta_limit){
             m_node_list.push_back(tmp);
-            if(!tmp->is_removed_pave_outer() || !tmp->is_removed_pave_inner()){
+            if(!tmp->is_removed_pave_union()){
                 iterations++;
                 m_count_alive++;
             }
@@ -164,10 +164,9 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
 
     for(Pave *p:tmp_pave_list){
         if(backward && !p->is_removed_pave()){
-            if(m_compute_inner && !p->is_removed_pave_inner())
+            add_to_queue_outer(p);
+            if(m_compute_inner)
                 add_to_queue_inner(p);
-            if(!p->is_removed_pave_outer())
-                add_to_queue_outer(p);
         }
         m_node_list.push_back(p);
         m_count_alive++;
@@ -452,8 +451,13 @@ void Graph::mark_empty_node(){
     for(Pave *pave:m_node_list){
         if(!pave->is_removed_pave() && pave->is_active()){
             pave->reset_full_empty();
-            if(pave->is_empty()){
-                pave->set_removed_pave(true);
+            if(pave->is_empty_outer()){
+                pave->set_removed_pave_outer(true);
+                pave->set_active(false);
+                m_count_alive--;
+            }
+            if(m_compute_inner && pave->is_empty_inner()){
+                pave->set_removed_pave_inner(true);
                 pave->set_active(false);
                 m_count_alive--;
             }
@@ -467,7 +471,7 @@ bool Graph::is_empty(){
     bool empty = true;
     for(Pave *node:m_node_list){
         node->reset_full_empty();
-        if(!node->is_empty())
+        if(!node->is_empty_inter())
             empty = false;
     }
     return empty;
@@ -601,6 +605,8 @@ void Graph::update_queue(bool border_condition, bool empty_condition){
             add_to_queue(p);
         }
     }
+
+    cout << "--> queue = inner (" << m_node_queue_inner.size() << ") outer (" << m_node_queue_outer.size() << ")" << endl;
 }
 
 int Graph::get_f_size() const{

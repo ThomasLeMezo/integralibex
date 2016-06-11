@@ -203,15 +203,15 @@ void car_on_the_hill_kernel(){
     s.compute_attractor(14, 1e9);
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.invert_for_inner();
+    s.attractor_to_kernel();
 //    s.print_pave_info(0, 6.5, -2.5,"b[b]");
     s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-//    s.cameleon_viability(8, 1e9);
+    s.cameleon_viability(2, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     /////////////// Drawing ///////////////
-//    s.draw(1024, true);
+    s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 //    s.print_pave_info(0, -1.05, 2.8,"b[b]");
 }
@@ -570,7 +570,7 @@ void van_der_pol_kernel(){
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
     s.draw(1024, true, "attractor");
-    s.invert_for_inner();
+    s.attractor_to_kernel();
     s.draw(1024, true, "invert");
     s.cameleon_viability(8, 1e9);
 
@@ -600,9 +600,9 @@ void van_der_pol_inner(){
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
     s.draw(1024, true, "attractor");
-    s.invert_for_inner();
+    s.attractor_to_kernel();
     s.draw(1024, true, "invert");
-    s.cameleon_cycle(8, 5, 1e9, false, false, true);
+    s.cameleon_cycle(3, 5, 1e9, false, false, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

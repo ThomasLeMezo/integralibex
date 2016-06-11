@@ -275,12 +275,11 @@ void Pave::draw(bool filled, string color, bool borders_only){
 
     // Draw the pave
     if(borders_only){
-        draw_borders(filled, "[#00FF00AA]");
+        draw_borders(filled, "#00FF00AA[#00FF00AA]");
     }
     else{
+        vibes::drawBox(m_position, "#D3D3D3[]");
         if(m_compute_inner){
-            vibes::drawBox(m_position, "#D3D3D3[]");
-
             if(!m_external_border){
                 bool mode = get_inner_mode();
                 /// OUTER
@@ -302,8 +301,10 @@ void Pave::draw(bool filled, string color, bool borders_only){
             }
         }
         else{
-            vibes::drawBox(m_position, "#D3D3D3[#4C4CFF]");
-            draw_borders(filled, "y[y]"); // yellow
+            if(!m_external_border){
+                vibes::drawBox(m_position, "#D3D3D3[#4C4CFF]");
+                draw_borders(filled, "y[y]"); // yellow
+            }
         }
 
         // Draw theta
@@ -341,7 +342,8 @@ void Pave::draw_borders(bool filled, string color_polygon, bool complementary) c
         for(Border *b:m_borders){
             b->get_points(x, y, complementary);
         }
-        vibes::drawPolygon(x, y, color_polygon);
+        if(x.size()>0)
+            vibes::drawPolygon(x, y, color_polygon);
 
 //        int alone_points;
 //        int nb_point = x.size();
@@ -597,6 +599,17 @@ void Pave::remove_from_brothers(){
 }
 
 bool Pave::is_empty(){
+    if(!m_compute_inner)
+        return is_empty_outer();
+    else{
+        if(m_inner_mode)
+            return is_empty_inner();
+        else
+            return is_empty_outer();
+    }
+}
+
+bool Pave::is_empty_inter(){
     if(!m_compute_inner)
         return is_empty_outer();
     else{
@@ -936,6 +949,14 @@ bool Pave::is_removed_pave() const{
         return is_removed_pave_outer();
 }
 
+bool Pave::is_removed_pave_union() const{
+    if(m_compute_inner){
+        return is_removed_pave_inner() || is_removed_pave_outer();
+    }
+    else
+        return is_removed_pave_outer();
+}
+
 void Pave::set_removed_pave(bool val){
     if(m_compute_inner){
         if(m_inner_mode)
@@ -945,6 +966,14 @@ void Pave::set_removed_pave(bool val){
     }
     else
         m_removed_pave_outer = val;
+}
+
+void Pave::set_removed_pave_inner(bool val){
+    m_removed_pave_inner = val;
+}
+
+void Pave::set_removed_pave_outer(bool val){
+    m_removed_pave_outer = val;
 }
 
 bool Pave::is_near_empty(){
