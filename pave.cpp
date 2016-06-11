@@ -942,7 +942,7 @@ void Pave::set_removed_pave(bool val){
             m_removed_pave_outer = val;
     }
     else
-        m_removed_pave_inner = val;
+        m_removed_pave_outer = val;
 }
 
 bool Pave::is_near_empty(){

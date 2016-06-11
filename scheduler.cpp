@@ -332,9 +332,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 //                Graph* graph_diff = new Graph(graph, m_graph_list.size());
 
                 graph_propagation->process(process_iterations_max, false); // process forward
-
                 graph->inter(*graph_propagation); // intersect the graph with the propagation graph
-
                 //                graph_diff->diff(*graph);
 
                 //                if(!graph_diff->is_empty() && false){ // If there is an inside, add to graph_list

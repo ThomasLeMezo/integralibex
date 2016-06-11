@@ -487,6 +487,7 @@ Pave* Graph::get_semi_full_node(){
     }
 
     // Case all full or empty
+    cout << "WARNING - get_semi_full_node : ALL FULL/EMPTY NODE" << endl;
     for(Pave *node:m_node_list){
         if(!node->is_removed_pave() && !node->is_empty()){
             return node;
