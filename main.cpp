@@ -205,7 +205,6 @@ void car_on_the_hill_kernel(){
 //    s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
     s.attractor_to_kernel();
     s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.print_pave_info(0, -0.1, -0.01,"b[b]");
     s.cameleon_viability(8, 1e9);
 
     cout << "************************" << endl;
