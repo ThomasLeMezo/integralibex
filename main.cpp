@@ -95,6 +95,7 @@ void ball(){
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
+    vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 }
 
 void station_keeping_attractor(){
@@ -145,7 +146,7 @@ void station_keeping_attractor(){
     }
     vibes::drawPolygon(x, y, "blue[]");
 
-    vibes::axisLimits(-3.14,3.14, 0,10);
+    vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 
 }
 
@@ -201,16 +202,16 @@ void car_on_the_hill_kernel(){
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-    s.draw(1024, true, "attractor");
+    s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
     s.invert_for_inner();
 //    s.print_pave_info(0, 6.5, -2.5,"b[b]");
-    s.draw(1024, true, "invert");
-    s.cameleon_viability(8, 1e9);
+    s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
+//    s.cameleon_viability(8, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     /////////////// Drawing ///////////////
-    s.draw(1024, true);
+//    s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 //    s.print_pave_info(0, -1.05, 2.8,"b[b]");
 }
@@ -649,7 +650,7 @@ int main()
 //    car_on_the_hill_capture_bassin();
 //    car_on_the_hill_inner_kernel();
 
-//    car_on_the_hill_kernel();
+    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
@@ -659,7 +660,7 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_outer();

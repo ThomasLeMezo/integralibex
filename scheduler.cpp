@@ -152,7 +152,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
     int iterations = 0;
     Graph *graph = m_graph_list[0];
     ///////////////////////////// INNER MODE //////////////////////////////
-    graph->set_inner_mode(true);
+//    graph->set_inner_mode(true);
     graph->set_full();
 
     if(iterations < iterations_max && graph->size()<4){
@@ -361,9 +361,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 // ****************** Drawing functions *******************************************
 
 void Scheduler::draw(int size, bool filled, string comment){
-    for(int i=0; i<m_graph_list.size(); i++){
-        m_graph_list[i]->draw(size, filled, comment);
-    }
+    for(Graph *g:m_graph_list)
+        g->draw(size, filled, comment);
 }
 
 Graph* Scheduler::get_graph_list(int i){
@@ -387,6 +386,8 @@ void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Funct
 void Scheduler::invert_for_inner(){
     // reset removed and active pave
     Graph *graph = m_graph_list[0];
+    graph->copy_to_inner();
+    graph->set_full();
     graph->set_inner_mode(true);
     graph->complementaire();
 

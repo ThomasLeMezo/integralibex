@@ -789,3 +789,8 @@ void Graph::pop_front_queue(){
             m_node_queue_outer.pop_front();
     }
 }
+
+void Graph::copy_to_inner(){
+    for(Pave *p:m_node_list)
+        p->copy_to_inner();
+}

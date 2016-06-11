@@ -25,6 +25,8 @@ public:
     void                        push_back_queue(Pave *p);
     void                        push_back_external_border(Pave *p);
 
+    void                        copy_to_inner();
+
     // Test
     bool                        is_empty();
     bool                        is_empty_node_queue();

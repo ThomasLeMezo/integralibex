@@ -101,10 +101,24 @@ void Border::draw(bool same_size, double offset, bool test, bool two_offset) con
     }
 }
 
-void Border::get_points(std::vector<double> &x, std::vector<double> &y) const{
-    Interval segment = get_segment_in() | get_segment_out();
+void Border::get_points(std::vector<double> &x, std::vector<double> &y, bool complementary) const{
+    Interval segment_union = get_segment_in() | get_segment_out();
+    vector<Interval> segment_list;
 
-    if(!segment.is_empty()){
+    if(complementary){
+        Interval c1, c2;
+        m_segment_full.diff(segment_union, c1, c2);
+        if(!c1.is_empty())
+        segment_list.push_back(c1);
+        if(!c2.is_empty())
+        segment_list.push_back(c2);
+    }
+    else{
+        if(!segment_union.is_empty())
+            segment_list.push_back(segment_union);
+    }
+
+    for(Interval segment:segment_list){
         if(m_face == 0){
             x.push_back(segment.lb());
             x.push_back(segment.ub());
@@ -572,4 +586,8 @@ bool Border::get_compute_inner() const{
     return m_compute_inner;
 }
 
+void Border::copy_to_inner(){
+    m_segment_in_inner = m_segment_in_outer;
+    m_segment_out_inner = m_segment_out_outer;
+}
 

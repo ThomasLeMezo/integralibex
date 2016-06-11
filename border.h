@@ -32,6 +32,7 @@ public:
     bool                            inter(const Border &b);
     bool                            diff(const Border &b);
     void                            complementaire();
+    void                            copy_to_inner();
 
     // Setters
 
@@ -58,7 +59,7 @@ public:
     void                            add_inclusion_receving(Inclusion* inclusion);
 
     // Getters
-    void                            get_points(std::vector<double> &x, std::vector<double> &y) const;
+    void                            get_points(std::vector<double> &x, std::vector<double> &y, bool complementary=false) const;
     const ibex::Interval            get_segment_in() const;
     const ibex::IntervalVector      get_segment_out_2D() const;
     const ibex::Interval            get_segment_out() const;
