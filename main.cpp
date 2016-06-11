@@ -190,8 +190,8 @@ void car_on_the_hill_kernel(){
     ibex::Function f2(x1, x2, Return(x2,
                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
     std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f2);
     f_list.push_back(&f1);
+    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
@@ -205,7 +205,7 @@ void car_on_the_hill_kernel(){
 //    s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
     s.attractor_to_kernel();
     s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.cameleon_viability(8, 1e9);
+    s.cameleon_viability(9, 1e9);
 
     cout << "************************" << endl;
     cout << "TOTAL TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -213,7 +213,7 @@ void car_on_the_hill_kernel(){
     /////////////// Drawing ///////////////
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-//    s.print_pave_info(0, -1.05, 2.8,"b[b]");
+    s.print_pave_info(0, 6.52, 4.34,"b[b]");
 }
 
 void car_on_the_hill_outer_kernel(){

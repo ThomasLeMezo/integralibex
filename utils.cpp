@@ -61,22 +61,21 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
     if(inner && !x_out.is_empty()){
         Interval x_inner(Interval::ALL_REALS);
         // To improve !
-//        if(x_list.size()>2){
-//            for(int i=0; i<x_list.size(); i++){
-//                if(x_list.size()>i+1){
-//                    Interval test = x_list[i] & x_list[i+1];
-//                    if(test.is_degenerated() && !test.is_empty()){
-//                        x_list[i] |= x_list[i+1];
-//                        x_list.erase(x_list.begin()+i+1);
-//                        i--;
-//                    }
-//                }
-//            }
-//        }
+        //        if(x_list.size()>2){
+        //            for(int i=0; i<x_list.size(); i++){
+        //                if(x_list.size()>i+1){
+        //                    Interval test = x_list[i] & x_list[i+1];
+        //                    if(test.is_degenerated() && !test.is_empty()){
+        //                        x_list[i] |= x_list[i+1];
+        //                        x_list.erase(x_list.begin()+i+1);
+        //                        i--;
+        //                    }
+        //                }
+        //            }
+        //        }
         bool one_not_empty = false;
         for(int i=0; i<x_list.size(); i++){
-//            if(!x_list[i].is_empty())
-            if(!(theta_list[i] & (-Interval::HALF_PI | Interval::HALF_PI)).is_empty()){
+            if(!(cos(theta_list[i]) & Interval::POS_REALS).is_empty()){
                 x_inner &= x_list[i];
                 one_not_empty = true;
             }
@@ -124,28 +123,27 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
 
     if(inner && !x_out.is_empty()){
         Interval x_inner(Interval::ALL_REALS);
-//        if(x_list.size()>2){
-//            for(int i=0; i<x_list.size(); i++){
-//                if(x_list.size()>i+1){
-//                    Interval test = x_list[i] & x_list[i+1];
-//                    if(test.is_degenerated() && !test.is_empty()){
-//                        x_list[i] |= x_list[i+1];
-//                        x_list.erase(x_list.begin()+i+1);
-//                        i--;
-//                    }
-//                }
-//            }
-//        }
+        //        if(x_list.size()>2){
+        //            for(int i=0; i<x_list.size(); i++){
+        //                if(x_list.size()>i+1){
+        //                    Interval test = x_list[i] & x_list[i+1];
+        //                    if(test.is_degenerated() && !test.is_empty()){
+        //                        x_list[i] |= x_list[i+1];
+        //                        x_list.erase(x_list.begin()+i+1);
+        //                        i--;
+        //                    }
+        //                }
+        //            }
+        //        }
 
         bool one_not_empty = false;
         for(int i=0; i<x_list.size(); i++){
-//            if(!x_list[i].is_empty())
-            if(!(theta_list[i] & (-Interval::HALF_PI | Interval::HALF_PI)).is_empty()){
+            if(!(cos(theta_list[i]) & (Interval::POS_REALS)).is_empty()
+                    && !(sin(theta_list[i]) & (Interval::POS_REALS)).is_empty()){
                 x_inner &= x_list[i];
                 one_not_empty = true;
             }
         }
-
         if(one_not_empty)
             x_out &= x_inner & x;
     }
@@ -297,21 +295,21 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 // ****************** Algorithm functions      ************************************
 
 void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool enable_function_iteration){
-    int nb_f = p->get_f_list().size();
-    if(!enable_function_iteration)
-        nb_f=1;
+    //    int nb_f = p->get_f_list().size();
+    //    if(!enable_function_iteration)
+    //        nb_f=1;
 
-    for(int i=0; i<nb_f; i++){ //to reach fix point (more iteration might be necessary)
-        if(backward){
-            this->CtcPaveBackward(p, true, change_tab);
-            Pave *p2 = new Pave(p);
-            this->CtcPaveForward(p2, true, change_tab);
-            *p &= *(p2);
-        }
-        else{
-            this->CtcPaveForward(p, false, change_tab);
-        }
+    //    for(int i=0; i<nb_f; i++){ //to reach fix point (more iteration might be necessary)
+    if(backward){
+        this->CtcPaveBackward(p, true, change_tab);
+        Pave *p2 = new Pave(p);
+        this->CtcPaveForward(p2, true, change_tab);
+        *p &= *(p2);
     }
+    else{
+        this->CtcPaveForward(p, false, change_tab);
+    }
+    //    }
 
     // Test if only one border is not empty
     int nb_not_empty = 0;

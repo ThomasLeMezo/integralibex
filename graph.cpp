@@ -414,14 +414,14 @@ void Graph::print_pave_info(double x, double y, string color) const{
     p->reset_full_empty();
     cout << "is_full_inner = " << p->is_full_inner() << " is_empty_inner = " << p->is_empty_inner() << endl;
     cout << "is_full_outer = " << p->is_full_outer() << " is_empty_outer = " << p->is_empty_outer() << endl;
-    cout << "nb\t" << "position\t" << "in\t" << "out\t" << "contaminated_in\t" << "contaminated_out\t" << "continuity_in\t" << "continuity_out" << endl;
+    cout << "nb\t" << "in_inner\t" << "out_inner\t" << "in_outer\t" << "out_outer\t" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
         cout << i << '\t'
                 //<< p->get_border(i)->get_position() << "       \t"
-             << p->get_border(i)->get_segment_in() << "       \t"
-             << p->get_border(i)->get_segment_out() << '\t'
-             << p->get_border(i)->get_continuity_in() << '\t'
-             << p->get_border(i)->get_continuity_out() << '\t'
+             << p->get_border(i)->get_segment_in_inner() << '\t'
+             << p->get_border(i)->get_segment_out_inner() << '\t'
+             << p->get_border(i)->get_segment_in_outer() << '\t'
+             << p->get_border(i)->get_segment_out_outer() << '\t'
              << endl;
     }
 
