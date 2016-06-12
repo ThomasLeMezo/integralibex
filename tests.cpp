@@ -331,6 +331,57 @@ void test_CtcConsistency3(){
     p.print();
 }
 
+void test_CtcConsistency_Kernel(){
+    Utils u;
+    IntervalVector box(2);
+    box[0] = Interval(5.83594, 5.89062);
+    box[1] = Interval(-0.5625, -0.53125);
+
+//    BOX = ([5.83594, 5.89062] ; [-0.5625, -0.53125])
+
+    Variable x1, x2;
+    //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    ibex::Function f1(x1, x2, Return(x2,
+                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
+    ibex::Function f2(x1, x2, Return(x2,
+                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+    f_list.push_back(&f2);
+    Pave p(box, f_list);
+
+    //    nb	in_inner	out_inner	in_outer	out_outer
+    //    0	[ empty ]               [ empty ]           [5.83594, 5.89062]	[5.83594, 5.89062]
+    //    1	[-0.544426, -0.53125]   [ empty ]           [-0.5625, -0.53125]	[ empty ]
+    //    2	[ empty ]               [5.8846, 5.89062]	[5.83594, 5.89062]	[5.83594, 5.89062]
+    //    3	[ empty ]               [ empty ]           [ empty ]           [-0.5625, -0.53125]
+    p.set_inner_mode(false);
+    p.get_border(1)->set_segment_in(Interval(-0.544426, -0.53125), false);
+    p.get_border(2)->set_segment_out(Interval(5.8846, 5.89062), false);
+
+    p.set_inner_mode(true);
+    p.get_border(0)->set_segment_in(Interval(5.83594, 5.89062), false);
+    p.get_border(1)->set_segment_in(Interval(-0.5625, -0.53125), false);
+    p.get_border(2)->set_segment_in(Interval(5.83594, 5.89062), false);
+
+    p.get_border(0)->set_segment_out(Interval(5.83594, 5.89062), false);
+    p.get_border(1)->set_segment_out(Interval(5.83594, 5.89062), false);
+    p.get_border(2)->set_segment_out(Interval(-0.5625, -0.53125), false);
+
+    p.set_inner_mode(false);
+
+    p.draw_test(512, "before");
+    std:vector<bool> change_tab;
+    for(int i=0; i<4; i++)
+        change_tab.push_back(false);
+    u.CtcConsistency(&p, true, change_tab);
+
+    p.draw_test(512, "after");
+    //cout << setprecision(80) << endl;
+    p.print();
+}
+
 void test_contractor_polar(){
     Utils u;
     Interval x_ub = Interval::ALL_REALS;

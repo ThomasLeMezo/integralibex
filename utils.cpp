@@ -253,15 +253,17 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
 void Utils::CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_tab){
     for(int face = 0; face < 4; face++){
         Interval seg_in = p->get_border(face)->get_segment_in();
+        if(!seg_in.is_empty()){
 
-        vector<Interval> seg_out;
-        for(int j=(face+1)%4; j!=face; j=(j+1)%4){
-            seg_out.push_back(p->get_border(j)->get_segment_out());
+            vector<Interval> seg_out;
+            for(int j=(face+1)%4; j!=face; j=(j+1)%4){
+                seg_out.push_back(p->get_border(j)->get_segment_out());
+            }
+
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), p->get_compute_inner() && p->get_inner_mode());
+
+            change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
         }
-
-        this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), p->get_compute_inner() && p->get_inner_mode());
-
-        change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
     }
 }
 
@@ -271,18 +273,20 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
     for(int face = 0; face < 4; face++){
         Interval seg_in;
         seg_in = p->get_border(face)->get_segment_in();
+        if(!seg_in.is_empty()){
 
-        vector<Interval> seg_out;
-        for(int j=0; j<3; j++){
-            seg_out.push_back(Interval::ALL_REALS);
-        }
+            vector<Interval> seg_out;
+            for(int j=0; j<3; j++){
+                seg_out.push_back(Interval::ALL_REALS);
+            }
 
-        this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), false);
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), false);
 
-        int k=0;
-        for(int i=(face+1)%4; i!=face; i=(i+1)%4){
-            segment_out[i] |= seg_out[k];
-            k++;
+            int k=0;
+            for(int i=(face+1)%4; i!=face; i=(i+1)%4){
+                segment_out[i] |= seg_out[k];
+                k++;
+            }
         }
     }
 
@@ -295,11 +299,11 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 // ****************** Algorithm functions      ************************************
 
 void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool enable_function_iteration){
-    //    int nb_f = p->get_f_list().size();
-    //    if(!enable_function_iteration)
-    //        nb_f=1;
+    //        int nb_f = p->get_f_list().size();
+    //        if(!enable_function_iteration)
+    //            nb_f=1;
 
-    //    for(int i=0; i<nb_f; i++){ //to reach fix point (more iteration might be necessary)
+    //        for(int i=0; i<nb_f; i++){ //to reach fix point (more iteration might be necessary)
     if(backward){
         this->CtcPaveBackward(p, true, change_tab);
         Pave *p2 = new Pave(p);
@@ -309,7 +313,7 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
     else{
         this->CtcPaveForward(p, false, change_tab);
     }
-    //    }
+    //        }
 
     // Test if only one border is not empty
     int nb_not_empty = 0;

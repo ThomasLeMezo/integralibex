@@ -25,6 +25,7 @@ void test(){
 //    test_CtcConsistency();
 //    test_CtcConsistency2();
 //    test_CtcConsistency3();
+    test_CtcConsistency_Kernel();
 
 //    test_contractor_polar();
 
@@ -213,7 +214,7 @@ void car_on_the_hill_kernel(){
     /////////////// Drawing ///////////////
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.print_pave_info(0, 6.52, 4.34,"b[b]");
+    s.print_pave_info(0, 5.86, -0.55,"b[b]");
 }
 
 void car_on_the_hill_outer_kernel(){
@@ -650,7 +651,7 @@ int main()
 //    car_on_the_hill_capture_bassin();
 //    car_on_the_hill_inner_kernel();
 
-    car_on_the_hill_kernel();
+//    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
@@ -660,7 +661,7 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-//    van_der_pol_cycle();
+    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_outer();

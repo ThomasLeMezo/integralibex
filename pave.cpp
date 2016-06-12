@@ -383,6 +383,7 @@ void Pave::draw_borders(bool filled, string color_polygon, bool complementary) c
 }
 
 void Pave::draw_test(int size, string comment) const{
+    vibes::beginDrawing();
     stringstream ss;
     ss << "integralIbex - pave=" << m_position << comment;
     vibes::newFigure(ss.str());
