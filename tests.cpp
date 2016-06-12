@@ -334,8 +334,8 @@ void test_CtcConsistency3(){
 void test_CtcConsistency_Kernel(){
     Utils u;
     IntervalVector box(2);
-    box[0] = Interval(5.83594, 5.89062);
-    box[1] = Interval(-0.5625, -0.53125);
+    box[0] = Interval(2.0625, 2.5);
+    box[1] = Interval(2.5, 3);
 
 //    BOX = ([5.83594, 5.89062] ; [-0.5625, -0.53125])
 
@@ -351,14 +351,11 @@ void test_CtcConsistency_Kernel(){
     f_list.push_back(&f2);
     Pave p(box, f_list);
 
-    Graph g(&u, 0);
-    g.compute_propagation_zone(&p);
-
     //    nb	in_inner	out_inner	in_outer	out_outer
-    //    0	[ empty ]               [ empty ]           [5.83594, 5.89062]	[5.83594, 5.89062]
-    //    1	[-0.544426, -0.53125]   [ empty ]           [-0.5625, -0.53125]	[ empty ]
-    //    2	[ empty ]               [5.8846, 5.89062]	[5.83594, 5.89062]	[5.83594, 5.89062]
-    //    3	[ empty ]               [ empty ]           [ empty ]           [-0.5625, -0.53125]
+//    0	[2.0625, 2.35504]	[2.0625, 2.35504]	[2.0625, 2.5]	[2.0625, 2.5]
+//    1	[2.71503, 3]	[2.71503, 3]	[2.5, 3]	[2.5, 3]
+//    2	[2.0625, 2.5]	[2.0625, 2.5]	[2.0625, 2.5]	[2.0625, 2.5]
+//    3	[2.5, 3]	[2.5, 3]	[2.5, 3]	[2.5, 3]
 
 //    p.set_inner_mode(false);
 //    p.get_border(0)->set_segment_in(Interval(5.83594, 5.89062), false);
@@ -370,9 +367,18 @@ void test_CtcConsistency_Kernel(){
 //    p.get_border(3)->set_segment_out(Interval(-0.5625, -0.53125), false);
 
     p.set_inner_mode(true);
-    p.get_border(1)->set_segment_in(Interval(-0.544426, -0.53125), false);
-    p.get_border(2)->set_segment_out(Interval(5.8846, 5.89062), false);
+    p.get_border(0)->set_segment_in(Interval(2.0625, 2.35504), false);
+    p.get_border(1)->set_segment_in(Interval(2.71503, 3), false);
+    p.get_border(2)->set_segment_in(Interval(2.0625, 2.5), false);
+    p.get_border(3)->set_segment_in(Interval(2.5, 3), false);
 
+    p.get_border(0)->set_segment_out(Interval(2.0625, 2.35504), false);
+    p.get_border(1)->set_segment_out(Interval(2.71503, 3), false);
+    p.get_border(2)->set_segment_out(Interval(2.0625, 2.5), false);
+    p.get_border(3)->set_segment_out(Interval(2.5, 3), false);
+
+    Graph g(&u, 0);
+    g.compute_propagation_zone(&p);
 
     p.draw_test(512, "before");
     std:vector<bool> change_tab;

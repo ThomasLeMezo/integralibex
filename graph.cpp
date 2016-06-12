@@ -848,7 +848,7 @@ void Graph::compute_propagation_zone(Pave *p){
 std:vector<bool> change_tab;
         for(int i=0; i<4; i++)
             change_tab.push_back(false);
-        m_utils->CtcConsistency(p_copy, true, change_tab);
+        m_utils->CtcPaveBackward(p_copy, true, change_tab);
 
         int k=2;
         for(int i=(face+1)%4; i!=(face+4)%4; i=(i+1)%4){

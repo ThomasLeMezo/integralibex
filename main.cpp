@@ -206,7 +206,7 @@ void car_on_the_hill_kernel(){
 //    s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
     s.attractor_to_kernel();
 //    s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.cameleon_viability(9, 1e9);
+    s.cameleon_viability(0, 1e9);
 
     cout << "************************" << endl;
     cout << "TOTAL TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -214,7 +214,7 @@ void car_on_the_hill_kernel(){
     /////////////// Drawing ///////////////
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.print_pave_info(0, 5.86, -0.55,"b[b]");
+    s.print_pave_info(0, 2.25, 2.8,"b[b]");
 }
 
 void car_on_the_hill_outer_kernel(){

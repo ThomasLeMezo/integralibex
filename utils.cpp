@@ -54,8 +54,8 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
 
     Interval x_out(Interval::EMPTY_SET), y_out(Interval::EMPTY_SET);
     for(int i=0; i<y_list.size(); i++){
-        x_out |= x_list[i] & x & X;
-        y_out |= y_list[i] & y & X;
+        x_out |= x_list[i];
+        y_out |= y_list[i];
     }
 
     if(inner && !x_out.is_empty()){
@@ -81,7 +81,11 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
             }
         }
         if(one_not_empty)
-            x_out &= x_inner & X & x;
+            x_out = x_inner;
+    }
+    else{
+        x_out &= x & X;
+        y_out &= y & X;
     }
 
     x = x_out;
@@ -117,8 +121,8 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
     Interval x_out(Interval::EMPTY_SET);
     Interval y_out(Interval::EMPTY_SET);
     for(int i=0; i<x_list.size(); i++){
-        x_out |= x_list[i] & x;
-        y_out |= y_list[i] & y;
+        x_out |= x_list[i];
+        y_out |= y_list[i];
     }
 
     if(inner && !x_out.is_empty()){
@@ -145,7 +149,11 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
             }
         }
         if(one_not_empty)
-            x_out &= x_inner & x;
+            x_out = x_inner;
+    }
+    else{
+        x_out &= x;
+        y_out &= y;
     }
     x = x_out;
     y = y_out;
@@ -252,8 +260,11 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
             Interval seg(Interval::EMPTY_SET);
             for(int zone = 0; zone<b->m_zone.size(); zone ++){
                 Interval seg_zone(Interval::ALL_REALS);
+                Interval zone_seg(b->m_zone[zone] - Interval(box_pave[face%2].lb()));
                 for(int interval_id:b->m_zone_segment[zone]){
-                    seg_zone &= (zone & segment_norm_in[interval_id]);
+                    seg_zone &= (zone_seg & segment_norm_in[interval_id]);
+                    if(seg_zone.is_empty())
+                        break;
                 }
                 seg |= seg_zone;
             }
