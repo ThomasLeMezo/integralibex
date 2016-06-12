@@ -106,7 +106,7 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
         theta2_list.push_back(Interval::PI - theta);
     }
 
-    for(Interval &theta:theta2_list){
+    for(Interval theta:theta2_list){
         Interval x_tmp(x), y_tmp(y);
         Interval rho(Interval::POS_REALS);
         this->contract_polar.contract(x_tmp, y_tmp, rho, theta);
@@ -138,8 +138,8 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
 
         bool one_not_empty = false;
         for(int i=0; i<x_list.size(); i++){
-            if(!(cos(theta_list[i]) & (Interval::POS_REALS)).is_empty()
-                    && !(sin(theta_list[i]) & (Interval::POS_REALS)).is_empty()){
+            if(!(cos(theta2_list[i]) & (Interval::POS_REALS)).is_empty()
+                    && !(sin(theta2_list[i]) & (Interval::POS_REALS)).is_empty()){
                 x_inner &= x_list[i];
                 one_not_empty = true;
             }
