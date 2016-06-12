@@ -33,7 +33,7 @@ public:
     void CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner=false);
     void CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box, bool inner=false);
 
-    void CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box_pave, bool inner=false);
+    void CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box_pave, bool inner=false, Border *b=NULL);
 
     void CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_tab);
     void CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_tab);

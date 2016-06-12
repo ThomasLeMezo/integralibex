@@ -177,7 +177,7 @@ void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const st
 // ********************************************************************************
 // ****************** Contractors Global functions ********************************
 
-void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box_pave, bool inner){
+void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box_pave, bool inner, Border *b){
     // Translate and rotate the Segment
     IntervalVector box(box_pave);
     IntervalVector box_in(box_pave);
@@ -238,10 +238,30 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     // **************************** INPUT ****************************
 
     IntervalVector segment_contracted_in = IntervalVector(2);
-    segment_contracted_in[0] = Interval::EMPTY_SET;
     segment_contracted_in[1] = Interval(box[1].lb());
-    for(int i=0; i<3; i++){
-        segment_contracted_in[0] |= segment_norm_in[i];
+
+    if(!inner){
+        segment_contracted_in[0] = Interval::EMPTY_SET;
+        for(int i=0; i<3; i++)
+            segment_contracted_in[0] |= segment_norm_in[i];
+    }
+    else{
+        if(!b->get_zone_propagation())
+           cout << "ERROR ZONE PROPAGATION" << endl;
+        if(b->m_zone.size()!=0){
+            Interval seg(Interval::EMPTY_SET);
+            for(int zone = 0; zone<b->m_zone.size(); zone ++){
+                Interval seg_zone(Interval::ALL_REALS);
+                for(int interval_id:b->m_zone_segment[zone]){
+                    seg_zone &= (zone & segment_norm_in[interval_id]);
+                }
+                seg |= seg_zone;
+            }
+            segment_contracted_in[0] = seg;
+        }
+        else{
+             segment_contracted_in[0] = Interval::EMPTY_SET;
+        }
     }
 
     // Rotate and translate back with the initial box
@@ -260,7 +280,7 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_t
                 seg_out.push_back(p->get_border(j)->get_segment_out());
             }
 
-            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), p->get_compute_inner() && p->get_inner_mode());
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), p->get_compute_inner() && p->get_inner_mode(), p->get_border(face));
 
             change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
         }

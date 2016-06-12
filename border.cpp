@@ -32,6 +32,8 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
 
     m_mode_inner = false;
     m_compute_inner = false;
+
+    m_zone_propagation = false;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -56,6 +58,12 @@ Border::Border(const Border *border): m_position(2)
     m_enable_continuity_out = border->get_continuity_out();
     m_mode_inner = border->get_inner_mode();
     m_compute_inner = border->get_compute_inner();
+
+    m_zone_propagation = border->get_zone_propagation();
+    if(m_zone_propagation){
+        m_zone = border->m_zone;
+        m_zone_segment = border->m_zone_segment;
+    }
 }
 
 Border::~Border(){
@@ -600,5 +608,13 @@ bool Border::get_compute_inner() const{
 void Border::copy_to_inner(){
     m_segment_in_inner = m_segment_in_outer;
     m_segment_out_inner = m_segment_out_outer;
+}
+
+bool Border::get_zone_propagation() const{
+    return m_zone_propagation;
+}
+
+void Border::set_zone_propagation(bool val){
+    m_zone_propagation = val;
 }
 

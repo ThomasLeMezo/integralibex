@@ -400,20 +400,29 @@ void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Funct
 }
 
 void Scheduler::attractor_to_kernel(){
+    cout << endl << endl;
+    cout << "*******************" << endl;
+    cout << "ATTRACTOR TO KERNEL" << endl;
+
     // reset removed and active pave
     Graph *graph = m_graph_list[0];
     graph->set_all_active();
 
     /// OUTER
+    cout << "-> configure outer" << endl;
     graph->set_inner_mode(false);
     graph->copy_to_inner();
     graph->set_full();
     graph->set_external_boundary(false, true);
 
     /// INNER
+    cout << "-> configure inner" << endl;
     graph->set_inner_mode(true);
     graph->complementaire();
     graph->set_external_boundary(true, true);
+
+    cout << "-> compute propagation zone" << endl;
+    graph->compute_all_propagation_zone();
 
     graph->mark_empty_node();
 }

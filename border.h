@@ -53,6 +53,7 @@ public:
     void                            set_inclusion_receving(Border* border, int id_brother);
     void                            set_compute_inner(bool val);
     void                            reset_full_empty();
+    void                            set_zone_propagation(bool val);
 
     void                            add_inclusions(const std::vector<Inclusion *> &inclusion_list);
     bool                            add_inclusion(Inclusion *inclusion);
@@ -86,6 +87,8 @@ public:
 
     bool                            get_inner_mode() const;
     bool                            get_compute_inner() const;
+
+    bool                            get_zone_propagation() const;
 
     // Tests
     bool                            is_empty_inner();
@@ -124,6 +127,11 @@ private:
     bool                            m_compute_inner;
     bool                            set_segment_in(ibex::Interval segment_in);
     bool                            set_segment_out(ibex::Interval segment_in);
+
+public:
+    std::vector<ibex::Interval>     m_zone;
+    std::vector< std::vector<int>>  m_zone_segment;
+    bool                            m_zone_propagation;
 };
 
 #endif // BORDER_H

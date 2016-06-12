@@ -43,6 +43,8 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_full_inner = true;
     m_full_outer = true;
 
+    m_zone_propagation = false;
+
     /////////////////////////////// THETA ///////////////////////////////
     for(ibex::Function* f:f_list){
         std::vector<ibex::Interval> theta = compute_theta(f);
@@ -823,10 +825,10 @@ const std::vector<Interval> Pave::get_theta() const{
 }
 
 const std::vector<Interval> Pave::get_all_theta(bool all) const{
-    if(!all && m_active_function!=-1)
-        return get_theta();
-    else
+    if(all || get_compute_inner() || m_active_function==-1)
         return m_theta;
+    else
+        return get_theta();
 }
 
 void Pave::print(){
@@ -1075,4 +1077,14 @@ bool Pave::is_in_queue_outer() const{
 void Pave::copy_to_inner(){
     for(Border *b:m_borders)
         b->copy_to_inner();
+}
+
+bool Pave::get_zone_propagation() const{
+    return m_zone_propagation;
+}
+
+void Pave::set_zone_propagation(bool val){
+    m_zone_propagation = val;
+    for(Border *b:m_borders)
+        b->set_zone_propagation(val);
 }

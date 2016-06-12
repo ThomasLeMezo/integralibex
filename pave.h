@@ -93,6 +93,8 @@ public:
     void                        set_compute_inner(bool val);
     void                        set_inner_mode(bool val);
 
+    void                        set_zone_propagation(bool val);
+
     void                        reset_full_empty();
 
     // Getters
@@ -124,6 +126,8 @@ public:
     ibex::IntervalVector                get_bounding_pave() const;
     bool                                get_compute_inner() const;
     bool                                get_inner_mode() const;
+
+    bool                                get_zone_propagation() const;
 
     // Other functions
     const std::vector<ibex::Interval>   compute_theta(ibex::Function *f);
@@ -163,6 +167,8 @@ private:
 
     bool                        m_compute_inner;
     bool                        m_inner_mode;
+
+    bool                        m_zone_propagation;
 };
 
 #endif // PAVE_H
