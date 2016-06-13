@@ -113,6 +113,12 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
     for(Interval theta:theta2_list){
         Interval x_tmp(x), y_tmp(y);
         Interval rho(Interval::POS_REALS);
+        if(inner){
+            if(!(y_tmp.lb() & Interval::ZERO).is_empty())
+                y_tmp |= Interval::NEG_REALS;
+            if(!(y_tmp.ub() & Interval(dy)).is_empty())
+                y_tmp |= (Interval::POS_REALS + Interval(dy));
+        }
         this->contract_polar.contract(x_tmp, y_tmp, rho, theta);
         x_list.push_back(x_tmp);
         y_list.push_back(y_tmp);
@@ -241,7 +247,6 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
         // Add segment to seg_out list
         seg_out_tmp.push_back(seg_out[i] & segment_contracted_out[i][(face+i+1)%2]);
     }
-    seg_out = seg_out_tmp;
 
     // **************************** INPUT ****************************
 
@@ -254,15 +259,27 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
             segment_contracted_in[0] |= segment_norm_in[i];
     }
     else{
+
+        std::vector<ibex::Interval> zones(b->m_zone);
+        for(int i=0; i<zones.size(); i++){
+            IntervalVector segment_zone = segment2IntervalVector(b->m_zone[i], face, box);
+            this->translate_segment_and_box(segment_zone, box_in, true, false);
+            this->rotate_segment_and_box(segment_zone, this->tab_rotation[face], box_translate, false);
+            zones[i] = segment_zone[0];
+        }
+
         if(!b->get_zone_propagation())
-           cout << "ERROR ZONE PROPAGATION" << endl;
+            cout << "ERROR ZONE PROPAGATION" << endl;
         if(b->m_zone.size()!=0){
             Interval seg(Interval::EMPTY_SET);
-            for(int zone = 0; zone<b->m_zone.size(); zone ++){
+//            cout << "*******" << endl << "FACE " << face << endl;
+            for(int zone = 0; zone<zones.size(); zone ++){
                 Interval seg_zone(Interval::ALL_REALS);
-                Interval zone_seg(b->m_zone[zone] - Interval(box_pave[face%2].lb()));
+                //                Interval zone_seg(b->m_zone[zone] - Interval(box_pave[face%2].lb()));
+//                cout << "-> zone " << zone << " = " << zones[zone] << box[0] << endl;
                 for(int interval_id:b->m_zone_segment[zone]){
-                    seg_zone &= (zone_seg & segment_norm_in[interval_id]);
+                    seg_zone &= (zones[zone] & segment_norm_in[interval_id]);
+//                    cout << "\t seg_in("<< interval_id << ") " << segment_norm_in[interval_id] << " -> " << (zones[zone] & segment_norm_in[interval_id]) << endl;
                     if(seg_zone.is_empty())
                         break;
                 }
@@ -271,14 +288,17 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
             segment_contracted_in[0] = seg;
         }
         else{
-             segment_contracted_in[0] = Interval::EMPTY_SET;
+            segment_contracted_in[0] = Interval::EMPTY_SET;
         }
     }
 
     // Rotate and translate back with the initial box
     this->rotate_segment_and_box(segment_contracted_in, -tab_rotation[face], box, false);
     this->translate_segment_and_box(segment_contracted_in, box_in, false, false);
+
+    // Write data
     seg_in &= segment_contracted_in[face%2];
+    seg_out = seg_out_tmp;
 }
 
 void Utils::CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_tab){
