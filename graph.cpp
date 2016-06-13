@@ -193,14 +193,14 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
         pop_front_queue();
         pave->set_in_queue(false);
 
-        //        IntervalVector test(2);
-        //        test[0] = Interval(2.55);
-        //        test[1] = Interval(-6.9);
+                IntervalVector test(2);
+                test[0] = Interval(12.5);
+                test[1] = Interval(0.2);
 
-        //        if(debug_marker2 && !(pave->get_position() & test).is_empty()){
-        //            cout << "TEST" << endl;
-        //            pave->draw_test(512, "test");
-        //        }
+                if(debug_marker2 && !(pave->get_position() & test).is_empty()){
+                    cout << "TEST" << endl;
+                    pave->draw_test(512, "test");
+                }
         //        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
         //            draw(1024, "debug");
         //            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
@@ -211,8 +211,8 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
         bool change = m_utils->CtcContinuity(pave, backward);
         if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
 
-            //            if(debug_marker2 && !(pave->get_position() & test).is_empty())
-            //                pave->draw_test(512, "contintuity");
+                        if(debug_marker2 && !(pave->get_position() & test).is_empty())
+                            pave->draw_test(512, "contintuity");
             //            if(debug_marker2 && !(test & pave->get_position()).is_empty()){
             //                draw(1024, "debug");
             //                print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
@@ -225,8 +225,8 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
                 change_tab.push_back(false);
             m_utils->CtcConsistency(pave, backward, change_tab, enable_function_iteration);
 
-            //            if(debug_marker2 && !(pave->get_position() & test).is_empty())
-            //                pave->draw_test(512, "consistence");
+                        if(debug_marker2 && !(pave->get_position() & test).is_empty())
+                            pave->draw_test(512, "consistence");
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave

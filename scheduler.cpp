@@ -214,6 +214,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
     Graph *graph = m_graph_list[0];
     graph->set_active_f(-1);
+    graph->debug_marker2 = true;
 
     if(iterations < iterations_max && graph->size()>4){
         const clock_t begin_time = clock();
@@ -244,7 +245,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-//        if(iterations == 7)
+//        if(iterations == 0)
 //            graph->debug_marker2 = true;
 
         // Process the backward with the subpaving

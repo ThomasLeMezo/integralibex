@@ -22,6 +22,7 @@ void test_CtcConsistency3();
 
 void test_CtcConsistency_Kernel();
 void test_CtcConsistency_Kernel2();
+void test_CtcConsistency_Kernel3();
 
 void test_Newton();
 void test_rotation();

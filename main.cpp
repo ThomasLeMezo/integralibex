@@ -25,8 +25,9 @@ void test(){
 //    test_CtcConsistency();
 //    test_CtcConsistency2();
 //    test_CtcConsistency3();
-//    test_CtcConsistency_Kernel();
-    test_CtcConsistency_Kernel2();
+    test_CtcConsistency_Kernel();
+//    test_CtcConsistency_Kernel2();
+//    test_CtcConsistency_Kernel3();
 
 //    test_contractor_polar();
 
@@ -207,7 +208,7 @@ void car_on_the_hill_kernel(){
 //    s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
     s.attractor_to_kernel();
 //    s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.cameleon_viability(1, 1e9);
+    s.cameleon_viability(1, 476);
 
     cout << "************************" << endl;
     cout << "TOTAL TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -215,7 +216,8 @@ void car_on_the_hill_kernel(){
     /////////////// Drawing ///////////////
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.print_pave_info(0, 10.2,-4.5,"b[b]");
+    s.print_pave_info(0, 12.5,0.8,"b[b]");
+    s.print_pave_info(0, 12.5,0.2,"b[b]");
 }
 
 void car_on_the_hill_outer_kernel(){
@@ -652,7 +654,7 @@ int main()
 //    car_on_the_hill_capture_bassin();
 //    car_on_the_hill_inner_kernel();
 
-    car_on_the_hill_kernel();
+//    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
@@ -672,7 +674,7 @@ int main()
 //    integrator();
 
     /// **** TEST ***** //
-//    test();
+    test();
 
     return 0;
 }
