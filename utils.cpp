@@ -23,7 +23,7 @@ Utils::~Utils(){
  ** CtcPropagateFront supposed that the down left box corner is (0,0)
  **
 */
-void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner){
+void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner, const Interval &rotation){
     if(y.is_empty() || x.is_empty() || theta_list.size()==0){
         x = Interval::EMPTY_SET;
         y = Interval::EMPTY_SET;
@@ -61,21 +61,24 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
     if(inner && !x_out.is_empty()){
         Interval x_inner(Interval::ALL_REALS);
         // To improve !
-                if(x_list.size()>2){
-                    for(int i=0; i<x_list.size(); i++){
-                        if(x_list.size()>i+1){
-                            Interval test = x_list[i] & x_list[i+1];
-                            if(test.is_degenerated() && !test.is_empty()){
-                                x_list[i] |= x_list[i+1];
-                                x_list.erase(x_list.begin()+i+1);
-                                i--;
-                            }
-                        }
+        if(theta_list.size()>2){
+            vector<Interval> x_list_tmp;
+            for(int i=0; i<theta_list.size(); i++){
+                Interval x_list_out = x_list[i];
+                if(x_list.size()>i+1){
+                    if(test_discontinuity(theta_list[i], theta_list[i+1], rotation)){
+                        x_list_out = x_list[i] | x_list[i+1];
+                        i++;
                     }
                 }
+                x_list_tmp.push_back(x_list_out);
+            }
+            x_list = x_list_tmp;
+        }
+
         bool one_not_empty = false;
         for(int i=0; i<x_list.size(); i++){
-            if(!(cos(theta_list[i]) & Interval::POS_REALS).is_empty()){
+            if(!(cos(theta_list[i]) & Interval::POS_REALS).is_degenerated()){
                 x_inner &= x_list[i];
                 one_not_empty = true;
             }
@@ -92,11 +95,11 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
     y = y_out;
 }
 
-void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner){
-    this->CtcPropagateFront(x, x_front, theta_list, box[0].ub(), box[1].ub(), inner);
+void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner, const Interval &rotation){
+    this->CtcPropagateFront(x, x_front, theta_list, box[0].ub(), box[1].ub(), inner, rotation);
 }
 
-void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner){
+void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner, const Interval &rotation){
     if(x.is_empty() || y.is_empty() || theta_list.size()==0){
         x = Interval::EMPTY_SET;
         y = Interval::EMPTY_SET;
@@ -133,23 +136,25 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
 
     if(inner && !x_out.is_empty()){
         Interval x_inner(Interval::ALL_REALS);
-                if(x_list.size()>2){
-                    for(int i=0; i<x_list.size(); i++){
-                        if(x_list.size()>i+1){
-                            Interval test = x_list[i] & x_list[i+1];
-                            if(test.is_degenerated() && !test.is_empty()){
-                                x_list[i] |= x_list[i+1];
-                                x_list.erase(x_list.begin()+i+1);
-                                i--;
-                            }
-                        }
+        if(theta_list.size()>2){
+            vector<Interval> x_list_tmp;
+            for(int i=0; i<theta_list.size(); i++){
+                Interval x_list_out = x_list[i];
+                if(x_list.size()>i+1){
+                    if(test_discontinuity(theta_list[i], theta_list[i+1], rotation)){
+                        x_list_out = x_list[i] | x_list[i+1];
+                        i++;
                     }
                 }
+                x_list_tmp.push_back(x_list_out);
+            }
+            x_list = x_list_tmp;
+        }
 
         bool one_not_empty = false;
         for(int i=0; i<x_list.size(); i++){
-            if(!(cos(theta2_list[i]) & (Interval::POS_REALS)).is_empty()
-                    && !(sin(theta2_list[i]) & (Interval::POS_REALS)).is_empty()){
+            if(!(cos(theta2_list[i]) & (Interval::POS_REALS)).is_degenerated()
+                    && !(sin(theta2_list[i]) & (Interval::POS_REALS)).is_degenerated()){
                 x_inner &= x_list[i];
                 one_not_empty = true;
             }
@@ -165,11 +170,11 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
     y = y_out;
 }
 
-void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner){
-    this->CtcPropagateLeftSide(x, y, theta_list, box[0].ub(), box[1].ub(), inner);
+void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner, const Interval &rotation){
+    this->CtcPropagateLeftSide(x, y, theta_list, box[0].ub(), box[1].ub(), inner, rotation);
 }
 
-void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner){
+void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner, const Interval &rotation){
     /** Apply a symetry to CtcPropagateLeftSide
      ** theta -> pi - theta
      ** x -> dx - x
@@ -180,12 +185,12 @@ void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const st
     for(Interval theta:theta_list){
         theta2_list.push_back(Interval::PI - theta);
     }
-    this->CtcPropagateLeftSide(x, y, theta2_list, dx, dy, inner);
+    this->CtcPropagateLeftSide(x, y, theta2_list, dx, dy, inner, rotation);
     x = Interval(dx) - x;
 }
 
-void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner){
-    this->CtcPropagateRightSide(x, y, theta_list, box[0].ub(), box[1].ub(), inner);
+void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner, const Interval &rotation){
+    this->CtcPropagateRightSide(x, y, theta_list, box[0].ub(), box[1].ub(), inner, rotation);
 }
 
 // ********************************************************************************
@@ -223,9 +228,9 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
         theta_list_rotate.push_back(theta + tab_rotation[face]);
     }
 
-    this->CtcPropagateRightSide(segment_norm_in[0], segment_norm_out[0], theta_list_rotate, box, inner);
-    this->CtcPropagateFront(segment_norm_in[1], segment_norm_out[1], theta_list_rotate, box, inner);
-    this->CtcPropagateLeftSide(segment_norm_in[2], segment_norm_out[2], theta_list_rotate, box, inner);
+    this->CtcPropagateRightSide(segment_norm_in[0], segment_norm_out[0], theta_list_rotate, box, inner, tab_rotation[face]);
+    this->CtcPropagateFront(segment_norm_in[1], segment_norm_out[1], theta_list_rotate, box, inner, tab_rotation[face]);
+    this->CtcPropagateLeftSide(segment_norm_in[2], segment_norm_out[2], theta_list_rotate, box, inner, tab_rotation[face]);
 
     // **************************** OUTPUT ****************************
     // Translate and rotate back the Segment
@@ -272,14 +277,10 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
             cout << "ERROR ZONE PROPAGATION" << endl;
         if(b->m_zone.size()!=0){
             Interval seg(Interval::EMPTY_SET);
-//            cout << "*******" << endl << "FACE " << face << endl;
             for(int zone = 0; zone<zones.size(); zone ++){
                 Interval seg_zone(Interval::ALL_REALS);
-                //                Interval zone_seg(b->m_zone[zone] - Interval(box_pave[face%2].lb()));
-//                cout << "-> zone " << zone << " = " << zones[zone] << box[0] << endl;
                 for(int interval_id:b->m_zone_segment[zone]){
                     seg_zone &= (zones[zone] & segment_norm_in[interval_id]);
-//                    cout << "\t seg_in("<< interval_id << ") " << segment_norm_in[interval_id] << " -> " << (zones[zone] & segment_norm_in[interval_id]) << endl;
                     if(seg_zone.is_empty())
                         break;
                 }
@@ -597,3 +598,35 @@ std::vector<IntervalVector> Utils::get_segment_from_box(const IntervalVector &bo
     return list_border;
 }
 
+bool Utils::test_discontinuity(const Interval &theta1, const Interval &theta2, const Interval &rotation){
+    bool test_cos, test_sin, test_cos1, test_sin1;
+
+    if(rotation == Interval::ZERO){
+        test_cos = !(cos(theta1) & Interval(-1)).is_empty();
+        test_sin = !(sin(theta1) & Interval::ZERO).is_empty();
+        test_cos1 = !(cos(theta2) & Interval(-1)).is_empty();
+        test_sin1 = !(sin(theta2) & Interval::ZERO).is_empty();
+    }
+    else if(rotation == Interval::HALF_PI){
+        test_cos = !(sin(theta1) & Interval(-1)).is_empty();
+        test_sin = !(cos(theta1) & Interval::ZERO).is_empty();
+        test_cos1 = !(sin(theta2) & Interval(-1)).is_empty();
+        test_sin1 = !(cos(theta2) & Interval::ZERO).is_empty();
+    }
+    else if(rotation == Interval::PI || rotation == -Interval::PI){
+        test_cos = !(cos(theta1) & Interval(1)).is_empty();
+        test_sin = !(sin(theta1) & Interval::ZERO).is_empty();
+        test_cos1 = !(cos(theta2) & Interval(1)).is_empty();
+        test_sin1 = !(sin(theta2) & Interval::ZERO).is_empty();
+    }
+    else if(rotation == -Interval::HALF_PI){
+        test_cos = !(sin(theta1) & Interval(1)).is_empty();
+        test_sin = !(cos(theta1) & Interval::ZERO).is_empty();
+        test_cos1 = !(sin(theta2) & Interval(1)).is_empty();
+        test_sin1 = !(cos(theta2) & Interval::ZERO).is_empty();
+    }
+    else{
+        cout << "ROTATION ERROR, theta = " << rotation << endl;
+    }
+    return (test_cos && test_sin && test_cos1 && test_sin1);
+}
