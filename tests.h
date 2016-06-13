@@ -21,6 +21,7 @@ void test_CtcConsistency2();
 void test_CtcConsistency3();
 
 void test_CtcConsistency_Kernel();
+void test_CtcConsistency_Kernel2();
 
 void test_Newton();
 void test_rotation();
@@ -37,4 +38,3 @@ void sandbox();
 void test_car_on_hill();
 
 #endif // TESTS_H
-

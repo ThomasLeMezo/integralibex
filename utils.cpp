@@ -61,18 +61,18 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
     if(inner && !x_out.is_empty()){
         Interval x_inner(Interval::ALL_REALS);
         // To improve !
-        //        if(x_list.size()>2){
-        //            for(int i=0; i<x_list.size(); i++){
-        //                if(x_list.size()>i+1){
-        //                    Interval test = x_list[i] & x_list[i+1];
-        //                    if(test.is_degenerated() && !test.is_empty()){
-        //                        x_list[i] |= x_list[i+1];
-        //                        x_list.erase(x_list.begin()+i+1);
-        //                        i--;
-        //                    }
-        //                }
-        //            }
-        //        }
+                if(x_list.size()>2){
+                    for(int i=0; i<x_list.size(); i++){
+                        if(x_list.size()>i+1){
+                            Interval test = x_list[i] & x_list[i+1];
+                            if(test.is_degenerated() && !test.is_empty()){
+                                x_list[i] |= x_list[i+1];
+                                x_list.erase(x_list.begin()+i+1);
+                                i--;
+                            }
+                        }
+                    }
+                }
         bool one_not_empty = false;
         for(int i=0; i<x_list.size(); i++){
             if(!(cos(theta_list[i]) & Interval::POS_REALS).is_empty()){
@@ -133,18 +133,18 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
 
     if(inner && !x_out.is_empty()){
         Interval x_inner(Interval::ALL_REALS);
-        //        if(x_list.size()>2){
-        //            for(int i=0; i<x_list.size(); i++){
-        //                if(x_list.size()>i+1){
-        //                    Interval test = x_list[i] & x_list[i+1];
-        //                    if(test.is_degenerated() && !test.is_empty()){
-        //                        x_list[i] |= x_list[i+1];
-        //                        x_list.erase(x_list.begin()+i+1);
-        //                        i--;
-        //                    }
-        //                }
-        //            }
-        //        }
+                if(x_list.size()>2){
+                    for(int i=0; i<x_list.size(); i++){
+                        if(x_list.size()>i+1){
+                            Interval test = x_list[i] & x_list[i+1];
+                            if(test.is_degenerated() && !test.is_empty()){
+                                x_list[i] |= x_list[i+1];
+                                x_list.erase(x_list.begin()+i+1);
+                                i--;
+                            }
+                        }
+                    }
+                }
 
         bool one_not_empty = false;
         for(int i=0; i<x_list.size(); i++){
