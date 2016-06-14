@@ -193,14 +193,14 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
         pop_front_queue();
         pave->set_in_queue(false);
 
-                IntervalVector test(2);
-                test[0] = Interval(12.5);
-                test[1] = Interval(0.2);
+        //                IntervalVector test(2);
+        //                test[0] = Interval(12.5);
+        //                test[1] = Interval(0.2);
 
-                if(debug_marker2 && !(pave->get_position() & test).is_empty()){
-                    cout << "TEST" << endl;
-                    pave->draw_test(512, "test");
-                }
+        //                if(debug_marker2 && !(pave->get_position() & test).is_empty()){
+        //                    cout << "TEST" << endl;
+        //                    pave->draw_test(512, "test");
+        //                }
         //        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
         //            draw(1024, "debug");
         //            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
@@ -211,8 +211,8 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
         bool change = m_utils->CtcContinuity(pave, backward);
         if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
 
-                        if(debug_marker2 && !(pave->get_position() & test).is_empty())
-                            pave->draw_test(512, "contintuity");
+            //                        if(debug_marker2 && !(pave->get_position() & test).is_empty())
+            //                            pave->draw_test(512, "contintuity");
             //            if(debug_marker2 && !(test & pave->get_position()).is_empty()){
             //                draw(1024, "debug");
             //                print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
@@ -225,8 +225,8 @@ int Graph::process(int max_iterations, bool backward, bool enable_function_itera
                 change_tab.push_back(false);
             m_utils->CtcConsistency(pave, backward, change_tab, enable_function_iteration);
 
-                        if(debug_marker2 && !(pave->get_position() & test).is_empty())
-                            pave->draw_test(512, "consistence");
+            //                        if(debug_marker2 && !(pave->get_position() & test).is_empty())
+            //                            pave->draw_test(512, "consistence");
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
@@ -832,109 +832,132 @@ void Graph::copy_to_inner(){
 
 void Graph::compute_propagation_zone(Pave *p){
     Pave *p_copy = new Pave(p);
-    Interval segment_impact[4][3];
     p_copy->set_inner_mode(false);
     p_copy->set_compute_inner(false);
-    p_copy->set_active_function(-1);
 
-    // Compute segment impact
-    for(int face = 0; face<4; face++){
-        p_copy->set_empty();
-        p_copy->get_border(face)->set_full_segment_out();
-        for(int i=(face+1)%4; i!=(face+4)%4; i=(i+1)%4){
-            p_copy->get_border(i)->set_full_segment_in();
-        }
-
-std:vector<bool> change_tab;
+    for(int id_function = 0; id_function<p->get_f_list().size(); id_function++){
+        p_copy->set_active_function(id_function);
+        p_copy->set_full();
+        vector<bool> change_tab;
         for(int i=0; i<4; i++)
             change_tab.push_back(false);
         m_utils->CtcPaveBackward(p_copy, true, change_tab);
 
-        int k=2;
-        for(int i=(face+1)%4; i!=(face+4)%4; i=(i+1)%4){
-            segment_impact[i][k] = p_copy->get_border(i)->get_segment_in();
-            k--;
+        for(int face = 0; face<4; face++){
+            if(!p_copy->get_border(face)->get_segment_in().is_empty())
+                p->get_border(face)->push_back_zone_function(true);
+            else
+                p->get_border(face)->push_back_zone_function(false);
         }
-    }
-
-    // Sort segment
-    for(int face = 0; face<4; face++){
-        vector<vector<double>> bounds;
-        for(int i=0; i<3; i++){
-            if(!segment_impact[face][i].is_empty()){
-                vector<double> b1;
-                b1.push_back(segment_impact[face][i].lb());
-                b1.push_back(i); // ID
-                b1.push_back(0); // LOWER
-                bounds.push_back(b1);
-
-                vector<double> b2;
-                b2.push_back(segment_impact[face][i].ub());
-                b2.push_back(i); // ID
-                b2.push_back(1); // UPPER
-                bounds.push_back(b2);
-            }
-        }
-        vector<Interval> zones;
-        vector<vector<int>> segment_list;
-
-        if(bounds.size()!=0){
-
-            std::sort(bounds.begin(), bounds.end(),
-                      [](const std::vector<double>& a, const std::vector<double>& b) {
-                return a[0] < b[0];
-            });
-
-            bool segment_enable[3] = {false, false, false};
-            for(int i=0; i<bounds.size()-1; i++){
-                // LOWER BOUND
-                double point_lb = bounds[i][0];
-
-                if(bounds[i][2]==0)
-                    segment_enable[(int)bounds[i][1]]=true;
-                else
-                    segment_enable[(int)bounds[i][1]]=false;
-
-                while((i+1)<bounds.size() && bounds[i+1][0] == point_lb){
-                    i++;
-                    if(bounds[i][2]==0)
-                        segment_enable[(int)bounds[i][1]]=true;
-                    else
-                        segment_enable[(int)bounds[i][1]]=false;
-                }
-
-                // UPPER BOUND
-                i++;
-                double point_ub = bounds[i][0];
-                zones.push_back(Interval(point_lb, point_ub));
-                vector<int> segment_list_tmp;
-                for(int j=0; j<3; j++){
-                    if(segment_enable[j])
-                        segment_list_tmp.push_back(j);
-                }
-                segment_list.push_back(segment_list_tmp);
-
-                if(bounds[i][2]==0)
-                    segment_enable[(int)bounds[i][1]]=true;
-                else
-                    segment_enable[(int)bounds[i][1]]=false;
-
-                while((i+1)<bounds.size() && bounds[i+1][0] == point_ub){
-                    i++;
-                    if(bounds[i][2]==0)
-                        segment_enable[(int)bounds[i][1]]=true;
-                    else
-                        segment_enable[(int)bounds[i][1]]=false;
-                }
-                i--;
-            }
-        }
-        p->get_border(face)->m_zone = zones;
-        p->get_border(face)->m_zone_segment = segment_list;
     }
     p->set_zone_propagation(true);
-
 }
+
+//void Graph::compute_propagation_zone(Pave *p){
+//    Pave *p_copy = new Pave(p);
+//    Interval segment_impact[4][3];
+//    p_copy->set_inner_mode(false);
+//    p_copy->set_compute_inner(false);
+//    p_copy->set_active_function(-1);
+
+//    // Compute segment impact
+//    for(int face = 0; face<4; face++){
+//        p_copy->set_empty();
+//        p_copy->get_border(face)->set_full_segment_out();
+//        for(int i=(face+1)%4; i!=(face+4)%4; i=(i+1)%4){
+//            p_copy->get_border(i)->set_full_segment_in();
+//        }
+
+//std:vector<bool> change_tab;
+//        for(int i=0; i<4; i++)
+//            change_tab.push_back(false);
+//        m_utils->CtcPaveBackward(p_copy, true, change_tab);
+
+//        int k=2;
+//        for(int i=(face+1)%4; i!=(face+4)%4; i=(i+1)%4){
+//            segment_impact[i][k] = p_copy->get_border(i)->get_segment_in();
+//            k--;
+//        }
+//    }
+
+//    // Sort segment
+//    for(int face = 0; face<4; face++){
+//        vector<vector<double>> bounds;
+//        for(int i=0; i<3; i++){
+//            if(!segment_impact[face][i].is_empty()){
+//                vector<double> b1;
+//                b1.push_back(segment_impact[face][i].lb());
+//                b1.push_back(i); // ID
+//                b1.push_back(0); // LOWER
+//                bounds.push_back(b1);
+
+//                vector<double> b2;
+//                b2.push_back(segment_impact[face][i].ub());
+//                b2.push_back(i); // ID
+//                b2.push_back(1); // UPPER
+//                bounds.push_back(b2);
+//            }
+//        }
+//        vector<Interval> zones;
+//        vector<vector<int>> segment_list;
+
+//        if(bounds.size()!=0){
+
+//            std::sort(bounds.begin(), bounds.end(),
+//                      [](const std::vector<double>& a, const std::vector<double>& b) {
+//                return a[0] < b[0];
+//            });
+
+//            bool segment_enable[3] = {false, false, false};
+//            for(int i=0; i<bounds.size()-1; i++){
+//                // LOWER BOUND
+//                double point_lb = bounds[i][0];
+
+//                if(bounds[i][2]==0)
+//                    segment_enable[(int)bounds[i][1]]=true;
+//                else
+//                    segment_enable[(int)bounds[i][1]]=false;
+
+//                while((i+1)<bounds.size() && bounds[i+1][0] == point_lb){
+//                    i++;
+//                    if(bounds[i][2]==0)
+//                        segment_enable[(int)bounds[i][1]]=true;
+//                    else
+//                        segment_enable[(int)bounds[i][1]]=false;
+//                }
+
+//                // UPPER BOUND
+//                i++;
+//                double point_ub = bounds[i][0];
+//                zones.push_back(Interval(point_lb, point_ub));
+//                vector<int> segment_list_tmp;
+//                for(int j=0; j<3; j++){
+//                    if(segment_enable[j])
+//                        segment_list_tmp.push_back(j);
+//                }
+//                segment_list.push_back(segment_list_tmp);
+
+//                if(bounds[i][2]==0)
+//                    segment_enable[(int)bounds[i][1]]=true;
+//                else
+//                    segment_enable[(int)bounds[i][1]]=false;
+
+//                while((i+1)<bounds.size() && bounds[i+1][0] == point_ub){
+//                    i++;
+//                    if(bounds[i][2]==0)
+//                        segment_enable[(int)bounds[i][1]]=true;
+//                    else
+//                        segment_enable[(int)bounds[i][1]]=false;
+//                }
+//                i--;
+//            }
+//        }
+////        p->get_border(face)->m_zone = zones;
+////        p->get_border(face)->m_zone_segment = segment_list;
+//    }
+//    p->set_zone_propagation(true);
+
+//}
 
 void Graph::compute_all_propagation_zone(){
     for(Pave *p:m_node_list){

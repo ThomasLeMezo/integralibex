@@ -23,7 +23,7 @@ Utils::~Utils(){
  ** CtcPropagateFront supposed that the down left box corner is (0,0)
  **
 */
-void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner, const Interval &rotation){
+void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy){
     if(y.is_empty() || x.is_empty() || theta_list.size()==0){
         x = Interval::EMPTY_SET;
         y = Interval::EMPTY_SET;
@@ -58,48 +58,15 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
         y_out |= y_list[i];
     }
 
-    if(inner && !x_out.is_empty()){
-        Interval x_inner(Interval::ALL_REALS);
-        // To improve !
-        if(theta_list.size()>2){
-            vector<Interval> x_list_tmp;
-            for(int i=0; i<theta_list.size(); i++){
-                Interval x_list_out = x_list[i];
-                if(x_list.size()>i+1){
-                    if(test_discontinuity(theta_list[i], theta_list[i+1], rotation)){
-                        x_list_out = x_list[i] | x_list[i+1];
-                        i++;
-                    }
-                }
-                x_list_tmp.push_back(x_list_out);
-            }
-            x_list = x_list_tmp;
-        }
-
-        bool one_not_empty = false;
-        for(int i=0; i<x_list.size(); i++){
-            if(!(cos(theta_list[i]) & Interval::POS_REALS).is_degenerated()){
-                x_inner &= x_list[i];
-                one_not_empty = true;
-            }
-        }
-        if(one_not_empty)
-            x_out = x_inner;
-    }
-    else{
-        x_out &= x & X;
-        y_out &= y & X;
-    }
-
-    x = x_out;
-    y = y_out;
+    x = x_out & x & X;
+    y = y_out & y & X;
 }
 
-void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner, const Interval &rotation){
-    this->CtcPropagateFront(x, x_front, theta_list, box[0].ub(), box[1].ub(), inner, rotation);
+void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &x_front, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box){
+    this->CtcPropagateFront(x, x_front, theta_list, box[0].ub(), box[1].ub());
 }
 
-void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner, const Interval &rotation){
+void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy){
     if(x.is_empty() || y.is_empty() || theta_list.size()==0){
         x = Interval::EMPTY_SET;
         y = Interval::EMPTY_SET;
@@ -116,12 +83,6 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
     for(Interval theta:theta2_list){
         Interval x_tmp(x), y_tmp(y);
         Interval rho(Interval::POS_REALS);
-        if(inner){
-            if(!(y_tmp.lb() & Interval::ZERO).is_empty())
-                y_tmp |= Interval::NEG_REALS;
-            if(!(y_tmp.ub() & Interval(dy)).is_empty())
-                y_tmp |= (Interval::POS_REALS + Interval(dy));
-        }
         this->contract_polar.contract(x_tmp, y_tmp, rho, theta);
         x_list.push_back(x_tmp);
         y_list.push_back(y_tmp);
@@ -134,47 +95,15 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
         y_out |= y_list[i];
     }
 
-    if(inner && !x_out.is_empty()){
-        Interval x_inner(Interval::ALL_REALS);
-        if(theta_list.size()>2){
-            vector<Interval> x_list_tmp;
-            for(int i=0; i<theta_list.size(); i++){
-                Interval x_list_out = x_list[i];
-                if(x_list.size()>i+1){
-                    if(test_discontinuity(theta_list[i], theta_list[i+1], rotation)){
-                        x_list_out = x_list[i] | x_list[i+1];
-                        i++;
-                    }
-                }
-                x_list_tmp.push_back(x_list_out);
-            }
-            x_list = x_list_tmp;
-        }
-
-        bool one_not_empty = false;
-        for(int i=0; i<x_list.size(); i++){
-            if(!(cos(theta2_list[i]) & (Interval::POS_REALS)).is_degenerated()
-                    && !(sin(theta2_list[i]) & (Interval::POS_REALS)).is_degenerated()){
-                x_inner &= x_list[i];
-                one_not_empty = true;
-            }
-        }
-        if(one_not_empty)
-            x_out = x_inner;
-    }
-    else{
-        x_out &= x;
-        y_out &= y;
-    }
-    x = x_out;
-    y = y_out;
+    x &= x_out;
+    y &= y_out;
 }
 
-void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner, const Interval &rotation){
-    this->CtcPropagateLeftSide(x, y, theta_list, box[0].ub(), box[1].ub(), inner, rotation);
+void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box){
+    this->CtcPropagateLeftSide(x, y, theta_list, box[0].ub(), box[1].ub());
 }
 
-void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy, bool inner, const Interval &rotation){
+void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const double &dx, const double &dy){
     /** Apply a symetry to CtcPropagateLeftSide
      ** theta -> pi - theta
      ** x -> dx - x
@@ -185,18 +114,18 @@ void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const st
     for(Interval theta:theta_list){
         theta2_list.push_back(Interval::PI - theta);
     }
-    this->CtcPropagateLeftSide(x, y, theta2_list, dx, dy, inner, rotation);
+    this->CtcPropagateLeftSide(x, y, theta2_list, dx, dy);
     x = Interval(dx) - x;
 }
 
-void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box, bool inner, const Interval &rotation){
-    this->CtcPropagateRightSide(x, y, theta_list, box[0].ub(), box[1].ub(), inner, rotation);
+void Utils::CtcPropagateRightSide(ibex::Interval &x, ibex::Interval &y, const std::vector<ibex::Interval> &theta_list, const IntervalVector &box){
+    this->CtcPropagateRightSide(x, y, theta_list, box[0].ub(), box[1].ub());
 }
 
 // ********************************************************************************
 // ****************** Contractors Global functions ********************************
 
-void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box_pave, bool inner, Border *b){
+void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box_pave){
     // Translate and rotate the Segment
     IntervalVector box(box_pave);
     IntervalVector box_in(box_pave);
@@ -228,9 +157,9 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
         theta_list_rotate.push_back(theta + tab_rotation[face]);
     }
 
-    this->CtcPropagateRightSide(segment_norm_in[0], segment_norm_out[0], theta_list_rotate, box, inner, tab_rotation[face]);
-    this->CtcPropagateFront(segment_norm_in[1], segment_norm_out[1], theta_list_rotate, box, inner, tab_rotation[face]);
-    this->CtcPropagateLeftSide(segment_norm_in[2], segment_norm_out[2], theta_list_rotate, box, inner, tab_rotation[face]);
+    this->CtcPropagateRightSide(segment_norm_in[0], segment_norm_out[0], theta_list_rotate, box);
+    this->CtcPropagateFront(segment_norm_in[1], segment_norm_out[1], theta_list_rotate, box);
+    this->CtcPropagateLeftSide(segment_norm_in[2], segment_norm_out[2], theta_list_rotate, box);
 
     // **************************** OUTPUT ****************************
     // Translate and rotate back the Segment
@@ -258,40 +187,9 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     IntervalVector segment_contracted_in = IntervalVector(2);
     segment_contracted_in[1] = Interval(box[1].lb());
 
-    if(!inner){
-        segment_contracted_in[0] = Interval::EMPTY_SET;
-        for(int i=0; i<3; i++)
-            segment_contracted_in[0] |= segment_norm_in[i];
-    }
-    else{
-
-        std::vector<ibex::Interval> zones(b->m_zone);
-        for(int i=0; i<zones.size(); i++){
-            IntervalVector segment_zone = segment2IntervalVector(b->m_zone[i], face, box);
-            this->translate_segment_and_box(segment_zone, box_in, true, false);
-            this->rotate_segment_and_box(segment_zone, this->tab_rotation[face], box_translate, false);
-            zones[i] = segment_zone[0];
-        }
-
-        if(!b->get_zone_propagation())
-            cout << "ERROR ZONE PROPAGATION" << endl;
-        if(b->m_zone.size()!=0){
-            Interval seg(Interval::EMPTY_SET);
-            for(int zone = 0; zone<zones.size(); zone ++){
-                Interval seg_zone(Interval::ALL_REALS);
-                for(int interval_id:b->m_zone_segment[zone]){
-                    seg_zone &= (zones[zone] & segment_norm_in[interval_id]);
-                    if(seg_zone.is_empty())
-                        break;
-                }
-                seg |= seg_zone;
-            }
-            segment_contracted_in[0] = seg;
-        }
-        else{
-            segment_contracted_in[0] = Interval::EMPTY_SET;
-        }
-    }
+    segment_contracted_in[0] = Interval::EMPTY_SET;
+    for(int i=0; i<3; i++)
+        segment_contracted_in[0] |= segment_norm_in[i];
 
     // Rotate and translate back with the initial box
     this->rotate_segment_and_box(segment_contracted_in, -tab_rotation[face], box, false);
@@ -312,7 +210,7 @@ void Utils::CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_t
                 seg_out.push_back(p->get_border(j)->get_segment_out());
             }
 
-            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), p->get_compute_inner() && p->get_inner_mode(), p->get_border(face));
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position());
 
             change_tab[face] = p->get_border(face)->set_segment_in(seg_in, inclusion) || change_tab[face];
         }
@@ -332,7 +230,7 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
                 seg_out.push_back(Interval::ALL_REALS);
             }
 
-            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position(), false);
+            this->CtcPropagateSegment(seg_in, seg_out, face, p->get_all_theta(), p->get_position());
 
             int k=0;
             for(int i=(face+1)%4; i!=face; i=(i+1)%4){
@@ -351,13 +249,27 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 // ****************** Algorithm functions      ************************************
 
 void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool enable_function_iteration){
-    //        int nb_f = p->get_f_list().size();
-    //        if(!enable_function_iteration)
-    //            nb_f=1;
 
-    //        for(int i=0; i<nb_f; i++){ //to reach fix point (more iteration might be necessary)
     if(backward){
-        this->CtcPaveBackward(p, true, change_tab);
+        if(p->get_compute_inner() && p->get_inner_mode()){
+            vector<Pave*> list_pave;
+            for(int i=0; i<p->get_f_list().size(); i++){
+                Pave *p_tmp = new Pave(p);
+                p_tmp->set_active_function(i);
+                this->CtcPaveBackward(p_tmp, true, change_tab);
+                list_pave.push_back(p_tmp);
+            }
+            // Intersect paves
+            p->inter_inner(list_pave);
+
+            // Delete pave tmp
+            for(Pave *p_tmp:list_pave)
+                delete(p_tmp);
+        }
+        else{
+            this->CtcPaveBackward(p, true, change_tab);
+        }
+
         Pave *p2 = new Pave(p);
         this->CtcPaveForward(p2, true, change_tab);
         *p &= *(p2);
@@ -365,7 +277,6 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
     else{
         this->CtcPaveForward(p, false, change_tab);
     }
-    //        }
 
     // Test if only one border is not empty
     int nb_not_empty = 0;

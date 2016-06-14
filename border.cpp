@@ -60,13 +60,11 @@ Border::Border(const Border *border): m_position(2)
     m_compute_inner = border->get_compute_inner();
 
     m_zone_propagation = border->get_zone_propagation();
-    if(m_zone_propagation){
-        m_zone = border->m_zone;
-        m_zone_segment = border->m_zone_segment;
-    }
+    if(m_zone_propagation)
+        m_zone_function = border->get_zone_function();
 }
 
-Border::~Border(){
+Border::~Border(){;
     for(Inclusion *i :m_inclusions){
         delete(i);
     }
@@ -618,3 +616,31 @@ void Border::set_zone_propagation(bool val){
     m_zone_propagation = val;
 }
 
+std::vector<bool> Border::get_zone_function() const{
+    return m_zone_function;
+}
+
+void Border::set_zone_function(const std::vector<bool> &zone_function){
+    m_zone_function = zone_function;
+}
+
+void Border::push_back_zone_function(bool zone_active){
+    m_zone_function.push_back(zone_active);
+}
+
+void Border::inter_inner(std::vector<Border*> border_list){
+    Interval segment_in(Interval::ALL_REALS);
+
+    bool one_no_empty = false;
+    for(int i=0; i<border_list.size(); i++){
+        if(m_zone_function[i]){
+            segment_in &= border_list[i]->get_segment_in_inner();
+            one_no_empty = true;
+        }
+    }
+
+    if(one_no_empty)
+        m_segment_in_inner &= segment_in;
+    else
+        m_segment_in_inner &= Interval::EMPTY_SET;
+}

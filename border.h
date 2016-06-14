@@ -33,6 +33,7 @@ public:
     bool                            diff(const Border &b);
     void                            complementaire();
     void                            copy_to_inner();
+    void                            inter_inner(std::vector<Border*> border_list);
 
     // Setters
 
@@ -54,11 +55,14 @@ public:
     void                            set_compute_inner(bool val);
     void                            reset_full_empty();
     void                            set_zone_propagation(bool val);
+    void                            set_zone_function(const std::vector<bool> &zone_function);
 
     void                            add_inclusions(const std::vector<Inclusion *> &inclusion_list);
     bool                            add_inclusion(Inclusion *inclusion);
     void                            add_inclusion_copy(Inclusion *inclusion);
     void                            add_inclusion_receving(Inclusion* inclusion);
+
+    void                            push_back_zone_function(bool zone_active);
 
     // Getters
     void                            get_points(std::vector<double> &x, std::vector<double> &y, bool complementary=false) const;
@@ -89,6 +93,8 @@ public:
     bool                            get_compute_inner() const;
 
     bool                            get_zone_propagation() const;
+    std::vector<bool>               get_zone_function() const;
+
 
     // Tests
     bool                            is_empty_inner();
@@ -129,8 +135,7 @@ private:
     bool                            set_segment_out(ibex::Interval segment_in);
 
 public:
-    std::vector<ibex::Interval>     m_zone;
-    std::vector< std::vector<int>>  m_zone_segment;
+    std::vector<bool>               m_zone_function;
     bool                            m_zone_propagation;
 };
 

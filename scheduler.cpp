@@ -214,7 +214,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
     Graph *graph = m_graph_list[0];
     graph->set_active_f(-1);
-    graph->debug_marker2 = true;
+//    graph->debug_marker2 = true;
 
     if(iterations < iterations_max && graph->size()>4){
         const clock_t begin_time = clock();

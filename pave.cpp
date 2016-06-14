@@ -166,6 +166,15 @@ bool Pave::inter(const Pave &p){
     return change;
 }
 
+bool Pave::inter_inner(const std::vector<Pave*> pave_list){
+    for(int face = 0; face <4; face++){
+        vector<Border*> border_list;
+        for(Pave *p:pave_list)
+            border_list.push_back(p->get_border(face));
+        get_border(face)->inter_inner(border_list);
+    }
+}
+
 bool Pave::diff(const Pave &p){
     bool change = false;
     for(int face = 0; face<4; face++){
@@ -355,32 +364,32 @@ void Pave::draw_borders(bool filled, string color_polygon, bool complementary) c
         if(x.size()>0)
             vibes::drawPolygon(x, y, color_polygon);
 
-//        int alone_points;
-//        int nb_point = x.size();
-//        if(nb_point>0){
-//            vector<int> starting_point;
-//            for(int i=0; i<(int)x.size(); i++){
-//                if(!((x[i]==x[(i+1)%nb_point] && y[i]==y[(i+1)%nb_point]) || !(x[i]==x[(i-1+nb_point)%nb_point] && y[i]==y[(i-1+nb_point)%nb_point])))
-//                    alone_points++;
-//                else
-//                    starting_point.push_back(i);
-//            }
+        //        int alone_points;
+        //        int nb_point = x.size();
+        //        if(nb_point>0){
+        //            vector<int> starting_point;
+        //            for(int i=0; i<(int)x.size(); i++){
+        //                if(!((x[i]==x[(i+1)%nb_point] && y[i]==y[(i+1)%nb_point]) || !(x[i]==x[(i-1+nb_point)%nb_point] && y[i]==y[(i-1+nb_point)%nb_point])))
+        //                    alone_points++;
+        //                else
+        //                    starting_point.push_back(i);
+        //            }
 
-//            if(nb_point == 8 && alone_points == 4){
-//                for(int start:starting_point){
-//                    vector<double> xp, yp;
-//                    for(int i=(start-1+nb_point)%nb_point; i<=(start+1+nb_point)%nb_point; i++){
-//                        xp.push_back(x[i]);
-//                        yp.push_back(y[i]);
-//                    }
-//                    vibes::drawPolygon(xp, yp, color_polygon);
-//                }
+        //            if(nb_point == 8 && alone_points == 4){
+        //                for(int start:starting_point){
+        //                    vector<double> xp, yp;
+        //                    for(int i=(start-1+nb_point)%nb_point; i<=(start+1+nb_point)%nb_point; i++){
+        //                        xp.push_back(x[i]);
+        //                        yp.push_back(y[i]);
+        //                    }
+        //                    vibes::drawPolygon(xp, yp, color_polygon);
+        //                }
 
-//            }
-//            else{
-//                vibes::drawPolygon(x, y, color_polygon);
-//            }
-//        }
+        //            }
+        //            else{
+        //                vibes::drawPolygon(x, y, color_polygon);
+        //            }
+        //        }
     }
 }
 
@@ -825,7 +834,7 @@ const std::vector<Interval> Pave::get_theta() const{
 }
 
 const std::vector<Interval> Pave::get_all_theta(bool all) const{
-    if(all || get_compute_inner() || m_active_function==-1)
+    if(all || m_active_function==-1)
         return m_theta;
     else
         return get_theta();

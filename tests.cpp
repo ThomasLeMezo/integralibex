@@ -485,6 +485,53 @@ void test_CtcConsistency_Kernel3(){
     p.print();
 }
 
+void test_CtcConsistency_Kernel4(){
+    Utils u;
+    IntervalVector box(2);
+    box[0] = Interval(2.9375, 3.375);
+    box[1] = Interval(-3.5, -3);
+
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(x2,
+                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
+    ibex::Function f2(x1, x2, Return(x2,
+                                    -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+    f_list.push_back(&f2);
+    Pave p(box, f_list);
+
+    //nb	in_inner	out_inner	in_outer	out_outer
+//    0	[ empty ]	[2.9375, 3.375]	[2.9375, 3.375]	[2.9375, 3.375]
+//    1	[-3.5, -3.00493]	[ empty ]	[-3.5, -3]	[ empty ]
+//    2	[ empty ]	[ empty ]	[2.9375, 3.375]	[2.9375, 3.375]
+//    3	[ empty ]	[ empty ]	[ empty ]	[-3.5, -3]
+    p.set_inner_mode(true);
+//    p.get_border(0)->set_segment_in(Interval(12.125, 13), false);
+    p.get_border(1)->set_segment_in(Interval(-3.5, -3.00493), false);
+//    p.get_border(2)->set_segment_in(Interval(12.125, 13), false);
+//    p.get_border(3)->set_segment_in(Interval(0.5, 1), false);
+
+    p.get_border(0)->set_segment_out(Interval(2.9375, 3.375), false);
+//    p.get_border(1)->set_segment_out(Interval(0.5, 1), false);
+//    p.get_border(2)->set_segment_out(Interval(12.125, 13), false);
+//    p.get_border(3)->set_segment_out(Interval(0.5, 1), false);
+
+    Graph g(&u, 0);
+    g.compute_propagation_zone(&p);
+
+    p.draw_test(512, "before");
+    std:vector<bool> change_tab;
+    for(int i=0; i<4; i++)
+        change_tab.push_back(false);
+    u.CtcConsistency(&p, true, change_tab);
+
+    p.draw_test(512, "after");
+    //cout << setprecision(80) << endl;
+    p.print();
+}
+
 void test_contractor_polar(){
     Utils u;
     Interval x_ub = Interval::ALL_REALS;
