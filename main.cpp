@@ -206,10 +206,10 @@ void car_on_the_hill_kernel(){
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-//    s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
+    s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
     s.attractor_to_kernel();
 //    s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.cameleon_viability(8, 1e9);
+    s.cameleon_viability(10, 1e9);
 
     cout << "************************" << endl;
     cout << "TOTAL TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -217,7 +217,7 @@ void car_on_the_hill_kernel(){
     /////////////// Drawing ///////////////
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.print_pave_info(0, 3.15,-3.2,"b[b]");
+//    s.print_pave_info(0, 3.15,-3.2,"b[b]");
 //    s.print_pave_info(0, 12.5,0.2,"b[b]");
 }
 
@@ -559,8 +559,8 @@ void van_der_pol_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x + 0.1));
-    ibex::Function f2(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x - 0.1));
+    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x + 0.01));
+    ibex::Function f2(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x - 0.01));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -577,7 +577,37 @@ void van_der_pol_kernel(){
     s.draw(1024, true, "attractor");
     s.attractor_to_kernel();
     s.draw(1024, true, "invert");
-    s.cameleon_viability(8, 1e9);
+    s.cameleon_viability(10, 1e9);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+}
+
+void van_der_pol_kernel2(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x, y;
+    ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x) + 0.1));
+    ibex::Function f2(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x) - 0.1));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+    f_list.push_back(&f2);
+
+    IntervalVector box(2);
+    box[0] = Interval(-8.0, 8.0);
+    box[1] = Interval(-8.0, 8.0);
+
+    Scheduler s(box, f_list, false, false, false);
+
+    /////////////// Compute ///////////////
+    s.compute_attractor(14, 1e9, 0);
+    s.draw(1024, true, "attractor");
+    s.attractor_to_kernel();
+    s.draw(1024, true, "invert");
+    s.cameleon_viability(10, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -668,6 +698,7 @@ int main()
 //    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
+//    van_der_pol_kernel2();
 //    van_der_pol_outer();
 //    van_der_pol_inner();
 

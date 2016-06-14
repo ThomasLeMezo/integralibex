@@ -303,17 +303,17 @@ void Pave::draw(bool filled, string color, bool borders_only){
                 bool mode = get_inner_mode();
                 /// OUTER
                 set_inner_mode(false);
-                draw_borders(true, "#D3D3D3[#4C4CFF]", true); // blue
+                draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
 
                 /// INNER
                 set_inner_mode(true);
-                draw_borders(true, "#D3D3D3[#FF00FF]", true); // magenta
+                draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
 
                 Pave *p_polygon = new Pave(this);
                 p_polygon->set_inner_mode(true);
                 set_inner_mode(false);
                 p_polygon->inter(*this);
-                p_polygon->draw_borders(true, "[y]");
+                p_polygon->draw_borders(true, "y[y]");
                 delete(p_polygon);
 
                 set_inner_mode(mode);

@@ -248,7 +248,7 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 // ********************************************************************************
 // ****************** Algorithm functions      ************************************
 
-void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool enable_function_iteration){
+void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab){
 
     if(backward){
         if(p->get_compute_inner() && p->get_inner_mode()){

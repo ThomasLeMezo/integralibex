@@ -145,7 +145,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     }
 }
 
-void Scheduler::compute_attractor(int iterations_max, int process_iterations_max){
+void Scheduler::compute_attractor(int iterations_max, int process_iterations_max, int use_function){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
 
@@ -157,7 +157,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph->sivia(4,true, false, false, 0.0); // Start with 4 boxes
-        graph->process(process_iterations_max, true, false); // ? Usefull ??? ToDo
+        graph->process(process_iterations_max, true, use_function); // ? Usefull ??? ToDo
         iterations++;
     }
 
@@ -180,7 +180,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< 0 << " (" << graph->size() << ")" << endl;
-            int graph_list_process_cpt = graph->process(process_iterations_max, true, false);
+            int graph_list_process_cpt = graph->process(process_iterations_max, true, use_function);
 
             if(graph->get_inner_mode())
                 cout << "--> processing inner = " ;
@@ -224,11 +224,11 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
         graph->set_inner_mode(true);
         graph->update_queue(false, true);
-        graph->process(process_iterations_max, true, true);
+        graph->process(process_iterations_max, true);
 
         graph->set_inner_mode(false);
         graph->update_queue(true, true);
-        graph->process(process_iterations_max, true, true);
+        graph->process(process_iterations_max, true);
 
         cout << "--> time (processing) = " << float( clock() - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -253,11 +253,11 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
         graph->set_inner_mode(true);
         graph->update_queue(false, true);
-        graph->process(process_iterations_max, true, true);
+        graph->process(process_iterations_max, true);
 
         graph->set_inner_mode(false);
         graph->update_queue(true, true);
-        graph->process(process_iterations_max, true, true);
+        graph->process(process_iterations_max, true);
 
         cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
