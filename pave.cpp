@@ -566,7 +566,7 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
 // ****************** UTILS functions *********************************************
 
 double Pave::get_theta_diam(int active_function) const{
-    if((active_function =-1)){
+    if((active_function ==-1)){
         double diam_max = 0.0;
         for(int active_function = 0; active_function<(int)m_f_list.size(); active_function++){
             double diam = 0.0;
@@ -586,6 +586,19 @@ double Pave::get_theta_diam(int active_function) const{
         }
         return diam;
     }
+}
+
+double Pave::get_theta_diam_max() const{
+    double diam_max = 0.0;
+    for(int active_function = 0; active_function<(int)m_f_list.size(); active_function++){
+        double diam = 0.0;
+        for(Interval theta:m_theta_list[active_function]){
+            if(!theta.is_empty())
+                diam += theta.diam();
+        }
+        diam_max=max(diam_max, diam);
+    }
+    return diam_max;
 }
 
 double Pave::get_theta_diam_min(){

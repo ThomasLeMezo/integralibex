@@ -138,7 +138,7 @@ void Graph::clear_node_queue_outer(){
     m_node_queue_outer.clear();
 }
 
-void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, double theta_limit){
+void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full){
     //    if(nb_node<=m_count_alive)
     //        return;
     int iterations = 0;
@@ -146,6 +146,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
     m_node_list.reserve(nb_node);
+    bool new_int = false;
 
     while(((int)tmp_pave_list.size()!=0) & (iterations+((int)tmp_pave_list.size())<nb_node)){
         Pave* tmp = tmp_pave_list.front();
@@ -158,12 +159,14 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
 
         if(!tmp->is_active() || tmp->is_removed_pave_union()
                 || ((do_not_bisect_empty && tmp->is_empty_inter()) || (do_not_bisect_full && tmp->is_full_inter()))
-                || tmp->get_theta_diam()<theta_limit){
+                || tmp->get_theta_diam_max()<0.0){
             m_node_list.push_back(tmp);
             if(!tmp->is_removed_pave_union()){
                 iterations++;
                 m_count_alive++;
             }
+            if(!tmp->get_zone_propagation())
+                compute_propagation_zone(tmp);
         }
         else{
             tmp->bisect(tmp_pave_list, backward);

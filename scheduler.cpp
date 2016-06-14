@@ -156,7 +156,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        graph->sivia(4,true, false, false, 0.0); // Start with 4 boxes
+        graph->sivia(4,true, false, false); // Start with 4 boxes
         graph->process(process_iterations_max, true, use_function); // ? Usefull ??? ToDo
         iterations++;
     }
@@ -168,7 +168,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
         if(graph->get_alive_node()==0 || m_graph_list.size()==0)
             break;
         graph->clear_node_queue();
-        graph->sivia(2*graph->get_alive_node(), true, false, false, 0.0);
+        graph->sivia(2*graph->get_alive_node(), true, false, false);
 
         for(int nb_f=0; nb_f<graph->get_f_size(); nb_f++){
             graph->set_active_f(nb_f);
@@ -241,7 +241,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         if(graph->get_alive_node()==0)
             break;
 
-        graph->sivia(2*graph->get_alive_node(), true, false, false, 0.0);
+        graph->sivia(2*graph->get_alive_node()+graph->size(), true, false, false);
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 

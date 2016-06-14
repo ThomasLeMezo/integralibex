@@ -14,7 +14,7 @@ public:
     ~Graph();
 
     int                         process(int max_iterations, bool backward, int use_function=-1);
-    void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bool do_not_bisect_full=false, double theta_limit=0.0);
+    void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bool do_not_bisect_full=false);
     void                        remove_empty_node();
     void                        mark_empty_node();
 
