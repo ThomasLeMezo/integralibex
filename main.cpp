@@ -481,6 +481,31 @@ void van_der_pol_integration(){
     s.draw(1024, true);
 }
 
+void van_der_pol_integration_with_inner(){
+//    const clock_t begin_time = clock();
+//    vibes::beginDrawing();
+//    Variable x, y;
+//    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+
+//    std::vector<ibex::Function*> f_list;
+//    f_list.push_back(&f1);
+
+//    IntervalVector box(2);
+//    box[0] = Interval(-6.0, 6.0);
+//    box[1] = Interval(-6.0, 6.0);
+
+//    Scheduler s(box, f_list, false);
+
+//    IntervalVector activated_pave(2);
+//    activated_pave[0] = Interval(-3.0);
+//    activated_pave[1] = Interval(3.0);
+
+//    s.cameleon_propagation(15, 1e9, activated_pave); // 25
+
+//    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+//    s.draw(1024, true);
+}
+
 void van_der_pol_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
@@ -658,8 +683,9 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    van_der_pol_cycle();
-//    van_der_pol_integration();
+//    van_der_pol_cycle();
+    van_der_pol_integration();
+    van_der_pol_integration_with_inner();
 //    van_der_pol_kernel();
 //    van_der_pol_kernel2();
 //    van_der_pol_outer();
