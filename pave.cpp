@@ -501,11 +501,19 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
                             Interval theta_centered = theta + Interval::HALF_PI;
                             if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
                                 theta_inside = true;
+                            else{
+                                theta_inside = false;
+                                break;
+                            }
                         }
                         if(!(theta & Interval::HALF_PI).is_empty()){
                             Interval theta_centered = theta - Interval::HALF_PI;
                             if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
                                 theta_inside = true;
+                            else{
+                                theta_inside = false;
+                                break;
+                            }
                         }
                         break;
                     case 2:
@@ -514,11 +522,19 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
                             Interval theta_centered = theta - Interval::ZERO;
                             if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
                                 theta_inside = true;
+                            else{
+                                theta_inside = false;
+                                break;
+                            }
                         }
                         if(!(theta & Interval::PI).is_empty()){
                             Interval theta_centered = theta - Interval::PI;
                             if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
                                 theta_inside = true;
+                            else{
+                                theta_inside = false;
+                                break;
+                            }
                         }
                         break;
                     }

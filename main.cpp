@@ -66,7 +66,7 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin
-    s.cameleon_cycle(12, 5, 1e9, true, false, false);
+    s.cameleon_cycle(12, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -658,14 +658,14 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-//    van_der_pol_cycle();
+    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_kernel2();
 //    van_der_pol_outer();
 //    van_der_pol_inner();
 
-    van_der_pol_bassin();
+//    van_der_pol_bassin();
 
     /// **** INTEGRATOR ***** //
 //    integrator();
