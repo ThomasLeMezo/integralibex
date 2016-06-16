@@ -146,7 +146,6 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
     m_node_list.reserve(nb_node);
-    bool new_int = false;
 
     while(((int)tmp_pave_list.size()!=0) & (iterations+((int)tmp_pave_list.size())<nb_node)){
         Pave* tmp = tmp_pave_list.front();
@@ -839,6 +838,8 @@ void Graph::copy_to_inner(){
 }
 
 void Graph::compute_propagation_zone(Pave *p){
+    if(p->get_f_list().size()==1)
+        return;
     Pave *p_copy = new Pave(p);
     p_copy->set_inner_mode(false);
     p_copy->set_compute_inner(false);

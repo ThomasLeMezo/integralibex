@@ -42,7 +42,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     // Build Paves and push back them
     for(IntervalVector b:list_boxes){
         Pave* p = new Pave(b, f_list, diseable_singleton);
-        p->set_full();
+        p->set_full_all();
         g->push_back(p);
     }
 
@@ -50,10 +50,15 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
 
     for(IntervalVector b:bassin_boxes){
         Pave* p = new Pave(b, f_list, diseable_singleton, false);
+        p->set_external_border(true);
+        p->set_inner_mode(false);
+        p->set_full();
+
         p->set_inner_mode(true);
         p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
-        p->set_continuity_in(false);
-        p->set_continuity_out(false);
+//        p->set_continuity_in(false);
+//        p->set_continuity_out(false);
+
         g->push_back(p); // Inactive box
     }
 
@@ -62,16 +67,21 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
 
     for(IntervalVector b:list_border){
         Pave* p = new Pave(b, f_list, diseable_singleton, false);
-        if(border_out)
-            p->set_full_out();
-        if(border_in)
-            p->set_full_in();
         p->set_external_border(true);
+        p->set_inner_mode(true); p->set_full();
+
+        if(border_out){
+            p->set_inner_mode(false); p->set_full_out();
+        }
+        if(border_in){
+            p->set_inner_mode(false); p->set_full_in();
+        }
         g->push_back(p); // Box is put into external box list when building the graph
     }
 
     // ****** REBUILD GRAPH *******
     g->build_graph(); // connect boxes according to continuity
+    g->set_inner_mode(true);
 }
 
 Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_in, bool border_out):
@@ -127,6 +137,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     int nb_graph = 0;
 
     while(iterations < iterations_max){
+
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph->mark_empty_node();
@@ -214,6 +225,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
     Graph *graph = m_graph_list[0];
     graph->set_active_f(-1);
+    graph->compute_all_propagation_zone();
 //    graph->debug_marker2 = true;
 
     if(iterations < iterations_max && graph->size()>4){

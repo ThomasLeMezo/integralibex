@@ -286,7 +286,8 @@ void car_on_the_hill_inner_kernel(){
 
     /////////////// Compute ///////////////
     // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
-    s.cameleon_cycle(15, 5, 1e9, false, false, true);
+//    s.cameleon_cycle(15, 5, 1e9, false, false, true);
+    s.cameleon_viability(7, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -683,7 +684,7 @@ int main()
 //    car_on_the_hill_attractor();
 //    car_on_the_hill_outer_kernel();
 //    car_on_the_hill_capture_bassin();
-//    car_on_the_hill_inner_kernel();
+    car_on_the_hill_inner_kernel();
 
 //    car_on_the_hill_kernel();
 
@@ -695,7 +696,7 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_kernel2();

@@ -260,7 +260,10 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
                 list_pave.push_back(p_tmp);
             }
             // Intersect paves
-            p->inter_inner(list_pave);
+            if(p->get_f_list().size()>1)
+                p->inter_inner(list_pave);
+            else
+                *p &= *list_pave[0];
 
             // Delete pave tmp
             for(Pave *p_tmp:list_pave)
