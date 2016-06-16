@@ -164,7 +164,7 @@ void car_on_the_hill_attractor(){
                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-    f_list.push_back(&f2);
+//    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
@@ -221,37 +221,7 @@ void car_on_the_hill_kernel(){
 //    s.print_pave_info(0, 12.5,0.2,"b[b]");
 }
 
-void car_on_the_hill_outer_kernel(){
-    const clock_t begin_time = clock();
-    vibes::beginDrawing();
-    Variable x1, x2;
-    ibex::Function f1(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2+2.0));
-    ibex::Function f2(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2-2.0));
-
-    std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f1);
-    f_list.push_back(&f2);
-
-    IntervalVector box(2);
-    box[0] = Interval(-1.0, 13.0);
-    box[1] = Interval(-16, 16);
-
-    vector<ibex::IntervalVector> list_boxes_removed; // empty list
-    Scheduler s(box, list_boxes_removed, f_list, true, false, true);
-
-    /////////////// Compute ///////////////
-    s.cameleon_cycle(12, 5, 1e9, false, false, false);
-
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-
-    /////////////// Drawing ///////////////
-    s.draw(1024, true);
-//    s.print_pave_info(0, -1.64,0.11,"b[b]");
-}
-
-void car_on_the_hill_inner_kernel(){
+void car_on_the_hill_bassin(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x1, x2;
@@ -287,61 +257,16 @@ void car_on_the_hill_inner_kernel(){
     /////////////// Compute ///////////////
     // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
 //    s.cameleon_cycle(15, 5, 1e9, false, false, true);
-    s.cameleon_viability(7, 1e9);
+    s.cameleon_viability(7, 1e9, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-    /////////////// Drawing ///////////////
-    s.draw(1024, true, "before");
-//    s.draw(1024, false);
-
-
-    s.print_pave_info(0, 5.5, 0.0,"b[b]");
-//    s.print_pave_info(0, -0.5, 0.44,"b[b]");
-
-}
-
-void car_on_the_hill_capture_bassin(){
-    const clock_t begin_time = clock();
-    vibes::beginDrawing();
-    Variable x1, x2;
-    ibex::Function f(x1, x2, Return(x2,
-                                    -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
-
-
-    std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f);
-
-    IntervalVector box(2);
-    box[0] = Interval(-1.0, 13.0);
-//    box[1] = Interval(-16, 16);
-    box[1] = Interval(-8, 11);
-
-    // Points d'équilibre (stable)
-    // x1 = 2.311(6-7)
-    // x1 = 7.78(10/09)
-
-    std::vector<IntervalVector> list_boxes_removed;
-    IntervalVector box_remove(2);
-//    box_remove[0] = Interval(2.2,2.4) + Interval(-0.5, 0.5);
-//    box_remove[1] = Interval(-0.1,0.1);
-//    list_boxes_removed.push_back(box_remove);
-    box_remove[0] = Interval(7.7, 7.8) + Interval(-0.5, 0.5);
-    box_remove[1] = Interval(-0.1,0.1);
-    list_boxes_removed.push_back(box_remove);
-
-    Scheduler s(box, list_boxes_removed, f_list, true); // diseable singleton = true
-
-    /////////////// Compute ///////////////
-    s.cameleon_cycle(12, 5, 1e9, false, false, true);
-
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     /////////////// Drawing ///////////////
     s.draw(1024, true);
-    vibes::axisLimits(-1,13, -8,11);
 
-//    s.print_pave_info(0, -0.8, -0.7,"b[b]");
+//    s.print_pave_info(0, 5.5, 0.0,"b[b]");
 //    s.print_pave_info(0, -0.5, 0.44,"b[b]");
+
 }
 
 void cercle_capture_bassin(){
@@ -682,11 +607,9 @@ int main()
 
     /// **** CAR ON THE HILL ***** //
 //    car_on_the_hill_attractor();
-//    car_on_the_hill_outer_kernel();
-//    car_on_the_hill_capture_bassin();
-    car_on_the_hill_inner_kernel();
+//    car_on_the_hill_bassin();
 
-//    car_on_the_hill_kernel();
+    car_on_the_hill_kernel();
 
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();

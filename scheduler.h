@@ -20,7 +20,7 @@ public:
     void cameleon_propagation(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector> &initial_boxes);
     void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe);
     void compute_attractor(int iterations_max, int process_iterations_max, int use_function=-1);
-    void cameleon_viability(int iterations_max, int process_iterations_max);
+    void cameleon_viability(int iterations_max, int process_iterations_max, bool border_condition=false);
 
     void attractor_to_kernel();
 

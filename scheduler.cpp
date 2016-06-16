@@ -216,7 +216,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
     }
 }
 
-void Scheduler::cameleon_viability(int iterations_max, int process_iterations_max){
+void Scheduler::cameleon_viability(int iterations_max, int process_iterations_max, bool border_condition){
     cout << endl << endl;
     cout << "************ COMPUTE KERNEL ************" << endl;
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
@@ -235,7 +235,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         graph->mark_empty_node();
 
         graph->set_inner_mode(true);
-        graph->update_queue(false, true);
+        graph->update_queue(border_condition, true);
         graph->process(process_iterations_max, true);
 
         graph->set_inner_mode(false);
@@ -264,7 +264,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         cout << "GRAPH No 0 (" << graph->size() << ")" << endl;
 
         graph->set_inner_mode(true);
-        graph->update_queue(false, true);
+        graph->update_queue(border_condition, true);
         graph->process(process_iterations_max, true);
 
         graph->set_inner_mode(false);
