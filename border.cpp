@@ -60,8 +60,10 @@ Border::Border(const Border *border): m_position(2)
     m_compute_inner = border->get_compute_inner();
 
     m_zone_propagation = border->get_zone_propagation();
-    if(m_zone_propagation)
-        m_zone_function = border->get_zone_function();
+    if(m_zone_propagation){
+        m_zone_function_in = border->get_zone_function_in();
+        m_zone_function_out = border->get_zone_function_out();
+    }
 }
 
 Border::~Border(){;
@@ -644,19 +646,34 @@ void Border::set_zone_propagation(bool val){
     m_zone_propagation = val;
 }
 
-std::vector<bool> Border::get_zone_function() const{
-    return m_zone_function;
+std::vector<bool> Border::get_zone_function_in() const{
+    return m_zone_function_in;
 }
-bool Border::get_zone_function(int function_id) const{
-    return m_zone_function[function_id];
-}
-
-void Border::set_zone_function(const std::vector<bool> &zone_function){
-    m_zone_function = zone_function;
+bool Border::get_zone_function_in(int function_id) const{
+    return m_zone_function_in[function_id];
 }
 
-void Border::push_back_zone_function(bool zone_active){
-    m_zone_function.push_back(zone_active);
+void Border::set_zone_function_in(const std::vector<bool> &zone_function){
+    m_zone_function_in = zone_function;
+}
+
+void Border::push_back_zone_function_in(bool zone_active){
+    m_zone_function_in.push_back(zone_active);
+}
+
+std::vector<bool> Border::get_zone_function_out() const{
+    return m_zone_function_out;
+}
+bool Border::get_zone_function_out(int function_id) const{
+    return m_zone_function_out[function_id];
+}
+
+void Border::set_zone_function_out(const std::vector<bool> &zone_function){
+    m_zone_function_out = zone_function;
+}
+
+void Border::push_back_zone_function_out(bool zone_active){
+    m_zone_function_out.push_back(zone_active);
 }
 
 void Border::inter_inner(std::vector<Border*> border_list){
@@ -664,7 +681,7 @@ void Border::inter_inner(std::vector<Border*> border_list){
 
     bool one_no_empty = false;
     for(int i=0; i<border_list.size(); i++){
-        if(m_zone_function[i]){
+        if(m_zone_function_in[i]){
             segment_in &= border_list[i]->get_segment_in_inner();
             one_no_empty = true;
         }

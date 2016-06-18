@@ -411,8 +411,8 @@ void car_on_the_hill_integrator(){
     vector<IntervalVector> initial_pave_list;
     IntervalVector activated_pave(2);
 //    activated_pave[0] = Interval(11.028646, 11.028647); // Point limite : x0 = 11.02864(6-7)
-    activated_pave[0] = Interval(0.0);
-    activated_pave[1] = Interval(0.0);
+    activated_pave[0] = Interval(-0.0, 2.0);
+    activated_pave[1] = Interval(-0.0, 0.5);
 
 //    activated_pave[0] = Interval(6.5); // 0.4
 //    activated_pave[1] = Interval(4.5);
@@ -420,7 +420,8 @@ void car_on_the_hill_integrator(){
 //    activated_pave[0] = Interval(7.7809, 7.7810);
 //    initial_pave_list.push_back(activated_pave);
 
-    s.cameleon_propagation(18, 1e9, activated_pave); // 25
+//    s.cameleon_propagation(18, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(18, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -476,11 +477,11 @@ void van_der_pol_integration(){
     Scheduler s(box, f_list, false);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(-3.1, -3.0);
-    activated_pave[1] = Interval(3.0, 3.1);
+    activated_pave[0] = Interval(-4.0, -3.0);
+    activated_pave[1] = Interval(3.0, 4.0);
 
 //    s.cameleon_propagation(15, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(16, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(20, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -616,7 +617,7 @@ int main()
 
 //    car_on_the_hill_kernel();
 
-//    car_on_the_hill_integrator();
+    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
@@ -624,7 +625,7 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_kernel2();

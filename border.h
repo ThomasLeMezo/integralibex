@@ -59,14 +59,16 @@ public:
     void                            set_compute_inner(bool val);
     void                            reset_full_empty();
     void                            set_zone_propagation(bool val);
-    void                            set_zone_function(const std::vector<bool> &zone_function);
+    void                            set_zone_function_in(const std::vector<bool> &zone_function);
+    void                            set_zone_function_out(const std::vector<bool> &zone_function);
 
     void                            add_inclusions(const std::vector<Inclusion *> &inclusion_list);
     bool                            add_inclusion(Inclusion *inclusion);
     void                            add_inclusion_copy(Inclusion *inclusion);
     void                            add_inclusion_receving(Inclusion* inclusion);
 
-    void                            push_back_zone_function(bool zone_active);
+    void                            push_back_zone_function_in(bool zone_active);
+    void                            push_back_zone_function_out(bool zone_active);
 
     // Getters
     void                            get_points(std::vector<double> &x, std::vector<double> &y, bool complementary=false) const;
@@ -97,8 +99,10 @@ public:
     bool                            get_compute_inner() const;
 
     bool                            get_zone_propagation() const;
-    std::vector<bool>               get_zone_function() const;
-    bool                           get_zone_function(int function_id) const;
+    std::vector<bool>               get_zone_function_in() const;
+    bool                            get_zone_function_in(int function_id) const;
+    std::vector<bool>               get_zone_function_out() const;
+    bool                            get_zone_function_out(int function_id) const;
 
 
     // Tests
@@ -140,7 +144,8 @@ private:
     bool                            set_segment_out(ibex::Interval segment_in);
 
 public:
-    std::vector<bool>               m_zone_function;
+    std::vector<bool>               m_zone_function_in;
+    std::vector<bool>               m_zone_function_out;
     bool                            m_zone_propagation;
 };
 
