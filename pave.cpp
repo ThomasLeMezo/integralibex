@@ -536,8 +536,10 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
                             if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))) < m_position[0].diam()/2.0
                                     && m_position[1].diam()*(fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
                                 theta_inside = true;
-                            else
-                                theta_outside = true;
+                            else{
+                                theta_inside = false;
+                                break;
+                            }
                         }
                         if(!(theta & Interval::HALF_PI).is_empty()){
                             Interval theta_centered = theta - Interval::HALF_PI;

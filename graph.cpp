@@ -703,6 +703,8 @@ void Graph::set_active_f(int id){
 }
 
 bool Graph::identify_attractor(){
+    /// ToDo : correction of angle condition : should be real angle instead of M_PI !!!
+    /// Get the angle of the transversal
     if(m_node_list.size()==0)
         return true;
     reset_marker_attractor();

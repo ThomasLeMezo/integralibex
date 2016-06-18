@@ -487,6 +487,31 @@ void van_der_pol_integration(){
     s.draw(1024, true);
 }
 
+void van_der_pol_integration_with_inner(){
+//    const clock_t begin_time = clock();
+//    vibes::beginDrawing();
+//    Variable x, y;
+//    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+
+//    std::vector<ibex::Function*> f_list;
+//    f_list.push_back(&f1);
+
+//    IntervalVector box(2);
+//    box[0] = Interval(-6.0, 6.0);
+//    box[1] = Interval(-6.0, 6.0);
+
+//    Scheduler s(box, f_list, false);
+
+//    IntervalVector activated_pave(2);
+//    activated_pave[0] = Interval(-3.0);
+//    activated_pave[1] = Interval(3.0);
+
+//    s.cameleon_propagation(15, 1e9, activated_pave); // 25
+
+//    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+//    s.draw(1024, true);
+}
+
 void van_der_pol_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
@@ -603,6 +628,45 @@ void van_der_pol_outer(){
     s.draw(1024, true);
 }
 
+void van_der_pol_bassin(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x, y;
+    ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x)));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(-4.0, 4.0);
+    box[1] = Interval(-4.0, 4.0);
+
+    std::vector<IntervalVector> list_boxes_removed;
+    IntervalVector box_remove(2);
+
+    box_remove[0] = Interval(1.0) + Interval(-0.4, 0.4);
+    box_remove[1] = Interval(1.0) + Interval(-0.4, 0.4);
+    list_boxes_removed.push_back(box_remove);
+
+    // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
+    // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
+    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+
+    /////////////// Compute ///////////////
+    // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
+//    s.cameleon_cycle(15, 5, 1e9, false, false, true);
+    s.cameleon_viability(10, 1e9, true); // 10 = 256 s
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+
+//    s.print_pave_info(0, 5.5, 0.0,"b[b]");
+//    s.print_pave_info(0, -0.5, 0.44,"b[b]");
+
+}
+
 int main()
 {
     /// **** BALL ***** //
@@ -626,11 +690,14 @@ int main()
 
     /// **** VAN DER POL ***** //
 //    van_der_pol_cycle();
-//    van_der_pol_integration();
+    van_der_pol_integration();
+    van_der_pol_integration_with_inner();
 //    van_der_pol_kernel();
 //    van_der_pol_kernel2();
 //    van_der_pol_outer();
 //    van_der_pol_inner();
+
+//    van_der_pol_bassin();
 
     /// **** INTEGRATOR ***** //
 //    integrator();
