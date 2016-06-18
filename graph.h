@@ -36,8 +36,10 @@ public:
     // Setter
     void                        set_full();
     void                        set_active_pave(const ibex::IntervalVector &box);
+    void                        set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_list);
     void                        set_symetry(ibex::Function *f, int face_in, int face_out);
     void                        set_empty();
+    void                        set_empty_outer_full_inner();
     void                        set_all_first_process();
     void                        set_active_f(int id);
     void                        set_external_boundary(bool in, bool out);

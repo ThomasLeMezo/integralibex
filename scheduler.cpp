@@ -156,6 +156,60 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     }
 }
 
+void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe){
+    vector<IntervalVector> initial_boxes;
+    initial_boxes.push_back(initial_boxe);
+    cameleon_propagation_with_inner(iterations_max, process_iterations_max, initial_boxes);
+}
+
+void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, const vector<IntervalVector> &initial_boxes){
+    Graph *graph = m_graph_list[0];
+    if(m_graph_list.size()!=1 && graph->size() !=1)
+        return;
+    int iterations = 0;
+
+    if(iterations < iterations_max && graph->size()<4){
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+        graph->sivia(4,false, false, false); // Start with 4 boxes
+        graph->set_empty_outer_full_inner();
+        graph->set_active_outer_inner(initial_boxes);
+
+        graph->set_inner_mode(false);
+        graph->process(process_iterations_max, false);
+        graph->mark_empty_node();
+
+        graph->set_inner_mode(true);
+        graph->process(process_iterations_max, true);
+        graph->mark_empty_node();
+
+        iterations++;
+    }
+    int nb_graph = 0;
+
+    while(iterations < iterations_max){
+
+        const clock_t begin_time = clock();
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+
+        graph->sivia(2*graph->get_alive_node(), false, false, false);
+        graph->set_empty_outer_full_inner();
+        graph->set_active_outer_inner(initial_boxes);
+
+        // Process the forward with the subpaving
+        cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
+        graph->set_inner_mode(false);
+        graph->process(process_iterations_max, false);
+        graph->mark_empty_node();
+
+        graph->set_inner_mode(true);
+        graph->process(process_iterations_max, true);
+        graph->mark_empty_node();
+
+        cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        iterations++;
+    }
+}
+
 void Scheduler::compute_attractor(int iterations_max, int process_iterations_max, int use_function){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;

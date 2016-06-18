@@ -19,6 +19,8 @@ public:
     void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside=false, bool near_bassin=false);
     void cameleon_propagation(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector> &initial_boxes);
     void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe);
+    void cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector> &initial_boxes);
+    void cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe);
     void compute_attractor(int iterations_max, int process_iterations_max, int use_function=-1);
     void cameleon_viability(int iterations_max, int process_iterations_max, bool border_condition=false);
 

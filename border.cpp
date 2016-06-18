@@ -266,6 +266,34 @@ void Border::set_empty(){
     }
 }
 
+void Border::set_empty_outer(){
+    m_segment_in_outer = Interval::EMPTY_SET;
+    m_segment_out_outer = Interval::EMPTY_SET;
+    m_empty_outer = true;
+    m_full_outer = false;
+}
+
+void Border::set_empty_inner(){
+    m_segment_in_inner = Interval::EMPTY_SET;
+    m_segment_out_inner = Interval::EMPTY_SET;
+    m_empty_inner = true;
+    m_full_inner = false;
+}
+
+void Border::set_full_inner(){
+    m_segment_in_inner= m_segment_full;
+    m_segment_out_inner = m_segment_full;
+    m_empty_inner = false;
+    m_full_inner = true;
+}
+
+void Border::set_full_outer(){
+    m_segment_in_outer= m_segment_full;
+    m_segment_out_outer = m_segment_full;
+    m_empty_outer = false;
+    m_full_outer = true;
+}
+
 bool Border::is_empty_inner(){
     if(m_empty_inner)
         return true;

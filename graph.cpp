@@ -318,16 +318,47 @@ const std::vector<Pave *> Graph::get_pave(const ibex::IntervalVector &box) const
     return node_list_inter;
 }
 
+void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_list){
+    for(Pave *pave:m_node_list){
+        for(IntervalVector box:box_list){
+            if(!(box & pave->get_position()).is_empty()){
+                // Outer
+                pave->set_full_outer();
+
+                // inner
+                bool inner=false;
+                if(pave->get_position().is_strict_interior_subset(box)){
+                    pave->set_empty_inner();
+                    inner = true;
+                }
+
+                // Update queue
+                for(int face=0; face<4; face++){
+                    vector<Pave*> pave_brother_list = pave->get_brothers(face);
+                    for(Pave *pave_brother : pave_brother_list){
+                        if(!pave_brother->is_in_queue_outer()){
+                            add_to_queue_outer(pave_brother);
+                        }
+                        if(inner && !pave_brother->is_in_queue_inner()){
+                            add_to_queue_inner(pave_brother);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Graph::set_active_pave(const IntervalVector &box){
     vector<Pave*> pave_activated = get_pave(box);
 
     for(Pave *pave:pave_activated){
-        pave->set_full();
+        pave->set_full_outer();
         for(int face=0; face<4; face++){
             vector<Pave*> pave_brother_list = pave->get_brothers(face);
             for(Pave *pave_brother : pave_brother_list){
-                if(!pave_brother->is_in_queue()){
-                    add_to_queue(pave_brother);
+                if(!pave_brother->is_in_queue_outer()){
+                    add_to_queue_outer(pave_brother);
                 }
             }
         }
@@ -550,6 +581,15 @@ void Graph::set_empty(){
     for(Pave *pave : m_node_list){
         if(pave->is_active())
             pave->set_empty();
+    }
+}
+
+void Graph::set_empty_outer_full_inner(){
+    for(Pave *pave : m_node_list){
+        if(pave->is_active()){
+            pave->set_empty_outer();
+            pave->set_full_inner();
+        }
     }
 }
 
