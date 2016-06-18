@@ -237,8 +237,10 @@ int Graph::process(int max_iterations, bool backward, int use_function){
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
+            if(backward && !pave->get_zone_propagation())
+                compute_propagation_zone(pave);
             for(int face=0; face<4; face++){
-                if(change_tab[face]){
+                if(change_tab[face] && (!backward || !pave->get_border(face)->get_zone_function()[pave->get_active_function()])){
                     for(Pave *p:pave->get_brothers(face)){
                         if(p->is_in_queue() == false){
                             add_to_queue(p);
@@ -342,7 +344,7 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                             add_to_queue_outer(pave_brother);
                         }
                         if(inner && !pave_brother->is_in_queue_inner()
-                                && !pave->get_border(face)->get_zone_propagation()){
+                                && !pave->get_border(face)->get_zone_function(pave->get_active_function())){
                             add_to_queue_inner(pave_brother);
                         }
                     }

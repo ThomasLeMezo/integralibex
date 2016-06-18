@@ -98,6 +98,7 @@ public:
 
     bool                            get_zone_propagation() const;
     std::vector<bool>               get_zone_function() const;
+    bool                           get_zone_function(int function_id) const;
 
 
     // Tests

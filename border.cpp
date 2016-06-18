@@ -647,6 +647,9 @@ void Border::set_zone_propagation(bool val){
 std::vector<bool> Border::get_zone_function() const{
     return m_zone_function;
 }
+bool Border::get_zone_function(int function_id) const{
+    return m_zone_function[function_id];
+}
 
 void Border::set_zone_function(const std::vector<bool> &zone_function){
     m_zone_function = zone_function;

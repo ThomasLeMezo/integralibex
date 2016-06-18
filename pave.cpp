@@ -520,6 +520,7 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
 #if 1
         if(m_borders[(indice1+1)%4]->is_empty() || m_borders[(indice1+3)%4]->is_empty()){
             bool theta_inside = false;
+            bool theta_outside = false;
             for(vector<Interval> &theta_list:m_theta_list){
 
                 for(Interval &theta:theta_list){
@@ -531,32 +532,45 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
                         // Case LEFT/RIGHT bisection
                         if(!(theta & -Interval::HALF_PI).is_empty()){
                             Interval theta_centered = theta + Interval::HALF_PI;
-                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
+//                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
+                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))) < m_position[0].diam()/2.0
+                                    && m_position[1].diam()*(fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
                                 theta_inside = true;
+                            else
+                                theta_outside = true;
                         }
                         if(!(theta & Interval::HALF_PI).is_empty()){
                             Interval theta_centered = theta - Interval::HALF_PI;
-                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
+                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))) < m_position[0].diam()/2.0
+                                    && m_position[1].diam()*(fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
                                 theta_inside = true;
+                            else
+                                theta_outside = true;
                         }
                         break;
                     case 2:
                         // Case UP/DOWN bisection
                         if(!(theta & Interval::ZERO).is_empty()){
                             Interval theta_centered = theta - Interval::ZERO;
-                            if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
+                            if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))) < m_position[1].diam()/2.0
+                                    && m_position[0].diam()*(fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
                                 theta_inside = true;
+                            else
+                                theta_outside = true;
                         }
                         if(!(theta & Interval::PI).is_empty()){
                             Interval theta_centered = theta - Interval::PI;
-                            if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
+                            if(m_position[0].diam()*(fabs(atan(theta_centered.lb()))) < m_position[1].diam()/2.0
+                                    && m_position[0].diam()*(fabs(atan(theta_centered.ub())))<m_position[1].diam()/2.0)
                                 theta_inside = true;
+                            else
+                                theta_outside = true;
                         }
                         break;
                     }
                 }
             }
-            if(theta_inside){
+            if(theta_inside && !theta_outside){
                 pave1->get_border(indice1)->set_empty();
                 pave2->get_border(indice2)->set_empty();
 

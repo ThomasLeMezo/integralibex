@@ -179,6 +179,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
 
         graph->sivia(4,false, false, false); // Start with 4 boxes
         graph->set_empty_outer_full_inner();
+        graph->clear_node_queue();
         graph->set_active_outer_inner(initial_boxes);
 
         graph->set_inner_mode(false);
@@ -199,13 +200,13 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         graph->mark_empty_node();
         graph->sivia(2*graph->get_alive_node(), false, false, false);
         graph->set_empty_outer_full_inner();
+        graph->clear_node_queue();
         graph->set_active_outer_inner(initial_boxes);
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
         graph->set_inner_mode(false);
         graph->process(process_iterations_max, false);
-        graph->mark_empty_node();
 
         graph->set_inner_mode(true);
         graph->process(process_iterations_max, true);
