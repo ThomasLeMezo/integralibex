@@ -450,10 +450,10 @@ void integrator(){
     Scheduler s(box, f_list, false);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(0.1, 0.3);
+    activated_pave[0] = Interval(0.0, 0.3);
     activated_pave[1] = Interval(-0.5,0.5);
 
-//    s.cameleon_propagation(15, 1e9, activated_pave); // 25
+//    s.cameleon_propagation(20, 1e9, activated_pave); // 25
     s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -476,10 +476,11 @@ void van_der_pol_integration(){
     Scheduler s(box, f_list, false);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(-3.0);
-    activated_pave[1] = Interval(3.0);
+    activated_pave[0] = Interval(-3.1, -3.0);
+    activated_pave[1] = Interval(3.0, 3.1);
 
-    s.cameleon_propagation(15, 1e9, activated_pave); // 25
+//    s.cameleon_propagation(15, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -624,14 +625,14 @@ int main()
 
     /// **** VAN DER POL ***** //
 //    van_der_pol_cycle();
-//    van_der_pol_integration();
+    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_kernel2();
 //    van_der_pol_outer();
 //    van_der_pol_inner();
 
     /// **** INTEGRATOR ***** //
-    integrator();
+//    integrator();
 
     /// **** TEST ***** //
 //    test();

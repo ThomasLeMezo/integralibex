@@ -92,7 +92,7 @@ public:
     void                        draw(int size, bool filled, string comment="");
     void                        drawInner(bool filled);
 
-    void                        compute_propagation_zone(Pave *p);
+    void                        compute_propagation_zone(Pave *p, bool compute_anyway=false);
     void                        compute_all_propagation_zone();
 
 

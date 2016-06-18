@@ -168,15 +168,21 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         return;
     int iterations = 0;
 
+    graph->set_inner_mode(false);
+    graph->set_external_boundary(false, false);
+
+    graph->set_inner_mode(true);
+    graph->set_external_boundary(true, true);
+
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
+
         graph->sivia(4,false, false, false); // Start with 4 boxes
         graph->set_empty_outer_full_inner();
         graph->set_active_outer_inner(initial_boxes);
 
         graph->set_inner_mode(false);
         graph->process(process_iterations_max, false);
-        graph->mark_empty_node();
 
         graph->set_inner_mode(true);
         graph->process(process_iterations_max, true);
@@ -190,7 +196,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
 
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-
+        graph->mark_empty_node();
         graph->sivia(2*graph->get_alive_node(), false, false, false);
         graph->set_empty_outer_full_inner();
         graph->set_active_outer_inner(initial_boxes);
@@ -203,7 +209,6 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
 
         graph->set_inner_mode(true);
         graph->process(process_iterations_max, true);
-        graph->mark_empty_node();
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
