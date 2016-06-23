@@ -290,7 +290,10 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                 bool inner=false;
                 if(pave->get_position().is_strict_interior_subset(box)){
                     pave->set_empty_inner_in();
+                    pave->set_removed_pave_inner(true);
+                    pave->set_active(false);
                     inner = true;
+                    m_count_alive--;
                 }
 
                 compute_propagation_zone(pave, true);
@@ -298,7 +301,7 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                 // Update queue
                 for(int face=0; face<4; face++){
                     vector<Pave*> pave_brother_list = pave->get_brothers(face);
-                    for(Pave *pave_brother : pave_brother_list){
+                    for(Pave *pave_brother:pave_brother_list){
                         if(!pave_brother->is_in_queue_outer()){
                             add_to_queue_outer(pave_brother);
                         }
@@ -851,8 +854,8 @@ void Graph::compute_propagation_zone(Pave *p, bool compute_anyway){
         p_copy->set_inner_mode(false);
         p_copy->set_compute_inner(false);
 
-        p->set_backward_function(fwd);
-        for(int id_function = 0; id_function<p->get_f_list().size(); id_function++){
+        p_copy->set_backward_function(fwd);
+        for(int id_function = 0; id_function<p_copy->get_f_list().size(); id_function++){
             p_copy->set_active_function(id_function);
             p_copy->set_full();
             vector<bool> change_tab;

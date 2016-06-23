@@ -213,15 +213,9 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         graph->set_backward_function(true);
         graph->process(process_iterations_max, true);
 
-        if(iterations == 9)
-            graph->draw(1024, true, "before", true);
-
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
         graph->process(process_iterations_max, false);
-
-        if(iterations == 9)
-            graph->draw(1024, true, "after", true);
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
