@@ -148,6 +148,8 @@ Pave::Pave(const Pave *p):
     }
     m_copy_node = NULL;
     m_marker_attractor = p->is_marked_attractor();
+
+    m_zone_propagation = p->get_zone_propagation();
 }
 
 Pave::~Pave(){
@@ -209,27 +211,27 @@ void Pave::set_theta(ibex::Interval theta){
 }
 
 void Pave::set_theta(std::vector<ibex::Interval> theta_list){
-//    m_theta_list.clear();
+    //    m_theta_list.clear();
 
-//    for(Interval &theta:theta_list){
-//        std::vector<ibex::Interval> thetas;
-//        for(int i=0; i<2; i++)
-//            thetas.push_back(Interval::EMPTY_SET);
+    //    for(Interval &theta:theta_list){
+    //        std::vector<ibex::Interval> thetas;
+    //        for(int i=0; i<2; i++)
+    //            thetas.push_back(Interval::EMPTY_SET);
 
-//        if(theta.is_subset(-Interval::PI | Interval::PI)){
-//            thetas[0] = theta;
-//        }
-//        else{
-//            thetas[0] = (theta & (-Interval::PI | Interval::PI));
+    //        if(theta.is_subset(-Interval::PI | Interval::PI)){
+    //            thetas[0] = theta;
+    //        }
+    //        else{
+    //            thetas[0] = (theta & (-Interval::PI | Interval::PI));
 
-//            if(!((theta + 2*Interval::PI) & (-Interval::PI | Interval::PI) ).is_empty())
-//                thetas[1] =(theta + 2*Interval::PI);
-//            else if (!((theta - 2*Interval::PI) & (-Interval::PI | Interval::PI)).is_empty())
-//                thetas[1] = (theta - 2*Interval::PI);
-//        }
+    //            if(!((theta + 2*Interval::PI) & (-Interval::PI | Interval::PI) ).is_empty())
+    //                thetas[1] =(theta + 2*Interval::PI);
+    //            else if (!((theta - 2*Interval::PI) & (-Interval::PI | Interval::PI)).is_empty())
+    //                thetas[1] = (theta - 2*Interval::PI);
+    //        }
 
-//        m_theta_list.push_back(thetas);
-//    }
+    //        m_theta_list.push_back(thetas);
+    //    }
     cout << "DEPRECATED THETA FUNCTION" << endl;
 }
 
@@ -294,11 +296,20 @@ void Pave::set_empty_outer(){
 }
 
 void Pave::set_empty_inner(){
-    for(int face=0; face<4; face++){
+    for(int face=0; face<4; face++)
         get_border(face)->set_empty_inner();
-    }
     m_empty_inner = true;
     m_full_inner = false;
+}
+
+void Pave::set_empty_inner_in(){
+    for(Border *b:m_borders)
+        b->set_empty_inner_in();
+}
+
+void Pave::set_empty_inner_out(){
+    for(Border *b:m_borders)
+        b->set_empty_inner_out();
 }
 
 void Pave::set_full_outer(){
@@ -310,8 +321,8 @@ void Pave::set_full_outer(){
 }
 
 void Pave::set_full_inner(){
-    for(int face=0; face<4; face++){
-        get_border(face)->set_full_inner();
+    for(Border *b:m_borders){
+        b->set_full_inner();
     }
     m_empty_inner = false;
     m_full_inner = true;
@@ -333,48 +344,52 @@ void Pave::set_segment(bool in, bool out){
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Pave::draw(bool filled, bool borders_only){
+void Pave::draw(bool filled, bool inner_only){
     // Magenta = #FF00FF
     // Gray light =  #D3D3D3
     // Blue = #4C4CFF
 
     // Draw the pave
-    if(borders_only){
-        draw_borders(filled, "#00FF00AA[#00FF00AA]");
-    }
-    else{
-        vibes::drawBox(m_position, "#D3D3D3[]");
-        if(m_compute_inner){
-            if(!m_external_border){
-                bool mode = get_inner_mode();
-                /// OUTER
+    //    if(borders_only){
+    //        draw_borders(filled, "#00FF00AA[#00FF00AA]");
+    //    }
+    //    else{
+    vibes::drawBox(m_position, "#D3D3D3[]");
+    if(m_compute_inner){
+        if(!m_external_border){
+            bool mode = get_inner_mode();
+            /// OUTER
+            if(!inner_only){
                 set_inner_mode(false);
                 draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
+            }
 
-                /// INNER
-                set_inner_mode(true);
-                draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+            /// INNER
+            set_inner_mode(true);
+            draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
 
-                Pave *p_polygon = new Pave(this);
-                p_polygon->set_inner_mode(true);
+            Pave *p_polygon = new Pave(this);
+            p_polygon->set_inner_mode(true);
+            if(!inner_only){
                 set_inner_mode(false);
                 p_polygon->inter(*this);
-                p_polygon->draw_borders(true, "y[y]");
-                delete(p_polygon);
-
-                set_inner_mode(mode);
             }
-        }
-        else{
-            if(!m_external_border){
-                vibes::drawBox(m_position, "#4C4CFF[#4C4CFF]");
-                draw_borders(filled, "y[y]"); // yellow
-            }
-        }
+            p_polygon->draw_borders(true, "y[y]");
+            delete(p_polygon);
 
-        // Draw theta
-        draw_theta();
+            set_inner_mode(mode);
+        }
     }
+    else{
+        if(!m_external_border){
+            vibes::drawBox(m_position, "#4C4CFF[#4C4CFF]");
+            draw_borders(filled, "y[y]"); // yellow
+        }
+    }
+
+    // Draw theta
+    draw_theta();
+    //    }
 }
 
 void Pave::draw_theta() const{
@@ -546,7 +561,7 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
                         // Case LEFT/RIGHT bisection
                         if(!(theta & -Interval::HALF_PI).is_empty()){
                             Interval theta_centered = theta + Interval::HALF_PI;
-//                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
+                            //                            if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))+fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
                             if(m_position[1].diam()*(fabs(atan(theta_centered.lb()))) < m_position[0].diam()/2.0
                                     && m_position[1].diam()*(fabs(atan(theta_centered.ub())))<m_position[0].diam()/2.0)
                                 theta_inside = true;
@@ -838,17 +853,11 @@ void Pave::reset_full_empty(){
 }
 
 const Interval &Pave::get_theta(int i) const{
-    if(i==0){
+    if(i==0 || i==1){
         if(m_backward_function)
-            return m_theta_list_bwd[m_active_function][0];
+            return m_theta_list_bwd[m_active_function][i];
         else
-            return m_theta_list[m_active_function][0];
-    }
-    else if(i==1){
-        if(m_backward_function)
-            return m_theta_list_bwd[m_active_function][1];
-        else
-            return m_theta_list[m_active_function][1];
+            return m_theta_list[m_active_function][i];
     }
     else
         return NULL;
@@ -1221,6 +1230,8 @@ void Pave::set_zone_propagation(bool val){
 
 void Pave::set_backward_function(bool val){
     m_backward_function = val;
+    for(Border *b:m_borders)
+        b->set_backward_function(val);
 }
 
 bool Pave::get_backward_function() const{

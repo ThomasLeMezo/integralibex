@@ -26,7 +26,7 @@ public:
     void                        copy_to_inner();
 
     // ******** Drawing functions ********
-    void                        draw(bool filled, bool borders_only=false);
+    void                        draw(bool filled, bool inner_only=false);
     void                        draw_borders(bool filled, std::string color_polygon="g[g]", bool complementary=false) const;
     void                        draw_test(int size, std::string comment) const;
     void                        draw_theta() const;
@@ -72,6 +72,8 @@ public:
     void                        set_empty_outer();
     void                        set_full_inner();
     void                        set_empty_inner();
+    void                        set_empty_inner_in();
+    void                        set_empty_inner_out();
     void                        set_full_outer();
     void                        set_segment(bool in, bool out);
     void                        set_active(bool val);
@@ -192,6 +194,7 @@ private:
     bool                        m_inner_mode;
 
     bool                        m_zone_propagation;
+
 };
 
 #endif // PAVE_H

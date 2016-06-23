@@ -92,7 +92,7 @@ public:
 
     void                        print_pave_info(double x, double y, string color) const;
     void                        print() const;
-    void                        draw(int size, bool filled, string comment="");
+    void                        draw(int size, bool filled, string comment="", bool inner_only=false);
     void                        drawInner(bool filled);
 
     void                        compute_propagation_zone(Pave *p, bool compute_anyway=false);

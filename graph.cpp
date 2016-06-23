@@ -141,13 +141,11 @@ void Graph::clear_node_queue_outer(){
 void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full){
     //    if(nb_node<=m_count_alive)
     //        return;
-    int iterations = 0;
-    m_count_alive = 0;
     vector<Pave *> tmp_pave_list(m_node_list);
     m_node_list.clear();
     m_node_list.reserve(nb_node);
 
-    while(((int)tmp_pave_list.size()!=0) & (iterations+((int)tmp_pave_list.size())<nb_node)){
+    while(((int)tmp_pave_list.size()!=0) & (m_count_alive<nb_node)){
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
@@ -160,16 +158,13 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
                 || ((do_not_bisect_empty && tmp->is_empty_inter()) || (do_not_bisect_full && tmp->is_full_inter()))
                 || tmp->get_theta_diam_max()<0.0){
             m_node_list.push_back(tmp);
-            if(!tmp->is_removed_pave_union()){
-                iterations++;
-                m_count_alive++;
-            }
             if(!tmp->get_zone_propagation())
                 compute_propagation_zone(tmp);
         }
         else{
             tmp->bisect(tmp_pave_list, backward);
             delete(tmp);
+            m_count_alive++;
         }
     }
 
@@ -178,11 +173,11 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
             add_to_queue_outer(p);
             if(m_compute_inner){
                 add_to_queue_inner(p);
-                compute_propagation_zone(p);
             }
         }
+        if(!p->is_removed_pave() && m_compute_inner)
+            compute_propagation_zone(p);
         m_node_list.push_back(p);
-        m_count_alive++;
     }
     cout << "SIVIA outer(" << m_node_queue_outer.size() << ") inner(" <<  m_node_queue_inner.size() << ")" << endl;
 }
@@ -195,52 +190,22 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
         pop_front_queue();
         pave->set_in_queue(false);
 
-        //                IntervalVector test(2);
-        //                test[0] = Interval(12.5);
-        //                test[1] = Interval(0.2);
-
-        //                if(debug_marker2 && !(pave->get_position() & test).is_empty()){
-        //                    cout << "TEST" << endl;
-        //                    pave->draw_test(512, "test");
-        //                }
-        //        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
-        //            draw(1024, "debug");
-        //            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
-        //            cout << "DEBUG" << endl;
-        //        }
-
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
         if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
 
-            //                        if(debug_marker2 && !(pave->get_position() & test).is_empty())
-            //                            pave->draw_test(512, "contintuity");
-            //            if(debug_marker2 && !(test & pave->get_position()).is_empty()){
-            //                draw(1024, "debug");
-            //                print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
-            //                cout << "DEBUG" << endl;
-            //            }
-
             /// ******* PROCESS CONSISTENCY *******
-//            if(use_function==-1)
-//                pave->set_active_function(-1);
-//            else
-//                pave->set_active_function(use_function);
-
             std::vector<bool> change_tab;
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
             m_utils->CtcConsistency(pave, backward, change_tab, union_functions);
-
-            //                        if(debug_marker2 && !(pave->get_position() & test).is_empty())
-            //                            pave->draw_test(512, "consistence");
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
             if(backward && !pave->get_zone_propagation())
                 compute_propagation_zone(pave);
             for(int face=0; face<4; face++){
-                if(change_tab[face]){// && (!backward || !pave->get_border(face)->get_zone_function_in()[pave->get_active_function()])){
+                if(change_tab[face]){
                     for(Pave *p:pave->get_brothers(face)){
                         if(p->is_in_queue() == false){
                             add_to_queue(p);
@@ -251,18 +216,6 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
 
             pave->set_first_process_false();
         }
-
-        //        if(debug_marker1 && iterations%100==0){
-        //            draw(4048, true);
-        //            cout << "SAVE image " << iterations << endl;
-        //            stringstream ss; ss << "/home/lemezoth/Images/VIBES/iteration_" << iterations << ".png";
-        //            vibes::saveImage(ss.str());
-        //        }
-        //        if(debug_marker2 && !(test & pave->get_position()).is_empty()){
-        //            draw(1024, "debug");
-        //            print_pave_info(test[0].mid(), test[1].mid(), "b[b]");
-        //            cout << "DEBUG" << endl;
-        //        }
     }
 
     clear_node_queue();
@@ -333,10 +286,10 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                 // Outer
                 pave->set_full_outer();
 
-                // inner
+                // Inner
                 bool inner=false;
                 if(pave->get_position().is_strict_interior_subset(box)){
-                    pave->set_empty_inner();
+                    pave->set_empty_inner_in();
                     inner = true;
                 }
 
@@ -420,7 +373,7 @@ Pave& Graph::operator[](int id){
     return *(m_node_list[id]);
 }
 
-void Graph::draw(int size, bool filled, string comment){
+void Graph::draw(int size, bool filled, string comment, bool inner_only){
 
     // Magenta = #FF00FF
     // Gray light =  #D3D3D3
@@ -432,7 +385,7 @@ void Graph::draw(int size, bool filled, string comment){
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
     for(Pave *node:m_node_list){
-        node->draw(filled);
+        node->draw(filled, inner_only);
     }
 
     for(Pave *node:m_node_border_list){
@@ -893,28 +846,31 @@ void Graph::copy_to_inner(){
 void Graph::compute_propagation_zone(Pave *p, bool compute_anyway){
     if(!compute_anyway && p->get_f_list().size()==1 && !p->get_zone_propagation())
         return;
-    Pave *p_copy = new Pave(p);
-    p_copy->set_inner_mode(false);
-    p_copy->set_compute_inner(false);
+    for(int fwd=0; fwd<2; fwd++){
+        Pave *p_copy = new Pave(p);
+        p_copy->set_inner_mode(false);
+        p_copy->set_compute_inner(false);
 
-    for(int id_function = 0; id_function<p->get_f_list().size(); id_function++){
-        p_copy->set_active_function(id_function);
-        p_copy->set_full();
-        vector<bool> change_tab;
-        for(int i=0; i<4; i++)
-            change_tab.push_back(false);
-        m_utils->CtcPaveBackward(p_copy, true, change_tab);
+        p->set_backward_function(fwd);
+        for(int id_function = 0; id_function<p->get_f_list().size(); id_function++){
+            p_copy->set_active_function(id_function);
+            p_copy->set_full();
+            vector<bool> change_tab;
+            for(int i=0; i<4; i++)
+                change_tab.push_back(false);
+            m_utils->CtcPaveBackward(p_copy, true, change_tab);
 
-        for(int face = 0; face<4; face++){
-            if(!p_copy->get_border(face)->get_segment_in().is_empty())
-                p->get_border(face)->push_back_zone_function_in(true);
-            else
-                p->get_border(face)->push_back_zone_function_in(false);
+            for(int face = 0; face<4; face++){
+                if(!p_copy->get_border(face)->get_segment_in().is_empty())
+                    p->get_border(face)->push_back_zone_function_in(true);
+                else
+                    p->get_border(face)->push_back_zone_function_in(false);
 
-            if(!p_copy->get_border(face)->get_segment_out().is_empty())
-                p->get_border(face)->push_back_zone_function_out(true);
-            else
-                p->get_border(face)->push_back_zone_function_out(false);
+                if(!p_copy->get_border(face)->get_segment_out().is_empty())
+                    p->get_border(face)->push_back_zone_function_out(true);
+                else
+                    p->get_border(face)->push_back_zone_function_out(false);
+            }
         }
     }
     p->set_zone_propagation(true);
@@ -922,7 +878,7 @@ void Graph::compute_propagation_zone(Pave *p, bool compute_anyway){
 
 void Graph::compute_all_propagation_zone(bool compute_anyway){
     for(Pave *p:m_node_list)
-            compute_propagation_zone(p, compute_anyway);
+        compute_propagation_zone(p, compute_anyway);
 }
 
 void Graph::reset_computation_zone(){

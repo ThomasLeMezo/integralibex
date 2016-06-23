@@ -61,8 +61,10 @@ Border::Border(const Border *border): m_position(2)
 
     m_zone_propagation = border->get_zone_propagation();
     if(m_zone_propagation){
-        m_zone_function_in = border->get_zone_function_in();
-        m_zone_function_out = border->get_zone_function_out();
+        m_zone_function_in_fwd = border->get_zone_function_in_fwd();
+        m_zone_function_in_bwd = border->get_zone_function_in_bwd();
+        m_zone_function_out_fwd = border->get_zone_function_out_fwd();
+        m_zone_function_out_bwd = border->get_zone_function_out_bwd();
     }
 }
 
@@ -282,6 +284,14 @@ void Border::set_empty_inner(){
     m_full_inner = false;
 }
 
+void Border::set_empty_inner_in(){
+    m_segment_in_inner = Interval::EMPTY_SET;
+}
+
+void Border::set_empty_inner_out(){
+    m_segment_out_inner = Interval::EMPTY_SET;
+}
+
 void Border::set_full_inner(){
     m_segment_in_inner= m_segment_full;
     m_segment_out_inner = m_segment_full;
@@ -497,6 +507,11 @@ Border& Border::operator|=(const Border &b){
 }
 
 bool Border::inter(const Border &b, bool with_bwd){
+    m_segment_in_inner |= m_segment_out_inner;
+    m_segment_out_inner |= m_segment_in_inner;
+    m_segment_in_outer |= m_segment_out_outer;
+    m_segment_out_outer |= m_segment_in_outer;
+
     bool change = false;
     if(with_bwd){
         if((get_segment_in_inner() & b.get_segment_in_inner()) != get_segment_in_inner())
@@ -510,11 +525,11 @@ bool Border::inter(const Border &b, bool with_bwd){
 
         bool inner_status = m_mode_inner;
         set_inner_mode(true);
-        set_segment_in(b.get_segment_in_inner(), true);
-        set_segment_out(b.get_segment_out_inner(), true);
+        set_segment_in(b.get_segment_in_inner() | b.get_segment_out_inner(), true);
+        set_segment_out(b.get_segment_in_inner() | b.get_segment_out_inner(), true);
         set_inner_mode(false);
-        set_segment_in(b.get_segment_in_outer(), true);
-        set_segment_out(b.get_segment_out_outer(), true);
+        set_segment_in(b.get_segment_in_outer() | b.get_segment_out_outer(), true);
+        set_segment_out(b.get_segment_out_outer() | b.get_segment_in_outer(), true);
         set_inner_mode(inner_status);
     }
     else{
@@ -666,8 +681,10 @@ bool Border::get_zone_propagation() const{
 
 bool Border::reset_computation_zone(){
     m_zone_propagation = false;
-    m_zone_function_in.clear();
-    m_zone_function_out.clear();
+    m_zone_function_in_bwd.clear();
+    m_zone_function_in_fwd.clear();
+    m_zone_function_out_bwd.clear();
+    m_zone_function_out_fwd.clear();
 }
 
 void Border::set_zone_propagation(bool val){
@@ -675,33 +692,82 @@ void Border::set_zone_propagation(bool val){
 }
 
 std::vector<bool> Border::get_zone_function_in() const{
-    return m_zone_function_in;
+    if(m_backward_function)
+        return m_zone_function_in_bwd;
+    else
+        return m_zone_function_in_fwd;
+}
+std::vector<bool> Border::get_zone_function_in_fwd() const{
+    return m_zone_function_in_fwd;
+}
+std::vector<bool> Border::get_zone_function_in_bwd() const{
+    return m_zone_function_in_bwd;
 }
 bool Border::get_zone_function_in(int function_id) const{
-    return m_zone_function_in[function_id];
+    if(m_backward_function)
+        return m_zone_function_in_bwd[function_id];
+    else
+        return m_zone_function_in_fwd[function_id];
 }
 
 void Border::set_zone_function_in(const std::vector<bool> &zone_function){
-    m_zone_function_in = zone_function;
+    if(m_backward_function)
+        m_zone_function_in_bwd = zone_function;
+    else
+        m_zone_function_in_fwd = zone_function;
+}
+void Border::set_zone_function_in_fwd(const std::vector<bool> &zone_function){
+    m_zone_function_in_fwd = zone_function;
+}
+void Border::set_zone_function_in_bwd(const std::vector<bool> &zone_function){
+    m_zone_function_in_bwd = zone_function;
 }
 
 void Border::push_back_zone_function_in(bool zone_active){
-    m_zone_function_in.push_back(zone_active);
+    if(m_backward_function)
+        m_zone_function_in_bwd.push_back(zone_active);
+    else
+        m_zone_function_in_fwd.push_back(zone_active);
 }
 
 std::vector<bool> Border::get_zone_function_out() const{
-    return m_zone_function_out;
+    if(m_backward_function)
+        return m_zone_function_out_bwd;
+    else
+        return m_zone_function_out_fwd;
 }
+std::vector<bool> Border::get_zone_function_out_fwd() const{
+        return m_zone_function_out_fwd;
+}
+std::vector<bool> Border::get_zone_function_out_bwd() const{
+        return m_zone_function_out_bwd;
+}
+
 bool Border::get_zone_function_out(int function_id) const{
-    return m_zone_function_out[function_id];
+    if(m_backward_function)
+        return m_zone_function_out_bwd[function_id];
+    else
+        return m_zone_function_out_fwd[function_id];
 }
 
 void Border::set_zone_function_out(const std::vector<bool> &zone_function){
-    m_zone_function_out = zone_function;
+    if(m_backward_function)
+        m_zone_function_out_bwd = zone_function;
+    else
+        m_zone_function_out_fwd = zone_function;
+}
+void Border::set_zone_function_out_fwd(const std::vector<bool> &zone_function){
+    m_zone_function_out_fwd = zone_function;
+}
+void Border::set_zone_function_out_bwd(const std::vector<bool> &zone_function){
+    m_zone_function_out_bwd = zone_function;
 }
 
 void Border::push_back_zone_function_out(bool zone_active){
-    m_zone_function_out.push_back(zone_active);
+    if(m_backward_function)
+        m_zone_function_out_bwd.push_back(zone_active);
+    else
+        m_zone_function_out_fwd.push_back(zone_active);
 }
 
 void Border::inter_inner(std::vector<Border*> border_list){
@@ -709,7 +775,7 @@ void Border::inter_inner(std::vector<Border*> border_list){
 
     bool one_no_empty = false;
     for(int i=0; i<border_list.size(); i++){
-        if(m_zone_function_in[i]){
+        if((!m_backward_function && m_zone_function_in_fwd[i]) || (m_backward_function && m_zone_function_in_bwd[i])){
             segment_in &= border_list[i]->get_segment_in_inner();
             one_no_empty = true;
         }
@@ -719,4 +785,12 @@ void Border::inter_inner(std::vector<Border*> border_list){
         m_segment_in_inner &= segment_in;
     else
         m_segment_in_inner &= Interval::EMPTY_SET;
+}
+
+void Border::set_backward_function(bool val){
+    m_backward_function = val;
+}
+
+bool Border::get_backward_function() const{
+    return m_backward_function;
 }

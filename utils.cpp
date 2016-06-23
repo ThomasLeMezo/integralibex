@@ -251,7 +251,7 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool union_functions){
 
     if(backward){
-        if(p->get_compute_inner() && p->get_inner_mode()){
+        if(p->get_compute_inner() && p->get_inner_mode() && p->get_f_list().size()>1){
             vector<Pave*> list_pave;
             for(int i=0; i<p->get_f_list().size(); i++){
                 Pave *p_tmp = new Pave(p);
@@ -260,10 +260,7 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
                 list_pave.push_back(p_tmp);
             }
             // Intersect paves
-            if(p->get_f_list().size()>1)
-                p->inter_inner(list_pave);
-            else
-                *p &= *list_pave[0];
+            p->inter_inner(list_pave);
 
             // Delete pave tmp
             for(Pave *p_tmp:list_pave)

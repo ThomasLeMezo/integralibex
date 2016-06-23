@@ -424,8 +424,8 @@ void car_on_the_hill_integrator(){
 //    activated_pave[0] = Interval(7.7809, 7.7810);
 //    initial_pave_list.push_back(activated_pave);
 
-    s.cameleon_propagation(18, 1e9, activated_pave); // 25
-//    s.cameleon_propagation_with_inner(18, 1e9, activated_pave); // 25
+//    s.cameleon_propagation(18, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(18, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -452,17 +452,17 @@ void integrator(){
 //    f_list.push_back(&f2);
 
     IntervalVector box(2);
-    box[0] = Interval(0,20);
+    box[0] = Interval(0,5);
     box[1] = Interval(-2,2);
 
-    Scheduler s(box, f_list, false);
+    Scheduler s(box, f_list, true);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(0.0,0.3);
+    activated_pave[0] = Interval(0.3,0.5);
     activated_pave[1] = Interval(-0.5,0.5);
 
 //    s.cameleon_propagation(19, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(13, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -668,14 +668,14 @@ void car_on_the_hill_trajectory(){
     Scheduler s(box, f_list, false);
 
     IntervalVector paveA(2);
-    paveA[0] = Interval(-0.1, 0.1);
-    paveA[1] = Interval(-0.1, 0.1);
+    paveA[0] = Interval(0.0, 0.5);
+    paveA[1] = Interval(-0.1, 0.5);
 
     IntervalVector paveB(2);
-    paveB[0] = Interval(8.0, 9.0);
-    paveB[1] = Interval(-1.0, 1.0);
+    paveB[0] = Interval(9.0, 9.5);
+    paveB[1] = Interval(3.0, 3.5);
 
-    s.find_path(15, 1e9, paveA, paveB); // 25
+    s.find_path(11, 1e9, paveA, paveB); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -696,7 +696,7 @@ int main()
 
 //    car_on_the_hill_kernel();
 
-    car_on_the_hill_trajectory();
+//    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
@@ -715,7 +715,7 @@ int main()
 //    van_der_pol_bassin();
 
     /// **** INTEGRATOR ***** //
-//    integrator();
+    integrator();
 
     /// **** TEST ***** //
 //    test();

@@ -46,6 +46,8 @@ public:
     void                            set_full_outer();
     void                            set_empty_outer();
     void                            set_empty_inner();
+    void                            set_empty_inner_in();
+    void                            set_empty_inner_out();
     void                            set_segment(bool in, bool out);
     bool                            set_segment_in(ibex::Interval segment_in, bool inclusion);
     bool                            set_segment_out(ibex::Interval segment_out, bool inclusion);
@@ -60,7 +62,13 @@ public:
     void                            reset_full_empty();
     void                            set_zone_propagation(bool val);
     void                            set_zone_function_in(const std::vector<bool> &zone_function);
+    void                            set_zone_function_in_fwd(const std::vector<bool> &zone_function);
+    void                            set_zone_function_in_bwd(const std::vector<bool> &zone_function);
     void                            set_zone_function_out(const std::vector<bool> &zone_function);
+    void                            set_zone_function_out_fwd(const std::vector<bool> &zone_function);
+    void                            set_zone_function_out_bwd(const std::vector<bool> &zone_function);
+
+    void                            set_backward_function(bool val);
 
     void                            add_inclusions(const std::vector<Inclusion *> &inclusion_list);
     bool                            add_inclusion(Inclusion *inclusion);
@@ -99,11 +107,18 @@ public:
     bool                            get_compute_inner() const;
 
     bool                            get_zone_propagation() const;
+    bool                            get_zone_propagation_fwd() const;
+    bool                            get_zone_propagation_bwd() const;
     bool                            reset_computation_zone();
     std::vector<bool>               get_zone_function_in() const;
+    std::vector<bool>               get_zone_function_in_fwd() const;
+    std::vector<bool>               get_zone_function_in_bwd() const;
     bool                            get_zone_function_in(int function_id) const;
     std::vector<bool>               get_zone_function_out() const;
+    std::vector<bool>               get_zone_function_out_fwd() const;
+    std::vector<bool>               get_zone_function_out_bwd() const;
     bool                            get_zone_function_out(int function_id) const;
+    bool                            get_backward_function() const;
 
     // Tests
     bool                            is_empty_inner();
@@ -143,10 +158,14 @@ private:
     bool                            set_segment_in(ibex::Interval segment_in);
     bool                            set_segment_out(ibex::Interval segment_in);
 
-public:
-    std::vector<bool>               m_zone_function_in;
-    std::vector<bool>               m_zone_function_out;
+private:
     bool                            m_zone_propagation;
+    bool                            m_backward_function;
+    std::vector<bool>               m_zone_function_in_fwd;
+    std::vector<bool>               m_zone_function_in_bwd;
+    std::vector<bool>               m_zone_function_out_fwd;
+    std::vector<bool>               m_zone_function_out_bwd;
+
 };
 
 #endif // BORDER_H
