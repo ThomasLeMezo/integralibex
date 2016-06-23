@@ -18,7 +18,7 @@ public:
     Pave&                       operator&=(const Pave &p);
     Pave&                       operator|=(const Pave &p);
     Border*                     operator[](int face);
-    bool                        inter(const Pave &p);
+    bool                        inter(const Pave &p, bool with_bwd=false);
     bool                        diff(const Pave &p);
     bool                        inter_inner(const std::vector<Pave*> pave_list);
 
@@ -100,6 +100,8 @@ public:
 
     void                        set_zone_propagation(bool val);
 
+    void                        set_backward_function(bool val);
+
     void                        reset_full_empty();
 
     // Getters
@@ -110,8 +112,10 @@ public:
     const std::vector<Pave *>           get_all_brothers();
     const ibex::Interval&               get_theta(int i) const;
     const std::vector<ibex::Interval>   get_theta() const;
+
     std::vector<std::vector<ibex::Interval>>  get_theta_list() const;
-    const std::vector<ibex::Interval>   get_all_theta(bool all=false) const;
+    std::vector<std::vector<ibex::Interval>>  get_theta_list_bwd() const;
+    const std::vector<ibex::Interval>   get_all_theta(bool all=false, bool bwd=false) const;
 
     const ibex::IntervalVector&         get_position() const;
 
@@ -134,9 +138,10 @@ public:
     bool                                get_inner_mode() const;
 
     bool                                get_zone_propagation() const;
+    bool                                get_backward_function() const;
 
     // Other functions
-    const std::vector<ibex::Interval>   compute_theta(ibex::Function *f);
+    const std::vector<ibex::Interval>   compute_theta(ibex::Function *f, bool backward_function=false);
 
 
 
@@ -145,6 +150,12 @@ private:
 //    std::vector<ibex::Interval> m_theta;
     std::vector< std::vector<ibex::Interval>>   m_theta_list;
     std::vector< ibex::Interval>                m_theta;
+
+    std::vector< std::vector<ibex::Interval>>   m_theta_list_bwd;
+    std::vector< ibex::Interval>                m_theta_bwd;
+
+    bool                        m_backward_function;
+
 
     ibex::IntervalVector        m_position;
     std::vector<Border*>        m_borders;

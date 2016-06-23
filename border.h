@@ -29,7 +29,7 @@ public:
     // Operations
     Border&                         operator&=(const Border &b);
     Border&                         operator|=(const Border &b);
-    bool                            inter(const Border &b);
+    bool                            inter(const Border &b, bool with_bwd=false);
     bool                            diff(const Border &b);
     void                            complementaire();
     void                            copy_to_inner();
@@ -103,7 +103,6 @@ public:
     bool                            get_zone_function_in(int function_id) const;
     std::vector<bool>               get_zone_function_out() const;
     bool                            get_zone_function_out(int function_id) const;
-
 
     // Tests
     bool                            is_empty_inner();

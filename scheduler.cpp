@@ -56,8 +56,8 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
 
         p->set_inner_mode(true);
         p->set_full_out(); // WARNING : Requiered when initial box is too large, and some trajectories can leave !!
-//        p->set_continuity_in(false);
-//        p->set_continuity_out(false);
+        //        p->set_continuity_in(false);
+        //        p->set_continuity_out(false);
 
         g->push_back(p); // Inactive box
     }
@@ -286,7 +286,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
     Graph *graph = m_graph_list[0];
     graph->set_active_f(-1);
     graph->compute_all_propagation_zone();
-//    graph->debug_marker2 = true;
+    //    graph->debug_marker2 = true;
 
     if(iterations < iterations_max && graph->size()>4){
         const clock_t begin_time = clock();
@@ -317,8 +317,8 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-//        if(iterations == 0)
-//            graph->debug_marker2 = true;
+        //        if(iterations == 0)
+        //            graph->debug_marker2 = true;
 
         // Process the backward with the subpaving
         cout << "GRAPH No 0 (" << graph->size() << ")" << endl;
@@ -367,10 +367,10 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         for(int nb_graph=0; nb_graph<m_graph_list.size(); nb_graph++){
             Graph *graph = m_graph_list[nb_graph];
 
-//            if(iterations == 8){
-//                m_graph_list[nb_graph]->debug_marker1 = false;
-//                m_graph_list[nb_graph]->debug_marker2 = true;
-//            }
+            //            if(iterations == 8){
+            //                m_graph_list[nb_graph]->debug_marker1 = false;
+            //                m_graph_list[nb_graph]->debug_marker2 = true;
+            //            }
 
             if(graph->get_alive_node()==0 || m_graph_list.size()==0)
                 break;
@@ -433,7 +433,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 //                else{
                 //                    delete(graph_diff);
                 //                }
-//                graph->remove_empty_node();
+                //                graph->remove_empty_node();
                 graph->mark_empty_node();
 
                 delete(graph_propagation);
@@ -441,6 +441,91 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             }
         }
         cout << "--> time (total) = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        iterations++;
+    }
+}
+
+void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &boxA, const ibex::IntervalVector &boxB){
+    Graph *graph = m_graph_list[0];
+    if(m_graph_list.size()!=1 && graph->size() !=1)
+        return;
+    int iterations = 0;
+
+    graph->set_inner_mode(false);
+    graph->set_external_boundary(false, false);
+
+    graph->set_inner_mode(true);
+    graph->set_external_boundary(true, true);
+    graph->set_backward_function(true);
+
+    if(iterations < iterations_max && graph->size()<4){
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+
+        graph->sivia(4,false, false, false); // Start with 4 boxes
+        graph->set_empty_outer_full_inner();
+        graph->clear_node_queue();
+        Graph *graph_backward = new Graph(graph);
+
+        // Outer Graph
+        graph->set_active_outer_inner(boxA);
+
+        graph->set_inner_mode(true);
+        graph->process(process_iterations_max, true);
+
+        graph->set_inner_mode(false);
+        graph->process(process_iterations_max, false);
+
+        // Backward graph
+        graph_backward->set_backward_function(false);
+        graph_backward->set_active_outer_inner(boxB);
+
+        graph_backward->set_inner_mode(true);
+        graph_backward->process(process_iterations_max, true);
+
+        graph_backward->set_inner_mode(false);
+        graph_backward->process(process_iterations_max, false);
+
+        // Intersect graph
+        graph->inter(graph_backward, true);
+        delete(graph_backward);
+        graph->mark_empty_node();
+        iterations++;
+    }
+    int nb_graph = 0;
+
+    while(iterations < iterations_max){
+
+        const clock_t begin_time = clock();
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+        graph->mark_empty_node();
+        graph->sivia(2*graph->get_alive_node(), false, false, false);
+
+        graph->set_empty_outer_full_inner();
+        Graph *graph_backward = new Graph(graph);
+
+        graph->clear_node_queue();
+        graph->set_active_outer_inner(boxA);
+        // Process the forward with the subpaving
+        cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
+        graph->set_inner_mode(true);
+        graph->process(process_iterations_max, true);
+
+        graph->set_inner_mode(false);
+        graph->process(process_iterations_max, false);
+
+        graph_backward->set_backward_function(false);
+        graph_backward->set_active_outer_inner(boxB);
+        // Process the forward with the subpaving
+        cout << "GRAPH BWD No "<< nb_graph << " (" << graph_backward->size() << ")" << endl;
+        graph_backward->set_inner_mode(true);
+        graph_backward->process(process_iterations_max, true);
+
+        graph_backward->set_inner_mode(false);
+        graph_backward->process(process_iterations_max, false);
+
+        graph->inter(graph_backward, true);
+        delete(graph_backward);
+        cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
     }
 }

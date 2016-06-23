@@ -67,10 +67,10 @@ Border::Border(const Border *border): m_position(2)
 }
 
 Border::~Border(){;
-    for(Inclusion *i :m_inclusions){
-        delete(i);
-    }
-}
+                  for(Inclusion *i :m_inclusions){
+                      delete(i);
+                  }
+                 }
 
 void Border::draw(bool same_size, double offset, bool test, bool two_offset) const{
     // Create an IntervalVector (2D) from the segment (1D)
@@ -496,15 +496,37 @@ Border& Border::operator|=(const Border &b){
     return *this;
 }
 
-bool Border::inter(const Border &b){
+bool Border::inter(const Border &b, bool with_bwd){
     bool change = false;
-    if((get_segment_in() & b.get_segment_in()) != get_segment_in())
-        change = true;
-    if((get_segment_out() & b.get_segment_out()) != get_segment_out())
-        change = true;
+    if(with_bwd){
+        if((get_segment_in_inner() & b.get_segment_in_inner()) != get_segment_in_inner())
+            change = true;
+        if((get_segment_out_inner() & b.get_segment_out_inner()) != get_segment_out_inner())
+            change = true;
+        if((get_segment_in_outer() & b.get_segment_in_outer()) != get_segment_in_outer())
+            change = true;
+        if((get_segment_out_outer() & b.get_segment_out_outer()) != get_segment_out_outer())
+            change = true;
 
-    set_segment_in(b.get_segment_in(), true);
-    set_segment_out(b.get_segment_out(), true);
+        bool inner_status = m_mode_inner;
+        set_inner_mode(true);
+        set_segment_in(b.get_segment_in_inner(), true);
+        set_segment_out(b.get_segment_out_inner(), true);
+        set_inner_mode(false);
+        set_segment_in(b.get_segment_in_outer(), true);
+        set_segment_out(b.get_segment_out_outer(), true);
+        set_inner_mode(inner_status);
+    }
+    else{
+        if((get_segment_in() & b.get_segment_in()) != get_segment_in())
+            change = true;
+        if((get_segment_out() & b.get_segment_out()) != get_segment_out())
+            change = true;
+
+        set_segment_in(b.get_segment_in(), true);
+        set_segment_out(b.get_segment_out(), true);
+
+    }
     return change;
 }
 

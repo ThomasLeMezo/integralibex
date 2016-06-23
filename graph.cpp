@@ -320,6 +320,12 @@ const std::vector<Pave *> Graph::get_pave(const ibex::IntervalVector &box) const
     return node_list_inter;
 }
 
+void Graph::set_active_outer_inner(const ibex::IntervalVector &box){
+    std::vector<ibex::IntervalVector> box_list;
+    box_list.push_back(box);
+    set_active_outer_inner(box_list);
+}
+
 void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_list){
     for(Pave *pave:m_node_list){
         for(IntervalVector box:box_list){
@@ -574,10 +580,10 @@ void Graph::diff(const Graph &g){
     }
 }
 
-void Graph::inter(const Graph &g){
+void Graph::inter(const Graph &g, bool with_bwd){
     if(this->size() == g.size()){
         for(int i=0; i<g.size(); i++){
-            m_node_list[i]->inter(*(g.get_node_const(i)));
+            m_node_list[i]->inter(*(g.get_node_const(i)), with_bwd);
         }
     }
 }
@@ -917,4 +923,9 @@ void Graph::compute_propagation_zone(Pave *p, bool compute_anyway){
 void Graph::compute_all_propagation_zone(){
     for(Pave *p:m_node_list)
             compute_propagation_zone(p);
+}
+
+void Graph::set_backward_function(bool val){
+    for(Pave *p:m_node_list)
+        p->set_backward_function(val);
 }

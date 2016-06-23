@@ -44,6 +44,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_full_outer = true;
 
     m_zone_propagation = false;
+    m_backward_function = false;
 
     /////////////////////////////// THETA ///////////////////////////////
     for(ibex::Function* f:f_list){
@@ -53,12 +54,22 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
             if(!t.is_empty())
                 m_theta.push_back(t);
         }
+
+        std::vector<ibex::Interval> theta_bwd = compute_theta(f, true);
+        m_theta_list_bwd.push_back(theta_bwd);
+        for(Interval t:theta){
+            if(!t.is_empty())
+                m_theta_bwd.push_back(t);
+        }
     }
+
     if(m_theta.size()==0)
         m_theta.push_back(Interval::EMPTY_SET);
+    if(m_theta_bwd.size()==0)
+        m_theta_bwd.push_back(Interval::EMPTY_SET);
 }
 
-const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
+const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f, bool backward_function){
     std::vector<ibex::Interval> theta_list;
 
     for(int i=0; i<2; i++)
@@ -68,6 +79,10 @@ const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
 
         Interval dx = dposition[0];
         Interval dy = dposition[1];
+        if(backward_function){
+            dx = -dx;
+            dy = -dy;
+        }
 
         Interval theta = atan2(dy, dx);
 
@@ -78,25 +93,20 @@ const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f){
                     theta_list[0] = (thetaR + Interval::PI) & (Interval::ZERO | Interval::PI); // theta[0] in [0, pi]
                     theta_list[1] = ((thetaR + Interval::PI) & (Interval::PI | Interval::TWO_PI)) - Interval::TWO_PI; // theta[1] in [-pi, 0]
                 }
-                else{
+                else
                     cout << "****************** ERROR ******************" << endl;
-                }
-
             }
-            else{
+            else
                 theta_list[0] = theta;
-            }
         }
-        else if(theta.is_empty()){
+        else if(theta.is_empty())
             theta_list[0] = -Interval::PI|Interval::PI;
-        }
-        else{
+        else
             theta_list[0] = theta;
-        }
-        if(theta_list[0].is_empty()){
+        if(theta_list[0].is_empty())
             cout << "ERROR - Pave "<< theta << dx << dy << m_position << endl;
-        }
     }
+
     if(theta_list[1].is_empty())
         theta_list.erase(theta_list.begin()+1);
 
@@ -128,6 +138,9 @@ Pave::Pave(const Pave *p):
     m_theta_list = p->get_theta_list();
     m_theta = p->get_all_theta(true);
 
+    m_theta_list_bwd = p->get_theta_list_bwd();
+    m_theta_bwd = p->get_all_theta(true, true);
+
     for(int face = 0; face < 4; face++){
         Border *b = new Border(p->get_border_const(face));
         m_borders.push_back(b); // Copy the border !
@@ -135,6 +148,8 @@ Pave::Pave(const Pave *p):
     }
     m_copy_node = NULL;
     m_marker_attractor = p->is_marked_attractor();
+
+    m_backward_function = p->get_backward_function();
 }
 
 Pave::~Pave(){
@@ -157,10 +172,10 @@ Pave& Pave::operator|=(const Pave &p){
     return *this;
 }
 
-bool Pave::inter(const Pave &p){
+bool Pave::inter(const Pave &p, bool with_bwd){
     bool change = false;
     for(int face = 0; face <4; face++){
-        if(get_border(face)->inter(*(p.get_border_const(face))))
+        if(get_border(face)->inter(*(p.get_border_const(face)), with_bwd))
             change = true;
     }
     return change;
@@ -353,7 +368,7 @@ void Pave::draw(bool filled, string color, bool borders_only){
         }
         else{
             if(!m_external_border){
-                vibes::drawBox(m_position, "#D3D3D3[#4C4CFF]");
+                vibes::drawBox(m_position, "#4C4CFF[#4C4CFF]");
                 draw_borders(filled, "y[y]"); // yellow
             }
         }
@@ -824,10 +839,18 @@ void Pave::reset_full_empty(){
 }
 
 const Interval &Pave::get_theta(int i) const{
-    if(i==0)
-        return m_theta_list[m_active_function][0];
-    else if(i==1)
-        return m_theta_list[m_active_function][1];
+    if(i==0){
+        if(m_backward_function)
+            return m_theta_list_bwd[m_active_function][0];
+        else
+            return m_theta_list[m_active_function][0];
+    }
+    else if(i==1){
+        if(m_backward_function)
+            return m_theta_list_bwd[m_active_function][1];
+        else
+            return m_theta_list[m_active_function][1];
+    }
     else
         return NULL;
 }
@@ -891,12 +914,19 @@ Pave* Pave::get_copy_node(){
 }
 
 const std::vector<Interval> Pave::get_theta() const{
-    return m_theta_list[m_active_function];
+    if(m_backward_function)
+        return m_theta_list_bwd[m_active_function];
+    else
+        return m_theta_list[m_active_function];
 }
 
-const std::vector<Interval> Pave::get_all_theta(bool all) const{
-    if(all || m_active_function==-1)
-        return m_theta;
+const std::vector<Interval> Pave::get_all_theta(bool all, bool bwd) const{
+    if(all || m_active_function==-1){
+        if(bwd || m_backward_function)
+            return m_theta_bwd;
+        else
+            return m_theta;
+    }
     else
         return get_theta();
 }
@@ -952,7 +982,14 @@ int Pave::get_active_function() const{
 }
 
 std::vector<std::vector<ibex::Interval>> Pave::get_theta_list() const{
-    return m_theta_list;
+    if(m_backward_function)
+        return m_theta_list_bwd;
+    else
+        return m_theta_list;
+}
+
+std::vector<std::vector<ibex::Interval>> Pave::get_theta_list_bwd() const{
+    return m_theta_list_bwd;
 }
 
 bool Pave::is_active() const{
@@ -1157,4 +1194,12 @@ void Pave::set_zone_propagation(bool val){
     m_zone_propagation = val;
     for(Border *b:m_borders)
         b->set_zone_propagation(val);
+}
+
+void Pave::set_backward_function(bool val){
+    m_backward_function = val;
+}
+
+bool Pave::get_backward_function() const{
+    return m_backward_function;
 }

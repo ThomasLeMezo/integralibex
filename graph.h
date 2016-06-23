@@ -18,7 +18,7 @@ public:
     void                        remove_empty_node();
     void                        mark_empty_node();
 
-    void                        inter(const Graph &g);
+    void                        inter(const Graph &g, bool with_bwd=false);
     void                        diff(const Graph &g);
 
     void                        push_back(Pave* p);
@@ -37,6 +37,7 @@ public:
     void                        set_full();
     void                        set_active_pave(const ibex::IntervalVector &box);
     void                        set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_list);
+    void                        set_active_outer_inner(const ibex::IntervalVector &box);
     void                        set_symetry(ibex::Function *f, int face_in, int face_out);
     void                        set_empty();
     void                        set_empty_outer_full_inner();
@@ -47,6 +48,8 @@ public:
 
     void                        set_inner_mode(bool val);
     void                        set_compute_inner(bool val);
+
+    void                        set_backward_function(bool val);
 
     void                        update_queue(bool border_condition=true, bool empty_condition=false);
     void                        clear_node_queue();
