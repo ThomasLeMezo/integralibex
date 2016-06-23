@@ -675,7 +675,7 @@ void car_on_the_hill_trajectory(){
     paveB[0] = Interval(6.0, 7.0);
     paveB[1] = Interval(-1.0, 1.0);
 
-    s.find_path(6, 1e9, paveA, paveB); // 25
+    s.find_path(8, 1e9, paveA, paveB); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -694,9 +694,9 @@ int main()
 //    car_on_the_hill_attractor();
 //    car_on_the_hill_bassin();
 
-//    car_on_the_hill_kernel();
+    car_on_the_hill_kernel();
 
-    car_on_the_hill_trajectory();
+//    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 

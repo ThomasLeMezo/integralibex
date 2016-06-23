@@ -187,7 +187,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
     cout << "SIVIA outer(" << m_node_queue_outer.size() << ") inner(" <<  m_node_queue_inner.size() << ")" << endl;
 }
 
-int Graph::process(int max_iterations, bool backward, int use_function){
+int Graph::process(int max_iterations, bool backward, bool union_functions){
     int iterations = 0;
     while(!is_empty_node_queue() & iterations < max_iterations){
         iterations++;
@@ -230,7 +230,7 @@ int Graph::process(int max_iterations, bool backward, int use_function){
             std::vector<bool> change_tab;
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
-            m_utils->CtcConsistency(pave, backward, change_tab);
+            m_utils->CtcConsistency(pave, backward, change_tab, union_functions);
 
             //                        if(debug_marker2 && !(pave->get_position() & test).is_empty())
             //                            pave->draw_test(512, "consistence");

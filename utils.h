@@ -35,9 +35,9 @@ public:
 
     void CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interval> &seg_out, const int &face, const std::vector<ibex::Interval> &theta_list, const ibex::IntervalVector &box_pave);
 
-    void CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_tab);
+    void CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_tab, bool union_functions=false);
     void CtcPaveBackward(Pave *p, bool inclusion, std::vector<bool> &change_tab);
-    void CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab);
+    void CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool union_functions=false);
     bool CtcContinuity(Pave *p, bool backward);
 
     void CtcPolarCorrection(ibex::Interval &x, ibex::Interval &y, ibex::Interval &rho, ibex::Interval &theta);

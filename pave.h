@@ -113,7 +113,9 @@ public:
     const ibex::Interval&               get_theta(int i) const;
     const std::vector<ibex::Interval>   get_theta() const;
 
-    std::vector<std::vector<ibex::Interval>>  get_theta_list() const;
+    std::vector<std::vector<ibex::Interval>>  get_theta_list();
+    std::vector<std::vector<ibex::Interval>>  get_theta_list_const() const;
+    std::vector<ibex::Interval>         get_theta_list_const(int function_id) const;
     std::vector<std::vector<ibex::Interval>>  get_theta_list_bwd() const;
     const std::vector<ibex::Interval>   get_all_theta(bool all=false, bool bwd=false) const;
 
