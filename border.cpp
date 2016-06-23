@@ -664,6 +664,12 @@ bool Border::get_zone_propagation() const{
     return m_zone_propagation;
 }
 
+bool Border::reset_computation_zone(){
+    m_zone_propagation = false;
+    m_zone_function_in.clear();
+    m_zone_function_out.clear();
+}
+
 void Border::set_zone_propagation(bool val){
     m_zone_propagation = val;
 }

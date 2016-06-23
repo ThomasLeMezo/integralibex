@@ -542,7 +542,7 @@ void van_der_pol_kernel2(){
     Scheduler s(box, f_list, false, false, false);
 
     /////////////// Compute ///////////////
-    s.compute_attractor(14, 1e9, 0);
+    s.compute_attractor(14, 1e9);
     s.draw(1024, true, "attractor");
     s.attractor_to_kernel();
     s.draw(1024, true, "invert");
@@ -668,14 +668,14 @@ void car_on_the_hill_trajectory(){
     Scheduler s(box, f_list, false);
 
     IntervalVector paveA(2);
-    paveA[0] = Interval(-1.0, 1.0);
-    paveA[1] = Interval(-1.0, 1.0);
+    paveA[0] = Interval(-0.1, 0.1);
+    paveA[1] = Interval(-0.1, 0.1);
 
     IntervalVector paveB(2);
-    paveB[0] = Interval(6.0, 7.0);
+    paveB[0] = Interval(8.0, 9.0);
     paveB[1] = Interval(-1.0, 1.0);
 
-    s.find_path(8, 1e9, paveA, paveB); // 25
+    s.find_path(15, 1e9, paveA, paveB); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -694,9 +694,9 @@ int main()
 //    car_on_the_hill_attractor();
 //    car_on_the_hill_bassin();
 
-    car_on_the_hill_kernel();
+//    car_on_the_hill_kernel();
 
-//    car_on_the_hill_trajectory();
+    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 

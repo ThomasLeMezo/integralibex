@@ -26,7 +26,7 @@ public:
     void                        copy_to_inner();
 
     // ******** Drawing functions ********
-    void                        draw(bool filled, std::string color="black[]", bool borders_only=false);
+    void                        draw(bool filled, bool borders_only=false);
     void                        draw_borders(bool filled, std::string color_polygon="g[g]", bool complementary=false) const;
     void                        draw_test(int size, std::string comment) const;
     void                        draw_theta() const;
@@ -113,11 +113,14 @@ public:
     const ibex::Interval&               get_theta(int i) const;
     const std::vector<ibex::Interval>   get_theta() const;
 
-    std::vector<std::vector<ibex::Interval>>  get_theta_list();
-    std::vector<std::vector<ibex::Interval>>  get_theta_list_const() const;
-    std::vector<ibex::Interval>         get_theta_list_const(int function_id) const;
-    std::vector<std::vector<ibex::Interval>>  get_theta_list_bwd() const;
-    const std::vector<ibex::Interval>   get_all_theta(bool all=false, bool bwd=false) const;
+    std::vector<std::vector<ibex::Interval>>    get_theta_list() const;
+    std::vector<ibex::Interval>                 get_theta_list(int function_id) const;
+    const std::vector<ibex::Interval>           get_all_theta(bool all=false) const;
+
+    std::vector<std::vector<ibex::Interval>>    get_theta_list_bwd() const;
+    std::vector<std::vector<ibex::Interval>>    get_theta_list_fwd() const;
+    std::vector<ibex::Interval>                 get_all_theta_bwd() const;
+    std::vector<ibex::Interval>                 get_all_theta_fwd() const;
 
     const ibex::IntervalVector&         get_position() const;
 
@@ -140,6 +143,7 @@ public:
     bool                                get_inner_mode() const;
 
     bool                                get_zone_propagation() const;
+    void                                reset_computation_zone();
     bool                                get_backward_function() const;
 
     // Other functions

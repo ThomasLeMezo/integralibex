@@ -240,7 +240,7 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
             if(backward && !pave->get_zone_propagation())
                 compute_propagation_zone(pave);
             for(int face=0; face<4; face++){
-                if(change_tab[face] && (!backward || !pave->get_border(face)->get_zone_function_in()[pave->get_active_function()])){
+                if(change_tab[face]){// && (!backward || !pave->get_border(face)->get_zone_function_in()[pave->get_active_function()])){
                     for(Pave *p:pave->get_brothers(face)){
                         if(p->is_in_queue() == false){
                             add_to_queue(p);
@@ -436,7 +436,7 @@ void Graph::draw(int size, bool filled, string comment){
     }
 
     for(Pave *node:m_node_border_list){
-        node->draw(filled, "gray[gray]");
+        node->draw(filled);
     }
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
@@ -445,7 +445,7 @@ void Graph::draw(int size, bool filled, string comment){
 
 void Graph::drawInner(bool filled){
     for(Pave *node:m_node_list){
-        node->draw(filled, "[]", true);
+        node->draw(filled, true);
     }
 }
 
@@ -920,9 +920,14 @@ void Graph::compute_propagation_zone(Pave *p, bool compute_anyway){
     p->set_zone_propagation(true);
 }
 
-void Graph::compute_all_propagation_zone(){
+void Graph::compute_all_propagation_zone(bool compute_anyway){
     for(Pave *p:m_node_list)
-            compute_propagation_zone(p);
+            compute_propagation_zone(p, compute_anyway);
+}
+
+void Graph::reset_computation_zone(){
+    for(Pave *p:m_node_list)
+        p->reset_computation_zone();
 }
 
 void Graph::set_backward_function(bool val){

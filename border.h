@@ -99,6 +99,7 @@ public:
     bool                            get_compute_inner() const;
 
     bool                            get_zone_propagation() const;
+    bool                            reset_computation_zone();
     std::vector<bool>               get_zone_function_in() const;
     bool                            get_zone_function_in(int function_id) const;
     std::vector<bool>               get_zone_function_out() const;

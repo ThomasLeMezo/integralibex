@@ -216,7 +216,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
     }
 }
 
-void Scheduler::compute_attractor(int iterations_max, int process_iterations_max, int use_function){
+void Scheduler::compute_attractor(int iterations_max, int process_iterations_max){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
 
@@ -228,7 +228,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph->sivia(4,true, false, false); // Start with 4 boxes
-        graph->process(process_iterations_max, true, use_function); // ? Usefull ??? ToDo
+        graph->process(process_iterations_max, true); // ? Usefull ??? ToDo
         iterations++;
     }
 
@@ -251,7 +251,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< 0 << " (" << graph->size() << ")" << endl;
-            int graph_list_process_cpt = graph->process(process_iterations_max, true, use_function);
+            int graph_list_process_cpt = graph->process(process_iterations_max, true);
 
             if(graph->get_inner_mode())
                 cout << "--> processing inner = " ;
@@ -450,13 +450,13 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
     if(m_graph_list.size()!=1 && graph->size() !=1)
         return;
     int iterations = 0;
+    graph->set_compute_inner(true);
 
     graph->set_inner_mode(false);
     graph->set_external_boundary(false, false);
 
     graph->set_inner_mode(true);
     graph->set_external_boundary(true, true);
-    graph->set_backward_function(true);
 
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
@@ -467,23 +467,18 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         Graph *graph_backward = new Graph(graph);
 
         // Outer Graph
-        graph->set_backward_function(true);
         graph->set_active_outer_inner(boxA);
-
-        graph->set_inner_mode(true);
-        graph->process(process_iterations_max, true);
-
+//        graph->set_inner_mode(true);
+//        graph->process(process_iterations_max, true);
         graph->set_inner_mode(false);
         graph->process(process_iterations_max, false, true);
 
         // Backward graph
         graph_backward->set_backward_function(true);
-        graph_backward->compute_all_propagation_zone();
+//        graph_backward->compute_all_propagation_zone(true);
         graph_backward->set_active_outer_inner(boxB);
-
-        graph_backward->set_inner_mode(true);
-        graph_backward->process(process_iterations_max, true);
-
+//        graph_backward->set_inner_mode(true);
+//        graph_backward->process(process_iterations_max, true);
         graph_backward->set_inner_mode(false);
         graph_backward->process(process_iterations_max, false, true);
 
@@ -493,46 +488,49 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->mark_empty_node();
         iterations++;
     }
-    int nb_graph = 0;
 
     while(iterations < iterations_max){
 
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph->mark_empty_node();
+        if(graph->is_empty()){
+            cout << "THERE IS NO PATH TO LINK THE TWO BOXES" << endl;
+            break;
+        }
         graph->sivia(2*graph->get_alive_node(), false, false, false);
 
         graph->set_empty_outer_full_inner();
         graph->clear_node_queue();
         Graph *graph_backward = new Graph(graph);
 
-        graph->set_backward_function(true);
-
+//        // Process the forward with the subpaving
+        cout << "GRAPH No "<< 0 << " (" << graph->size() << ")" << endl;
         graph->set_active_outer_inner(boxA);
-        // Process the forward with the subpaving
-        cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
-        graph->set_inner_mode(true);
-        graph->process(process_iterations_max, true);
-
+//        graph->set_inner_mode(true);
+//        graph->process(process_iterations_max, true);
         graph->set_inner_mode(false);
         graph->process(process_iterations_max, false, true);
 
+        // Process the backward with the subpaving
+        cout << "GRAPH BWD No "<< 0 << " (" << graph_backward->size() << ")" << endl;
         graph_backward->set_backward_function(true);
-        graph_backward->compute_all_propagation_zone();
+//        graph_backward->compute_all_propagation_zone(true);
         graph_backward->set_active_outer_inner(boxB);
-        // Process the forward with the subpaving
-        cout << "GRAPH BWD No "<< nb_graph << " (" << graph_backward->size() << ")" << endl;
-        graph_backward->set_inner_mode(true);
-        graph_backward->process(process_iterations_max, true);
 
+//        graph_backward->set_inner_mode(true);
+//        graph_backward->process(process_iterations_max, true);
         graph_backward->set_inner_mode(false);
         graph_backward->process(process_iterations_max, false, true);
 
-        graph_backward->draw(1024, true, "bwd");
-        graph->draw(1024, true, "fwd");
+//        graph->draw(1024, true, "fwd");
+//        graph_backward->draw(1024, true, "bwd");
 
         graph->inter(graph_backward, true);
         delete(graph_backward);
+
+//        graph->draw(1024, true, "inter");
+
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
     }
