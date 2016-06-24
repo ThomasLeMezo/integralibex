@@ -471,15 +471,14 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->set_empty_outer_full_inner();
         graph->clear_node_queue();
         Graph *graph_backward = new Graph(graph);
-        graph_backward->set_full();
-        graph->set_full();
 
         // Outer Graph
+        graph->set_backward_function(false);
         graph->set_active_outer_inner(boxA);
         graph->set_inner_mode(true);
         graph->process(process_iterations_max, true);
         graph->set_inner_mode(false);
-//        graph->process(process_iterations_max, false, true);
+        graph->process(process_iterations_max, false, true);
 
         // Backward graph
         graph_backward->set_backward_function(true);
@@ -487,7 +486,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph_backward->set_inner_mode(true);
         graph_backward->process(process_iterations_max, true);
         graph_backward->set_inner_mode(false);
-//        graph_backward->process(process_iterations_max, false, true);
+        graph_backward->process(process_iterations_max, false, true);
 
         // Intersect graph
         graph->inter(graph_backward, true);
@@ -510,26 +509,24 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->set_empty_outer_full_inner();
         graph->clear_node_queue();
         Graph *graph_backward = new Graph(graph);
-        graph_backward->set_full();
-        graph->set_full();
 
-//        // Process the forward with the subpaving
+        // Process the forward with the subpaving
         cout << "GRAPH No "<< 0 << " (" << graph->size() << ")" << endl;
+        graph_backward->set_backward_function(false);
         graph->set_active_outer_inner(boxA);
         graph->set_inner_mode(true);
         graph->process(process_iterations_max, true);
         graph->set_inner_mode(false);
-//        graph->process(process_iterations_max, false, true);
+        graph->process(process_iterations_max, false, true);
 
         // Process the backward with the subpaving
         cout << "GRAPH BWD No "<< 0 << " (" << graph_backward->size() << ")" << endl;
         graph_backward->set_backward_function(true);
         graph_backward->set_active_outer_inner(boxB);
-
         graph_backward->set_inner_mode(true);
         graph_backward->process(process_iterations_max, true);
         graph_backward->set_inner_mode(false);
-//        graph_backward->process(process_iterations_max, false, true);
+        graph_backward->process(process_iterations_max, false, true);
 
 //        graph->draw(1024, true, "fwd");
 //        graph_backward->draw(1024, true, "bwd");

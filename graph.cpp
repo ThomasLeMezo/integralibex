@@ -291,7 +291,7 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                 if(pave->get_position().is_strict_interior_subset(box)){
                     pave->set_empty_inner_in();
                     pave->set_removed_pave_inner(true);
-                    pave->set_active(false);
+//                    pave->set_active(false);
                     inner = true;
                     m_count_alive--;
                 }
@@ -305,8 +305,8 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                         if(!pave_brother->is_in_queue_outer()){
                             add_to_queue_outer(pave_brother);
                         }
-                        if(inner && !pave_brother->is_in_queue_inner()
-                                && !pave->get_border(face)->get_zone_function_in(pave->get_active_function())){
+                        if(inner && !pave_brother->is_in_queue_inner()){
+//                                && !pave->get_border(face)->get_zone_function_in(pave->get_active_function())){
                             add_to_queue_inner(pave_brother);
                         }
                     }

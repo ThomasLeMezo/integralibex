@@ -489,6 +489,9 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
     pave1->set_active_function(get_active_function());
     pave2->set_active_function(get_active_function());
 
+    pave1->set_backward_function(get_backward_function());
+    pave2->set_backward_function(get_backward_function());
+
     int indice1, indice2;
 
     if(pave1->m_position[0] == m_position[0]){
