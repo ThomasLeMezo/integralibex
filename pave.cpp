@@ -288,8 +288,8 @@ void Pave::set_empty(){
 }
 
 void Pave::set_empty_outer(){
-    for(int face=0; face<4; face++){
-        get_border(face)->set_empty_outer();
+    for(Border *b:m_borders){
+        b->set_empty_outer();
     }
     m_empty_outer = true;
     m_full_outer = false;
@@ -828,17 +828,17 @@ bool Pave::is_full_geometricaly() const{
 
 const std::vector<Pave *> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
-    for(int i=0; i<(int)m_borders[face]->get_inclusions().size(); i++){
-        if(!m_borders[face]->get_inclusion(i)->get_border()->get_pave()->is_removed_pave())
-            brothers_list.push_back(m_borders[face]->get_inclusion(i)->get_border()->get_pave());
+    for(Inclusion *i:m_borders[face]->get_inclusions()){
+        if(!i->get_border()->get_pave()->is_removed_pave_union())
+            brothers_list.push_back(i->get_border()->get_pave());
     }
     return brothers_list;
 }
 
 const std::vector<Pave *> Pave::get_all_brothers(){
     vector<Pave*> brothers_list;
-    for(int face = 0; face<4; face++){
-        for(Inclusion *i:m_borders[face]->get_inclusions()){
+    for(Border *b:m_borders){
+        for(Inclusion *i:b->get_inclusions()){
             brothers_list.push_back(i->get_border()->get_pave());
         }
     }

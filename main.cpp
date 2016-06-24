@@ -316,7 +316,7 @@ void cercle_capture_bassin(){
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     /////////////// Drawing ///////////////
     s.draw(1024, true);
-    vibes::axisLimits(-1,13, -8,11);
+    vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 
 //    s.print_pave_info(0, -0.8, -0.7,"b[b]");
 //    s.print_pave_info(0, -0.5, 0.44,"b[b]");
@@ -424,8 +424,8 @@ void car_on_the_hill_integrator(){
 //    activated_pave[0] = Interval(7.7809, 7.7810);
 //    initial_pave_list.push_back(activated_pave);
 
-    s.cameleon_propagation(10, 1e9, activated_pave); // 25
-//    s.cameleon_propagation_with_inner(18, 1e9, activated_pave); // 25
+//    s.cameleon_propagation(10, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(18, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -699,7 +699,7 @@ int main()
 //    car_on_the_hill_kernel();
 
 //    car_on_the_hill_trajectory();
-    car_on_the_hill_integrator();
+//    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
@@ -717,7 +717,7 @@ int main()
 //    van_der_pol_bassin();
 
     /// **** INTEGRATOR ***** //
-//    integrator();
+    integrator();
 
     /// **** TEST ***** //
 //    test();

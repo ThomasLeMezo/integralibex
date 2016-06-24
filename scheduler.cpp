@@ -184,10 +184,12 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         graph->clear_node_queue();
         graph->set_active_outer_inner(initial_boxes);
 
+        // Inner
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
         graph->process(process_iterations_max, true);
 
+        // Outer
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
         graph->process(process_iterations_max, false);
@@ -209,10 +211,12 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
+        // Inner
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
         graph->process(process_iterations_max, true);
 
+        // Outer
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
         graph->process(process_iterations_max, false);
@@ -408,7 +412,6 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                     nb_graph--;
                 break;
             }
-
 
             // ***************************************************
             //              REMOVE INSIDE PROCEDURE
