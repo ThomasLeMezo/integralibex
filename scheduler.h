@@ -32,7 +32,7 @@ public:
 
     // ******** Drawing functions ********
     void draw(int size, bool filled, string comment="");
-    void print_pave_info(int graph, double x, double y, string color="b[b]");
+    void print_pave_info(int graph, double x, double y, string color="black[g]");
 
     // Getter
     Graph* get_graph_list(int i);

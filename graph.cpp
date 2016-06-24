@@ -288,32 +288,36 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
     }
 
     for(Pave *pave:m_node_list){
-        for(IntervalVector box:box_list){
-            if(!(box & pave->get_position()).is_empty()){
-                // Outer
-                pave->set_full_outer();
+        if(pave->is_active()){
+            if(pave->is_near_inactive())
+                add_to_queue_inner(pave);
+            for(IntervalVector box:box_list){
+                if(!(box & pave->get_position()).is_empty()){
+                    // Outer
+                    pave->set_full_outer();
 
-                // Inner
-                bool inner=false;
-                if(pave->get_position().is_strict_interior_subset(box)){
-                    pave->set_empty_inner_in(); // Do not set removed pave inner !!!
-                    pave->set_active(false);
-                    inner = true;
-                    m_count_alive--;
-                }
+                    // Inner
+                    bool inner=false;
+                    if(pave->get_position().is_strict_interior_subset(box)){
+                        pave->set_empty_inner_in(); // Do not set removed pave inner !!!
+                        pave->set_active(false);
+                        inner = true;
+                        m_count_alive--;
+                    }
 
-                compute_propagation_zone(pave, true);
+//                    compute_propagation_zone(pave, true);
 
-                // Update queue
-                for(int face=0; face<4; face++){
-                    vector<Pave*> pave_brother_list = pave->get_brothers(face);
-                    for(Pave *pave_brother:pave_brother_list){
-                        if(!pave_brother->is_in_queue_outer()){
-                            add_to_queue_outer(pave_brother);
-                        }
-                        if(inner && !pave_brother->is_in_queue_inner()){
-                            //                                && !pave->get_border(face)->get_zone_function_in(pave->get_active_function())){
-                            add_to_queue_inner(pave_brother);
+                    // Update queue
+                    for(int face=0; face<4; face++){
+                        vector<Pave*> pave_brother_list = pave->get_brothers(face);
+                        for(Pave *pave_brother:pave_brother_list){
+                            if(!pave_brother->is_in_queue_outer()){
+                                add_to_queue_outer(pave_brother);
+                            }
+                            if(inner && !pave_brother->is_in_queue_inner()){
+                                //                                && !pave->get_border(face)->get_zone_function_in(pave->get_active_function())){
+                                add_to_queue_inner(pave_brother);
+                            }
                         }
                     }
                 }
@@ -499,7 +503,7 @@ void Graph::mark_empty_node(){
 }
 
 bool Graph::is_empty(){
-    if(get_alive_node()==0)
+    if(get_alive_node()<=0)
         return true;
     bool empty = true;
     for(Pave *node:m_node_list){
@@ -853,7 +857,7 @@ void Graph::copy_to_inner(){
 }
 
 void Graph::compute_propagation_zone(Pave *p, bool compute_anyway){
-    if(!compute_anyway && p->get_f_list().size()==1 && !p->get_zone_propagation())
+    if(!compute_anyway && (p->get_f_list().size()==1 || p->get_zone_propagation()))
         return;
     for(int fwd=0; fwd<2; fwd++){
         Pave *p_copy = new Pave(p);

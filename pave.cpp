@@ -361,6 +361,7 @@ void Pave::draw(bool filled, bool inner_only){
             /// OUTER
             if(!inner_only){
                 set_inner_mode(false);
+                set_backward_function(false);
                 draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
             }
 
@@ -1140,6 +1141,18 @@ bool Pave::is_near_empty(){
     vector<Pave*> brothers = get_all_brothers();
     for(Pave *p:brothers){
         if(!p->is_external_border() && (p->is_empty() || p->is_removed_pave())){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Pave::is_near_inactive(){
+    if(!is_active())
+        return false;
+    vector<Pave*> brothers = get_all_brothers();
+    for(Pave *p:brothers){
+        if(!p->is_active() && !p->is_external_border() && !p->is_empty()){
             return true;
         }
     }

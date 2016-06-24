@@ -663,25 +663,25 @@ void car_on_the_hill_trajectory(){
 
     IntervalVector box(2);
     box[0] = Interval(-2.0, 13.0);
-    box[1] = Interval(-6, 6);
+    box[1] = Interval(-10, 10);
 
     Scheduler s(box, f_list, false);
 
     IntervalVector paveA(2);
     paveA[0] = Interval(0.0, 0.5);
-    paveA[1] = Interval(-0.1, 0.5);
+    paveA[1] = Interval(0.0, 0.5);
 
     IntervalVector paveB(2);
-    paveB[0] = Interval(9.0, 9.5);
-    paveB[1] = Interval(3.0, 3.5);
+    paveB[0] = Interval(11.0, 12.0);
+    paveB[1] = Interval(2.0, 3.0);
 
     s.find_path(10, 1e9, paveA, paveB); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
-    s.print_pave_info(0, paveA[0].mid(), paveA[1].mid());
-    s.print_pave_info(0, paveB[0].mid(), paveB[1].mid());
-    vibes::axisLimits(-2,13, -6, 6);
+    vibes::drawBox(paveA, "g[]");
+    vibes::drawBox(paveB, "g[]");
+    vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 }
 
 int main()
@@ -699,7 +699,7 @@ int main()
 //    car_on_the_hill_kernel();
 
 //    car_on_the_hill_trajectory();
-//    car_on_the_hill_integrator();
+    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
@@ -717,10 +717,9 @@ int main()
 //    van_der_pol_bassin();
 
     /// **** INTEGRATOR ***** //
-    integrator();
+//    integrator();
 
     /// **** TEST ***** //
 //    test();
-
     return 0;
 }
