@@ -497,7 +497,6 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph_backward->set_backward_function(true); // Invert bc of bwd
         graph_backward->process(process_iterations_max, false, true);
 
-
         // Intersect graph
         graph->inter(graph_backward, true);
         delete(graph_backward);

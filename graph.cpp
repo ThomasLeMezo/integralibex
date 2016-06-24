@@ -555,18 +555,18 @@ void Graph::inter(const Graph &g, bool with_bwd){
 }
 
 void Graph::set_empty(){
-    for(Pave *pave : m_node_list){
-        if(pave->is_active())
-            pave->set_empty();
+    for(Pave *node : m_node_list){
+        if(node->is_active() && !node->is_removed_pave())
+            node->set_empty();
     }
 }
 
 void Graph::set_empty_outer_full_inner(){
     for(Pave *pave : m_node_list){
-        if(pave->is_active()){
+        if(pave->is_active())
             pave->set_empty_outer();
+        if(!pave->is_removed_pave_inner())
             pave->set_full_inner();
-        }
     }
 }
 
@@ -859,6 +859,7 @@ void Graph::copy_to_inner(){
 void Graph::compute_propagation_zone(Pave *p, bool compute_anyway){
     if(!compute_anyway && (p->get_f_list().size()==1 || p->get_zone_propagation()))
         return;
+    bool bwd_function_save = p->get_backward_function();
     for(int fwd=0; fwd<2; fwd++){
         Pave *p_copy = new Pave(p);
         p_copy->set_inner_mode(false);
@@ -888,6 +889,7 @@ void Graph::compute_propagation_zone(Pave *p, bool compute_anyway){
         }
     }
     p->set_zone_propagation(true);
+    p->set_backward_function(bwd_function_save);
 }
 
 void Graph::compute_all_propagation_zone(bool compute_anyway){
