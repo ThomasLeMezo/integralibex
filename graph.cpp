@@ -865,6 +865,7 @@ void Graph::compute_propagation_zone(Pave *p, bool compute_anyway){
         p_copy->set_compute_inner(false);
 
         p_copy->set_backward_function(fwd);
+        p->set_backward_function(fwd);
         for(int id_function = 0; id_function<p_copy->get_f_list().size(); id_function++){
             p_copy->set_active_function(id_function);
             p_copy->set_full();

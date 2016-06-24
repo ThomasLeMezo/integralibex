@@ -668,14 +668,14 @@ void car_on_the_hill_trajectory(){
     Scheduler s(box, f_list, false);
 
     IntervalVector paveA(2);
-    paveA[0] = Interval(0.0, 0.5);
-    paveA[1] = Interval(0.0, 0.5);
+    paveA[0] = Interval(0.0, 1.0);
+    paveA[1] = Interval(0.0, 1.0);
 
     IntervalVector paveB(2);
-    paveB[0] = Interval(11.0, 12.0);
+    paveB[0] = Interval(2.0, 3.0);
     paveB[1] = Interval(2.0, 3.0);
 
-    s.find_path(10, 1e9, paveA, paveB); // 25
+    s.find_path(15, 1e9, paveA, paveB); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -698,8 +698,8 @@ int main()
 
 //    car_on_the_hill_kernel();
 
-//    car_on_the_hill_trajectory();
-    car_on_the_hill_integrator();
+    car_on_the_hill_trajectory();
+//    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //

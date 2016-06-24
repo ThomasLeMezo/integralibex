@@ -514,9 +514,9 @@ bool Border::inter(const Border &b, bool with_bwd){
 
     bool change = false;
     if(with_bwd){
-        if((get_segment_in_inner() & b.get_segment_in_inner()) != get_segment_in_inner())
+        if((get_segment_in_inner() | b.get_segment_in_inner()) != get_segment_in_inner())
             change = true;
-        if((get_segment_out_inner() & b.get_segment_out_inner()) != get_segment_out_inner())
+        if((get_segment_out_inner() | b.get_segment_out_inner()) != get_segment_out_inner())
             change = true;
         if((get_segment_in_outer() & b.get_segment_in_outer()) != get_segment_in_outer())
             change = true;
@@ -525,8 +525,8 @@ bool Border::inter(const Border &b, bool with_bwd){
 
         bool inner_status = m_mode_inner;
         set_inner_mode(true);
-        set_segment_in(b.get_segment_in_inner() | b.get_segment_out_inner(), true);
-        set_segment_out(b.get_segment_in_inner() | b.get_segment_out_inner(), true);
+        set_segment_in(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
+        set_segment_out(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
         set_inner_mode(false);
         set_segment_in(b.get_segment_in_outer() | b.get_segment_out_outer(), true);
         set_segment_out(b.get_segment_out_outer() | b.get_segment_in_outer(), true);
