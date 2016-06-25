@@ -175,7 +175,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
                 add_to_queue_inner(p);
             }
         }
-        if(!p->is_removed_pave() && m_compute_inner)
+        if(m_compute_inner)
             compute_propagation_zone(p);
         m_node_list.push_back(p);
     }
@@ -289,8 +289,6 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
 
     for(Pave *pave:m_node_list){
         if(pave->is_active()){
-            if(pave->is_near_inactive())
-                add_to_queue_inner(pave);
             for(IntervalVector box:box_list){
                 if(!(box & pave->get_position()).is_empty()){
                     // Outer
@@ -299,8 +297,7 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                     // Inner
                     bool inner=false;
                     if(pave->get_position().is_strict_interior_subset(box)){
-                        pave->set_empty_inner_in(); // Do not set removed pave inner !!!
-                        pave->set_active(false);
+                        pave->set_empty_inner_in(); // Do not set removed pave inner !!! => bc not empty out
                         inner = true;
                         m_count_alive--;
                     }
@@ -309,18 +306,19 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                     for(int face=0; face<4; face++){
                         vector<Pave*> pave_brother_list = pave->get_brothers(face);
                         for(Pave *pave_brother:pave_brother_list){
-                            if(!pave_brother->is_in_queue_outer()){
-                                add_to_queue_outer(pave_brother);
-                            }
-                            if(inner && !pave_brother->is_in_queue_inner()){
-                                //                                && !pave->get_border(face)->get_zone_function_in(pave->get_active_function())){
+                            add_to_queue_outer(pave_brother);
+                            if(inner)
                                 add_to_queue_inner(pave_brother);
-                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    for(Pave *pave:m_node_list){
+        if(pave->is_active() && pave->is_near_inactive())
+            add_to_queue_inner(pave);
     }
 }
 
@@ -494,9 +492,10 @@ void Graph::mark_empty_node(){
                 empty_inner = true;
             }
             if(empty_outer || empty_inner){
-                if(!m_compute_inner || (empty_outer && empty_inner))
+                if(!m_compute_inner || (empty_outer && empty_inner)){
                     pave->set_active(false);
-                m_count_alive--;
+                    m_count_alive--;
+                }
             }
         }
     }
@@ -563,10 +562,12 @@ void Graph::set_empty(){
 
 void Graph::set_empty_outer_full_inner(){
     for(Pave *pave : m_node_list){
-        if(pave->is_active())
+        if(!pave->is_removed_pave_outer())
             pave->set_empty_outer();
         if(!pave->is_removed_pave_inner())
             pave->set_full_inner();
+        if(pave->is_active())
+            pave->set_first_process_true();
     }
 }
 
@@ -809,13 +810,17 @@ void Graph::set_inner_mode(bool val){
 }
 
 void Graph::add_to_queue_inner(Pave *p){
-    m_node_queue_inner.push_back(p);
-    p->set_in_queue_inner(true);
+    if(!p->is_in_queue_inner()){
+        m_node_queue_inner.push_back(p);
+        p->set_in_queue_inner(true);
+    }
 }
 
 void Graph::add_to_queue_outer(Pave *p){
-    m_node_queue_outer.push_back(p);
-    p->set_in_queue_outer(true);
+    if(!p->is_in_queue_outer()){
+        m_node_queue_outer.push_back(p);
+        p->set_in_queue_outer(true);
+    }
 }
 
 bool Graph::is_empty_node_queue(){

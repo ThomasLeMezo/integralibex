@@ -507,8 +507,8 @@ Border& Border::operator|=(const Border &b){
 }
 
 bool Border::inter(const Border &b, bool with_bwd){
-    m_segment_in_inner &= m_segment_out_inner;
-    m_segment_out_inner &= m_segment_in_inner;
+    m_segment_in_inner |= m_segment_out_inner;
+    m_segment_out_inner |= m_segment_in_inner;
     m_segment_in_outer |= m_segment_out_outer;
     m_segment_out_outer |= m_segment_in_outer;
 

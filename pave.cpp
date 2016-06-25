@@ -1148,11 +1148,11 @@ bool Pave::is_near_empty(){
 }
 
 bool Pave::is_near_inactive(){
-    if(!is_active())
+    if(!is_removed_pave_union())
         return false;
     vector<Pave*> brothers = get_all_brothers();
     for(Pave *p:brothers){
-        if(!p->is_active() && !p->is_external_border() && !p->is_empty()){
+        if(p->is_removed_pave_inner() && !p->is_external_border() && !p->is_empty()){
             return true;
         }
     }

@@ -511,6 +511,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->mark_empty_node();
         if(graph->is_empty()){
             cout << "THERE IS NO PATH TO LINK THE TWO BOXES" << endl;
+            cout << "size = " << graph->size() << endl;
             break;
         }
         graph->sivia(2*graph->get_alive_node(), false, false, false);
