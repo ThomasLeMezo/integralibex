@@ -305,8 +305,6 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                         m_count_alive--;
                     }
 
-//                    compute_propagation_zone(pave, true);
-
                     // Update queue
                     for(int face=0; face<4; face++){
                         vector<Pave*> pave_brother_list = pave->get_brothers(face);
@@ -483,19 +481,21 @@ int Graph::size() const{
 
 void Graph::mark_empty_node(){
     for(Pave *pave:m_node_list){
-        if(!pave->is_removed_pave() && pave->is_active()){
+        if(pave->is_active()){
             pave->reset_full_empty();
-            bool empty = false;
-            if(pave->is_empty_outer()){
+            bool empty_outer = false;
+            bool empty_inner = false;
+            if(pave->is_removed_pave_outer() || pave->is_empty_outer()){
                 pave->set_removed_pave_outer(true);
-                empty = true;
+                empty_outer = true;
             }
-            if(m_compute_inner && pave->is_empty_inner()){
+            if(m_compute_inner && (pave->is_removed_pave_inner() || pave->is_empty_inner())){
                 pave->set_removed_pave_inner(true);
-                empty = true;
+                empty_inner = true;
             }
-            if(empty){
-                pave->set_active(false);
+            if(empty_outer || empty_inner){
+                if(!m_compute_inner || (empty_outer && empty_inner))
+                    pave->set_active(false);
                 m_count_alive--;
             }
         }
