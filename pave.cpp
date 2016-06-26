@@ -1147,8 +1147,8 @@ bool Pave::is_near_empty(){
     return false;
 }
 
-bool Pave::is_near_inactive(){
-    if(!is_removed_pave_union())
+bool Pave::is_near_removed_inner(){
+    if(is_removed_pave_inner())
         return false;
     vector<Pave*> brothers = get_all_brothers();
     for(Pave *p:brothers){

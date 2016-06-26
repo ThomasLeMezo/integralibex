@@ -51,7 +51,7 @@ ibex::Function* Inclusion::get_function() const{
 }
 
 const Interval Inclusion::get_segment_in() const{
-    if(!get_border()->get_pave()->is_removed_pave()){
+    if(get_border()->get_pave()->is_active()){
         if(m_shortcut){
             return m_border->get_segment_in();
         }
@@ -68,7 +68,7 @@ const Interval Inclusion::get_segment_in() const{
 }
 
 const Interval Inclusion::get_segment_out() const{
-    if(!get_border()->get_pave()->is_removed_pave()){
+    if(get_border()->get_pave()->is_active()){
         if(m_shortcut){
             return m_border->get_segment_out();
         }
@@ -85,7 +85,7 @@ const Interval Inclusion::get_segment_out() const{
 }
 
 const Interval Inclusion::get_segment_full() const{
-    if(!get_border()->get_pave()->is_removed_pave()){
+    if(get_border()->get_pave()->is_active()){
         if(m_shortcut){
             return m_border->get_segment_full();
         }

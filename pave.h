@@ -58,7 +58,7 @@ public:
     bool                        is_removed_pave_outer() const;
     bool                        is_removed_pave_union() const;
     bool                        is_near_empty();
-    bool                        is_near_inactive();
+    bool                        is_near_removed_inner();
     bool                        is_empty_inner();
     bool                        is_empty_outer();
     bool                        is_full_inner();
