@@ -192,7 +192,7 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
 
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
-        if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
+        if(pave->is_active() && ((!pave->is_removed_pave() && change) || pave->get_first_process())){
 
             /// ******* PROCESS CONSISTENCY *******
             std::vector<bool> change_tab;
@@ -202,8 +202,6 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
-            if(backward && !pave->get_zone_propagation())
-                compute_propagation_zone(pave);
             for(int face=0; face<4; face++){
                 if(change_tab[face]){
                     for(Pave *p:pave->get_brothers(face)){
@@ -280,11 +278,11 @@ void Graph::set_active_outer_inner(const ibex::IntervalVector &box){
 }
 
 void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_list){
+    clear_node_queue_inner();
+    clear_node_queue_outer();
 
     for(Pave *pave:m_node_list){
-        pave->set_first_process_true();
         pave->reset_full_empty();
-        pave->set_in_queue(false);
     }
 
     for(Pave *pave:m_node_list){
@@ -298,7 +296,6 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                     if(pave->get_position().is_strict_interior_subset(box)){
                         pave->set_empty_inner_in(); // Do not set removed pave inner !!! => bc out is not empty
                         pave->set_removed_pave_inner(true);
-                        add_to_queue_inner(pave);
                     }
 
                     // Update queue
@@ -800,6 +797,7 @@ void Graph::set_inner_mode(bool val){
     m_inner_mode = val;
     for(Pave *p:m_node_list){
         p->set_inner_mode(val);
+        p->set_first_process_true();
     }
     for(Pave *p:m_node_border_list){
         p->set_inner_mode(val);
