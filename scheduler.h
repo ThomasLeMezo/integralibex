@@ -28,7 +28,7 @@ public:
     void attractor_to_kernel();
 
     void set_symetry(ibex::Function *f, int face_in, int face_out);
-    void set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY);
+//    void set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY);
 
     // ******** Drawing functions ********
     void draw(int size, bool filled, string comment="");

@@ -4,12 +4,12 @@
 #include <vibes.h>
 #include "iomanip"
 #include "graphdot.h"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
+//#include "opencv2/imgproc/imgproc.hpp"
+//#include "opencv2/highgui/highgui.hpp"
 
 using namespace ibex;
 using namespace std;
-using namespace cv;
+//using namespace cv;
 
 void test_draw(Pave *p, string drawing_name, bool full=false){
     vibes::beginDrawing();
@@ -647,106 +647,106 @@ void test_copy_graph(){
 }
 
 void test_imageIntegral(){
-    int sizeX = 1000;
-    int sizeY = 1000;
-    IntervalVector range(2);
-    range[0] = -Interval::PI | Interval::PI;
-    range[1] = Interval(0.01,10.0);
+//    int sizeX = 1000;
+//    int sizeY = 1000;
+//    IntervalVector range(2);
+//    range[0] = -Interval::PI | Interval::PI;
+//    range[1] = Interval(0.01,10.0);
 
-    Variable t;
-    ibex::Function f(t, Return(2*atan(tan((atan2(cos(t), -sin(t))+Interval::PI-atan2(sin(t), cos(t)+1.0/sqrt(2.0)))/2.0)),
-                               sqrt(pow(cos(t)+1/sqrt(2.0), 2)+pow(sin(t), 2))));
+//    Variable t;
+//    ibex::Function f(t, Return(2*atan(tan((atan2(cos(t), -sin(t))+Interval::PI-atan2(sin(t), cos(t)+1.0/sqrt(2.0)))/2.0)),
+//                               sqrt(pow(cos(t)+1/sqrt(2.0), 2)+pow(sin(t), 2))));
 
-    std::vector<Interval> list_t;
-    list_t.push_back(Interval::ZERO | Interval::TWO_PI);
+//    std::vector<Interval> list_t;
+//    list_t.push_back(Interval::ZERO | Interval::TWO_PI);
 
-    for(int i=0; i<10; i++){
-        std::vector<Interval> tmp_list_t(list_t);
-        list_t.clear();
-        for(Interval &i:tmp_list_t){
-            list_t.push_back(Interval(i.lb(), i.mid()));
-            list_t.push_back(Interval(i.mid(), i.ub()));
-        }
-    }
+//    for(int i=0; i<10; i++){
+//        std::vector<Interval> tmp_list_t(list_t);
+//        list_t.clear();
+//        for(Interval &i:tmp_list_t){
+//            list_t.push_back(Interval(i.lb(), i.mid()));
+//            list_t.push_back(Interval(i.mid(), i.ub()));
+//        }
+//    }
 
-    double factorX = sizeX/range[0].diam();
-    double factorY = sizeY/range[1].diam();
+//    double factorX = sizeX/range[0].diam();
+//    double factorY = sizeY/range[1].diam();
 
-    Mat img(sizeX,sizeY, CV_8U, Scalar(0));
-    for(Interval &i:list_t){
-        IntervalVector tmp(2);
-        tmp[0] = i;
-        IntervalVector p(f.eval_vector(tmp));
-        if(p.diam()[0] < 1)
-            rectangle(img, Point(ceil((p[0].lb()-range[0].lb())*factorX), ceil((p[1].lb()-range[1].lb())*factorY)), Point(floor((p[0].ub()-range[0].lb())*factorX), floor((p[1].ub()-range[1].lb())*factorY)), Scalar(255), 5.0);
-    }
+//    Mat img(sizeX,sizeY, CV_8U, Scalar(0));
+//    for(Interval &i:list_t){
+//        IntervalVector tmp(2);
+//        tmp[0] = i;
+//        IntervalVector p(f.eval_vector(tmp));
+//        if(p.diam()[0] < 1)
+//            rectangle(img, Point(ceil((p[0].lb()-range[0].lb())*factorX), ceil((p[1].lb()-range[1].lb())*factorY)), Point(floor((p[0].ub()-range[0].lb())*factorX), floor((p[1].ub()-range[1].lb())*factorY)), Scalar(255), 5.0);
+//    }
 
-    vector<vector<Point> > contours;
-    vector<Vec4i> hierarchy;
+//    vector<vector<Point> > contours;
+//    vector<Vec4i> hierarchy;
 
-    /// Find contours
-    findContours( img, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+//    /// Find contours
+//    findContours( img, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 
-    //    /// Draw contours
-    Mat img_filled = Mat::zeros( img.size(), CV_8U);
-    for( int i = 0; i< contours.size(); i++ ){
-        drawContours(img_filled, contours, i, Scalar(1), CV_FILLED, 4, hierarchy, 0, Point() );
-    }
+//    //    /// Draw contours
+//    Mat img_filled = Mat::zeros( img.size(), CV_8U);
+//    for( int i = 0; i< contours.size(); i++ ){
+//        drawContours(img_filled, contours, i, Scalar(1), CV_FILLED, 4, hierarchy, 0, Point() );
+//    }
 
-    Mat img_integral = Mat::zeros(img.size(), CV_32SC1); // CV_32SC1
-    cv::integral(img_filled, img_integral, CV_32SC1);
-
-
-    IntervalVector test_box(2);
-    test_box[0] = Interval(-1.7,-1.6);
-    test_box[1] = Interval(0.9,1.2);
-
-    if(test_box.is_interior_subset(range)){
-
-        int x_min, x_max, y_min, y_max;
-        x_min = floor((test_box[0].lb()-range[0].lb())*factorX);
-        x_max = ceil((test_box[0].ub()-range[0].lb())*factorX);
-        y_min = floor((test_box[1].lb()-range[1].lb())*factorY);
-        y_max = ceil((test_box[1].ub()-range[1].lb())*factorY);
+//    Mat img_integral = Mat::zeros(img.size(), CV_32SC1); // CV_32SC1
+//    cv::integral(img_filled, img_integral, CV_32SC1);
 
 
-        int val_00, val_01, val_10, val_11; // val_y_x
-        val_00 = img_integral.at<int>(y_min, x_min);
-        val_01 = img_integral.at<int>(y_min, x_max);
-        val_10 = img_integral.at<int>(y_max, x_min);
-        val_11 = img_integral.at<int>(y_max, x_max);
+//    IntervalVector test_box(2);
+//    test_box[0] = Interval(-1.7,-1.6);
+//    test_box[1] = Interval(0.9,1.2);
 
-        cout << val_00 << " " << val_01 << " " << val_10 << " " << val_11 << endl;
+//    if(test_box.is_interior_subset(range)){
 
-        int areaBox = (x_max-x_min)*(y_max-y_min);
-        int areaIntegral = val_11 - val_01 - val_10 + val_00;
-        cout << "aeraBox = " << areaBox << endl;
-        cout << "aeraIntegral = " << areaIntegral << endl;
-
-        if(areaBox == areaIntegral){
-            cout << "TRUE" << endl;
-        }
-        else{
-            cout << "FALSE" << endl;
-        }
-
-        rectangle(img_integral, Point(x_min, y_min), Point(x_max, y_max), Scalar(1e6), 5.0);
-    }
-
-    const char* window_title = "Hello, OpenCV!";
-    namedWindow (window_title, CV_WINDOW_NORMAL);
-    imshow(window_title, img);
-
-    window_title = "Filled";
-    namedWindow (window_title, CV_WINDOW_NORMAL);
-    imshow(window_title, img_filled);
-
-    window_title = "Integral";
-    namedWindow (window_title, CV_WINDOW_NORMAL);
-    imshow(window_title, img_integral);
+//        int x_min, x_max, y_min, y_max;
+//        x_min = floor((test_box[0].lb()-range[0].lb())*factorX);
+//        x_max = ceil((test_box[0].ub()-range[0].lb())*factorX);
+//        y_min = floor((test_box[1].lb()-range[1].lb())*factorY);
+//        y_max = ceil((test_box[1].ub()-range[1].lb())*factorY);
 
 
-    waitKey(0);
+//        int val_00, val_01, val_10, val_11; // val_y_x
+//        val_00 = img_integral.at<int>(y_min, x_min);
+//        val_01 = img_integral.at<int>(y_min, x_max);
+//        val_10 = img_integral.at<int>(y_max, x_min);
+//        val_11 = img_integral.at<int>(y_max, x_max);
+
+//        cout << val_00 << " " << val_01 << " " << val_10 << " " << val_11 << endl;
+
+//        int areaBox = (x_max-x_min)*(y_max-y_min);
+//        int areaIntegral = val_11 - val_01 - val_10 + val_00;
+//        cout << "aeraBox = " << areaBox << endl;
+//        cout << "aeraIntegral = " << areaIntegral << endl;
+
+//        if(areaBox == areaIntegral){
+//            cout << "TRUE" << endl;
+//        }
+//        else{
+//            cout << "FALSE" << endl;
+//        }
+
+//        rectangle(img_integral, Point(x_min, y_min), Point(x_max, y_max), Scalar(1e6), 5.0);
+//    }
+
+//    const char* window_title = "Hello, OpenCV!";
+//    namedWindow (window_title, CV_WINDOW_NORMAL);
+//    imshow(window_title, img);
+
+//    window_title = "Filled";
+//    namedWindow (window_title, CV_WINDOW_NORMAL);
+//    imshow(window_title, img_filled);
+
+//    window_title = "Integral";
+//    namedWindow (window_title, CV_WINDOW_NORMAL);
+//    imshow(window_title, img_integral);
+
+
+//    waitKey(0);
 }
 
 void test_car_on_hill(){

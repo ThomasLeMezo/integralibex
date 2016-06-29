@@ -577,10 +577,10 @@ void Scheduler::print_pave_info(int graph, double x, double y, string color){
     }
 }
 
-void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY){
-    m_utils.m_imageIntegral = new imageIntegral(range, f, t_range, nbBisectionT, nbBisectionXY);
-    m_utils.m_imageIntegral_activated = true;
-}
+//void Scheduler::set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY){
+//    m_utils.m_imageIntegral = new imageIntegral(range, f, t_range, nbBisectionT, nbBisectionXY);
+//    m_utils.m_imageIntegral_activated = true;
+//}
 
 void Scheduler::attractor_to_kernel(){
     cout << endl << endl;

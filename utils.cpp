@@ -9,12 +9,12 @@ using namespace ibex;
 
 Utils::Utils()
 {
-    m_imageIntegral_activated = false;
+//    m_imageIntegral_activated = false;
 }
 
 Utils::~Utils(){
-    if(m_imageIntegral_activated)
-        delete(m_imageIntegral);
+//    if(m_imageIntegral_activated)
+//        delete(m_imageIntegral);
 }
 
 // ********************************************************************************
