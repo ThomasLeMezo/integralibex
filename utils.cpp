@@ -305,7 +305,7 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
         if(p->get_border(face)->get_continuity_out()){
             Interval segment_in = Interval::EMPTY_SET;
 
-            for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
+            for(int b = 0; b < (int)p->get_border(face)->get_inclusions().size(); b++){
                 segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
             }
 

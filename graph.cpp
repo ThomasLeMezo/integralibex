@@ -145,7 +145,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
     m_node_list.clear();
     m_node_list.reserve(nb_node);
 
-    while(((int)tmp_pave_list.size()!=0) & (m_count_alive<nb_node)){
+    while(tmp_pave_list.size()!=0 && m_count_alive<nb_node){
         Pave* tmp = tmp_pave_list.front();
         tmp_pave_list.erase(tmp_pave_list.begin());
 
@@ -184,7 +184,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
 
 int Graph::process(int max_iterations, bool backward, bool union_functions){
     int iterations = 0;
-    while(!is_empty_node_queue() & iterations < max_iterations){
+    while(!is_empty_node_queue() && iterations < max_iterations){
         iterations++;
         Pave *pave = get_node_queue_access().front();
         pop_front_queue();
@@ -192,7 +192,7 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
 
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
-        if(pave->is_active() && ((!pave->is_removed_pave() && change) || pave->get_first_process())){
+        if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
 
             /// ******* PROCESS CONSISTENCY *******
             std::vector<bool> change_tab;
@@ -485,12 +485,12 @@ void Graph::mark_empty_node(){
                 pave->set_removed_pave_inner(true);
                 empty_inner = true;
             }
-            if(empty_outer || empty_inner){
-                if(!m_compute_inner || (empty_outer && empty_inner)){
-                    pave->set_active(false);
-                    m_count_alive--;
-                }
+
+            if(empty_outer && (!m_compute_inner || empty_inner)){
+                pave->set_active(false);
+                m_count_alive--;
             }
+
         }
     }
 }

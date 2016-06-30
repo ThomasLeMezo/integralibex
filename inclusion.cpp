@@ -56,8 +56,8 @@ const Interval Inclusion::get_segment_in() const{
             return m_border->get_segment_in();
         }
         else{
-            IntervalVector box = m_border->get_position();
-            box[m_brother_face%2] = m_border->get_segment_in();
+            IntervalVector box = get_border()->get_position();
+            box[m_brother_face%2] = get_border()->get_segment_in();
             IntervalVector box_out = m_f->eval_vector(box);
             return box_out[m_brother_face%2];
         }
@@ -73,8 +73,8 @@ const Interval Inclusion::get_segment_out() const{
             return m_border->get_segment_out();
         }
         else{
-            IntervalVector box = m_border->get_position();
-            box[m_brother_face%2] = m_border->get_segment_out();
+            IntervalVector box = get_border()->get_position();
+            box[m_brother_face%2] = get_border()->get_segment_out();
             IntervalVector box_out(m_f->eval_vector(box));
             return box_out[m_brother_face%2];
         }
@@ -100,7 +100,6 @@ const Interval Inclusion::get_segment_full() const{
         return Interval::EMPTY_SET;
     }
 }
-
 
 Border* Inclusion::get_border() const{
     return m_border;
