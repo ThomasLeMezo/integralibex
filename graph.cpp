@@ -558,8 +558,12 @@ void Graph::set_empty_outer_full_inner(){
     for(Pave *pave : m_node_list){
         if(!pave->is_removed_pave_outer())
             pave->set_empty_outer();
-        if(!pave->is_removed_pave_inner())
+        if(!pave->is_removed_pave_inner()){
             pave->set_full_inner();
+        }
+        else{
+            pave->set_full_outer();
+        }
         if(pave->is_active())
             pave->set_first_process_true();
     }
