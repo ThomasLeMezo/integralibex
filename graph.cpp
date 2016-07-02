@@ -192,6 +192,7 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
 
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
+        pave->increment_cpt_continuity();
         if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
 
             /// ******* PROCESS CONSISTENCY *******
@@ -213,6 +214,7 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
             }
 
             pave->set_first_process_false();
+            pave->increment_cpt_consistency();
         }
     }
 
@@ -296,6 +298,7 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
                     if(pave->get_position().is_strict_interior_subset(box)){
                         pave->set_empty_inner_in(); // Do not set removed pave inner !!! => bc out is not empty
                         pave->set_removed_pave_inner(true);
+                        add_to_queue_inner(pave);
                     }
 
                     // Update queue
@@ -422,6 +425,8 @@ void Graph::print_pave_info(double x, double y, string color) const{
     cout << "is_full_inner = " << p->is_full_inner() << " is_empty_inner = " << p->is_empty_inner() << endl;
     cout << "is_full_outer = " << p->is_full_outer() << " is_empty_outer = " << p->is_empty_outer() << endl;
     cout << "nb\t" << "in_inner\t" << "out_inner\t" << "in_outer\t" << "out_outer\t" << endl;
+    cout << "cpt_continuity_inner = " << p->get_cpt_continuity_inner() << " cpt_continuity_outer = " << p->get_cpt_continuity_outer() << endl;
+    cout << "cpt_consistency_inner = " << p->get_cpt_consistency_inner() << " cpt_consistency_outer = " << p->get_cpt_consistency_outer() << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
         cout << i << '\t'
                 //<< p->get_border(i)->get_position() << "       \t"

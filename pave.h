@@ -25,6 +25,9 @@ public:
     void                        complementaire();
     void                        copy_to_inner();
 
+    void                        increment_cpt_consistency();
+    void                        increment_cpt_continuity();
+
     // ******** Drawing functions ********
     void                        draw(bool filled, bool inner_only=false);
     void                        draw_borders(bool filled, std::string color_polygon="g[g]", bool complementary=false) const;
@@ -149,14 +152,20 @@ public:
     void                                reset_computation_zone();
     bool                                get_backward_function() const;
 
+    int                                 get_cpt_consistency_inner() const;
+    int                                 get_cpt_consistency_outer() const;
+    int                                 get_cpt_continuity_inner() const;
+    int                                 get_cpt_continuity_outer() const;
+
     // Other functions
     const std::vector<ibex::Interval>   compute_theta(ibex::Function *f, bool backward_function=false);
 
 
 
     /***************** Variables ******************/
+
 private:
-//    std::vector<ibex::Interval> m_theta;
+    //    std::vector<ibex::Interval> m_theta;
     std::vector< std::vector<ibex::Interval>>   m_theta_list;
     std::vector< ibex::Interval>                m_theta;
 
@@ -195,6 +204,11 @@ private:
     bool                        m_inner_mode;
 
     bool                        m_zone_propagation;
+
+    int                         m_cpt_continuity_inner;
+    int                         m_cpt_continuity_outer;
+    int                         m_cpt_consistency_inner;
+    int                         m_cpt_consistency_outer;
 
 };
 

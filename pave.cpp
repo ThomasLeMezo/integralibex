@@ -67,6 +67,11 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
         m_theta.push_back(Interval::EMPTY_SET);
     if(m_theta_bwd.size()==0)
         m_theta_bwd.push_back(Interval::EMPTY_SET);
+
+    m_cpt_continuity_inner = 0;
+    m_cpt_continuity_outer = 0;
+    m_cpt_consistency_inner = 0;
+    m_cpt_consistency_outer= 0;
 }
 
 const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f, bool backward_function){
@@ -150,6 +155,11 @@ Pave::Pave(const Pave *p):
     m_marker_attractor = p->is_marked_attractor();
 
     m_zone_propagation = p->get_zone_propagation();
+
+    m_cpt_consistency_inner = p->get_cpt_consistency_inner();
+    m_cpt_consistency_outer = p->get_cpt_consistency_outer();
+    m_cpt_continuity_inner = p->get_cpt_continuity_inner();
+    m_cpt_continuity_outer= p->get_cpt_continuity_outer();
 }
 
 Pave::~Pave(){
@@ -1252,4 +1262,31 @@ void Pave::set_backward_function(bool val){
 
 bool Pave::get_backward_function() const{
     return m_backward_function;
+}
+
+int Pave::get_cpt_consistency_inner() const{
+    return m_cpt_consistency_inner;
+}
+int Pave::get_cpt_consistency_outer() const{
+    return m_cpt_consistency_outer;
+}
+int Pave::get_cpt_continuity_inner() const{
+    return m_cpt_continuity_inner;
+}
+int Pave::get_cpt_continuity_outer() const{
+    return m_cpt_continuity_outer;
+}
+
+void Pave::increment_cpt_consistency(){
+    if(m_inner_mode)
+        m_cpt_consistency_inner++;
+    else
+        m_cpt_consistency_outer++;
+}
+
+void Pave::increment_cpt_continuity(){
+    if(m_inner_mode)
+        m_cpt_continuity_inner++;
+    else
+        m_cpt_continuity_outer++;
 }

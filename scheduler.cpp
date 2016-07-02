@@ -175,6 +175,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
 
     graph->set_inner_mode(true);
     graph->set_external_boundary(true, true);
+    graph->set_empty_outer_full_inner();
 
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
