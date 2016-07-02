@@ -288,7 +288,7 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
     }
 
     for(Pave *pave:m_node_list){
-        if(pave->is_active()){
+        if(!pave->is_removed_pave()){
             for(IntervalVector box:box_list){
                 if(!(box & pave->get_position()).is_empty()){
                     // Outer

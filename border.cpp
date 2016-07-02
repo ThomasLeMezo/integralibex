@@ -34,6 +34,7 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     m_compute_inner = false;
 
     m_zone_propagation = false;
+    m_backward_function = false;
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -68,11 +69,10 @@ Border::Border(const Border *border): m_position(2)
     }
 }
 
-Border::~Border(){;
-                  for(Inclusion *i :m_inclusions){
-                      delete(i);
-                  }
-                 }
+Border::~Border(){
+    for(Inclusion *i :m_inclusions)
+        delete(i);
+}
 
 void Border::draw(bool same_size, double offset, bool test, bool two_offset) const{
     // Create an IntervalVector (2D) from the segment (1D)
@@ -507,13 +507,12 @@ Border& Border::operator|=(const Border &b){
 }
 
 bool Border::inter(const Border &b, bool with_bwd){
-    m_segment_in_inner |= m_segment_out_inner;
-    m_segment_out_inner |= m_segment_in_inner;
-    m_segment_in_outer |= m_segment_out_outer;
-    m_segment_out_outer |= m_segment_in_outer;
-
     bool change = false;
     if(with_bwd){
+        m_segment_in_inner |= m_segment_out_inner;
+        m_segment_out_inner |= m_segment_in_inner;
+        m_segment_in_outer |= m_segment_out_outer;
+        m_segment_out_outer |= m_segment_in_outer;
         if((get_segment_in_inner() & b.get_segment_in_inner()) != get_segment_in_inner())
             change = true;
         if((get_segment_out_inner() & b.get_segment_out_inner()) != get_segment_out_inner())
@@ -540,7 +539,6 @@ bool Border::inter(const Border &b, bool with_bwd){
 
         set_segment_in(b.get_segment_in(), true);
         set_segment_out(b.get_segment_out(), true);
-
     }
     return change;
 }
@@ -737,10 +735,10 @@ std::vector<bool> Border::get_zone_function_out() const{
         return m_zone_function_out_fwd;
 }
 std::vector<bool> Border::get_zone_function_out_fwd() const{
-        return m_zone_function_out_fwd;
+    return m_zone_function_out_fwd;
 }
 std::vector<bool> Border::get_zone_function_out_bwd() const{
-        return m_zone_function_out_bwd;
+    return m_zone_function_out_bwd;
 }
 
 bool Border::get_zone_function_out(int function_id) const{

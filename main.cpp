@@ -213,7 +213,7 @@ void car_on_the_hill_kernel(){
     s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
     s.attractor_to_kernel();
 //    s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.cameleon_viability(6, 1e9);
+    s.cameleon_viability(3, 1e9);
 
     cout << "************************" << endl;
     cout << "TOTAL TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -676,7 +676,7 @@ void car_on_the_hill_trajectory(){
     paveB[0] = Interval(2.0, 3.0);
     paveB[1] = Interval(2.0, 3.0);
 
-    s.find_path(12, 1e9, paveA, paveB); // 25
+    s.find_path(10, 1e9, paveA, paveB); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -697,7 +697,7 @@ int main()
 //    car_on_the_hill_attractor();
 //    car_on_the_hill_bassin();
 
-//    car_on_the_hill_kernel();
+    car_on_the_hill_kernel();
 
 //    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
@@ -709,7 +709,7 @@ int main()
 
     /// **** VAN DER POL ***** //
 //    van_der_pol_cycle();
-    van_der_pol_integration();
+//    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_kernel2();
 //    van_der_pol_outer();
