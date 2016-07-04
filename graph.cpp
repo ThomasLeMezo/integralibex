@@ -569,6 +569,7 @@ void Graph::set_empty_outer_full_inner(){
         else{
             pave->set_full_outer();
         }
+
         if(pave->is_active())
             pave->set_first_process_true();
     }

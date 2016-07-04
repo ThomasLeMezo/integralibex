@@ -34,22 +34,47 @@ plt.figure()
 # plt.show()
 
 ########## Part 3 ##########
-c=1.0/sqrt(2.0)
-t = np.linspace(0.0, 2*np.pi, 1000)
-phi = arctan2(cos(t), -sin(t))+np.pi-arctan2(sin(t), cos(t)+c)
-phi_mod = 2*arctan(tan(phi/2.0))
-plt.plot(t, phi_mod)
+# c=1.0/sqrt(2.0)
+# t = np.linspace(0.0, 2*np.pi, 1000)
+# phi = arctan2(cos(t), -sin(t))+np.pi-arctan2(sin(t), cos(t)+c)
+# phi_mod = 2*arctan(tan(phi/2.0))
+# plt.plot(t, phi_mod)
 
-limit = -np.ones(size(t))*pi/4.0
-plt.plot(t, limit, 'r')
+# limit = -np.ones(size(t))*pi/4.0
+# plt.plot(t, limit, 'r')
 
-plt.show()
+# plt.show()
 
 #### TEST ####
 
-x1, x2 = np.meshgrid(np.arange(-2.0,2.0, .1), np.arange(-2.0,2.0, .1))
-U = x1-(x1+x2)*(x1**2+x2**2)
-V = x2+(x1-x2)*(x1**2+x2**2)
-plt.figure()
-Q = plt.quiver(U, V)
+#### CIRCLE
+# x1, x2 = np.meshgrid(np.arange(-2.0,2.0, .1), np.arange(-2.0,2.0, .1))
+# U = x1-(x1+x2)*(x1**2+x2**2)
+# V = x2+(x1-x2)*(x1**2+x2**2)
+# plt.figure()
+# Q = plt.quiver(U, V)
+# plt.show()
+
+#### Van Der Pol
+# x1, x2 = np.meshgrid(np.arange(-1.0,13.0, .3), np.arange(-6.0,6.0, .2))
+x1, x2 = np.meshgrid(np.arange(-4.0,4.0, .3), np.arange(-4.0,4.0, .2))
+U = x2
+V = (1-x1**2)*x2-x1
+
+# U = x2
+# V = -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2
+
+coeff = np.maximum(np.minimum(V**2+U**2, 1.5*np.ones(V.shape)), 0.5*np.ones(V.shape))
+
+# U = U / (sqrt(U*U+V*V))
+# V = V / (sqrt(U*U+V*V))
+
+U = coeff * U / (sqrt(U*U+V*V))
+V = coeff * V / (sqrt(U*U+V*V))
+
+
+# plt.figure()
+Q = plt.quiver(x1, x2, U, V,
+				pivot='tip',
+               width=1e-3)
 plt.show()

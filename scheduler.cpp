@@ -479,22 +479,22 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         // INNER
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
-        graph->process(process_iterations_max, true);
+//        graph->process(process_iterations_max, true);
         // OUTER
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
         graph->process(process_iterations_max, false, true);
 
         /// Backward graph
-//        graph_backward->set_active_outer_inner(boxB);
+        graph_backward->set_active_outer_inner(boxB);
 //        // INNER
-//        graph_backward->set_inner_mode(true);
-//        graph_backward->set_backward_function(false); // Invert bc of bwd
+        graph_backward->set_inner_mode(true);
+        graph_backward->set_backward_function(false); // Invert bc of bwd
 //        graph_backward->process(process_iterations_max, true);
-//        // OUTER
-//        graph_backward->set_inner_mode(false);
-//        graph_backward->set_backward_function(true); // Invert bc of bwd
-//        graph_backward->process(process_iterations_max, false, true);
+        // OUTER
+        graph_backward->set_inner_mode(false);
+        graph_backward->set_backward_function(true); // Invert bc of bwd
+        graph_backward->process(process_iterations_max, false, true);
 
         // Intersect graph
 //        graph->inter(graph_backward, true);
@@ -525,7 +525,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         // INNER
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
-        graph->process(process_iterations_max, true);
+//        graph->process(process_iterations_max, true);
         // OUTER
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
@@ -533,20 +533,20 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 
         /// Backward graph
 //        cout << "GRAPH BWD (" << graph_backward->size() << ")" << endl;
-//        graph_backward->set_active_outer_inner(boxB);
+        graph_backward->set_active_outer_inner(boxB);
 //        // INNER
-//        graph_backward->set_inner_mode(true);
-//        graph_backward->set_backward_function(false); // Invert bc of bwd
+        graph_backward->set_inner_mode(true);
+        graph_backward->set_backward_function(false); // Invert bc of bwd
 //        graph_backward->process(process_iterations_max, true);
-//        // OUTER
-//        graph_backward->set_inner_mode(false);
-//        graph_backward->set_backward_function(true); // Invert bc of bwd
-//        graph_backward->process(process_iterations_max, false, true);
+        // OUTER
+        graph_backward->set_inner_mode(false);
+        graph_backward->set_backward_function(true); // Invert bc of bwd
+        graph_backward->process(process_iterations_max, false, true);
 
 //        graph->draw(1024, true, "fwd");
 //        graph_backward->draw(1024, true, "bwd");
 
-//        graph->inter(graph_backward, true);
+        graph->inter(graph_backward, true);
         delete(graph_backward);
 
 //        graph->draw(1024, true, "inter");
