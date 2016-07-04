@@ -462,10 +462,11 @@ void integrator(){
     activated_pave[1] = Interval(-0.5,0.5);
 
 //    s.cameleon_propagation(19, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(7, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(14, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
+    s.print_pave_info(0, 0.7, 0.2);
 }
 
 void van_der_pol_integration(){
@@ -699,7 +700,7 @@ int main()
 
 //    car_on_the_hill_kernel();
 
-    car_on_the_hill_trajectory();
+//    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
@@ -718,7 +719,7 @@ int main()
 //    van_der_pol_bassin();
 
     /// **** INTEGRATOR ***** //
-//    integrator();
+    integrator();
 
     /// **** TEST ***** //
 //    test();

@@ -427,6 +427,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
     cout << "nb\t" << "in_inner\t" << "out_inner\t" << "in_outer\t" << "out_outer\t" << endl;
     cout << "cpt_continuity_inner = " << p->get_cpt_continuity_inner() << " cpt_continuity_outer = " << p->get_cpt_continuity_outer() << endl;
     cout << "cpt_consistency_inner = " << p->get_cpt_consistency_inner() << " cpt_consistency_outer = " << p->get_cpt_consistency_outer() << endl;
+    cout << "id, \tin_inner, out_inner, in_outer, out_outer" << endl;
     for(int i= 0; i<p->get_borders().size(); i++){
         cout << i << '\t'
                 //<< p->get_border(i)->get_position() << "       \t"

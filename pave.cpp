@@ -368,10 +368,10 @@ void Pave::draw(bool filled, bool inner_only){
     if(m_compute_inner){
         if(!m_external_border){
             bool mode = get_inner_mode();
+            bool backward = get_backward_function();
             /// OUTER
             if(!inner_only){
                 set_inner_mode(false);
-                set_backward_function(false);
                 draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
             }
 
@@ -379,16 +379,18 @@ void Pave::draw(bool filled, bool inner_only){
             set_inner_mode(true);
             draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
 
+            /// POLYGON
             Pave *p_polygon = new Pave(this);
             p_polygon->set_inner_mode(true);
             if(!inner_only){
                 set_inner_mode(false);
-                p_polygon->inter(*this);
+                p_polygon->inter(*this, false);
             }
             p_polygon->draw_borders(true, "y[y]");
             delete(p_polygon);
 
             set_inner_mode(mode);
+            set_backward_function(backward);
         }
     }
     else{
@@ -399,6 +401,7 @@ void Pave::draw(bool filled, bool inner_only){
     }
 
     // Draw theta
+//    set_backward_function(false);
     draw_theta();
     //    }
 }
