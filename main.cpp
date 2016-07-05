@@ -698,7 +698,7 @@ int main()
 //    car_on_the_hill_attractor();
 //    car_on_the_hill_bassin();
 
-//    car_on_the_hill_kernel();
+    car_on_the_hill_kernel();
 
 //    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
@@ -719,7 +719,7 @@ int main()
 //    van_der_pol_bassin();
 
     /// **** INTEGRATOR ***** //
-    integrator();
+//    integrator();
 
     /// **** TEST ***** //
 //    test();
