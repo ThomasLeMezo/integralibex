@@ -213,7 +213,7 @@ void car_on_the_hill_kernel(){
     s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
     s.attractor_to_kernel();
 //    s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.cameleon_viability(3, 1e9);
+    s.cameleon_viability(4, 1e9);
 
     cout << "************************" << endl;
     cout << "TOTAL TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -466,7 +466,7 @@ void integrator(){
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
-    s.print_pave_info(0, 0.7, 0.2);
+    s.print_pave_info(0, 1, 1.25);
 }
 
 void van_der_pol_integration(){
@@ -612,7 +612,7 @@ void van_der_pol_outer(){
     s.draw(1024, true);
 }
 
-void van_der_pol_bassin(){
+void bassin_van_der_pol(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
@@ -628,8 +628,11 @@ void van_der_pol_bassin(){
     std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
 
-    box_remove[0] = Interval(1.0) + Interval(-0.4, 0.4);
-    box_remove[1] = Interval(1.0) + Interval(-0.4, 0.4);
+//    box_remove[0] = Interval(1.0) + Interval(-0.4, 0.4);
+//    box_remove[1] = Interval(1.0) + Interval(-0.4, 0.4);
+    box_remove[0] = Interval(-0.4, 0.4);
+    box_remove[1] = Interval(-0.4, 0.4);
+
     list_boxes_removed.push_back(box_remove);
 
     // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
@@ -686,6 +689,168 @@ void car_on_the_hill_trajectory(){
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 }
 
+void bassin_ratschan6(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(x2+(1-x1*x1-x2*x2)*x1,
+                                     -x1+(1-x1*x1-x2*x2)*x2));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(-8.0, 8.0);
+    box[1] = Interval(-8.0, 8.0);
+
+    std::vector<IntervalVector> list_boxes_removed;
+    IntervalVector box_remove(2);
+
+    box_remove[0] = Interval(-2, 2);
+    box_remove[1] = Interval(-2, 2);
+    list_boxes_removed.push_back(box_remove);
+
+    // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
+    // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
+    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+
+    /////////////// Compute ///////////////
+    s.cameleon_viability(10, 1e9, true); // 10 = 256 s
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+}
+
+void bassin_parrilo(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(-x1+(1+x1)*x2,
+                                     -(1+x1)*x1));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(-8.0, 8.0);
+    box[1] = Interval(-8.0, 8.0);
+
+    std::vector<IntervalVector> list_boxes_removed;
+    IntervalVector box_remove(2);
+
+    box_remove[0] = Interval(-0.7,0.9);
+    box_remove[1] = Interval(-0.7,0.9);
+    list_boxes_removed.push_back(box_remove);
+
+    // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
+    // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
+    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+
+    /////////////// Compute ///////////////
+    s.cameleon_viability(8, 1e9, true); // 10 = 256 s
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+}
+
+void bassin_ratschan3(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(-4*x1*x1*x1+6*x1*x1-2*x1,
+                                     -2*x2));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(-8.0, 8.0);
+    box[1] = Interval(-8.0, 8.0);
+
+    std::vector<IntervalVector> list_boxes_removed;
+    IntervalVector box_remove(2);
+
+    box_remove[0] = Interval(-0.4,0.4);
+    box_remove[1] = Interval(-0.4,0.4);
+    list_boxes_removed.push_back(box_remove);
+
+    // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
+    // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
+    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+
+    /////////////// Compute ///////////////
+    s.cameleon_viability(8, 1e9, true); // 10 = 256 s
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+}
+
+void bassin_genesio(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(-x1+x2,
+                                     0.1*x1-2*x2-x1*x1-0.1*x1*x1*x1));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(-100,100);
+    box[1] = Interval(-1000,1000);
+
+    std::vector<IntervalVector> list_boxes_removed;
+    IntervalVector box_remove(2);
+
+    box_remove[0] = Interval(-0.8,0.8);
+    box_remove[1] = Interval(-0.8,0.8);
+    list_boxes_removed.push_back(box_remove);
+
+    // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
+    // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
+    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+
+    /////////////// Compute ///////////////
+    s.cameleon_viability(10, 1e9, true); // 10 = 256 s
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+//    vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
+}
+
+void bassin_bacha(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(x2,
+                                     -0.5*x2-sin(x1+0.412)+sin(0.412)));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(-6,6);
+    box[1] = Interval(-6,6);
+
+    std::vector<IntervalVector> list_boxes_removed;
+    IntervalVector box_remove(2);
+
+    box_remove[0] = Interval(-0.42,0.42);
+    box_remove[1] = Interval(-0.42,0.42);
+    list_boxes_removed.push_back(box_remove);
+
+    // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
+    // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
+    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+
+    /////////////// Compute ///////////////
+    s.cameleon_viability(8, 1e9, true); // 10 = 256 s
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    /////////////// Drawing ///////////////
+    s.draw(1024, true);
+}
+
+
 int main()
 {
     /// **** BALL ***** //
@@ -698,7 +863,7 @@ int main()
 //    car_on_the_hill_attractor();
 //    car_on_the_hill_bassin();
 
-    car_on_the_hill_kernel();
+//    car_on_the_hill_kernel();
 
 //    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
@@ -716,10 +881,16 @@ int main()
 //    van_der_pol_outer();
 //    van_der_pol_inner();
 
-//    van_der_pol_bassin();
-
     /// **** INTEGRATOR ***** //
 //    integrator();
+
+    /// **** BASSIN ***** //
+//    bassin_ratschan6();
+//    bassin_ratschan3();
+//    bassin_parrilo();
+    bassin_genesio();
+//    bassin_bacha();
+//    bassin_van_der_pol();
 
     /// **** TEST ***** //
 //    test();

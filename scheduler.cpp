@@ -305,7 +305,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
         graph->set_inner_mode(true);
         graph->update_queue(border_condition, true);
-//        graph->process(process_iterations_max, true);
+        graph->process(process_iterations_max, true);
 
         graph->set_inner_mode(false);
         graph->update_queue(true, true);
@@ -334,7 +334,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
         graph->set_inner_mode(true);
         graph->update_queue(border_condition, true);
-//        graph->process(process_iterations_max, true);
+        graph->process(process_iterations_max, true);
 
         graph->set_inner_mode(false);
         graph->update_queue(true, true);

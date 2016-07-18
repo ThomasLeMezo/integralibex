@@ -51,7 +51,7 @@ ibex::Function* Inclusion::get_function() const{
 }
 
 const Interval Inclusion::get_segment_in() const{
-    if(get_border()->get_pave()->is_active()){
+//    if(get_border()->get_pave()->is_active()){
         if(m_shortcut){
             return m_border->get_segment_in();
         }
@@ -61,14 +61,14 @@ const Interval Inclusion::get_segment_in() const{
             IntervalVector box_out = m_f->eval_vector(box);
             return box_out[m_brother_face%2];
         }
-    }
-    else{
-        return Interval::EMPTY_SET;
-    }
+//    }
+//    else{
+//        return Interval::EMPTY_SET;
+//    }
 }
 
 const Interval Inclusion::get_segment_out() const{
-    if(get_border()->get_pave()->is_active()){
+//    if(get_border()->get_pave()->is_active()){
         if(m_shortcut){
             return m_border->get_segment_out();
         }
@@ -78,14 +78,14 @@ const Interval Inclusion::get_segment_out() const{
             IntervalVector box_out(m_f->eval_vector(box));
             return box_out[m_brother_face%2];
         }
-    }
-    else{
-        return Interval::EMPTY_SET;
-    }
+//    }
+//    else{
+//        return Interval::EMPTY_SET;
+//    }
 }
 
 const Interval Inclusion::get_segment_full() const{
-    if(get_border()->get_pave()->is_active()){
+//    if(get_border()->get_pave()->is_active()){
         if(m_shortcut){
             return m_border->get_segment_full();
         }
@@ -95,10 +95,10 @@ const Interval Inclusion::get_segment_full() const{
             IntervalVector box_out(m_f->eval_vector(box));
             return box_out[m_brother_face%2];
         }
-    }
-    else{
-        return Interval::EMPTY_SET;
-    }
+//    }
+//    else{
+//        return Interval::EMPTY_SET;
+//    }
 }
 
 Border* Inclusion::get_border() const{
