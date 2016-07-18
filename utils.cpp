@@ -130,7 +130,7 @@ void Utils::CtcPropagateSegment(ibex::Interval &seg_in, std::vector<ibex::Interv
     IntervalVector box(box_pave);
     IntervalVector box_in(box_pave);
     IntervalVector segment_in = segment2IntervalVector(seg_in, face, box);
-    IntervalVector segment_out[3] = IntervalVector(2);
+    IntervalVector segment_out[3] = {IntervalVector(2), IntervalVector(2), IntervalVector(2)};
     for(int i=0; i<3; i++){
         segment_out[i] = segment2IntervalVector(seg_out[i], (face+1+i)%4, box);
     }
@@ -273,6 +273,7 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
         Pave *p2 = new Pave(p);
         this->CtcPaveForward(p2, true, change_tab);
         *p &= *(p2);
+        delete(p2);
     }
     else{
         this->CtcPaveForward(p, false, change_tab, union_functions);

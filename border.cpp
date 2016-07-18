@@ -568,6 +568,7 @@ bool Border::diff(const Border &b){
     if(get_segment_out() != (segment_out_r | segment_out_l))
         change = true;
     set_segment_out(segment_out_r | segment_out_l);
+    return change;
 }
 
 void Border::remove_inclusion(int indice){

@@ -604,7 +604,7 @@ void van_der_pol_outer(){
     Scheduler s(box, f_list, false, false, true);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(10, 5, 1e9, false, false, false);
+    s.cameleon_cycle(5, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -746,7 +746,7 @@ void bassin_parrilo(){
     Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_viability(8, 1e9, true); // 10 = 256 s
+    s.cameleon_viability(10, 1e9, true); // 10 = 256 s
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     /////////////// Drawing ///////////////
@@ -816,6 +816,33 @@ void bassin_genesio(){
     /////////////// Drawing ///////////////
     s.draw(1024, true);
 //    vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
+}
+
+void integrator_genesio(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(-(-x1+x2),
+                                     -(0.1*x1-2*x2-x1*x1-0.1*x1*x1*x1)));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(-20,20);
+    box[1] = Interval(-20,20);
+
+    Scheduler s(box, f_list, true);
+
+    IntervalVector activated_pave(2);
+    activated_pave[0] = Interval(-0.8,0.8);
+    activated_pave[1] = Interval(-0.8,0.8);
+
+//    s.cameleon_propagation(19, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(12, 1e9, activated_pave); // 25
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.draw(1024, true);
+
 }
 
 void bassin_bacha(){
@@ -888,9 +915,11 @@ int main()
 //    bassin_ratschan6();
 //    bassin_ratschan3();
 //    bassin_parrilo();
-    bassin_genesio();
+//    bassin_genesio();
 //    bassin_bacha();
-//    bassin_van_der_pol();
+    bassin_van_der_pol();
+
+//    integrator_genesio();
 
     /// **** TEST ***** //
 //    test();

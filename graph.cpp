@@ -24,6 +24,7 @@ Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_l
 Graph::Graph(Utils *utils, int graph_id=0):
     m_search_box(2)
 {
+    m_count_alive = 0;
     m_graph_id = graph_id;
     m_drawing_cpt = 0;
     m_utils = utils;
@@ -626,10 +627,12 @@ void Graph::build_graph(){
                         //                        cout << "b1 = " << b1->get_position() << '\t' << "b2 = " << b2->get_position() << '\t' << "inter = " << inter_b << '\t' << "test = " << inter_b.is_empty() << endl;
 
                         Inclusion *inclusion_to_b1 = new Inclusion(b1, b1->get_face());
-                        b2->add_inclusion(inclusion_to_b1);
+                        if(!b2->add_inclusion(inclusion_to_b1))
+                            delete(inclusion_to_b1);
 
                         Inclusion *inclusion_to_b2 = new Inclusion(b2, b2->get_face());
-                        b1->add_inclusion(inclusion_to_b2);
+                        if(!b1->add_inclusion(inclusion_to_b2))
+                            delete(inclusion_to_b2);
                     }
                 }
             }

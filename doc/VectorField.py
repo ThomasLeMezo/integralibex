@@ -57,7 +57,7 @@ plt.figure()
 
 #### Van Der Pol
 # x1, x2 = np.meshgrid(np.arange(-1.0,13.0, .3), np.arange(-6.0,6.0, .2))
-x1, x2 = np.meshgrid(np.arange(-4.0,4.0, .3), np.arange(-4.0,4.0, .2))
+x1, x2 = np.meshgrid(np.arange(-4.0,4.0, .4), np.arange(-4.0,4.0, .4))
 U = x2
 V = (1-x1**2)*x2-x1
 
@@ -75,6 +75,5 @@ V = coeff * V / (sqrt(U*U+V*V))
 
 # plt.figure()
 Q = plt.quiver(x1, x2, U, V,
-				pivot='tip',
-               width=1e-3)
+               width=5e-3)
 plt.show()
