@@ -214,16 +214,15 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
-        // Outer
-        graph->set_inner_mode(false);
-        graph->set_backward_function(false);
-        graph->process(process_iterations_max, false);
-
         // Inner
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
         graph->process(process_iterations_max, true);
 
+        // Outer
+        graph->set_inner_mode(false);
+        graph->set_backward_function(false);
+        graph->process(process_iterations_max, false);
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
