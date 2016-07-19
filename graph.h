@@ -68,6 +68,7 @@ public:
     Pave*                       get_pave(double x, double y) const;
     const std::vector<Pave *>   get_pave(const ibex::IntervalVector &box) const;
     std::vector<Pave *>&        get_node_list();
+    std::vector<Pave *>&        get_border_list();
     const std::list<Pave *> &   get_node_queue() const;
     std::list<Pave *> &         get_node_queue_access();
     Pave*                       get_node_const(int i) const;

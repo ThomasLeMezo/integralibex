@@ -670,7 +670,7 @@ void car_on_the_hill_trajectory(){
     box[0] = Interval(-2.0, 13.0);
     box[1] = Interval(-10, 10);
 
-    Scheduler s(box, f_list, false);
+    Scheduler s(box, f_list, false, true, true, false, false);
 
     IntervalVector paveA(2);
     paveA[0] = Interval(0.0, 1.0);
@@ -892,7 +892,7 @@ int main()
 
 //    car_on_the_hill_kernel();
 
-//    car_on_the_hill_trajectory();
+    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
@@ -909,7 +909,7 @@ int main()
 //    van_der_pol_inner();
 
     /// **** INTEGRATOR ***** //
-    integrator();
+//    integrator();
 
     /// **** BASSIN ***** //
 //    bassin_ratschan6();

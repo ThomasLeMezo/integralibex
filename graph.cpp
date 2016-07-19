@@ -43,13 +43,34 @@ Graph::Graph(Graph* g, int graph_id):
         node->set_copy_node(p);
         m_node_list.push_back(p);
     }
+    for(Pave *node_border:g->get_border_list()){
+        Pave *p = new Pave(node_border);
+        node_border->set_copy_node(p);
+        m_node_border_list.push_back(p);
+    }
     for(Pave *node:g->get_node_queue()){
         add_to_all_queue(node->get_copy_node());
     }
 
-    for(int i=0; i<m_node_list.size(); i++){
-        Pave* pave_root = g->get_node_list()[i];
-        Pave* pave_copy = m_node_list[i];
+    // For node list
+    for(int node_nb=0; node_nb<m_node_list.size(); node_nb++){
+        Pave* pave_root = g->get_node_list()[node_nb];
+        Pave* pave_copy = m_node_list[node_nb];
+
+        for(int face = 0; face<4; face++){
+            for(int j=0; j<pave_root->get_border(face)->get_inclusions().size(); j++){
+                Inclusion *i = new Inclusion(pave_root->get_border(face)->get_inclusion(j));
+                i->set_border(pave_root->get_border(face)->get_inclusion(j)->get_border()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j)->get_brother_face()));
+                i->set_owner(pave_root->get_border(face)->get_inclusion(j)->get_owner()->get_pave()->get_copy_node()->get_border(pave_root->get_border(face)->get_inclusion(j)->get_owner()->get_face()));
+
+                pave_copy->get_border(face)->add_inclusion(i);
+            }
+        }
+    }
+    // For border node list
+    for(int node_nb=0; node_nb<m_node_border_list.size(); node_nb++){
+        Pave* pave_root = g->get_border_list()[node_nb];
+        Pave* pave_copy = m_node_border_list[node_nb];
 
         for(int face = 0; face<4; face++){
             for(int j=0; j<pave_root->get_border(face)->get_inclusions().size(); j++){
@@ -345,6 +366,10 @@ void Graph::set_active_pave(const IntervalVector &box){
 
 std::vector<Pave *> &Graph::get_node_list() {
     return m_node_list;
+}
+
+std::vector<Pave *>& Graph::get_border_list(){
+    return m_node_border_list;
 }
 
 void Graph::push_back(Pave* p){
