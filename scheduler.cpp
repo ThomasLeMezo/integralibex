@@ -112,7 +112,8 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
 }
 
 void Scheduler::set_symetry(Function *f, int face_in, int face_out){
-    m_graph_list[0]->set_symetry(f, face_in, face_out);
+    Graph *g = m_graph_list[0];
+    g->set_symetry(f, face_in, face_out);
 }
 
 void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe){

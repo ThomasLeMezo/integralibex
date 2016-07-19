@@ -600,8 +600,15 @@ bool Border::diff(const Border &b){
 }
 
 void Border::remove_inclusion(int indice){
-    delete(m_inclusions[indice]);
-    m_inclusions.erase(m_inclusions.begin() + indice);
+    if(indice==-1){
+        for(Inclusion* i:m_inclusions)
+            delete(i);
+        m_inclusions.clear();
+    }
+    else{
+        delete(m_inclusions[indice]);
+        m_inclusions.erase(m_inclusions.begin() + indice);
+    }
 }
 
 void Border::remove_inclusion(Inclusion *inclusion){

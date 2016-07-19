@@ -611,7 +611,10 @@ void Graph::set_empty_outer_full_inner(){
 
 void Graph::set_symetry(Function* f, int face_in, int face_out){
     Inclusion *i = new Inclusion(m_node_list[0]->get_border(face_in), f, face_in);
-    m_node_list[0]->get_border(face_out)->add_inclusion(i);
+    Pave *p = m_node_list[0];
+    // ToDo : not optimal (remove all other inclusions but should only remove ones seleced by user)
+    p->get_border(face_out)->remove_inclusion(-1);
+    p->get_border(face_out)->add_inclusion(i);
 }
 
 void Graph::set_all_first_process(){

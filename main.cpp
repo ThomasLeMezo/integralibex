@@ -90,16 +90,17 @@ void ball(){
     box[0] = Interval(0.0, 20.0);
     box[1] = Interval(-20.0, 20.0);
 
-    Scheduler s(box, f_list, false);
+    Scheduler s(box, f_list, false, true, true, false, false);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(12.0);
-    activated_pave[1] = Interval(-2.0);
+    activated_pave[0] = Interval(12.0, 13.0);
+    activated_pave[1] = Interval(-2.0, 2.0);
 
     ibex::Function f_sym(x, y, Return(x, -y-2.0));
     s.set_symetry(&f_sym,3, 3);
 
-    s.cameleon_propagation(20, 1000000, activated_pave);
+//    s.cameleon_propagation(20, 1000000, activated_pave);
+    s.cameleon_propagation_with_inner(14,1e9,activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -828,17 +829,17 @@ void integrator_genesio(){
     f_list.push_back(&f1);
 
     IntervalVector box(2);
-    box[0] = Interval(-20,20);
-    box[1] = Interval(-20,20);
+    box[0] = Interval(-1000,1000);
+    box[1] = Interval(-1000,1000);
 
-    Scheduler s(box, f_list, true);
+    Scheduler s(box, f_list, true, true, true, false, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(-0.8,0.8);
     activated_pave[1] = Interval(-0.8,0.8);
 
 //    s.cameleon_propagation(19, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(12, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -881,7 +882,7 @@ void bassin_bacha(){
 int main()
 {
     /// **** BALL ***** //
-//    ball();
+    ball();
 
     /// **** STATION KEEPING ***** //
 //    station_keeping_attractor();
@@ -892,7 +893,7 @@ int main()
 
 //    car_on_the_hill_kernel();
 
-    car_on_the_hill_trajectory();
+//    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
