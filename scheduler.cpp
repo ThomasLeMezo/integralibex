@@ -59,6 +59,8 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
         //        p->set_continuity_in(false);
         //        p->set_continuity_out(false);
 
+        p->set_bassin(true);
+
         g->push_back(p); // Inactive box
     }
 

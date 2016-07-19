@@ -8,10 +8,10 @@ from numpy import *
 # Set limits and number of points in grid
 
 ##########  Part 1 ##########
-phi, d = np.meshgrid(np.arange(-np.pi, np.pi, .2), np.arange(0.1, 10, .2))
-U = np.where(np.cos(phi) <= 1/np.sqrt(2.0), np.sin(phi)/d+1.0, (1.0/d-1.0)*np.sin(phi))
-V = -np.cos(phi)
-plt.figure()
+# phi, d = np.meshgrid(np.arange(-np.pi, np.pi, .2), np.arange(0.1, 10, .2))
+# U = np.where(np.cos(phi) <= 1/np.sqrt(2.0), np.sin(phi)/d+1.0, (1.0/d-1.0)*np.sin(phi))
+# V = -np.cos(phi)
+# plt.figure()
 # Q = plt.quiver(U, V)
 
 # plt.show()
@@ -55,14 +55,28 @@ plt.figure()
 # Q = plt.quiver(U, V)
 # plt.show()
 
+#### Parrilo
+# x1, x2 = np.meshgrid(np.arange(-200.0,200.0, 10.0), np.arange(-200.0,200.0,10.0))
+# U = -x1+(1+x1)*x2
+# V = -(1+x1)*x1
+
+#### Ratschan 3
+# x1, x2 = np.meshgrid(np.arange(-200.0,200.0, 10.0), np.arange(-200.0,200.0,10.0))
+x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,1.0,0.1))
+U = -4*x1*x1*x1+6*x1*x1-2*x1
+V = -2*x2
+
 #### Van Der Pol
 # x1, x2 = np.meshgrid(np.arange(-1.0,13.0, .3), np.arange(-6.0,6.0, .2))
-x1, x2 = np.meshgrid(np.arange(-4.0,4.0, .4), np.arange(-4.0,4.0, .4))
-U = x2
-V = (1-x1**2)*x2-x1
+# x1, x2 = np.meshgrid(np.arange(-4.0,4.0, .4), np.arange(-4.0,4.0, .4))
+# U = x2
+# V = (1-x1**2)*x2-x1
 
+#### Car on the hill ?
 # U = x2
 # V = -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2
+
+#### Drawing
 
 coeff = np.maximum(np.minimum(V**2+U**2, 1.5*np.ones(V.shape)), 0.5*np.ones(V.shape))
 

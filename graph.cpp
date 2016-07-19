@@ -228,7 +228,7 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
             for(int face=0; face<4; face++){
                 if(change_tab[face]){
                     for(Pave *p:pave->get_brothers(face)){
-                        if(p->is_in_queue() == false){
+                        if(!p->is_in_queue()){
                             add_to_queue(p);
                         }
                     }
@@ -238,13 +238,13 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
             pave->set_first_process_false();
             pave->increment_cpt_consistency();
         }
-//        if(debug_marker1 && iterations>=11995 /**&& iterations%5==0**/){
-//            cout << "iterations = " << iterations << endl;
-//            draw(1024, true, "process_inner");
-//            print_pave_info(4.998, 0.005, "g");
-//            print_pave_info(5.001, 0.005, "g");
-//            cin.ignore();
-//        }
+        //        if(debug_marker1 && iterations>=11995 /**&& iterations%5==0**/){
+        //            cout << "iterations = " << iterations << endl;
+        //            draw(1024, true, "process_inner");
+        //            print_pave_info(4.998, 0.005, "g");
+        //            print_pave_info(5.001, 0.005, "g");
+        //            cin.ignore();
+        //        }
     }
 
     clear_node_queue();
@@ -317,26 +317,20 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
     }
 
     for(Pave *pave:m_node_list){
-        if(!pave->is_removed_pave()){
+        if(!pave->is_removed_pave_outer()){
             for(IntervalVector box:box_list){
                 if(!(box & pave->get_position()).is_empty()){
-                    // Outer
-                    pave->set_full_outer();
 
                     // Inner
                     if(pave->get_position().is_strict_interior_subset(box)){
                         pave->set_empty_inner_in(); // Do not set removed pave inner !!! => bc out is not empty
                         pave->set_removed_pave_inner(true);
                         add_to_queue_inner(pave);
+                        pave->set_bassin(true);
                     }
 
-                    // Update queue
-                    for(int face=0; face<4; face++){
-                        vector<Pave*> pave_brother_list = pave->get_brothers(face);
-                        for(Pave *pave_brother:pave_brother_list){
-                            add_to_queue_outer(pave_brother);
-                        }
-                    }
+                    // Outer
+                    pave->set_full_outer();
                 }
             }
         }
@@ -345,6 +339,15 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
     for(Pave *pave:m_node_list){
         if(!pave->is_removed_pave_inner() && pave->is_near_removed_inner())
             add_to_queue_inner(pave);
+        if(pave->is_full_outer()){
+            for(int face=0; face<4; face++){
+                vector<Pave*> pave_brother_list = pave->get_brothers(face);
+                for(Pave *pave_brother:pave_brother_list){
+                    if(!pave_brother->is_full_outer())
+                        add_to_queue_outer(pave_brother);
+                }
+            }
+        }
     }
 }
 

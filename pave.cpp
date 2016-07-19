@@ -31,6 +31,8 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_removed_pave_inner = false;
     m_removed_pave_outer = false;
 
+    m_bassin = false;
+
     // Border building
     IntervalVector coordinate(2);
     coordinate[0] = position[0]; coordinate[1] = Interval(position[1].lb()); m_borders.push_back(new Border(coordinate, 0, this));
@@ -160,6 +162,8 @@ Pave::Pave(const Pave *p):
     m_cpt_consistency_outer = p->get_cpt_consistency_outer();
     m_cpt_continuity_inner = p->get_cpt_continuity_inner();
     m_cpt_continuity_outer= p->get_cpt_continuity_outer();
+
+    m_bassin = p->is_bassin();
 }
 
 Pave::~Pave(){
@@ -407,7 +411,10 @@ void Pave::draw(bool filled, bool inner_only){
 
             /// INNER
             set_inner_mode(true);
-            draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+            if(!is_bassin())
+                draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+            else
+                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
 
             /// POLYGON
             Pave *p_polygon = new Pave(this);
@@ -421,6 +428,9 @@ void Pave::draw(bool filled, bool inner_only){
 
             set_inner_mode(mode);
             set_backward_function(backward);
+        }
+        else if(is_bassin()){
+            vibes::drawBox(m_position, "#FF0000[#FF0000]");
         }
     }
     else{
@@ -1322,4 +1332,12 @@ void Pave::increment_cpt_continuity(){
         m_cpt_continuity_inner++;
     else
         m_cpt_continuity_outer++;
+}
+
+bool Pave::is_bassin() const{
+    return m_bassin;
+}
+
+void Pave::set_bassin(bool val){
+    m_bassin = val;
 }

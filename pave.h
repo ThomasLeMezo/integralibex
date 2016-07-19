@@ -53,6 +53,7 @@ public:
     bool                        is_in_queue_outer() const;
     bool                        is_in_queue_inner() const;
     bool                        is_active() const;
+    bool                        is_bassin() const;
     bool                        is_border() const;
     bool                        is_marked_attractor() const;
     bool                        is_external_border() const;
@@ -88,6 +89,7 @@ public:
 
     void                        set_segment(bool in, bool out);
     void                        set_active(bool val);
+    void                        set_bassin(bool val);
     void                        set_theta(std::vector<ibex::Interval> theta_list);
     void                        set_theta(ibex::Interval theta);
     void                        set_in_queue(bool flag);
@@ -204,6 +206,7 @@ private:
     bool                        m_diseable_singeleton;
     bool                        m_marker_attractor;
     bool                        m_external_border;
+    bool                        m_bassin;
     bool                        m_removed_pave_inner;
     bool                        m_removed_pave_outer;
 

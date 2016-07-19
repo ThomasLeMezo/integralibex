@@ -93,8 +93,8 @@ void ball(){
     Scheduler s(box, f_list, false, true, true, false, false);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(12.0, 13.0);
-    activated_pave[1] = Interval(-2.0, 2.0);
+    activated_pave[0] = Interval(10.0, 16.0);
+    activated_pave[1] = Interval(-4.0, 4.0);
 
     ibex::Function f_sym(x, y, Return(x, -y-2.0));
     s.set_symetry(&f_sym,3, 3);
@@ -278,10 +278,10 @@ void cercle_capture_bassin(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x1, x2, x, y;
-    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+//    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
 
-//    ibex::Function f(x, y, Return(x-(x+y)*(x*x+y*y),
-//                                  y+(x-y)*(x*x+y*y)));
+    ibex::Function f(x, y, Return(x-(x+y)*(x*x+y*y),
+                                  y+(x-y)*(x*x+y*y)));
 
 
     std::vector<ibex::Function*> f_list;
@@ -764,14 +764,14 @@ void bassin_ratschan3(){
     f_list.push_back(&f1);
 
     IntervalVector box(2);
-    box[0] = Interval(-8.0, 8.0);
-    box[1] = Interval(-8.0, 8.0);
+    box[0] = Interval(-8,8);
+    box[1] = Interval(-8,8);
 
     std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
 
-    box_remove[0] = Interval(-0.4,0.4);
-    box_remove[1] = Interval(-0.4,0.4);
+    box_remove[0] = Interval(-2,2);
+    box_remove[1] = Interval(-2,2);
     list_boxes_removed.push_back(box_remove);
 
     // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
@@ -779,11 +779,43 @@ void bassin_ratschan3(){
     Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_viability(8, 1e9, true); // 10 = 256 s
+    s.cameleon_viability(10, 1e9, true); // 10 = 256 s
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     /////////////// Drawing ///////////////
     s.draw(1024, true);
+}
+
+void integrator_ratschan3(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(-(-4*x1*x1*x1+6*x1*x1-2*x1),
+                                     -(-2*x2)));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+    box[0] = Interval(-1.0, 2.0);
+    box[1] = Interval(-1.0, 1.0);
+//    box[0] = Interval(-8,8);
+//    box[1] = Interval(-8,8);
+
+    Scheduler s(box, f_list, true, true, true, false, false);
+
+    IntervalVector activated_pave(2);
+    activated_pave[0] = Interval(-0.1,0.1);
+    activated_pave[1] = Interval(-0.1,0.1);
+//    activated_pave[0] = Interval(-2,2);
+//    activated_pave[1] = Interval(-2,2);
+
+//    s.cameleon_propagation(19, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(13, 1e9, activated_pave); // 25
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.draw(1024, true);
+    s.print_pave_info(0, 0.4,0.1);
+
 }
 
 void bassin_genesio(){
@@ -882,7 +914,7 @@ void bassin_bacha(){
 int main()
 {
     /// **** BALL ***** //
-    ball();
+//    ball();
 
     /// **** STATION KEEPING ***** //
 //    station_keeping_attractor();
@@ -918,9 +950,10 @@ int main()
 //    bassin_parrilo();
 //    bassin_genesio();
 //    bassin_bacha();
-//    bassin_van_der_pol();
+    bassin_van_der_pol();
 
 //    integrator_genesio();
+//    integrator_ratschan3();
 
     /// **** TEST ***** //
 //    test();
