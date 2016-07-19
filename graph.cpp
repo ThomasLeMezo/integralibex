@@ -217,6 +217,13 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
             pave->set_first_process_false();
             pave->increment_cpt_consistency();
         }
+//        if(debug_marker1 && iterations>=11995 /**&& iterations%5==0**/){
+//            cout << "iterations = " << iterations << endl;
+//            draw(1024, true, "process_inner");
+//            print_pave_info(4.998, 0.005, "g");
+//            print_pave_info(5.001, 0.005, "g");
+//            cin.ignore();
+//        }
     }
 
     clear_node_queue();
@@ -760,6 +767,10 @@ void Graph::complementaire(){
 }
 
 void Graph::set_external_boundary(bool in, bool out){
+    if(m_node_border_list.size()==0){
+        cout << "ERROR : border_list.size()==0" << endl;
+        exit(1);
+    }
     for(Pave *p:m_node_border_list){
         p->set_segment(in, out);
     }

@@ -292,11 +292,39 @@ void Border::set_empty_inner_out(){
     m_segment_out_inner = Interval::EMPTY_SET;
 }
 
+void Border::set_empty_outer_in(){
+    m_segment_in_outer = Interval::EMPTY_SET;
+}
+
+void Border::set_empty_outer_out(){
+    m_segment_out_outer = Interval::EMPTY_SET;
+}
+
 void Border::set_full_inner(){
     m_segment_in_inner= m_segment_full;
     m_segment_out_inner = m_segment_full;
     m_empty_inner = false;
     m_full_inner = true;
+}
+
+void Border::set_full_inner_in(){
+    m_segment_in_inner= m_segment_full;
+    m_empty_inner = false;
+}
+
+void Border::set_full_inner_out(){
+    m_segment_out_inner = m_segment_full;
+    m_empty_inner = false;
+}
+
+void Border::set_full_outer_in(){
+    m_segment_in_outer = m_segment_full;
+    m_empty_outer = false;
+}
+
+void Border::set_full_outer_out(){
+    m_segment_out_outer = m_segment_full;
+    m_empty_outer = false;
 }
 
 void Border::set_full_outer(){

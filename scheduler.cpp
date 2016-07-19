@@ -84,7 +84,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     g->set_inner_mode(true);
 }
 
-Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_in, bool border_out):
+Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_inner_in, bool border_inner_out, bool border_outer_in, bool border_outer_out):
     Scheduler(box, f_list, diseable_singleton)
 {
     Graph *g = m_graph_list[0];
@@ -95,10 +95,14 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
     for(IntervalVector b:list_border){
         Pave* p = new Pave(b, f_list, diseable_singleton, false);
         p->set_external_border(true);
-        if(border_out)
-            p->set_full_out();
-        if(border_in)
-            p->set_full_in();
+        if(border_inner_in)
+            p->set_full_inner_in();
+        if(border_inner_out)
+            p->set_full_inner_out();
+        if(border_outer_in)
+            p->set_full_outer_in();
+        if(border_outer_out)
+            p->set_full_outer_out();
         g->push_back(p); // Box is put into external box list when building the graph
     }
 
@@ -210,15 +214,16 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
+        // Outer
+        graph->set_inner_mode(false);
+        graph->set_backward_function(false);
+        graph->process(process_iterations_max, false);
+
         // Inner
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
         graph->process(process_iterations_max, true);
 
-        // Outer
-        graph->set_inner_mode(false);
-        graph->set_backward_function(false);
-        graph->process(process_iterations_max, false);
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -479,7 +484,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         // INNER
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
-//        graph->process(process_iterations_max, true);
+        graph->process(process_iterations_max, true);
         // OUTER
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
@@ -490,7 +495,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 //        // INNER
         graph_backward->set_inner_mode(true);
         graph_backward->set_backward_function(false); // Invert bc of bwd
-//        graph_backward->process(process_iterations_max, true);
+        graph_backward->process(process_iterations_max, true);
         // OUTER
         graph_backward->set_inner_mode(false);
         graph_backward->set_backward_function(true); // Invert bc of bwd
@@ -525,7 +530,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         // INNER
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
-//        graph->process(process_iterations_max, true);
+        graph->process(process_iterations_max, true);
         // OUTER
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
@@ -537,7 +542,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 //        // INNER
         graph_backward->set_inner_mode(true);
         graph_backward->set_backward_function(false); // Invert bc of bwd
-//        graph_backward->process(process_iterations_max, true);
+        graph_backward->process(process_iterations_max, true);
         // OUTER
         graph_backward->set_inner_mode(false);
         graph_backward->set_backward_function(true); // Invert bc of bwd

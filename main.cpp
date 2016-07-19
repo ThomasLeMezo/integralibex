@@ -174,7 +174,7 @@ void car_on_the_hill_attractor(){
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    Scheduler s(box, f_list, true, false, false);
+    Scheduler s(box, f_list, true, true, true, false, false);
 //    vector<IntervalVector> bassin_list;
 //    Scheduler s(box, bassin_list, f_list, u, true, false, false);
 
@@ -205,7 +205,7 @@ void car_on_the_hill_kernel(){
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    Scheduler s(box, f_list, false, false, false);
+    Scheduler s(box, f_list, true, true, true, false, false);
 
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
@@ -455,18 +455,18 @@ void integrator(){
     box[0] = Interval(0,5);
     box[1] = Interval(-2,2);
 
-    Scheduler s(box, f_list, true);
+    Scheduler s(box, f_list, true, true, true, false, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(0.3,0.5);
     activated_pave[1] = Interval(-0.5,0.5);
 
 //    s.cameleon_propagation(19, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(14, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
-    s.print_pave_info(0, 1, 1.25);
+//    s.print_pave_info(0, 1, 1.25);
 }
 
 void van_der_pol_integration(){
@@ -511,7 +511,7 @@ void van_der_pol_kernel(){
     box[0] = Interval(-8.0, 8.0);
     box[1] = Interval(-8.0, 8.0);
 
-    Scheduler s(box, f_list, false, false, false);
+    Scheduler s(box, f_list, true, true, true, false, false);
 
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
@@ -541,7 +541,7 @@ void van_der_pol_kernel2(){
     box[0] = Interval(-8.0, 8.0);
     box[1] = Interval(-8.0, 8.0);
 
-    Scheduler s(box, f_list, false, false, false);
+    Scheduler s(box, f_list, true, true, true, false, false);
 
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
@@ -571,7 +571,7 @@ void van_der_pol_inner(){
     box[0] = Interval(-8.0, 8.0);
     box[1] = Interval(-8.0, 8.0);
 
-    Scheduler s(box, f_list, false, false, false);
+    Scheduler s(box, f_list, true, true, true, false, false);
 
     /////////////// Compute ///////////////
     s.compute_attractor(14, 1e9);
@@ -601,10 +601,10 @@ void van_der_pol_outer(){
     box[0] = Interval(-8.0, 8.0);
     box[1] = Interval(-8.0, 8.0);
 
-    Scheduler s(box, f_list, false, false, true);
+    Scheduler s(box, f_list, true, true, true, false, false);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(5, 5, 1e9, false, false, false);
+    s.cameleon_cycle(10, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -642,7 +642,7 @@ void bassin_van_der_pol(){
     /////////////// Compute ///////////////
     // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
 //    s.cameleon_cycle(15, 5, 1e9, false, false, true);
-    s.cameleon_viability(10, 1e9, true); // 10 = 256 s
+    s.cameleon_viability(7, 1e9, true); // 10 = 256 s
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -909,7 +909,7 @@ int main()
 //    van_der_pol_inner();
 
     /// **** INTEGRATOR ***** //
-//    integrator();
+    integrator();
 
     /// **** BASSIN ***** //
 //    bassin_ratschan6();
@@ -917,7 +917,7 @@ int main()
 //    bassin_parrilo();
 //    bassin_genesio();
 //    bassin_bacha();
-    bassin_van_der_pol();
+//    bassin_van_der_pol();
 
 //    integrator_genesio();
 

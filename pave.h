@@ -72,13 +72,20 @@ public:
     void                        set_full_all();
     void                        set_full_in();
     void                        set_full_out();
+    void                        set_full_outer();
+    void                        set_full_inner();
+    void                        set_full_outer_in();
+    void                        set_full_outer_out();
+    void                        set_full_inner_in();
+    void                        set_full_inner_out();
     void                        set_empty();
     void                        set_empty_outer();
-    void                        set_full_inner();
     void                        set_empty_inner();
     void                        set_empty_inner_in();
     void                        set_empty_inner_out();
-    void                        set_full_outer();
+    void                        set_empty_outer_in();
+    void                        set_empty_outer_out();
+
     void                        set_segment(bool in, bool out);
     void                        set_active(bool val);
     void                        set_theta(std::vector<ibex::Interval> theta_list);

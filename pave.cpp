@@ -322,6 +322,36 @@ void Pave::set_empty_inner_out(){
         b->set_empty_inner_out();
 }
 
+void Pave::set_empty_outer_in(){
+    for(Border *b:m_borders)
+        b->set_empty_outer_in();
+}
+
+void Pave::set_empty_outer_out(){
+    for(Border *b:m_borders)
+        b->set_empty_outer_out();
+}
+
+void Pave::set_full_outer_in(){
+    for(Border *b:m_borders)
+        b->set_full_outer_in();
+}
+
+void Pave::set_full_outer_out(){
+    for(Border *b:m_borders)
+        b->set_full_outer_out();
+}
+
+void Pave::set_full_inner_in(){
+    for(Border *b:m_borders)
+        b->set_full_inner_in();
+}
+
+void Pave::set_full_inner_out(){
+    for(Border *b:m_borders)
+        b->set_full_inner_out();
+}
+
 void Pave::set_full_outer(){
     for(int face=0; face<4; face++){
         get_border(face)->set_full_outer();
