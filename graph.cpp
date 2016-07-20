@@ -160,7 +160,7 @@ void Graph::clear_node_queue_outer(){
     m_node_queue_outer.clear();
 }
 
-void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full){
+void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, bool apply_heuristic){
     //    if(nb_node<=m_count_alive)
     //        return;
     vector<Pave *> tmp_pave_list(m_node_list);
@@ -184,7 +184,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
                 compute_propagation_zone(tmp);
         }
         else{
-            tmp->bisect(tmp_pave_list, backward);
+            tmp->bisect(tmp_pave_list, backward, apply_heuristic);
             delete(tmp);
             m_count_alive++;
         }
@@ -532,7 +532,6 @@ void Graph::mark_empty_node(){
                 pave->set_active(false);
                 m_count_alive--;
             }
-
         }
     }
 }

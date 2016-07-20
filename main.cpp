@@ -861,14 +861,14 @@ void integrator_genesio(){
     f_list.push_back(&f1);
 
     IntervalVector box(2);
-    box[0] = Interval(-1000,1000);
-    box[1] = Interval(-1000,1000);
+    box[0] = Interval(-70,70);
+    box[1] = Interval(-800,800);
 
     Scheduler s(box, f_list, true, true, true, false, false);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(-0.8,0.8);
-    activated_pave[1] = Interval(-0.8,0.8);
+    activated_pave[0] = Interval(-10,10);
+    activated_pave[1] = Interval(-10,10);
 
 //    s.cameleon_propagation(19, 1e9, activated_pave); // 25
     s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
@@ -950,9 +950,9 @@ int main()
 //    bassin_parrilo();
 //    bassin_genesio();
 //    bassin_bacha();
-    bassin_van_der_pol();
+//    bassin_van_der_pol();
 
-//    integrator_genesio();
+    integrator_genesio();
 //    integrator_ratschan3();
 
     /// **** TEST ***** //

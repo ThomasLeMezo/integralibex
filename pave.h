@@ -37,7 +37,7 @@ public:
     void                        print_theta_list();
 
     // ******** Graph building ********
-    void                        bisect(std::vector<Pave *> &result, bool backward=false);
+    void                        bisect(std::vector<Pave *> &result, bool backward=false, bool apply_heuristic=false);
     void                        remove_from_brothers();
     void                        remove_brothers(Pave* p, int face);
 

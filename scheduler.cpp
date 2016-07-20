@@ -211,7 +211,10 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph->mark_empty_node();
-        graph->sivia(2*graph->get_alive_node(), false, false, false);
+        if(iterations>10)
+            graph->sivia(2*graph->get_alive_node(), false, false, false, true);
+        else
+            graph->sivia(2*graph->get_alive_node(), false, false, false);
         graph->set_empty_outer_full_inner();
         graph->set_active_outer_inner(initial_boxes);
 

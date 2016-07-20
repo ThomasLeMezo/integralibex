@@ -531,7 +531,7 @@ void Pave::draw_test(int size, string comment) const{
 // ********************************************************************************
 // ****************** Paving building *********************************************
 
-void Pave::bisect(vector<Pave*> &result, bool backward){
+void Pave::bisect(vector<Pave*> &result, bool backward, bool apply_heuristic){
     // Create 4 new paves
     ibex::LargestFirst bisector(0.0, 0.5);
 
@@ -692,8 +692,15 @@ void Pave::bisect(vector<Pave*> &result, bool backward){
 #endif
     }
 
-    result.push_back(pave1);
-    result.push_back(pave2);
+    if(apply_heuristic && /*pave1->get_theta_diam_max()<M_PI &&*/ pave1->get_theta_diam_max()>M_PI/10)
+        result.insert(result.begin(), pave1);
+    else
+        result.push_back(pave1);
+
+    if(apply_heuristic && /*pave2->get_theta_diam_max()<M_PI &&*/ pave2->get_theta_diam_max()>M_PI/10)
+        result.insert(result.begin(), pave2);
+    else
+        result.push_back(pave2);
 }
 
 // ********************************************************************************

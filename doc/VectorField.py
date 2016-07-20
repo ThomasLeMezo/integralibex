@@ -62,9 +62,16 @@ from numpy import *
 
 #### Ratschan 3
 # x1, x2 = np.meshgrid(np.arange(-200.0,200.0, 10.0), np.arange(-200.0,200.0,10.0))
-x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,1.0,0.1))
-U = -4*x1*x1*x1+6*x1*x1-2*x1
-V = -2*x2
+# x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,1.0,0.1))
+# U = -4*x1*x1*x1+6*x1*x1-2*x1
+# V = -2*x2
+
+#### Genesio
+# x1, x2 = np.meshgrid(np.arange(-70,70,1.0), np.arange(-1000,1000,100))
+x1, x2 = np.meshgrid(np.arange(-20,10,0.5), np.arange(-15,5,0.5))
+# x1, x2 = np.meshgrid(np.arange(-0.5,0.5,0.05), np.arange(-0.5,0.5,0.05))
+U=(-x1+x2)
+V=(0.1*x1-2*x2-x1*x1-0.1*x1*x1*x1)
 
 #### Van Der Pol
 # x1, x2 = np.meshgrid(np.arange(-1.0,13.0, .3), np.arange(-6.0,6.0, .2))
@@ -80,14 +87,13 @@ V = -2*x2
 
 coeff = np.maximum(np.minimum(V**2+U**2, 1.5*np.ones(V.shape)), 0.5*np.ones(V.shape))
 
-# U = U / (sqrt(U*U+V*V))
-# V = V / (sqrt(U*U+V*V))
+U = U / (sqrt(U*U+V*V))
+V = V / (sqrt(U*U+V*V))
 
-U = coeff * U / (sqrt(U*U+V*V))
-V = coeff * V / (sqrt(U*U+V*V))
+# U = coeff * U / (sqrt(U*U+V*V))
+# V = coeff * V / (sqrt(U*U+V*V))
 
 
 # plt.figure()
-Q = plt.quiver(x1, x2, U, V,
-               width=5e-3)
+Q = plt.quiver(x1, x2, U, V, width=1e-3)
 plt.show()
