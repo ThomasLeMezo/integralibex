@@ -862,16 +862,18 @@ void integrator_genesio(){
 
     IntervalVector box(2);
     box[0] = Interval(-70,70);
-    box[1] = Interval(-800,800);
+    box[1] = Interval(-200,200);
 
     Scheduler s(box, f_list, true, true, true, false, false);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(-10,10);
-    activated_pave[1] = Interval(-10,10);
+//    activated_pave[0] = Interval(-10,10);
+//    activated_pave[1] = Interval(-10,10);
+    activated_pave[0] = Interval(-3,3);
+    activated_pave[1] = Interval(-3,3);
 
 //    s.cameleon_propagation(19, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(18, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -925,7 +927,7 @@ int main()
 
 //    car_on_the_hill_kernel();
 
-//    car_on_the_hill_trajectory();
+    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
@@ -952,7 +954,7 @@ int main()
 //    bassin_bacha();
 //    bassin_van_der_pol();
 
-    integrator_genesio();
+//    integrator_genesio();
 //    integrator_ratschan3();
 
     /// **** TEST ***** //
