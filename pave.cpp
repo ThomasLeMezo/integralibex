@@ -192,6 +192,8 @@ bool Pave::inter(const Pave &p, bool with_bwd){
         if(get_border(face)->inter(*(p.get_border_const(face)), with_bwd))
             change = true;
     }
+    if(p.is_bassin())
+        set_bassin(true);
     return change;
 }
 

@@ -507,7 +507,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph_backward->process(process_iterations_max, false, true);
 
         // Intersect graph
-//        graph->inter(graph_backward, true);
+        graph->inter(graph_backward, true);
         delete(graph_backward);
         graph->mark_empty_node();
         iterations++;
