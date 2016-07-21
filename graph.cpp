@@ -215,7 +215,7 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, backward);
         pave->increment_cpt_continuity();
-        if(pave->is_active() && !pave->is_removed_pave() && (change || pave->get_first_process())){
+        if(pave->is_active() && !pave->is_removed_pave() && !pave->is_removed_pave_outer() && (change || pave->get_first_process())){
 
             /// ******* PROCESS CONSISTENCY *******
             std::vector<bool> change_tab;
@@ -343,7 +343,7 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
             for(int face=0; face<4; face++){
                 vector<Pave*> pave_brother_list = pave->get_brothers(face);
                 for(Pave *pave_brother:pave_brother_list){
-                    if(!pave_brother->is_full_outer())
+                    if(!pave_brother->is_full_outer() && !pave->is_removed_pave_outer())
                         add_to_queue_outer(pave_brother);
                 }
             }

@@ -404,7 +404,7 @@ void car_on_the_hill_integrator(){
                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
     std::vector<ibex::Function*> f_list;
-//    f_list.push_back(&f1);
+//    f_list.push_back(&f2);
     f_list.push_back(&f1);
 
     IntervalVector box(2);
@@ -665,7 +665,7 @@ void car_on_the_hill_trajectory(){
                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-//    f_list.push_back(&f2);
+    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(-2.0, 13.0);
@@ -683,7 +683,7 @@ void car_on_the_hill_trajectory(){
     paveB[0] = Interval(7.0,9.0);
     paveB[1] = Interval(-1.0, 1.0);
 
-    s.find_path(14, 1e9, paveA, paveB); // 25
+    s.find_path(15, 1e9, paveA, paveB); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -929,8 +929,8 @@ int main()
 
 //    car_on_the_hill_kernel();
 
-    car_on_the_hill_trajectory();
-//    car_on_the_hill_integrator();
+//    car_on_the_hill_trajectory();
+    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //

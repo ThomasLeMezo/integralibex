@@ -551,12 +551,19 @@ bool Border::inter(const Border &b, bool with_bwd){
             change = true;
 
         bool inner_status = m_mode_inner;
-        set_inner_mode(true);
-        set_segment_in(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
-        set_segment_out(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
         set_inner_mode(false);
         set_segment_in(b.get_segment_in_outer() | b.get_segment_out_outer(), true);
         set_segment_out(b.get_segment_out_outer() | b.get_segment_in_outer(), true);
+//        if(get_segment_out()!=Interval::EMPTY_SET){
+            set_inner_mode(true);
+            set_segment_in(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
+            set_segment_out(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
+//        }
+//        else{
+//            set_inner_mode(true);
+//            set_segment_in(get_segment_full(), false);
+//            set_segment_out(get_segment_full(), false);
+//        }
         set_inner_mode(inner_status);
     }
     else{
