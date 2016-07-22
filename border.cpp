@@ -706,6 +706,15 @@ void Border::set_segment(bool in, bool out){
         set_segment_out(Interval::EMPTY_SET);
 }
 
+void Border::set_segment(Interval seg, bool inclusion){
+   set_segment_in(seg, inclusion);
+   set_segment_out(seg, inclusion);
+}
+
+const ibex::Interval Border::get_segment_in_union_out() const{
+    return get_segment_in() | get_segment_out();
+}
+
 void Border::set_inner_mode(bool val){
     m_mode_inner = val;
 }

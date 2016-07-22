@@ -789,3 +789,23 @@ void sandbox(){
     //    cout << setprecision(80) << theta << endl;
     //    cout << Interval::HALF_PI << endl;
 }
+
+void test_inter_pave_perimeter(){
+    //Pave(const ibex::IntervalVector &position, const std::vector<ibex::Function *> &f_list, bool diseable_singeleton=false, bool active=true);
+    IntervalVector position(2);
+    position[0] = Interval(0,1);
+    position[1] = Interval(0,1);
+
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+
+    Pave *p = new Pave(position, f_list, false, true);
+    p->get_border(0)->set_full();
+    p->get_border(1)->set_full();
+//    p->get_border(2)->set_segment(Interval(0.8, 1), false);
+//    p->get_border(3)->set_segment(Interval(0, 0.2), false);
+
+    cout << "perimeter = " << p->get_perimeter() << endl;
+}

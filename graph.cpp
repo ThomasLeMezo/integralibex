@@ -786,6 +786,18 @@ void Graph::reset_marker_attractor(){
     }
 }
 
+void Graph::reset_marker(vector<Pave*> list){
+    for(Pave *p:list){
+        p->set_marker(false);
+    }
+}
+
+void Graph::set_marker(vector<Pave*> list, bool val){
+    for(Pave *p:list){
+        p->set_marker(val);
+    }
+}
+
 IntervalVector Graph::get_search_box() const{
     return m_search_box;
 }
@@ -970,4 +982,83 @@ double Graph::get_area_outer(){
         }
     }
     return area;
+}
+
+void Graph::get_recursive_zone(Pave* p, vector<Pave*> &list){
+    for(int face=0; face<4; face++){
+        vector<Pave*> brothers_face = p->get_brothers(face);
+        for(Pave *p_brother:brothers_face){
+            if(!p_brother->is_removed_pave() && !p_brother->is_marked()){
+                list.push_back(p_brother);
+                p_brother->set_marker(true);
+                get_recursive_zone(p_brother, list);
+            }
+        }
+    }
+}
+
+void Graph::get_recursive_contour(Pave* p, vector<Pave*> &list){
+    for(int face=0; face<4; face++){
+
+        for(Inclusion *i:p->get_border(face)->get_inclusions()){
+            Pave *p_brother = i->get_border()->get_pave();
+            // Brother pave not full nor empty
+            if(!p_brother->is_removed_pave() && !p_brother->is_marked()
+                    && !p_brother->is_empty() && !p_brother->is_full()){
+
+                // Link between paves
+                Interval seg_inter = p->get_border(face)->get_segment_in_union_out()
+                        & i->get_border()->get_segment_in_union_out();
+                if(seg_inter!=Interval::EMPTY_SET){
+                    list.push_back(p_brother);
+                    p_brother->set_marker(true);
+                    get_recursive_contour(p_brother, list);
+                }
+            }
+        }
+    }
+}
+
+vector<vector<Pave*>> Graph::get_contour_nodes(){
+    vector<vector<Pave*>> contours_list;
+
+    if(m_node_list.size()==0)
+        return contours_list;
+    reset_marker(m_node_list);
+
+    for(Pave *p:m_node_list){
+        // Study the subgraph starting with p
+        if(p->is_active() && !p->is_marked() && !p->is_removed_pave_outer()){
+            vector<Pave*> zone_list;
+            zone_list.push_back(p);
+            get_recursive_zone(p, zone_list);
+
+            // Isolate the boundaries of the list
+            // Find the first none full node of the list
+            reset_marker(zone_list);
+            for(Pave *p_zone:zone_list){
+                if(!p_zone->is_marked() && !p_zone->is_full() && !p_zone->is_empty()){
+                    vector<Pave *> contour_list;
+                    contour_list.push_back(p_zone);
+                    get_recursive_contour(p_zone, contour_list);
+                    contours_list.push_back(contour_list);
+                }
+            }
+            set_marker(zone_list, true);
+        }
+    }
+    return contours_list;
+}
+
+vector<double> Graph::get_perimeters(){
+    vector<double> perimeters;
+    vector<vector<Pave*>> contours_list = get_contour_nodes();
+    for(vector<Pave*> contour:contours_list){
+        double perimeter = 0.0;
+        for(Pave *p:contour){
+            perimeter += p->get_perimeter();
+        }
+        perimeters.push_back(perimeter);
+    }
+    return perimeters;
 }

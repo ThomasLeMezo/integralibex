@@ -62,6 +62,8 @@ public:
     void                        add_to_queue_outer(Pave *p);
     void                        add_to_queue(Pave *p);
     void                        reset_marker_attractor();
+    void                        reset_marker(vector<Pave*> list);
+    void                        set_marker(vector<Pave*> list, bool val);
     void                        complementaire();
 
     // Getter
@@ -85,6 +87,11 @@ public:
     bool                        get_inner_mode();
     bool                        get_compute_inner();
     double                      get_area_outer();
+    std::vector<double>         get_perimeters();
+
+    void                        get_recursive_zone(Pave* p, vector<Pave*> &list);
+    void                        get_recursive_contour(Pave* p, vector<Pave*> &list);
+    std::vector<std::vector<Pave *> >     get_contour_nodes();
 
 
     // Other functions

@@ -39,4 +39,6 @@ void sandbox();
 
 void test_car_on_hill();
 
+void test_inter_pave_perimeter();
+
 #endif // TESTS_H

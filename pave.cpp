@@ -27,6 +27,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_compute_inner = false;
 
     m_marker_attractor = false;
+    m_marker = false;
     m_external_border = false;
     m_removed_pave_inner = false;
     m_removed_pave_outer = false;
@@ -155,6 +156,7 @@ Pave::Pave(const Pave *p):
     }
     m_copy_node = NULL;
     m_marker_attractor = p->is_marked_attractor();
+    m_marker = p->is_marked();
 
     m_zone_propagation = p->get_zone_propagation();
 
@@ -443,7 +445,7 @@ void Pave::draw(bool filled, bool inner_only){
     }
 
     // Draw theta
-//    set_backward_function(false);
+    //    set_backward_function(false);
     draw_theta();
     //    }
 }
@@ -1102,6 +1104,10 @@ bool Pave::get_diseable_singelton() const{
     return m_diseable_singeleton;
 }
 
+void Pave::set_diseable_singelton(bool val){
+    m_diseable_singeleton = val;
+}
+
 bool Pave::is_border() const{
     for(Border *b:get_borders_const()){
         if(b->get_inclusions().size() == 0){
@@ -1139,6 +1145,14 @@ IntervalVector Pave::get_bounding_pave() const{
         box |= b->get_segment_out_2D();
     }
     return box;
+}
+
+bool Pave::is_marked() const{
+    return m_marker;
+}
+
+void Pave::set_marker(bool val){
+    m_marker = val;
 }
 
 bool Pave::is_marked_attractor() const{
@@ -1375,4 +1389,35 @@ double Pave::get_area_outer() const{
     }
     area = 0.5*fabs(area);
     return area;
+}
+
+double Pave::get_perimeter() const{
+
+    Pave *p1 = new Pave(this);
+    p1->set_diseable_singelton(false);
+    Pave *p2 = new Pave(this);
+    p2->complementaire();
+    p1->inter(p2);
+
+    double perimeter = 0.0;
+    vector<double> x, y;
+
+    for(Border *b:p1->get_borders()){
+        if(!b->is_empty()){
+            x.push_back(b->get_segment_out_2D()[0].mid());
+            y.push_back(b->get_segment_out_2D()[1].mid());
+        }
+    }
+
+    if(x.size() == 2){
+        perimeter = std::sqrt((x[1]-x[0])*(x[1]-x[0])+(y[1]-y[0])*(y[1]-y[0]));
+    }
+    else{
+        IntervalVector box = get_position();
+        perimeter = std::sqrt((box[0].diam())*(box[0].diam())+(box[1].diam())*(box[1].diam()));
+    }
+
+    delete(p1);
+    delete(p2);
+    return perimeter;
 }

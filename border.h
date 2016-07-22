@@ -55,6 +55,7 @@ public:
     void                            set_empty_outer_in();
     void                            set_empty_outer_out();
     void                            set_segment(bool in, bool out);
+    void                            set_segment(ibex::Interval seg, bool inclusion);
     bool                            set_segment_in(ibex::Interval segment_in, bool inclusion);
     bool                            set_segment_out(ibex::Interval segment_out, bool inclusion);
     void                            set_pave(Pave* pave);
@@ -86,6 +87,7 @@ public:
 
     // Getters
     void                            get_points(std::vector<double> &x, std::vector<double> &y, bool complementary=false) const;
+    const ibex::Interval            get_segment_in_union_out() const;
     const ibex::Interval            get_segment_in() const;
     const ibex::IntervalVector      get_segment_out_2D() const;
     const ibex::Interval            get_segment_out() const;

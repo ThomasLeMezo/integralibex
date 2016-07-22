@@ -56,6 +56,7 @@ public:
     bool                        is_bassin() const;
     bool                        is_border() const;
     bool                        is_marked_attractor() const;
+    bool                        is_marked() const;
     bool                        is_external_border() const;
     bool                        is_removed_pave() const;
     bool                        is_removed_pave_inner() const;
@@ -105,6 +106,7 @@ public:
     void                        set_active_function(int id);
 
     void                        set_marker_attractor(bool val);
+    void                        set_marker(bool val);
     void                        set_external_border(bool val);
     void                        set_removed_pave(bool val);
     void                        set_removed_pave_inner(bool val);
@@ -116,6 +118,7 @@ public:
     void                        set_zone_propagation(bool val);
 
     void                        set_backward_function(bool val);
+    void                        set_diseable_singelton(bool val);
 
     void                        reset_full_empty();
 
@@ -167,6 +170,7 @@ public:
     int                                 get_cpt_continuity_outer() const;
 
     double                              get_area_outer() const;
+    double                              get_perimeter() const;
 
     // Other functions
     const std::vector<ibex::Interval>   compute_theta(ibex::Function *f, bool backward_function=false);
@@ -207,6 +211,7 @@ private:
     bool                        m_active;
     bool                        m_diseable_singeleton;
     bool                        m_marker_attractor;
+    bool                        m_marker;
     bool                        m_external_border;
     bool                        m_bassin;
     bool                        m_removed_pave_inner;
