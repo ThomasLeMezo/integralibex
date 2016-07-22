@@ -1350,3 +1350,29 @@ bool Pave::is_bassin() const{
 void Pave::set_bassin(bool val){
     m_bassin = val;
 }
+
+double Pave::get_area_outer() const{
+
+    vector<double> x, y;
+    for(Border *b:m_borders){
+        b->get_points(x, y, false);
+    }
+
+    // Remove duplicate points
+    for(int i=0; i<x.size()-1; i++){
+        if(x[i]==x[i+1] && y[i]==y[i+1]){
+            x.erase(x.begin()+i);
+            y.erase(y.begin()+i);
+            i--;
+        }
+    }
+
+    // Compute area
+    double area = 0.0;
+    int nb_pt = x.size();
+    for(int i=0; i<nb_pt; i++){
+        area += x[i]*y[(i+1)%nb_pt]-y[i]*x[(i+1)%nb_pt];
+    }
+    area = 0.5*fabs(area);
+    return area;
+}

@@ -84,6 +84,7 @@ public:
     int                         get_alive_node();
     bool                        get_inner_mode();
     bool                        get_compute_inner();
+    double                      get_area_outer();
 
 
     // Other functions

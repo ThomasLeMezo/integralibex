@@ -166,6 +166,8 @@ public:
     int                                 get_cpt_continuity_inner() const;
     int                                 get_cpt_continuity_outer() const;
 
+    double                              get_area_outer() const;
+
     // Other functions
     const std::vector<ibex::Interval>   compute_theta(ibex::Function *f, bool backward_function=false);
 

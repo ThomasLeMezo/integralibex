@@ -961,3 +961,13 @@ void Graph::set_backward_function(bool val){
     for(Pave *p:m_node_list)
         p->set_backward_function(val);
 }
+
+double Graph::get_area_outer(){
+    double area = 0.0;
+    for(Pave *p:m_node_list){
+        if(!p->is_removed_pave_outer()){
+            area += p->get_area_outer();
+        }
+    }
+    return area;
+}
