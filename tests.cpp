@@ -11,7 +11,7 @@ using namespace ibex;
 using namespace std;
 //using namespace cv;
 
-void test_draw(Pave *p, string drawing_name, bool full=false){
+void test_draw(Pave *p, string drawing_name="test", bool full=true){
     vibes::beginDrawing();
     vibes::newFigure(drawing_name);
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
@@ -808,4 +808,33 @@ void test_inter_pave_perimeter(){
 //    p->get_border(3)->set_segment(Interval(0, 0.2), false);
 
     cout << "perimeter = " << p->get_perimeter() << endl;
+
+
+}
+
+void test_possible_path(){
+    IntervalVector position(2);
+    position[0] = Interval(-0.1,1);
+    position[1] = Interval(-0.1,1);
+
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+
+    Pave *p = new Pave(position, f_list, false, true);
+    p->get_border(0)->set_full();
+    p->get_border(1)->set_full();
+    test_draw(p, "p");
+
+    Pave *p2 = new Pave(p);
+    p2->complementaire();
+    test_draw(p2, "p2");
+
+    p->print();
+    p2->print();
+
+    p->inter(p2);
+    p->print();
+    test_draw(p, "inter");
 }

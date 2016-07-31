@@ -68,6 +68,7 @@ public:
     bool                        is_empty_outer();
     bool                        is_full_inner();
     bool                        is_full_outer();
+    bool                        is_possible_path(ibex::IntervalVector ptA, ibex::IntervalVector ptB);
 
     // Setter
     void                        set_full();
@@ -132,6 +133,9 @@ public:
     const std::vector<ibex::Interval>   get_theta() const;
 
     std::vector<std::vector<ibex::Interval>>    get_theta_list() const;
+    std::vector<ibex::Interval>                 get_theta_union_list() const;
+    std::vector<ibex::Interval>                 get_theta_union_list_bwd() const;
+    std::vector<ibex::Interval>                 get_theta_union_list_fwd() const;
     std::vector<ibex::Interval>                 get_theta_list(int function_id) const;
     const std::vector<ibex::Interval>           get_all_theta(bool all=false) const;
 
@@ -174,6 +178,8 @@ public:
 
     // Other functions
     const std::vector<ibex::Interval>   compute_theta(ibex::Function *f, bool backward_function=false);
+    const std::vector<ibex::Interval>   compute_theta(ibex::Interval dx, ibex::Interval dy);
+    const std::vector<ibex::Interval>   compute_theta_union(std::vector<ibex::Function *> f_list, bool backward_function);
 
 
 
@@ -181,11 +187,13 @@ public:
 
 private:
     //    std::vector<ibex::Interval> m_theta;
-    std::vector< std::vector<ibex::Interval>>   m_theta_list;
-    std::vector< ibex::Interval>                m_theta;
+    std::vector< std::vector<ibex::Interval>>   m_theta_list; // list of theta by function f
+    std::vector< ibex::Interval>                m_theta; // list of all theta
+    std::vector<ibex::Interval>                 m_theta_union_list; // list of union theta
 
     std::vector< std::vector<ibex::Interval>>   m_theta_list_bwd;
     std::vector< ibex::Interval>                m_theta_bwd;
+    std::vector<ibex::Interval>                 m_theta_union_list_bwd; // list of union theta
 
     bool                        m_backward_function;
 

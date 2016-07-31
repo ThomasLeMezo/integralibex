@@ -29,7 +29,9 @@ void test(){
 //    test_CtcConsistency_Kernel2();
 //    test_CtcConsistency_Kernel3();
 //    test_CtcConsistency_Kernel4();
-    test_inter_pave_perimeter();
+
+//    test_inter_pave_perimeter();
+    test_possible_path();
 
 //    test_contractor_polar();
 
@@ -71,16 +73,16 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin
-    s.cameleon_cycle(20, 5, 1e9, true, false, false);
+    s.cameleon_cycle(12, 5, 1e9, true, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-    cout << "AREA OUTER = " << s.get_graph_list(0)->get_area_outer() << endl;
-    vector<double> perimeters = s.get_graph_list(0)->get_perimeters();
-    cout << "perimeters = ";
-    for(double p:perimeters)
-        cout << "[" << p << "]";
-    cout << endl;
+//    cout << "AREA OUTER = " << s.get_graph_list(0)->get_area_outer() << endl;
+//    vector<double> perimeters = s.get_graph_list(0)->get_perimeters();
+//    cout << "perimeters = ";
+//    for(double p:perimeters)
+//        cout << "[" << p << "]";
+//    cout << endl;
     s.draw(1024, true);
 //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
@@ -945,7 +947,7 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
 //    van_der_pol_kernel2();
@@ -967,6 +969,6 @@ int main()
 //    integrator_ratschan3();
 
     /// **** TEST ***** //
-//    test();
+    test();
     return 0;
 }

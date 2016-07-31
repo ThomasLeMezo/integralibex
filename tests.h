@@ -3,7 +3,7 @@
 
 #include "pave.h"
 
-void test_draw(Pave *p, std::string drawing_name="test", bool full=false);
+void test_draw(Pave *p, std::string drawing_name="test", bool full=true);
 void test_display_flow(Pave *p);
 
 void testTranslate();
@@ -40,5 +40,6 @@ void sandbox();
 void test_car_on_hill();
 
 void test_inter_pave_perimeter();
+void test_possible_path();
 
 #endif // TESTS_H

@@ -554,16 +554,11 @@ bool Border::inter(const Border &b, bool with_bwd){
         set_inner_mode(false);
         set_segment_in(b.get_segment_in_outer() | b.get_segment_out_outer(), true);
         set_segment_out(b.get_segment_out_outer() | b.get_segment_in_outer(), true);
-//        if(get_segment_out()!=Interval::EMPTY_SET){
-            set_inner_mode(true);
-            set_segment_in(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
-            set_segment_out(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
-//        }
-//        else{
-//            set_inner_mode(true);
-//            set_segment_in(get_segment_full(), false);
-//            set_segment_out(get_segment_full(), false);
-//        }
+
+        set_inner_mode(true);
+        set_segment_in(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
+        set_segment_out(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
+
         set_inner_mode(inner_status);
     }
     else{
@@ -577,14 +572,6 @@ bool Border::inter(const Border &b, bool with_bwd){
 
         set_segment_in(segment_b, true);
         set_segment_out(segment_b, true);
-
-        //        if((get_segment_in() & b.get_segment_in()) != get_segment_in())
-        //            change = true;
-        //        if((get_segment_out() & b.get_segment_out()) != get_segment_out())
-        //            change = true;
-
-        //        set_segment_in(b.get_segment_in(), true);
-        //        set_segment_out(b.get_segment_out(), true);
     }
     return change;
 }
@@ -707,8 +694,8 @@ void Border::set_segment(bool in, bool out){
 }
 
 void Border::set_segment(Interval seg, bool inclusion){
-   set_segment_in(seg, inclusion);
-   set_segment_out(seg, inclusion);
+    set_segment_in(seg, inclusion);
+    set_segment_out(seg, inclusion);
 }
 
 const ibex::Interval Border::get_segment_in_union_out() const{
