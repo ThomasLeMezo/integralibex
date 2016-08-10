@@ -211,9 +211,9 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph->mark_empty_node();
-//        if(iterations>12 && iterations <16)
-//            graph->sivia(2*graph->get_alive_node(), false, false, false, true);
-//        else
+        //        if(iterations>12 && iterations <16)
+        //            graph->sivia(2*graph->get_alive_node(), false, false, false, true);
+        //        else
         graph->sivia(2*graph->get_alive_node(), false, false, false);
         graph->set_empty_outer_full_inner();
         graph->set_active_outer_inner(initial_boxes);
@@ -366,7 +366,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
     }
 }
 
-void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner){
+void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
     int iterations = 0;
@@ -387,21 +387,12 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         for(int nb_graph=0; nb_graph<m_graph_list.size(); nb_graph++){
             Graph *graph = m_graph_list[nb_graph];
 
-            //            if(iterations == 8){
-            //                m_graph_list[nb_graph]->debug_marker1 = false;
-            //                m_graph_list[nb_graph]->debug_marker2 = true;
-            //            }
-
             if(graph->get_alive_node()==0 || m_graph_list.size()==0)
                 break;
             graph->clear_node_queue();
             graph->sivia(2*graph->get_alive_node(), true, false, do_not_bisect_inside);
             const clock_t sivia_time = clock();
             cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
-
-            if(compute_inner){
-                graph->update_queue();
-            }
 
             // Process the backward with the subpaving
             cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
@@ -413,14 +404,10 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             // Remove empty pave
             graph->mark_empty_node();
 
-            // Test if the graph is empty
-            if(graph->is_empty()){
-                m_graph_list.erase(m_graph_list.begin()+nb_graph);
-                delete(graph);
-                cout << " REMOVE EMPTY GRAPH" << endl;
-                if(nb_graph!=0)
-                    nb_graph--;
-                break;
+            // Test if positive invariant
+            if(graph->is_positive_invariant()){
+                cout << "IS POSITIVE INVARIANT" << endl;
+                return;
             }
 
             // ***************************************************
@@ -436,23 +423,23 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 }
 
                 Graph* graph_propagation = new Graph(graph, pave_start); // copy graph with 1 activated node (pave_start)
-                //                Graph* graph_diff = new Graph(graph, m_graph_list.size());
+                Graph* graph_diff = new Graph(graph, m_graph_list.size());
 
                 graph_propagation->process(process_iterations_max, false); // process forward
                 graph->inter(*graph_propagation); // intersect the graph with the propagation graph
-                //                graph_diff->diff(*graph);
+                graph_diff->diff(*graph);
 
-                //                if(!graph_diff->is_empty() && false){ // If there is an inside, add to graph_list
-                //                    cout << " REMOVE INSIDE" << endl;
-                //                    m_graph_list.push_back(graph_diff);
-                //                    graph_diff->clear_node_queue();
-                //                    cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
-                //                    //m_graph_list.back()->print();
-                //                }
-                //                else{
-                //                    delete(graph_diff);
-                //                }
-                //                graph->remove_empty_node();
+                if(!graph_diff->is_empty() && false){ // If there is an inside, add to graph_list
+                    cout << " REMOVE INSIDE" << endl;
+                    m_graph_list.push_back(graph_diff);
+                    graph_diff->clear_node_queue();
+                    cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
+                    //m_graph_list.back()->print();
+                }
+                else{
+                    cout << " GRAPH DIFF EMPTY" << endl;
+                    delete(graph_diff);
+                }
                 graph->mark_empty_node();
 
                 delete(graph_propagation);
@@ -498,7 +485,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 
         /// Backward graph
         graph_backward->set_active_outer_inner(boxB);
-//        // INNER
+        //        // INNER
         graph_backward->set_inner_mode(true);
         graph_backward->set_backward_function(false); // Invert bc of bwd
         graph_backward->process(process_iterations_max, true);
@@ -543,9 +530,9 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->process(process_iterations_max, false, true);
 
         /// Backward graph
-//        cout << "GRAPH BWD (" << graph_backward->size() << ")" << endl;
+        //        cout << "GRAPH BWD (" << graph_backward->size() << ")" << endl;
         graph_backward->set_active_outer_inner(boxB);
-//        // INNER
+        //        // INNER
         graph_backward->set_inner_mode(true);
         graph_backward->set_backward_function(false); // Invert bc of bwd
         graph_backward->process(process_iterations_max, true);
@@ -554,14 +541,14 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph_backward->set_backward_function(true); // Invert bc of bwd
         graph_backward->process(process_iterations_max, false, true);
 
-//        graph->draw(1024, true, "fwd");
-//        graph_backward->draw(1024, true, "bwd");
-//        cin.ignore();
+        //        graph->draw(1024, true, "fwd");
+        //        graph_backward->draw(1024, true, "bwd");
+        //        cin.ignore();
 
         graph->inter(graph_backward, true);
         delete(graph_backward);
 
-//        graph->draw(1024, true, "inter");
+        //        graph->draw(1024, true, "inter");
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;

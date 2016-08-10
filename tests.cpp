@@ -788,6 +788,50 @@ void sandbox(){
     //    Interval theta = atan2(dy, dx);
     //    cout << setprecision(80) << theta << endl;
     //    cout << Interval::HALF_PI << endl;
+
+    IntervalVector ptA(2);
+    ptA[0] = Interval(0.0);
+    ptA[1] = Interval(0.0);
+
+    IntervalVector ptB(2);
+    ptB[0] = Interval(1.0);
+    ptB[1] = Interval(1.0);
+
+    bool normal = true;
+    if(normal){
+        IntervalVector tmp(ptA);
+        ptA = ptB;
+        ptB = tmp;
+    }
+
+    IntervalVector deltaP(2);
+    deltaP[0] = ptB[0] - ptA[0];
+    deltaP[1] = ptB[1] - ptA[1];
+
+    IntervalVector deltaN(2);
+    deltaN[0] = ptA[0] - ptB[0];
+    deltaN[1] = ptA[1] - ptB[1];
+
+    Interval thetaP = atan2(deltaP[1], deltaP[0]);
+    Interval thetaN = atan2(deltaN[1], deltaN[0]);
+
+    cout << thetaP << endl;
+    cout << thetaN << endl;
+
+
+    // Calcul de l'angle
+    Interval theta_high = thetaP | Interval::PI;
+    Interval theta_low = -Interval::PI | thetaN;
+
+    Interval theta_inter = theta_high & theta_low;
+
+    if(theta_inter.is_empty()){
+        cout << "theta = " << theta_high << " " << theta_low << endl;
+    }
+    else{
+        cout << "theta = " << theta_inter << endl;
+    }
+
 }
 
 void test_inter_pave_perimeter(){

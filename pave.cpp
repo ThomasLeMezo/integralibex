@@ -119,7 +119,7 @@ const std::vector<ibex::Interval> Pave::compute_theta_union(std::vector<ibex::Fu
     }
 }
 
-const std::vector<ibex::Interval> Pave::compute_theta(ibex::Interval dx, ibex::Interval dy){
+const std::vector<ibex::Interval> Pave::compute_theta(ibex::Interval dx, ibex::Interval dy) {
     std::vector<ibex::Interval> theta_list;
 
     for(int i=0; i<2; i++)
@@ -517,33 +517,6 @@ void Pave::draw_borders(bool filled, string color_polygon, bool complementary) c
         }
         if(x.size()>0)
             vibes::drawPolygon(x, y, color_polygon);
-
-        //        int alone_points;
-        //        int nb_point = x.size();
-        //        if(nb_point>0){
-        //            vector<int> starting_point;
-        //            for(int i=0; i<(int)x.size(); i++){
-        //                if(!((x[i]==x[(i+1)%nb_point] && y[i]==y[(i+1)%nb_point]) || !(x[i]==x[(i-1+nb_point)%nb_point] && y[i]==y[(i-1+nb_point)%nb_point])))
-        //                    alone_points++;
-        //                else
-        //                    starting_point.push_back(i);
-        //            }
-
-        //            if(nb_point == 8 && alone_points == 4){
-        //                for(int start:starting_point){
-        //                    vector<double> xp, yp;
-        //                    for(int i=(start-1+nb_point)%nb_point; i<=(start+1+nb_point)%nb_point; i++){
-        //                        xp.push_back(x[i]);
-        //                        yp.push_back(y[i]);
-        //                    }
-        //                    vibes::drawPolygon(xp, yp, color_polygon);
-        //                }
-
-        //            }
-        //            else{
-        //                vibes::drawPolygon(x, y, color_polygon);
-        //            }
-        //        }
     }
 }
 
@@ -642,7 +615,7 @@ void Pave::bisect(vector<Pave*> &result, bool backward, bool apply_heuristic){
         pave1->set_full_all();
         pave2->set_full_all();
 
-#if 1
+#if 0
         if(m_borders[(indice1+1)%4]->is_empty() || m_borders[(indice1+3)%4]->is_empty()){
             bool theta_inside = false;
             bool theta_outside = false;
@@ -1116,11 +1089,11 @@ std::vector<ibex::Interval> Pave::get_theta_union_list() const{
 }
 
 std::vector<ibex::Interval> Pave::get_theta_union_list_fwd() const{
-        return m_theta_union_list;
+    return m_theta_union_list;
 }
 
 std::vector<ibex::Interval> Pave::get_theta_union_list_bwd() const{
-        return m_theta_union_list_bwd;
+    return m_theta_union_list_bwd;
 }
 
 std::vector<std::vector<ibex::Interval>> Pave::get_theta_list_fwd() const{
@@ -1221,6 +1194,18 @@ void Pave::set_active(bool val){
 
 bool Pave::is_external_border() const{
     return m_external_border;
+}
+
+bool Pave::is_near_external_border() const{
+    for(Border *b:m_borders){
+        if(!b->get_segment_in_union_out().is_empty()){
+            for(Inclusion *i:b->get_inclusions()){
+                if(i->get_border()->get_pave()->is_external_border())
+                    return true;
+            }
+        }
+    }
+    return false;
 }
 
 void Pave::set_external_border(bool val){
@@ -1489,4 +1474,117 @@ bool Pave::is_possible_path(IntervalVector ptA, IntervalVector ptB){
     }
 
     return is_possible;
+}
+
+bool Pave::is_positive_invariant(){
+//    reset_full_empty();
+
+    if(is_empty())
+        return true;
+    else if(is_near_external_border())
+        return false;
+    else if(is_full())
+        return true;
+    else{
+        // Get the list of points
+        vector<double> x;
+        vector<double> y;
+        for(Border *b:m_borders){
+            b->get_points(x, y);
+        }
+
+        // Put the first point at the last position
+        x.push_back(x[0]);
+        y.push_back(y[0]);
+        x.erase(x.begin());
+        y.erase(y.begin());
+
+        // Compute the list of segments
+        vector< vector<IntervalVector>> segment_list;
+        vector< bool> segment_side;
+
+        for(int i=0; i<x.size()-1; i+=2){
+            if(x[i]!=x[i+1] || y[i]!=y[i+1]){
+                IntervalVector ptA(2);
+                ptA[0] = Interval(x[i]);
+                ptA[1] = Interval(y[i]);
+                IntervalVector ptB(2);
+                ptB[0] = Interval(x[i+1]);
+                ptB[1] = Interval(y[i+1]);
+
+                vector<IntervalVector> segment;
+                segment.push_back(ptA); segment.push_back(ptB);
+                segment_list.push_back(segment);
+
+                double segment1[2] = {x[i+1]-x[i],y[i+1]-y[i]};
+                double segment2[2] = {x[(i+2)%x.size()]-x[i+1], y[(i+2)%x.size()]-y[i+1]};
+                double v_product = segment1[0]*segment2[1]-segment2[0]*segment1[1];
+                if(v_product>=0)
+                    segment_side.push_back(true);
+                else
+                    segment_side.push_back(false);
+            }
+        }
+
+        // Check if all segments are consistents with theta ?
+        for(int i=0; i< segment_list.size(); i++){
+            vector<ibex::Interval> theta_half_circle = compute_half_circle(segment_list[i][0], segment_list[i][1], segment_side[i]);
+            bool is_inside = false;
+            for(vector<Interval> &f_theta:m_theta_list){
+                if(f_theta[0].is_subset(theta_half_circle[0]) || f_theta[0].is_subset(theta_half_circle[1])){
+                    if(f_theta.size()==2){
+                        if(theta_half_circle.size() == 2){
+                            if(f_theta[1].is_subset(theta_half_circle[1])){
+                                is_inside = true;
+                                break;
+                            }
+                        }
+                    }
+                    else{
+                        is_inside = true;
+                        break;
+                    }
+                }
+            }
+            if(!is_inside)
+                return false;
+        }
+        return true;
+    }
+}
+
+const std::vector<ibex::Interval> Pave::compute_half_circle(const IntervalVector pt_start, const IntervalVector pt_end, bool trigo_rotation){
+    IntervalVector ptA(2), ptB(2);
+    vector<ibex::Interval> theta_list;
+
+    if(trigo_rotation){
+        ptA = pt_start;
+        ptB = pt_end;
+    }
+    else{
+        ptA = pt_end;
+        ptB = pt_start;
+    }
+
+    IntervalVector delta(2);
+    delta[0] = ptB[0] - ptA[0];
+    delta[1] = ptB[1] - ptA[1];
+
+    Interval thetaP = atan2(delta[1], delta[0]);
+    Interval thetaN = atan2(-delta[1], -delta[0]);
+
+    // Calcul de l'angle
+    Interval theta_high = thetaP | Interval::PI;
+    Interval theta_low = (-Interval::PI) | thetaN;
+
+    Interval theta_inter = theta_high & theta_low;
+
+    if(theta_inter.is_empty()){
+        theta_list.push_back(theta_high + Interval(-1e-12, 1e-12)); // [0, pi] part
+        theta_list.push_back(theta_low + Interval(-1e-12, 1e-12)); // [-pi, 0] part
+    }
+    else{
+        theta_list.push_back(theta_inter);
+    }
+    return theta_list;
 }

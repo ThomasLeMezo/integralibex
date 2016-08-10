@@ -32,6 +32,7 @@ public:
     bool                        is_empty_node_queue();
     bool                        identify_attractor();
     bool                        is_no_active_function();
+    bool                        is_positive_invariant();
 
     // Setter
     void                        set_full();
@@ -83,7 +84,7 @@ public:
     int                         get_f_size() const;
     ibex::IntervalVector        get_search_box() const;
     void                        get_recursive_attractor(Pave* p, vector<Pave*> &list);
-    int                         get_alive_node();
+    int                         get_alive_node() const;
     bool                        get_inner_mode();
     bool                        get_compute_inner();
     double                      get_area_outer();

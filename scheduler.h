@@ -16,7 +16,7 @@ public:
     Scheduler(const ibex::IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_inner_in, bool border_inner_out, bool border_outer_in, bool border_outer_out);
     ~Scheduler();
 
-    void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside=false, bool near_bassin=false);
+    void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside=false);
     void cameleon_propagation(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector> &initial_boxes);
     void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe);
     void cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector> &initial_boxes);

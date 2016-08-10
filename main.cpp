@@ -31,7 +31,7 @@ void test(){
 //    test_CtcConsistency_Kernel4();
 
 //    test_inter_pave_perimeter();
-    test_possible_path();
+//    test_possible_path();
 
 //    test_contractor_polar();
 
@@ -43,7 +43,7 @@ void test(){
 //    test_imageIntegral();
 //    test_car_on_hill();
 
-//    sandbox();
+    sandbox();
 
 //    Variable x, y;
 //    try{
@@ -70,10 +70,10 @@ void van_der_pol_cycle(){
     box[0] = Interval(-4,4);
     box[1] = Interval(-4,4);
 
-    Scheduler s(box, f_list, false);
+    Scheduler s(box, f_list, false, false, false, false, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin
-    s.cameleon_cycle(12, 5, 1e9, true, false, false);
+    s.cameleon_cycle(12, 5, 1e9, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -190,7 +190,7 @@ void car_on_the_hill_attractor(){
 
     /////////////// Compute ///////////////
 //    s.compute_attractor(14, 1e9);
-    s.cameleon_cycle(12, 5, 1e9, false, false, false);
+    s.cameleon_cycle(12, 5, 1e9, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -321,7 +321,7 @@ void cercle_capture_bassin(){
     Scheduler s(box, list_boxes_removed, f_list, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(15, 5, 1e9, false, false, true);
+    s.cameleon_cycle(15, 5, 1e9, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     /////////////// Drawing ///////////////
@@ -529,92 +529,6 @@ void van_der_pol_kernel(){
     s.attractor_to_kernel();
     s.draw(1024, true, "invert");
     s.cameleon_viability(10, 1e9);
-
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-
-    /////////////// Drawing ///////////////
-    s.draw(1024, true);
-}
-
-void van_der_pol_kernel2(){
-    const clock_t begin_time = clock();
-    vibes::beginDrawing();
-    Variable x, y;
-    ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x) + 0.1));
-    ibex::Function f2(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x) - 0.1));
-
-    std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f1);
-    f_list.push_back(&f2);
-
-    IntervalVector box(2);
-    box[0] = Interval(-8.0, 8.0);
-    box[1] = Interval(-8.0, 8.0);
-
-    Scheduler s(box, f_list, true, true, true, false, false);
-
-    /////////////// Compute ///////////////
-    s.compute_attractor(14, 1e9);
-    s.draw(1024, true, "attractor");
-    s.attractor_to_kernel();
-    s.draw(1024, true, "invert");
-    s.cameleon_viability(10, 1e9);
-
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-
-    /////////////// Drawing ///////////////
-    s.draw(1024, true);
-}
-
-void van_der_pol_inner(){
-    const clock_t begin_time = clock();
-    vibes::beginDrawing();
-    Variable x, y;
-    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x + 0.1));
-    ibex::Function f2(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x - 0.1));
-
-    std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f1);
-    f_list.push_back(&f2);
-
-    IntervalVector box(2);
-    box[0] = Interval(-8.0, 8.0);
-    box[1] = Interval(-8.0, 8.0);
-
-    Scheduler s(box, f_list, true, true, true, false, false);
-
-    /////////////// Compute ///////////////
-    s.compute_attractor(14, 1e9);
-    s.draw(1024, true, "attractor");
-    s.attractor_to_kernel();
-    s.draw(1024, true, "invert");
-    s.cameleon_cycle(3, 5, 1e9, false, false, true);
-
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-
-    /////////////// Drawing ///////////////
-    s.draw(1024, true);
-}
-
-void van_der_pol_outer(){
-    const clock_t begin_time = clock();
-    vibes::beginDrawing();
-    Variable x, y;
-    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x + 0.1));
-    ibex::Function f2(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x - 0.1));
-
-    std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f1);
-    f_list.push_back(&f2);
-
-    IntervalVector box(2);
-    box[0] = Interval(-8.0, 8.0);
-    box[1] = Interval(-8.0, 8.0);
-
-    Scheduler s(box, f_list, true, true, true, false, false);
-
-    /////////////// Compute ///////////////
-    s.cameleon_cycle(10, 5, 1e9, false, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -947,12 +861,9 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-//    van_der_pol_cycle();
+    van_der_pol_cycle();
 //    van_der_pol_integration();
 //    van_der_pol_kernel();
-//    van_der_pol_kernel2();
-//    van_der_pol_outer();
-//    van_der_pol_inner();
 
     /// **** INTEGRATOR ***** //
 //    integrator();
@@ -969,6 +880,6 @@ int main()
 //    integrator_ratschan3();
 
     /// **** TEST ***** //
-    test();
+//    test();
     return 0;
 }

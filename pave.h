@@ -64,11 +64,14 @@ public:
     bool                        is_removed_pave_union() const;
     bool                        is_near_empty();
     bool                        is_near_removed_inner();
+    bool                        is_near_external_border() const;
     bool                        is_empty_inner();
     bool                        is_empty_outer();
     bool                        is_full_inner();
     bool                        is_full_outer();
     bool                        is_possible_path(ibex::IntervalVector ptA, ibex::IntervalVector ptB);
+
+    bool                        is_positive_invariant();
 
     // Setter
     void                        set_full();
@@ -181,7 +184,7 @@ public:
     const std::vector<ibex::Interval>   compute_theta(ibex::Interval dx, ibex::Interval dy);
     const std::vector<ibex::Interval>   compute_theta_union(std::vector<ibex::Function *> f_list, bool backward_function);
 
-
+    const std::vector<ibex::Interval>   compute_half_circle(const ibex::IntervalVector pt_start, const ibex::IntervalVector pt_end, bool trigo_rotation);
 
     /***************** Variables ******************/
 

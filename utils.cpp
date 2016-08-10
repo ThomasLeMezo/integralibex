@@ -39,6 +39,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
         Interval theta2(theta);
 
         contract_polar.contract(Dx, Dy, rho, theta2);
+//        CtcPolarCorrection(Dx, Dy, rho, theta2);
 
         // Compute x_front
         y_list.push_back(x + Dx);
@@ -84,6 +85,7 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
         Interval x_tmp(x), y_tmp(y);
         Interval rho(Interval::POS_REALS);
         this->contract_polar.contract(x_tmp, y_tmp, rho, theta);
+//        CtcPolarCorrection(x_tmp, y_tmp, rho, theta);
         x_list.push_back(x_tmp);
         y_list.push_back(y_tmp);
     }

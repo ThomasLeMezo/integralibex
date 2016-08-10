@@ -422,7 +422,7 @@ void Graph::draw(int size, bool filled, string comment, bool inner_only){
     // Blue = #4C4CFF
 
     stringstream ss;
-    ss << "integralIbex" << m_graph_id<< "-" << m_drawing_cpt << " " << comment;
+    ss << "cycleSOLVER" << m_graph_id<< "-" << m_drawing_cpt << " " << comment;
     vibes::newFigure(ss.str());
     vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
 
@@ -539,13 +539,13 @@ void Graph::mark_empty_node(){
 bool Graph::is_empty(){
     if(get_alive_node()<=0)
         return true;
-    bool empty = true;
     for(Pave *node:m_node_list){
         node->reset_full_empty();
         if(!node->is_empty_inter())
-            empty = false;
+            return false;
     }
-    return empty;
+    m_count_alive = 0;
+    return true;
 }
 
 Pave* Graph::get_semi_full_node(){
@@ -825,7 +825,7 @@ void Graph::set_all_active(){
     }
 }
 
-int Graph::get_alive_node(){
+int Graph::get_alive_node() const{
     return m_count_alive;
 }
 
@@ -1061,4 +1061,12 @@ vector<double> Graph::get_perimeters(){
         perimeters.push_back(perimeter);
     }
     return perimeters;
+}
+
+bool Graph::is_positive_invariant(){
+    for(Pave *p:m_node_list){
+        if(!p->is_positive_invariant())
+            return false;
+    }
+    return true;
 }
