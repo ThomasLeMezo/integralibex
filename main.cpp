@@ -73,7 +73,7 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, false, false, false, false, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin
-    s.cameleon_cycle(12, 5, 1e9, false, false);
+    s.cameleon_cycle(15, 5, 1e9, true, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -510,8 +510,8 @@ void van_der_pol_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x + 0.01));
-    ibex::Function f2(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x - 0.01));
+    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x + 1.5));
+    ibex::Function f2(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x - 1.5));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -528,7 +528,7 @@ void van_der_pol_kernel(){
     s.draw(1024, true, "attractor");
     s.attractor_to_kernel();
     s.draw(1024, true, "invert");
-    s.cameleon_viability(10, 1e9);
+    s.cameleon_viability(3, 1e9);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 

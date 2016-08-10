@@ -434,6 +434,22 @@ void Graph::draw(int size, bool filled, string comment, bool inner_only){
         node->draw(filled);
     }
 
+    // Pos Invariant
+    if(m_pos_attractor_list.size()!=0){
+        for(vector<vector< vector<IntervalVector>>> &attractor:m_pos_attractor_list){
+            for(vector< vector<IntervalVector>> &segment_list:attractor){
+                for(vector<IntervalVector> &segment:segment_list){
+                    vector<double> x, y;
+                    for(IntervalVector &pt:segment){
+                        x.push_back(pt[0].mid());
+                        y.push_back(pt[1].mid());
+                    }
+                    vibes::drawLine(x, y, "g[g]",vibesParams("LineWidth",10.0));
+                }
+            }
+        }
+    }
+
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     //    m_drawing_cpt++;
 }
@@ -741,7 +757,7 @@ bool Graph::identify_attractor(){
 
             IntervalVector bounding_box(2, Interval::EMPTY_SET);
             for(Pave *p:attractor_list){
-                if(p->is_border() && p->get_theta_diam()>=M_PI){
+                if(!p->is_positive_invariant()){
                     test_attractor = false;
                 }
                 bounding_box |= p->get_bounding_pave();
@@ -1069,4 +1085,13 @@ bool Graph::is_positive_invariant(){
             return false;
     }
     return true;
+}
+
+void Graph::push_back_pos_attractor(){
+    vector<vector< vector<IntervalVector>>> segment_list;
+    for(Pave *p:m_node_list){
+        if(p->get_segment_list().size()!=0)
+            segment_list.push_back(p->get_segment_list());
+    }
+    m_pos_attractor_list.push_back(segment_list);
 }

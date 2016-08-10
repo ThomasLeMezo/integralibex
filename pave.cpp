@@ -483,6 +483,17 @@ void Pave::draw(bool filled, bool inner_only){
     //    set_backward_function(false);
     draw_theta();
     //    }
+
+//    if(m_segment_list.size()!=0){
+//        for(vector<IntervalVector> &segment:m_segment_list){
+//            vector<double> x, y;
+//            for(IntervalVector &pt:segment){
+//                x.push_back(pt[0].mid());
+//                y.push_back(pt[1].mid());
+//            }
+//            vibes::drawLine(x, y, "g[g]",vibesParams("LineWidth",10.0));
+//        }
+//    }
 }
 
 void Pave::draw_theta() const{
@@ -1549,6 +1560,7 @@ bool Pave::is_positive_invariant(){
             if(!is_inside)
                 return false;
         }
+        m_segment_list = segment_list;
         return true;
     }
 }
@@ -1580,11 +1592,15 @@ const std::vector<ibex::Interval> Pave::compute_half_circle(const IntervalVector
     Interval theta_inter = theta_high & theta_low;
 
     if(theta_inter.is_empty()){
-        theta_list.push_back(theta_high + Interval(-1e-12, 1e-12)); // [0, pi] part
-        theta_list.push_back(theta_low + Interval(-1e-12, 1e-12)); // [-pi, 0] part
+        theta_list.push_back(theta_high + Interval(-1e-14, 1e-12)); // [0, pi] part
+        theta_list.push_back(theta_low + Interval(-1e-12, 1e-14)); // [-pi, 0] part
     }
     else{
         theta_list.push_back(theta_inter);
     }
     return theta_list;
+}
+
+vector<vector<IntervalVector> > Pave::get_segment_list(){
+    return m_segment_list;
 }

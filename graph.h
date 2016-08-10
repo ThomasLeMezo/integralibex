@@ -66,6 +66,7 @@ public:
     void                        reset_marker(vector<Pave*> list);
     void                        set_marker(vector<Pave*> list, bool val);
     void                        complementaire();
+    void                        push_back_pos_attractor();
 
     // Getter
     Pave*                       get_pave(double x, double y) const;
@@ -127,6 +128,8 @@ private:
 
     bool m_compute_inner;
     bool m_inner_mode;
+
+    std::vector<std::vector<std::vector< std::vector<ibex::IntervalVector>>>> m_pos_attractor_list;
 
 public:
     bool debug_marker1, debug_marker2;

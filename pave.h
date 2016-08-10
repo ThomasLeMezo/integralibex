@@ -179,6 +179,8 @@ public:
     double                              get_area_outer() const;
     double                              get_perimeter() const;
 
+    std::vector<std::vector<ibex::IntervalVector> > get_segment_list();
+
     // Other functions
     const std::vector<ibex::Interval>   compute_theta(ibex::Function *f, bool backward_function=false);
     const std::vector<ibex::Interval>   compute_theta(ibex::Interval dx, ibex::Interval dy);
@@ -237,6 +239,8 @@ private:
     int                         m_cpt_continuity_outer;
     int                         m_cpt_consistency_inner;
     int                         m_cpt_consistency_outer;
+
+    std::vector< std::vector<ibex::IntervalVector>> m_segment_list;
 
 };
 

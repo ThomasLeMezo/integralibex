@@ -366,7 +366,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
     }
 }
 
-void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside){
+void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool stop_first_pos_invariant){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
         return;
     int iterations = 0;
@@ -407,7 +407,9 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             // Test if positive invariant
             if(graph->is_positive_invariant()){
                 cout << "IS POSITIVE INVARIANT" << endl;
-                return;
+                graph->push_back_pos_attractor();
+                if(stop_first_pos_invariant)
+                    return;
             }
 
             // ***************************************************
