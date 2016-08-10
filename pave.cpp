@@ -1592,8 +1592,8 @@ const std::vector<ibex::Interval> Pave::compute_half_circle(const IntervalVector
     Interval theta_inter = theta_high & theta_low;
 
     if(theta_inter.is_empty()){
-        theta_list.push_back(theta_high + Interval(-1e-14, 1e-12)); // [0, pi] part
-        theta_list.push_back(theta_low + Interval(-1e-12, 1e-14)); // [-pi, 0] part
+        theta_list.push_back(theta_high + Interval(0, 1e-12)); // [0, pi] part
+        theta_list.push_back(theta_low + Interval(-1e-12, 0)); // [-pi, 0] part
     }
     else{
         theta_list.push_back(theta_inter);
