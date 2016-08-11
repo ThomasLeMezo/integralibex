@@ -72,8 +72,8 @@ void van_der_pol_cycle(){
 
     Scheduler s(box, f_list, false, false, false, false, false);
 
-    //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin
-    s.cameleon_cycle(15, 5, 1e9, true, false, false);
+    //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
+    s.cameleon_cycle(12, 5, 1e9, true, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -184,13 +184,13 @@ void car_on_the_hill_attractor(){
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    Scheduler s(box, f_list, true, true, true, false, false);
+    Scheduler s(box, f_list, true, true, true, true, false);
 //    vector<IntervalVector> bassin_list;
 //    Scheduler s(box, bassin_list, f_list, u, true, false, false);
 
     /////////////// Compute ///////////////
-//    s.compute_attractor(14, 1e9);
-    s.cameleon_cycle(12, 5, 1e9, false, false);
+    s.compute_attractor(12, 1e9);
+//    s.cameleon_cycle(12, 5, 1e9, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -215,15 +215,15 @@ void car_on_the_hill_kernel(){
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    Scheduler s(box, f_list, true, true, true, false, false);
+    Scheduler s(box, f_list, true, true, true, true, false);
 
     /////////////// Compute ///////////////
-    s.compute_attractor(14, 1e9);
+    s.compute_attractor(20, 1e9);
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
     s.attractor_to_kernel();
 //    s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-    s.cameleon_viability(4, 1e9);
+    s.cameleon_viability(3, 1e9);
 
     cout << "************************" << endl;
     cout << "TOTAL TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;

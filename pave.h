@@ -70,6 +70,7 @@ public:
     bool                        is_full_inner();
     bool                        is_full_outer();
     bool                        is_possible_path(ibex::IntervalVector ptA, ibex::IntervalVector ptB);
+    bool                        is_trajectory_external_escape() const;
 
     bool                        is_positive_invariant();
 

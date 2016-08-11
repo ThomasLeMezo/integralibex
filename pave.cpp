@@ -484,16 +484,16 @@ void Pave::draw(bool filled, bool inner_only){
     draw_theta();
     //    }
 
-//    if(m_segment_list.size()!=0){
-//        for(vector<IntervalVector> &segment:m_segment_list){
-//            vector<double> x, y;
-//            for(IntervalVector &pt:segment){
-//                x.push_back(pt[0].mid());
-//                y.push_back(pt[1].mid());
-//            }
-//            vibes::drawLine(x, y, "g[g]",vibesParams("LineWidth",10.0));
-//        }
-//    }
+    //    if(m_segment_list.size()!=0){
+    //        for(vector<IntervalVector> &segment:m_segment_list){
+    //            vector<double> x, y;
+    //            for(IntervalVector &pt:segment){
+    //                x.push_back(pt[0].mid());
+    //                y.push_back(pt[1].mid());
+    //            }
+    //            vibes::drawLine(x, y, "g[g]",vibesParams("LineWidth",10.0));
+    //        }
+    //    }
 }
 
 void Pave::draw_theta() const{
@@ -1209,7 +1209,22 @@ bool Pave::is_external_border() const{
 
 bool Pave::is_near_external_border() const{
     for(Border *b:m_borders){
-        if(!b->get_segment_in_union_out().is_empty()){
+        for(Inclusion *i:b->get_inclusions()){
+            if(i->get_border()->get_pave()->is_external_border())
+                return true;
+        }
+    }
+    return false;
+}
+
+///
+/// \brief Pave::is_trajectory_external_escape
+/// \return
+/// Outer approximation of true (not all case covered)
+///
+bool Pave::is_trajectory_external_escape() const{
+    for(Border *b:m_borders){
+        if(!b->get_segment_out().is_empty()){
             for(Inclusion *i:b->get_inclusions()){
                 if(i->get_border()->get_pave()->is_external_border())
                     return true;
@@ -1488,11 +1503,11 @@ bool Pave::is_possible_path(IntervalVector ptA, IntervalVector ptB){
 }
 
 bool Pave::is_positive_invariant(){
-//    reset_full_empty();
+    //    reset_full_empty();
 
     if(is_empty())
         return true;
-    else if(is_near_external_border())
+    else if(is_trajectory_external_escape())
         return false;
     else if(is_full())
         return true;

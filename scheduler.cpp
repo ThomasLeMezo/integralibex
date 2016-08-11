@@ -286,6 +286,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
         if(graph->identify_attractor()){
             cout << "NO MORE ATTRACTOR TO FIND" << endl;
+            graph->push_back_pos_attractor();
             break;
         }
 
@@ -430,8 +431,9 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 graph_propagation->process(process_iterations_max, false); // process forward
                 graph->inter(*graph_propagation); // intersect the graph with the propagation graph
                 graph_diff->diff(*graph);
+                graph_diff->mark_empty_node();
 
-                if(!graph_diff->is_empty() && false){ // If there is an inside, add to graph_list
+                if(!graph_diff->is_empty()){ // If there is an inside, add to graph_list
                     cout << " REMOVE INSIDE" << endl;
                     m_graph_list.push_back(graph_diff);
                     graph_diff->clear_node_queue();
