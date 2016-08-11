@@ -390,64 +390,73 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
             if(graph->get_alive_node()==0 || m_graph_list.size()==0)
                 break;
-            graph->clear_node_queue();
-            graph->sivia(2*graph->get_alive_node(), true, false, do_not_bisect_inside);
-            const clock_t sivia_time = clock();
-            cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
+            if(!(stop_first_pos_invariant && graph->get_positive_invariant())){
+                graph->clear_node_queue();
+                graph->sivia(2*graph->get_alive_node(), true, false, do_not_bisect_inside);
+                const clock_t sivia_time = clock();
+                cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-            // Process the backward with the subpaving
-            cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
-            int graph_list_process_cpt = graph->process(process_iterations_max, true);
+                // Process the backward with the subpaving
+                cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
+                int graph_list_process_cpt = graph->process(process_iterations_max, true);
 
-            cout << "--> processing outer = " << graph_list_process_cpt << endl;
-            cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
+                cout << "--> processing outer = " << graph_list_process_cpt << endl;
+                cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
-            // Remove empty pave
-            graph->mark_empty_node();
-
-            // Test if positive invariant
-            if(graph->is_positive_invariant()){
-                cout << "IS POSITIVE INVARIANT" << endl;
-                graph->push_back_pos_attractor();
-                if(stop_first_pos_invariant)
-                    return;
-            }
-
-            // ***************************************************
-            //              REMOVE INSIDE PROCEDURE
-            // Copy graph & propagate one Pave + intersect with cycle
-            // Find the first non-full & non-empty Pave (i.e. on the border)
-            /// TODO : improve the algorithm
-            if(remove_inside && m_graph_list.size() < graph_max){
-                Pave *pave_start = graph->get_semi_full_node(); // Find a pave semi full (border pave)
-                if(pave_start == NULL){
-                    cout << "REMOVE INSIDE - NO START PAVE FOUND" << endl;
-                    break;
-                }
-
-                Graph* graph_propagation = new Graph(graph, pave_start); // copy graph with 1 activated node (pave_start)
-                Graph* graph_diff = new Graph(graph, m_graph_list.size());
-
-                graph_propagation->process(process_iterations_max, false); // process forward
-                graph->inter(*graph_propagation); // intersect the graph with the propagation graph
-                graph_diff->diff(*graph);
-                graph_diff->mark_empty_node();
-
-                if(!graph_diff->is_empty()){ // If there is an inside, add to graph_list
-                    cout << " REMOVE INSIDE" << endl;
-                    m_graph_list.push_back(graph_diff);
-                    graph_diff->clear_node_queue();
-                    cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
-                    //m_graph_list.back()->print();
-                }
-                else{
-                    cout << " GRAPH DIFF EMPTY" << endl;
-                    delete(graph_diff);
-                }
+                // Remove empty pave
                 graph->mark_empty_node();
 
-                delete(graph_propagation);
+                if(graph->is_empty() && m_graph_list.size()>1){
+                    m_graph_list.erase(m_graph_list.begin()+nb_graph);
+                    nb_graph++;
+                }
+                else{
+                    // Test if positive invariant
+                    if(graph->is_positive_invariant()){
+                        cout << "IS POSITIVE INVARIANT" << endl;
+                        graph->push_back_pos_attractor();
+                        graph->set_positive_invariant(true);
+                    }
 
+                    // ***************************************************
+                    //              REMOVE INSIDE PROCEDURE
+                    // Copy graph & propagate one Pave + intersect with cycle
+                    // Find the first non-full & non-empty Pave (i.e. on the border)
+                    /// TODO : improve the algorithm
+                    if(remove_inside && m_graph_list.size() < graph_max){
+                        Pave *pave_start = graph->get_semi_full_node(); // Find a pave semi full (border pave)
+                        if(pave_start == NULL){
+                            cout << "REMOVE INSIDE - NO START PAVE FOUND" << endl;
+                            break;
+                        }
+
+                        Graph* graph_propagation = new Graph(graph, pave_start); // copy graph with 1 activated node (pave_start)
+                        Graph* graph_diff = new Graph(graph, m_graph_list.size());
+
+                        graph_propagation->process(process_iterations_max, false); // process forward
+                        graph->inter(*graph_propagation); // intersect the graph with the propagation graph
+                        graph_diff->diff(*graph);
+                        graph_diff->mark_empty_node();
+
+                        if(!graph_diff->is_empty()){ // If there is an inside, add to graph_list
+                            cout << " REMOVE INSIDE" << endl;
+                            graph_diff->set_positive_invariant(false);
+                            graph->set_positive_invariant(false);
+                            m_graph_list.push_back(graph_diff);
+                            graph_diff->clear_node_queue();
+                            cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
+                            //m_graph_list.back()->print();
+                        }
+                        else{
+                            cout << " GRAPH DIFF EMPTY" << endl;
+                            delete(graph_diff);
+                        }
+                        graph->mark_empty_node();
+
+                        delete(graph_propagation);
+
+                    }
+                }
             }
         }
         cout << "--> time (total) = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;

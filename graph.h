@@ -49,6 +49,7 @@ public:
 
     void                        set_inner_mode(bool val);
     void                        set_compute_inner(bool val);
+    void                        set_positive_invariant(bool val);
 
     void                        set_backward_function(bool val);
 
@@ -94,6 +95,7 @@ public:
     void                        get_recursive_zone(Pave* p, vector<Pave*> &list);
     void                        get_recursive_contour(Pave* p, vector<Pave*> &list);
     std::vector<std::vector<Pave *> >     get_contour_nodes();
+    bool                        get_positive_invariant() const;
 
 
     // Other functions
@@ -128,6 +130,8 @@ private:
 
     bool m_compute_inner;
     bool m_inner_mode;
+
+    bool m_positive_invariant;
 
     std::vector<std::vector<std::vector< std::vector<ibex::IntervalVector>>>> m_pos_attractor_list;
 

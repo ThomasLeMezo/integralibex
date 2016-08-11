@@ -19,6 +19,7 @@ Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_l
     debug_marker2 = false;
     m_compute_inner = false;
     m_inner_mode = false;
+    m_positive_invariant = false;
 }
 
 Graph::Graph(Utils *utils, int graph_id=0):
@@ -33,6 +34,7 @@ Graph::Graph(Utils *utils, int graph_id=0):
     debug_marker2 = false;
     m_compute_inner = false;
     m_inner_mode = false;
+    m_positive_invariant = false;
 }
 
 Graph::Graph(Graph* g, int graph_id):
@@ -94,6 +96,7 @@ Graph::Graph(Graph* g, int graph_id):
 
     m_compute_inner = g->get_compute_inner();
     m_inner_mode = g->get_inner_mode();
+    m_positive_invariant = g->get_positive_invariant();
 }
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
@@ -1094,4 +1097,12 @@ void Graph::push_back_pos_attractor(){
             segment_list.push_back(p->get_segment_list());
     }
     m_pos_attractor_list.push_back(segment_list);
+}
+
+bool Graph::get_positive_invariant() const{
+    return m_positive_invariant;
+}
+
+void Graph::set_positive_invariant(bool val){
+    m_positive_invariant = val;
 }
