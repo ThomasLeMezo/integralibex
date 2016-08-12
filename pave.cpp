@@ -1619,3 +1619,8 @@ const std::vector<ibex::Interval> Pave::compute_half_circle(const IntervalVector
 vector<vector<IntervalVector> > Pave::get_segment_list(){
     return m_segment_list;
 }
+
+void Pave::reset_segment_list(){
+    vector<vector<IntervalVector> > list_empty;
+    m_segment_list = list_empty;
+}

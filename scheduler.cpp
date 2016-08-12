@@ -10,7 +10,8 @@ using namespace std;
 using namespace ibex;
 
 Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton){
-    m_graph_list.push_back(new Graph(box, f_list, &m_utils, 0, diseable_singleton));
+    m_graph_id = -1;
+    m_graph_list.push_back(new Graph(box, f_list, &m_utils, get_graph_id(), diseable_singleton));
 }
 
 Scheduler::~Scheduler(){
@@ -20,7 +21,8 @@ Scheduler::~Scheduler(){
 }
 
 Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_in, bool border_out){
-    Graph *g = new Graph(&m_utils, 0);
+    m_graph_id = -1;
+    Graph *g = new Graph(&m_utils, get_graph_id());
     m_graph_list.push_back(g);
 
     vector<IntervalVector> list_boxes;
@@ -269,14 +271,8 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
             cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
             // Process the backward with the subpaving
-            cout << "GRAPH No "<< 0 << " (" << graph->size() << ")" << endl;
-            int graph_list_process_cpt = graph->process(process_iterations_max, true);
-
-            if(graph->get_inner_mode())
-                cout << "--> processing inner = " ;
-            else
-                cout << "--> processing outer = " ;
-            cout << graph_list_process_cpt << endl;
+            cout << "GRAPH No " << 0 << " (" << graph->size() << ")" << endl;
+            graph->process(process_iterations_max, true);
             cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
             // Remove empty pave
@@ -387,6 +383,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
         for(int nb_graph=0; nb_graph<m_graph_list.size(); nb_graph++){
             Graph *graph = m_graph_list[nb_graph];
+            cout << "GRAPH No "<< graph->get_graph_id() << " (" << graph->size() << ")" << endl;
 
             if(graph->get_alive_node()==0 || m_graph_list.size()==0)
                 break;
@@ -397,7 +394,6 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
                 // Process the backward with the subpaving
-                cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
                 int graph_list_process_cpt = graph->process(process_iterations_max, true);
 
                 cout << "--> processing outer = " << graph_list_process_cpt << endl;
@@ -408,14 +404,17 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
                 if(graph->is_empty() && m_graph_list.size()>1){
                     m_graph_list.erase(m_graph_list.begin()+nb_graph);
-                    nb_graph++;
+                    cout << "--> remove empty graph" << endl;
                 }
                 else{
                     // Test if positive invariant
                     if(graph->is_positive_invariant()){
-                        cout << "IS POSITIVE INVARIANT" << endl;
+                        cout << "--> graph IS positive invariant" << endl;
                         graph->push_back_pos_attractor();
                         graph->set_positive_invariant(true);
+                    }
+                    else{
+                        cout << "--> graph IS NOT positive invariant" << endl;
                     }
 
                     // ***************************************************
@@ -426,29 +425,31 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                     if(remove_inside && m_graph_list.size() < graph_max){
                         Pave *pave_start = graph->get_semi_full_node(); // Find a pave semi full (border pave)
                         if(pave_start == NULL){
-                            cout << "REMOVE INSIDE - NO START PAVE FOUND" << endl;
+                            cout << " REMOVE INSIDE - NO START PAVE FOUND" << endl;
                             break;
                         }
 
                         Graph* graph_propagation = new Graph(graph, pave_start); // copy graph with 1 activated node (pave_start)
-                        Graph* graph_diff = new Graph(graph, m_graph_list.size());
+                        Graph* graph_diff = new Graph(graph, get_graph_id());
 
                         graph_propagation->process(process_iterations_max, false); // process forward
                         graph->inter(*graph_propagation); // intersect the graph with the propagation graph
+                        graph->reset_pave_segment_list();
                         graph_diff->diff(*graph);
                         graph_diff->mark_empty_node();
 
                         if(!graph_diff->is_empty()){ // If there is an inside, add to graph_list
-                            cout << " REMOVE INSIDE" << endl;
+                            cout << "--> sucess to separate cycle" << endl;
                             graph_diff->set_positive_invariant(false);
+                            graph_diff->reset_pave_segment_list();
                             graph->set_positive_invariant(false);
                             m_graph_list.push_back(graph_diff);
                             graph_diff->clear_node_queue();
-                            cout << " ADD NEW GRAPH No " << m_graph_list.size()-1 << endl;
+                            cout << " ADD NEW GRAPH No " << graph_diff->get_graph_id() << endl;
                             //m_graph_list.back()->print();
                         }
                         else{
-                            cout << " GRAPH DIFF EMPTY" << endl;
+                            cout << "--> not possible to separate cycle" << endl;
                             delete(graph_diff);
                         }
                         graph->mark_empty_node();
@@ -621,4 +622,9 @@ void Scheduler::attractor_to_kernel(){
     graph->compute_all_propagation_zone();
 
     graph->mark_empty_node();
+}
+
+int Scheduler::get_graph_id(){
+    m_graph_id++;
+    return m_graph_id;
 }

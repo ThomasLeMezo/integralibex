@@ -100,7 +100,7 @@ Graph::Graph(Graph* g, int graph_id):
 }
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
-    cout << "COPY GRAPH size = " << size() << endl;
+//    cout << "COPY GRAPH size = " << size() << endl;
     for(Pave *node:m_node_list){
         node->set_empty();
     }
@@ -204,7 +204,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
             compute_propagation_zone(p);
         m_node_list.push_back(p);
     }
-    cout << "SIVIA outer(" << m_node_queue_outer.size() << ") inner(" <<  m_node_queue_inner.size() << ")" << endl;
+    cout << "--> sivia outer(" << m_node_queue_outer.size() << ") inner(" <<  m_node_queue_inner.size() << ")" << endl;
 }
 
 int Graph::process(int max_iterations, bool backward, bool union_functions){
@@ -1105,4 +1105,10 @@ bool Graph::get_positive_invariant() const{
 
 void Graph::set_positive_invariant(bool val){
     m_positive_invariant = val;
+}
+
+void Graph::reset_pave_segment_list(){
+    for(Pave *p:m_node_list){
+        p->reset_segment_list();
+    }
 }

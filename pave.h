@@ -126,6 +126,7 @@ public:
     void                        set_diseable_singelton(bool val);
 
     void                        reset_full_empty();
+    void                        reset_segment_list();
 
     // Getters
     double                              get_theta_diam(int active_function=-1) const;

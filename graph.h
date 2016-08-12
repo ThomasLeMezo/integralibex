@@ -68,6 +68,7 @@ public:
     void                        set_marker(vector<Pave*> list, bool val);
     void                        complementaire();
     void                        push_back_pos_attractor();
+    void                        reset_pave_segment_list();
 
     // Getter
     Pave*                       get_pave(double x, double y) const;

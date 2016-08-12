@@ -36,11 +36,13 @@ public:
 
     // Getter
     Graph* get_graph_list(int i);
+    int get_graph_id();
 
 
 /***************** Variables ******************/
 private:
     std::vector<Graph*> m_graph_list;
+    int m_graph_id;
 
     Utils m_utils;
 };

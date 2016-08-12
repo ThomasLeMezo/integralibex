@@ -58,7 +58,7 @@ void van_der_pol_cycle(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+    ibex::Function f(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x)));
 
 //    Variable q, p;
 //    ibex::Function f(q, p, Return(4*p*(q*q+p*p)+20*p,
@@ -510,8 +510,8 @@ void van_der_pol_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x + 1.5));
-    ibex::Function f2(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x - 1.5));
+    ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x + 1.0)));
+    ibex::Function f2(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x - 1.0)));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -861,9 +861,9 @@ int main()
 //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    van_der_pol_cycle();
+//    van_der_pol_cycle();
 //    van_der_pol_integration();
-//    van_der_pol_kernel();
+    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
 //    integrator();
