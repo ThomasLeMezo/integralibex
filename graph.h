@@ -33,6 +33,7 @@ public:
     bool                        identify_attractor();
     bool                        is_no_active_function();
     bool                        is_positive_invariant();
+    bool                        is_sufficiently_discretized();
 
     // Setter
     void                        set_full();
@@ -70,6 +71,8 @@ public:
     void                        push_back_pos_attractor();
     void                        reset_pave_segment_list();
 
+    void                        reset_queues();
+
     // Getter
     Pave*                       get_pave(double x, double y) const;
     const std::vector<Pave *>   get_pave(const ibex::IntervalVector &box) const;
@@ -97,6 +100,7 @@ public:
     void                        get_recursive_contour(Pave* p, vector<Pave*> &list);
     std::vector<std::vector<Pave *> >     get_contour_nodes();
     bool                        get_positive_invariant() const;
+    std::vector<std::vector<std::vector< std::vector<ibex::IntervalVector>>>> get_pos_attractor_list() const;
 
 
     // Other functions
@@ -106,7 +110,7 @@ public:
 
     void                        print_pave_info(double x, double y, string color) const;
     void                        print() const;
-    void                        draw(int size, bool filled, string comment="", bool inner_only=false);
+    void                        draw(int size, bool filled, string comment="", bool inner_only=false, int position=0);
     void                        drawInner(bool filled);
 
     void                        compute_propagation_zone(Pave *p, bool compute_anyway=false);
@@ -126,7 +130,6 @@ private:
     Utils *m_utils;
 
     int m_graph_id;
-    int m_drawing_cpt;
     int m_count_alive;
 
     bool m_compute_inner;

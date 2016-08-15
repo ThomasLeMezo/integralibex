@@ -12,7 +12,6 @@ Graph::Graph(const IntervalVector &box, const std::vector<ibex::Function *> &f_l
     m_search_box = box;
     m_node_list.push_back(p);
     m_graph_id = graph_id;
-    m_drawing_cpt = 0;
     m_utils = utils;
 
     debug_marker1 = false;
@@ -27,7 +26,6 @@ Graph::Graph(Utils *utils, int graph_id=0):
 {
     m_count_alive = 0;
     m_graph_id = graph_id;
-    m_drawing_cpt = 0;
     m_utils = utils;
 
     debug_marker1 = false;
@@ -86,7 +84,6 @@ Graph::Graph(Graph* g, int graph_id):
     }
 
     m_graph_id = graph_id;
-    m_drawing_cpt = 0;
     m_utils = g->get_utils();
     m_search_box = g->get_search_box();
     m_count_alive = g->get_alive_node();
@@ -97,10 +94,11 @@ Graph::Graph(Graph* g, int graph_id):
     m_compute_inner = g->get_compute_inner();
     m_inner_mode = g->get_inner_mode();
     m_positive_invariant = g->get_positive_invariant();
+    m_pos_attractor_list = g->get_pos_attractor_list();
 }
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
-//    cout << "COPY GRAPH size = " << size() << endl;
+    //    cout << "COPY GRAPH size = " << size() << endl;
     for(Pave *node:m_node_list){
         node->set_empty();
     }
@@ -418,16 +416,16 @@ Pave& Graph::operator[](int id){
     return *(m_node_list[id]);
 }
 
-void Graph::draw(int size, bool filled, string comment, bool inner_only){
+void Graph::draw(int size, bool filled, string comment, bool inner_only, int position){
 
     // Magenta = #FF00FF
     // Gray light =  #D3D3D3
     // Blue = #4C4CFF
 
     stringstream ss;
-    ss << "cycleSOLVER" << m_graph_id<< "-" << m_drawing_cpt << " " << comment;
+    ss << "cycleSOLVER" << m_graph_id << " " << comment;
     vibes::newFigure(ss.str());
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
+    vibes::setFigureProperties(vibesParams("x",position,"y",position,"width",size,"height",size));
 
     for(Pave *node:m_node_list){
         node->draw(filled, inner_only);
@@ -454,7 +452,6 @@ void Graph::draw(int size, bool filled, string comment, bool inner_only){
     }
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
-    //    m_drawing_cpt++;
 }
 
 void Graph::drawInner(bool filled){
@@ -568,14 +565,23 @@ bool Graph::is_empty(){
 }
 
 Pave* Graph::get_semi_full_node(){
-    for(Pave *node:m_node_list){
+    int end = m_node_list.size();
+    int start = ceil(end/1.2);
+
+    for(int i=start; i!=(start-1)%end; i = (i+1)%end){
+        Pave *node = m_node_list[i];
+        //    for(Pave *node:m_node_list){
         if(!node->is_removed_pave() && node->is_border() && node->get_theta_diam()<M_PI/2.0){
+            cout << "FIRST RETURN, START = " << start << " i= "<< i << endl;
             return node;
         }
     }
 
-    for(Pave *node:m_node_list){
+    //    for(Pave *node:m_node_list){
+    for(int i=start; i!=(start-1)%end; i = (i+1)%end){
+        Pave *node = m_node_list[i];
         if(!node->is_removed_pave() && !node->is_empty() && !node->is_full()){
+            cout << "2ND RETURN" << endl;
             return node;
         }
     }
@@ -1111,4 +1117,30 @@ void Graph::reset_pave_segment_list(){
     for(Pave *p:m_node_list){
         p->reset_segment_list();
     }
+}
+
+std::vector<std::vector<std::vector< std::vector<ibex::IntervalVector>>>> Graph::get_pos_attractor_list() const{
+    return m_pos_attractor_list;
+}
+
+bool Graph::is_sufficiently_discretized(){
+    double diam_x = m_search_box[0].diam();
+    double diam_y = m_search_box[1].diam();
+
+    for(Pave *p:m_node_list){
+        if(p->get_position()[0].diam() == diam_x || p->get_position()[1].diam() == diam_y)
+            return false;
+    }
+    return true;
+}
+
+void Graph::reset_queues(){
+    for(Pave *p:m_node_queue_inner){
+        p->set_in_queue_inner(false);
+    }
+    for(Pave *p:m_node_queue_outer){
+        p->set_in_queue_outer(false);
+    }
+    m_node_queue_inner.clear();
+    m_node_queue_outer.clear();
 }

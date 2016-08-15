@@ -852,18 +852,18 @@ int main()
 
 //    car_on_the_hill_kernel();
 
-//    car_on_the_hill_trajectory();
+    car_on_the_hill_trajectory();
 //    car_on_the_hill_integrator();
 //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
 //    pendulum_capture_bassin();
-//    cercle_capture_bassin();
+    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
 //    van_der_pol_cycle();
 //    van_der_pol_integration();
-    van_der_pol_kernel();
+//    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
 //    integrator();

@@ -373,6 +373,10 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     if(iterations < iterations_max && graph_initial->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph_initial->sivia(4,true, false, false); // Start with 4 boxes
+        while(!graph_initial->is_sufficiently_discretized()){
+            graph_initial->reset_queues();
+            graph_initial->sivia(2*graph_initial->get_alive_node(),true, false, false);
+        }
         graph_initial->process(process_iterations_max, true); // ? Usefull ??? ToDo
         iterations++;
     }
@@ -412,6 +416,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                         cout << "--> graph IS positive invariant" << endl;
                         graph->push_back_pos_attractor();
                         graph->set_positive_invariant(true);
+                        emit publishLog("Invariant found at step " + QString::number(iterations));
                     }
                     else{
                         cout << "--> graph IS NOT positive invariant" << endl;
@@ -422,11 +427,14 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                     // Copy graph & propagate one Pave + intersect with cycle
                     // Find the first non-full & non-empty Pave (i.e. on the border)
                     /// TODO : improve the algorithm
-                    if(remove_inside && m_graph_list.size() < graph_max){
+                    if(remove_inside && m_graph_list.size() < graph_max && !(stop_first_pos_invariant && graph->get_positive_invariant())){
                         Pave *pave_start = graph->get_semi_full_node(); // Find a pave semi full (border pave)
                         if(pave_start == NULL){
                             cout << " REMOVE INSIDE - NO START PAVE FOUND" << endl;
                             break;
+                        }
+                        else{
+                            cout << "--> pave selected = " << pave_start->get_position() << endl;
                         }
 
                         Graph* graph_propagation = new Graph(graph, pave_start); // copy graph with 1 activated node (pave_start)
@@ -461,8 +469,13 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             }
         }
         cout << "--> time (total) = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        emit iteration_status(iterations+1, iterations_max);
         iterations++;
     }
+    if(m_graph_list.size()<=1)
+        emit publishLog(QString::number(m_graph_list.size()) + " possible cycle was found");
+    else
+        emit publishLog(QString::number(m_graph_list.size()) + " possible cycles were found");
 }
 
 void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &boxA, const ibex::IntervalVector &boxB){
@@ -573,8 +586,11 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 // ****************** Drawing functions *******************************************
 
 void Scheduler::draw(int size, bool filled, string comment){
-    for(Graph *g:m_graph_list)
-        g->draw(size, filled, comment);
+    int position = 0;
+    for(Graph *g:m_graph_list){
+        g->draw(size, filled, comment, false, position);
+        position += 100;
+    }
 }
 
 Graph* Scheduler::get_graph_list(int i){

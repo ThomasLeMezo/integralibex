@@ -1,14 +1,17 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
+#include <QObject>
+
 #include "graph.h"
 #include "ibex.h"
 #include "utils.h"
 
 class Pave;
 class Border;
-class Scheduler
+class Scheduler : public QObject
 {
+    Q_OBJECT
 /***************** Functions ******************/
 public:
     Scheduler(const ibex::IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton);
@@ -45,6 +48,10 @@ private:
     int m_graph_id;
 
     Utils m_utils;
+
+signals:
+      void iteration_status(int iteration, int iteration_max);
+      void publishLog(const QString text);
 };
 
 #endif // SCHEDULER_H
