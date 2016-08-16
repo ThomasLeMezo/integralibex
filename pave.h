@@ -73,6 +73,7 @@ public:
     bool                        is_trajectory_external_escape() const;
 
     bool                        is_positive_invariant();
+    bool                        is_theta_more_than_two_pi() const;
 
     // Setter
     void                        set_full();
@@ -241,6 +242,8 @@ private:
     int                         m_cpt_continuity_outer;
     int                         m_cpt_consistency_inner;
     int                         m_cpt_consistency_outer;
+
+    bool                        m_theta_more_than_two_pi;
 
     std::vector< std::vector<ibex::IntervalVector>> m_segment_list;
 

@@ -78,6 +78,11 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_cpt_continuity_outer = 0;
     m_cpt_consistency_inner = 0;
     m_cpt_consistency_outer= 0;
+
+    if(get_theta_diam_min()<M_PI)
+        m_theta_more_than_two_pi = false;
+    else
+        m_theta_more_than_two_pi = true;
 }
 
 const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f, bool backward_function){
@@ -201,6 +206,7 @@ Pave::Pave(const Pave *p):
     m_cpt_continuity_outer= p->get_cpt_continuity_outer();
 
     m_bassin = p->is_bassin();
+    m_theta_more_than_two_pi = p->is_theta_more_than_two_pi();
 }
 
 Pave::~Pave(){
@@ -522,12 +528,18 @@ void Pave::draw_borders(bool filled, string color_polygon, bool complementary) c
     }
     else{
         // Draw Polygone
-        vector<double> x, y;
-        for(Border *b:m_borders){
-            b->get_points(x, y, complementary);
+
+        if(!is_removed_pave() && is_theta_more_than_two_pi()){
+            vibes::drawBox(get_position(), color_polygon);
         }
-        if(x.size()>0)
-            vibes::drawPolygon(x, y, color_polygon);
+        else{
+            vector<double> x, y;
+            for(Border *b:m_borders){
+                b->get_points(x, y, complementary);
+            }
+            if(x.size()>0)
+                vibes::drawPolygon(x, y, color_polygon);
+        }
     }
 }
 
@@ -769,7 +781,7 @@ double Pave::get_theta_diam_min(){
     double diam_min = 2*M_PI;
     for(int active_function = 0; active_function<(int)m_f_list.size(); active_function++){
         double diam = 0.0;
-        for(Interval theta:get_theta_list()[active_function]){
+        for(Interval theta:get_theta_list(active_function)){
             if(!theta.is_empty())
                 diam += theta.diam();
         }
@@ -1623,4 +1635,8 @@ vector<vector<IntervalVector> > Pave::get_segment_list(){
 void Pave::reset_segment_list(){
     vector<vector<IntervalVector> > list_empty;
     m_segment_list = list_empty;
+}
+
+bool Pave::is_theta_more_than_two_pi() const{
+    return m_theta_more_than_two_pi;
 }

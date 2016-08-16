@@ -32,6 +32,8 @@ public:
 
     void set_symetry(ibex::Function *f, int face_in, int face_out);
 //    void set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY);
+    void set_inner_mode(bool val);
+    void set_external_boundary(bool in, bool out);
 
     // ******** Drawing functions ********
     void draw(int size, bool filled, string comment="");

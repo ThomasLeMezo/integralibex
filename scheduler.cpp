@@ -644,3 +644,13 @@ int Scheduler::get_graph_id(){
     m_graph_id++;
     return m_graph_id;
 }
+
+void Scheduler::set_inner_mode(bool val){
+    for(Graph *g:m_graph_list)
+        g->set_inner_mode(val);
+}
+
+void Scheduler::set_external_boundary(bool in, bool out){
+    for(Graph *g:m_graph_list)
+        g->set_external_boundary(in, out);
+}

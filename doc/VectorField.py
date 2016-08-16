@@ -61,10 +61,10 @@ from numpy import *
 # V = -(1+x1)*x1
 
 #### Ratschan 3
-x1, x2 = np.meshgrid(np.arange(-200.0,200.0, 10.0), np.arange(-200.0,200.0,10.0))
-x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,1.0,0.1))
-U = -4*x1*x1*x1+6*x1*x1-2*x1
-V = -2*x2
+# x1, x2 = np.meshgrid(np.arange(-200.0,200.0, 10.0), np.arange(-200.0,200.0,10.0))
+# x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,1.0,0.1))
+# U = -4*x1*x1*x1+6*x1*x1-2*x1
+# V = -2*x2
 
 #### Genesio
 # x1, x2 = np.meshgrid(np.arange(-70,70,1.0), np.arange(-1000,1000,100))
@@ -82,6 +82,12 @@ V = -2*x2
 #### Car on the hill ?
 # U = x2
 # V = -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2
+
+#### Host & parasites
+x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,2.0, 0.1))
+x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,2.0, 0.1))
+U = (1-x2)*x1
+V = x2*(1-2*x2/(1+x1))
 
 #### Drawing
 

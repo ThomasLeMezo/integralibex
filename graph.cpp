@@ -531,7 +531,7 @@ int Graph::size() const{
 
 void Graph::mark_empty_node(){
     for(Pave *pave:m_node_list){
-        if(pave->is_active()){
+        if(pave->is_active() && !pave->is_theta_more_than_two_pi()){
             pave->reset_full_empty();
             bool empty_outer = false;
             bool empty_inner = false;
@@ -838,6 +838,7 @@ void Graph::set_external_boundary(bool in, bool out){
         cout << "ERROR : border_list.size()==0" << endl;
         exit(1);
     }
+    cout << m_node_border_list.size() << " boundary boxes" << endl;
     for(Pave *p:m_node_border_list){
         p->set_segment(in, out);
     }
