@@ -472,10 +472,11 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         emit iteration_status(iterations+1, iterations_max);
         iterations++;
     }
-    if(m_graph_list.size()<=1)
-        emit publishLog(QString::number(m_graph_list.size()) + " possible cycle was found");
-    else
+
+    if(m_graph_list.size()>1)
         emit publishLog(QString::number(m_graph_list.size()) + " possible cycles were found");
+//    else
+        //        emit publishLog(QString::number(m_graph_list.size()) + " possible cycle was found");
 }
 
 void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &boxA, const ibex::IntervalVector &boxB){
