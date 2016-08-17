@@ -770,17 +770,52 @@ void test_car_on_hill(){
 }
 
 void sandbox(){
-    //    IntervalVector box(2);
-    //    box[0] = Interval(5,10);
-    //    box[1] = Interval(0,10);
+        vibes::beginDrawing();
+        vibes::newFigure("test");
+        vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",500,"height",500));
+        vibes::axisLimits(-5, 5, -5, 5);
+        vibes::drawBox(-4, 4, -4, 4, "b[]");
 
-    //    Interval test = Interval(0, 10);
-    //    cout << test.lb() << endl;
+        Variable x1, x2;
+        ibex::Function f(x1, x2, Return(-x2,-(1.0*(1.0-pow(x1, 2))*x2-x1)));
 
-    //    Variable x, y;
-    //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
+        double dt = 0.001;
+        double t_max = 10;
+        double x1_min = -4;
+        double x1_max = 4;
+        double x2_min = -4;
+        double x2_max = 4;
+        double nb_point_line = 100;
 
-    //    IntervalVector dposition = f.eval_vector(box);
+        double r = min((x1_max-x1_min)/(3*nb_point_line), (x2_max-x2_min)/(3*nb_point_line));
+//        double r = 0.002;
+
+        for(double x1 = x1_min; x1<x1_max; x1+=(x1_max-x1_min)/nb_point_line){
+            for(double x2 = x2_min; x2<x2_max; x2+=(x2_max-x2_min)/nb_point_line){
+                IntervalVector X(2);
+                X[0] = Interval(x1);
+                X[1] = Interval(x2);
+                bool out = false;
+                for(double t=0; t<t_max; t+=dt){
+                    IntervalVector k1 = f.eval_vector(X);
+                    X[0] += dt*k1[0];
+                    X[1] += dt*k1[1];
+                    if(X[0].mid()<x1_min || X[0].mid()>x1_max || X[1].mid()<x2_min || X[1].mid()>x2_max){
+                        out = true;
+                        break;
+                    }
+                }
+
+                if(out){
+                    vibes::drawCircle(x1, x2, r, "r[r]");
+                }
+                else{
+                    vibes::drawCircle(x1, x2, r, "g[g]");
+                }
+            }
+        }
+
+//        IntervalVector dposition = f.eval_vector(box);
 
     //    Interval dx = dposition[0];
     //    Interval dy = dposition[1];
@@ -789,48 +824,49 @@ void sandbox(){
     //    cout << setprecision(80) << theta << endl;
     //    cout << Interval::HALF_PI << endl;
 
-    IntervalVector ptA(2);
-    ptA[0] = Interval(0.0);
-    ptA[1] = Interval(0.0);
+    /// Angle tests
+//    IntervalVector ptA(2);
+//    ptA[0] = Interval(0.0);
+//    ptA[1] = Interval(0.0);
 
-    IntervalVector ptB(2);
-    ptB[0] = Interval(1.0);
-    ptB[1] = Interval(1.0);
+//    IntervalVector ptB(2);
+//    ptB[0] = Interval(1.0);
+//    ptB[1] = Interval(1.0);
 
-    bool normal = true;
-    if(normal){
-        IntervalVector tmp(ptA);
-        ptA = ptB;
-        ptB = tmp;
-    }
+//    bool normal = true;
+//    if(normal){
+//        IntervalVector tmp(ptA);
+//        ptA = ptB;
+//        ptB = tmp;
+//    }
 
-    IntervalVector deltaP(2);
-    deltaP[0] = ptB[0] - ptA[0];
-    deltaP[1] = ptB[1] - ptA[1];
+//    IntervalVector deltaP(2);
+//    deltaP[0] = ptB[0] - ptA[0];
+//    deltaP[1] = ptB[1] - ptA[1];
 
-    IntervalVector deltaN(2);
-    deltaN[0] = ptA[0] - ptB[0];
-    deltaN[1] = ptA[1] - ptB[1];
+//    IntervalVector deltaN(2);
+//    deltaN[0] = ptA[0] - ptB[0];
+//    deltaN[1] = ptA[1] - ptB[1];
 
-    Interval thetaP = atan2(deltaP[1], deltaP[0]);
-    Interval thetaN = atan2(deltaN[1], deltaN[0]);
+//    Interval thetaP = atan2(deltaP[1], deltaP[0]);
+//    Interval thetaN = atan2(deltaN[1], deltaN[0]);
 
-    cout << thetaP << endl;
-    cout << thetaN << endl;
+//    cout << thetaP << endl;
+//    cout << thetaN << endl;
 
 
-    // Calcul de l'angle
-    Interval theta_high = thetaP | Interval::PI;
-    Interval theta_low = -Interval::PI | thetaN;
+//    // Calcul de l'angle
+//    Interval theta_high = thetaP | Interval::PI;
+//    Interval theta_low = -Interval::PI | thetaN;
 
-    Interval theta_inter = theta_high & theta_low;
+//    Interval theta_inter = theta_high & theta_low;
 
-    if(theta_inter.is_empty()){
-        cout << "theta = " << theta_high << " " << theta_low << endl;
-    }
-    else{
-        cout << "theta = " << theta_inter << endl;
-    }
+//    if(theta_inter.is_empty()){
+//        cout << "theta = " << theta_high << " " << theta_low << endl;
+//    }
+//    else{
+//        cout << "theta = " << theta_inter << endl;
+//    }
 
 }
 

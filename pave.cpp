@@ -973,7 +973,6 @@ std::vector<Border*> &Pave::get_borders(){
 }
 
 Border* Pave::get_border(int face){
-    assert(face >=0 && face < 4);
     return m_borders[face];
 }
 

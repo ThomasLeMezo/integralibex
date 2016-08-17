@@ -445,7 +445,7 @@ void Graph::draw(int size, bool filled, string comment, bool inner_only, int pos
                         x.push_back(pt[0].mid());
                         y.push_back(pt[1].mid());
                     }
-                    vibes::drawLine(x, y, "g[g]",vibesParams("LineWidth",10.0));
+                    vibes::drawLine(x, y, "g",vibesParams("LineWidth",10.0));
                 }
             }
         }

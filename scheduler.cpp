@@ -416,7 +416,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                         cout << "--> graph IS positive invariant" << endl;
                         graph->push_back_pos_attractor();
                         graph->set_positive_invariant(true);
-                        emit publishLog("Invariant found at step " + QString::number(iterations));
+                        emit publishLog("Invariant found at step " + QString::number(iterations+1));
                     }
                     else{
                         cout << "--> graph IS NOT positive invariant" << endl;
