@@ -19,10 +19,10 @@ QMAKE_LFLAGS += -fopenmp
 INCLUDEPATH += /usr/local/include/
 INCLUDEPATH += /opt/VIBES/client-api/C++/src/
 INCLUDEPATH += /usr/local/include/ibex/
-INCLUDEPATH += /usr/local/include/ibex-robotics/
+INCLUDEPATH += /usr/local/include/ibex-geometry/
 LIBS += -libex
 LIBS += -lprim
-LIBS += -libex-robotics-polar
+LIBS += -libex-geometry
 
 SOURCES += main.cpp \
     border.cpp \

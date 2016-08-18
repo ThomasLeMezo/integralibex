@@ -4,7 +4,7 @@
 #include "ibex.h"
 #include "pave.h"
 #include "imageintegral.h"
-#include "ibex-robotics/ibex_CtcPolar.h"
+#include "ibex-geometry/ibex_CtcPolar.h"
 
 class Utils
 {
