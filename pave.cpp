@@ -1235,7 +1235,7 @@ bool Pave::is_near_external_border() const{
 ///
 bool Pave::is_trajectory_external_escape() const{
     for(Border *b:m_borders){
-        if(!b->get_segment_out().is_empty()){
+        if(m_theta_more_than_two_pi || !b->get_segment_out().is_empty()){
             for(Inclusion *i:b->get_inclusions()){
                 if(i->get_border()->get_pave()->is_external_border())
                     return true;

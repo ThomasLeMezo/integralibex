@@ -531,22 +531,27 @@ int Graph::size() const{
 
 void Graph::mark_empty_node(){
     for(Pave *pave:m_node_list){
-        if(pave->is_active() && !pave->is_theta_more_than_two_pi()){
-            pave->reset_full_empty();
-            bool empty_outer = false;
-            bool empty_inner = false;
-            if(pave->is_removed_pave_outer() || pave->is_empty_outer()){
-                pave->set_removed_pave_outer(true);
-                empty_outer = true;
-            }
-            if(m_compute_inner && (pave->is_removed_pave_inner() || pave->is_empty_inner())){
-                pave->set_removed_pave_inner(true);
-                empty_inner = true;
-            }
+        if(pave->is_active()){
+            if(!pave->is_theta_more_than_two_pi()){
+                pave->reset_full_empty();
+                bool empty_outer = false;
+                bool empty_inner = false;
+                if(pave->is_removed_pave_outer() || pave->is_empty_outer()){
+                    pave->set_removed_pave_outer(true);
+                    empty_outer = true;
+                }
+                if(m_compute_inner && (pave->is_removed_pave_inner() || pave->is_empty_inner())){
+                    pave->set_removed_pave_inner(true);
+                    empty_inner = true;
+                }
 
-            if(empty_outer && (!m_compute_inner || empty_inner)){
-                pave->set_active(false);
-                m_count_alive--;
+                if(empty_outer && (!m_compute_inner || empty_inner)){
+                    pave->set_active(false);
+                    m_count_alive--;
+                }
+            }
+            else{
+                pave->set_full();
             }
         }
     }
