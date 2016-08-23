@@ -498,6 +498,14 @@ const ibex::IntervalVector Border::get_segment_out_2D() const{
     return segment_out;
 }
 
+const ibex::IntervalVector Border::get_segment_in_union_out_2D() const{
+    Interval segment_in_out = get_segment_in() | get_segment_out();
+    IntervalVector segment_return = m_position;
+    segment_return[m_face%2] = segment_in_out;
+    return segment_return;
+
+}
+
 const std::vector<Inclusion *> Border::get_inclusions() const{
     return m_inclusions;
 }

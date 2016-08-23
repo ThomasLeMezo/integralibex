@@ -92,6 +92,7 @@ public:
     const ibex::IntervalVector      get_segment_out_2D() const;
     const ibex::Interval            get_segment_out() const;
     const ibex::IntervalVector      get_segment_in_2D() const;
+    const ibex::IntervalVector      get_segment_in_union_out_2D() const;
 
     const ibex::Interval            get_segment_in_inner() const;
     const ibex::Interval            get_segment_in_outer() const;
