@@ -1524,9 +1524,12 @@ bool Pave::is_positive_invariant(){
         return true;
     else if(is_theta_more_than_two_pi()){
         vector< vector<IntervalVector>> segment_list;
+        bool one_not_empty = false;
         for(Border *b:get_borders()){
             for(Inclusion *i:b->get_inclusions()){
                 Interval i_segment_in_union_out = i->get_border()->get_segment_in_union_out();
+                if(!i_segment_in_union_out.is_empty())
+                    one_not_empty = true;
                 Interval seg_range =  b->get_segment_full() & i->get_border()->get_segment_full();
                 if((i_segment_in_union_out & seg_range) != seg_range
                         || b->get_segment_in_union_out().is_empty()){
@@ -1565,7 +1568,10 @@ bool Pave::is_positive_invariant(){
             }
         }
         m_segment_list = segment_list;
-        return true;
+        if(one_not_empty)
+            return true;
+        else
+            return false;
     }
     else{
         // Get the list of points
