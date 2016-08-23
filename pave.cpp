@@ -79,7 +79,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_cpt_consistency_inner = 0;
     m_cpt_consistency_outer= 0;
 
-    if(get_theta_diam_min()<M_PI)
+    if(get_theta_diam_min()<2*M_PI)
         m_theta_more_than_two_pi = false;
     else
         m_theta_more_than_two_pi = true;
@@ -1520,16 +1520,19 @@ bool Pave::is_positive_invariant(){
         return true;
     else if(is_trajectory_external_escape())
         return false;
-    else if(is_full() && !is_border())
+    else if(is_full() && !is_theta_more_than_two_pi())
         return true;
     else if(is_theta_more_than_two_pi()){
         vector< vector<IntervalVector>> segment_list;
         for(Border *b:get_borders()){
             for(Inclusion *i:b->get_inclusions()){
-                if((i->get_border()->get_segment_in_union_out() & b->get_segment_full()) != (b->get_segment_in_union_out() & i->get_border()->get_segment_full())){
+                Interval i_segment_in_union_out = i->get_border()->get_segment_in_union_out();
+                Interval seg_range =  b->get_segment_full() & i->get_border()->get_segment_full();
+                if((i_segment_in_union_out & seg_range) != seg_range
+                        || b->get_segment_in_union_out().is_empty()){
 
                     Interval neighbour_diff_A, neighbour_diff_B;
-                    i->get_border()->get_segment_full().diff(i->get_border()->get_segment_in_union_out(), neighbour_diff_A, neighbour_diff_B);
+                    i->get_border()->get_segment_full().diff(i_segment_in_union_out, neighbour_diff_A, neighbour_diff_B);
                     Interval segment_in_out = b->get_segment_in_union_out();
                     IntervalVector segment_in_out_2D = b->get_segment_in_union_out_2D();
 
@@ -1544,8 +1547,6 @@ bool Pave::is_positive_invariant(){
                         segment.push_back(ptA);
                         segment.push_back(ptB);
                         segment_list.push_back(segment);
-                        cout << "A not null" << endl;
-
                     }
                     if(!(neighbour_diff_B & segment_in_out).is_empty()){
                         IntervalVector neighbour_diff_B_2D = i->get_border()->get_position();
@@ -1558,14 +1559,11 @@ bool Pave::is_positive_invariant(){
                         segment.push_back(ptA);
                         segment.push_back(ptB);
                         segment_list.push_back(segment);
-
-                        cout << "B not null" << endl;
                     }
 
                 }
             }
         }
-        cout << "Option full border detected : " << m_position << endl;
         m_segment_list = segment_list;
         return true;
     }
