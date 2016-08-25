@@ -1,6 +1,6 @@
 language: c++
 sudo: false
-dist: trusty
+# dist: trusty
 
 notifications:
   email: false
@@ -10,18 +10,17 @@ notifications:
 addons:
   apt:
     sources:
+    - sourceline: 'ppa:ubuntu-sdk-team/ppa'
     - deadsnakes
     - ubuntu-toolchain-r-test
-    - chef-current-precise
-    - ppa:ubuntu-sdk-team/ppa
 
     packages:
     - cmake
     - time
     - pkg-config
     - g++-4.8
-    - qtbase5-dev 
-    - qtbase5-dev-tools
+    # - qtbase5-dev 
+    # - qtbase5-dev-tools
 
 cache:
   directories:
