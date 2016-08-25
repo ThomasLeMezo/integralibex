@@ -42,6 +42,7 @@ matrix:
 install:
   - bash ./build_ibex_travis.sh
   - export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOME/ibex:$HOME/ibex-geometry
+  - sudo apt-get install -qq -y qtbase5-dev qtbase5-dev-tools
 
 script:
  - qmake -project
