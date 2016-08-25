@@ -1,6 +1,11 @@
 language: c++
 sudo: false
 
+notifications:
+  slack:
+    on_success: never
+    on_failure: never
+
 addons:
   apt:
     sources:
@@ -13,11 +18,7 @@ addons:
     - pkg-config
     - g++-4.8
     - qtbase5-dev 
-    - qtdeclarative5-dev 
-    - libqt5webkit5-dev 
-    - libsqlite3-dev
-    - qt5-default 
-    - qttools5-dev-tools
+    - qtbase5-dev-tools
 
 cache:
   directories:
@@ -25,13 +26,14 @@ cache:
 
 matrix:
   include:
-  - os: osx
-    compiler: clang
+  # - os: osx
+  #   compiler: clang
   - os: linux
     compiler: gcc-4.8
 
-before_install:
-  - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install clang-omp; fi
+install:
+  - bash ./build_ibex_travis.sh
+  - export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOME/ibex:$HOME/ibex-geometry
 
 script:
  - qmake -project
