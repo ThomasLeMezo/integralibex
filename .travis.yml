@@ -13,6 +13,7 @@ addons:
     - sourceline: 'ppa:ubuntu-sdk-team/ppa'
     - deadsnakes
     - ubuntu-toolchain-r-test
+    - chef-current-precise
 
     packages:
     - cmake
@@ -47,4 +48,3 @@ install:
 script:
  - qmake -project
  - qmake integrationIBEX.pro
- - make
