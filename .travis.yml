@@ -1,16 +1,19 @@
 language: c++
 sudo: false
+dist: trusty
 
 notifications:
-  slack:
-    on_success: never
-    on_failure: never
+  email: false
+    # on_success: never
+    # on_failure: never
 
 addons:
   apt:
     sources:
+    - deadsnakes
     - ubuntu-toolchain-r-test
     - chef-current-precise
+    - ppa:ubuntu-sdk-team/ppa
 
     packages:
     - cmake
