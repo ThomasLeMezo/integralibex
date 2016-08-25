@@ -19,6 +19,10 @@ addons:
     - time
     - pkg-config
     - g++-4.8
+    - python2.7 
+    - flex 
+    - bison
+    - pkg-config
     # - qtbase5-dev 
     # - qtbase5-dev-tools
 
