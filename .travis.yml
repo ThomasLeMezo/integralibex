@@ -1,5 +1,5 @@
 language: c++
-sudo: false
+sudo: true
 # dist: trusty
 
 notifications:
@@ -22,6 +22,8 @@ addons:
     - python2.7 
     - flex 
     - bison
+    - gcc
+    - make
     - pkg-config
     # - qtbase5-dev 
     # - qtbase5-dev-tools

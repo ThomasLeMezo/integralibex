@@ -6,8 +6,8 @@ if [ ! -e "$HOME/ibex/lib/libibex.a" ]; then
 	git clone https://github.com/ibex-team/ibex-lib.git
 	cd ibex-lib
 	./waf configure
-	./waf install
-	make install -j2
+	sudo ./waf install -j2
+	export PKG_CONFIG_PATH=/usr/local/share/pkgconfig/
 else
   echo 'Using cached directory.';
 fi
