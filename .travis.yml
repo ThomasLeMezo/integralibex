@@ -26,8 +26,6 @@ addons:
     - gcc
     - make
     - pkg-config
-    - qt54base
-    - qt54tools
     # - qtbase5-dev 
     # - qtbase5-dev-tools
 
@@ -47,6 +45,8 @@ install:
   - export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOME/ibex:$HOME/ibex-geometry
 
 script:
+  - sudo apt-get update
+  - sudo apt-get install -y -qq qt54base qt54tools
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
          QTDIR="/opt/qt54"
       && PATH="$QTDIR/bin:$PATH"
