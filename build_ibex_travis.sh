@@ -17,7 +17,7 @@ if [ ! -e "$HOME/ibex-geometry/LICENSE" ]; then
 	git clone https://github.com/benEnsta/ibex-geometry.git
 	cd ibex-geometry
 	cmake .
-	make install -j2
+	sudo make install -j2
 else
   echo 'Using cached directory.';
 fi
