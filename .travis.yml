@@ -11,7 +11,6 @@ addons:
   apt:
     sources:
     - sourceline: 'ppa:ubuntu-sdk-team/ppa'
-    - sourceline: 'ppa:beineri/opt-qt542'
     - deadsnakes
     - ubuntu-toolchain-r-test
     - chef-current-precise
@@ -26,6 +25,8 @@ addons:
     - gcc
     - make
     - pkg-config
+    - qt5-qmake
+    - qtbase5-dev
     # - qtbase5-dev 
     # - qtbase5-dev-tools
 
@@ -38,26 +39,13 @@ matrix:
   # - os: osx
   #   compiler: clang
   - os: linux
-    compiler: gcc
+    compiler: gcc 
 
 install:
   - bash ./build_ibex_travis.sh
   - export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOME/ibex:$HOME/ibex-geometry
 
 script:
-  - sudo apt-get update
-  - sudo apt-get install -y -qq qt54base qt54tools
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-         QTDIR="/opt/qt54"
-      && PATH="$QTDIR/bin:$PATH"
-      && qt54-env.sh 
-      ;
-    else
-         QTDIR="/usr/local/opt/qt55"
-      && PATH="$QTDIR/bin:$PATH"
-      && LDFLAGS=-L$QTDIR/lib
-      && CPPFLAGS=-I$QTDIR/include
-      ;
-    fi 
   - qmake -project
   - qmake integrationIBEX.pro
+  - make -j2
