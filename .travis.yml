@@ -33,7 +33,7 @@ addons:
 cache:
   directories:
   - /opt/ibex
-  - /opt/ibex-geometry
+  # - /opt/ibex-geometry
   - /opt/VIBES
 
 matrix:
