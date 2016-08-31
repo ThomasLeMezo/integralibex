@@ -45,7 +45,7 @@ matrix:
 
 install:
   - bash ./build_ibex_travis.sh
-  - export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOME/ibex:$HOME/ibex-geometry
+  - export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/ibex:/opt/ibex-geometry
 
 script:
   - qmake -project
