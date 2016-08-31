@@ -32,7 +32,7 @@ addons:
 
 cache:
   directories:
-  - /opt/ibex/
+  - /opt/ibex-lib/
   - /opt/ibex-geometry/
   - /opt/VIBES/
 
