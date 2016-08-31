@@ -32,9 +32,9 @@ addons:
 
 cache:
   directories:
-  - /opt/ibex
-  # - /opt/ibex-geometry
-  - /opt/VIBES
+  - /opt/ibex/
+  - /opt/ibex-geometry/
+  - /opt/VIBES/
 
 matrix:
   include:
