@@ -586,10 +586,10 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 // ********************************************************************************
 // ****************** Drawing functions *******************************************
 
-void Scheduler::draw(int size, bool filled, string comment){
+void Scheduler::draw(int size, bool filled, string comment, bool positive_invariant){
     int position = 0;
     for(Graph *g:m_graph_list){
-        g->draw(size, filled, comment, false, position);
+        g->draw(size, filled, comment, false, position, positive_invariant);
         position += 100;
     }
 }

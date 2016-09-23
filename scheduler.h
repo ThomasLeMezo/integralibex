@@ -36,7 +36,7 @@ public:
     void set_external_boundary(bool in, bool out);
 
     // ******** Drawing functions ********
-    void draw(int size, bool filled, string comment="");
+    void draw(int size, bool filled, string comment="", bool positive_invariant=true);
     void print_pave_info(int graph, double x, double y, string color="black[g]");
 
     // Getter

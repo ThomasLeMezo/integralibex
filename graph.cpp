@@ -416,7 +416,7 @@ Pave& Graph::operator[](int id){
     return *(m_node_list[id]);
 }
 
-void Graph::draw(int size, bool filled, string comment, bool inner_only, int position){
+void Graph::draw(int size, bool filled, string comment, bool inner_only, int position, bool pos_invariant){
 
     // Magenta = #FF00FF
     // Gray light =  #D3D3D3
@@ -436,22 +436,26 @@ void Graph::draw(int size, bool filled, string comment, bool inner_only, int pos
     }
 
     // Pos Invariant
-    if(m_pos_attractor_list.size()!=0){
-        for(vector<vector< vector<IntervalVector>>> &attractor:m_pos_attractor_list){
-            for(vector< vector<IntervalVector>> &segment_list:attractor){
-                for(vector<IntervalVector> &segment:segment_list){
-                    vector<double> x, y;
-                    for(IntervalVector &pt:segment){
-                        x.push_back(pt[0].mid());
-                        y.push_back(pt[1].mid());
+    if(pos_invariant){
+        if(m_pos_attractor_list.size()!=0){
+            for(vector<vector< vector<IntervalVector>>> &attractor:m_pos_attractor_list){
+                for(vector< vector<IntervalVector>> &segment_list:attractor){
+                    for(vector<IntervalVector> &segment:segment_list){
+                        vector<double> x, y;
+                        for(IntervalVector &pt:segment){
+                            x.push_back(pt[0].mid());
+                            y.push_back(pt[1].mid());
+                        }
+                        vibes::drawLine(x, y, "g",vibesParams("LineWidth",10.0));
                     }
-                    vibes::drawLine(x, y, "g",vibesParams("LineWidth",10.0));
                 }
             }
         }
     }
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
+
+    vibes::axisLimits(get_search_box()[0].lb()-1.0,get_search_box()[0].ub()+1.0, get_search_box()[1].lb()-1.0,get_search_box()[1].ub()+1.0);
 }
 
 void Graph::drawInner(bool filled){

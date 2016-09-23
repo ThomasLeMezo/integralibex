@@ -120,38 +120,41 @@ void station_keeping_attractor(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable phi, d;
-    ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1/d-1)*sin(phi)),
+    ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1.0/d-1)*sin(phi)),
                                     -cos(phi)));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f);
 
     IntervalVector box(2);
-    box[0] = -Interval::PI | Interval::PI;
-    box[1] = Interval(0.01, 10.0);
+//    box[0] = -Interval::PI | Interval::PI;
+//    box[1] = Interval(1e-5, 10.0);
+
+    box[0] = Interval(-2, -1.1);
+    box[1] = Interval(0.6,1.6);
 
     Scheduler s(box, f_list, false);
 
     /////////////// Symetries ///////////////
-    ibex::Function f_sym23(phi, d, Return(phi-Interval::TWO_PI, d));
-    s.set_symetry(&f_sym23,1, 3);
+//    ibex::Function f_sym23(phi, d, Return(phi-Interval::TWO_PI, d));
+//    s.set_symetry(&f_sym23,1, 3);
 
-    ibex::Function f_sym32(phi, d, Return(phi+Interval::TWO_PI, d));
-    s.set_symetry(&f_sym32,3, 1);
+//    ibex::Function f_sym32(phi, d, Return(phi+Interval::TWO_PI, d));
+//    s.set_symetry(&f_sym32,3, 1);
 
     /////////////// Inner ///////////////
-    Variable t;
+//    Variable t;
 //    ibex::Function f_inner(t, Return(2*atan(tan((atan2(cos(t), -sin(t))+Interval::PI-atan2(sin(t), cos(t)+1.0/sqrt(2.0)))/2.0)),
 //                               sqrt(pow(cos(t)+1/sqrt(2.0), 2)+pow(sin(t), 2))));
 //    s.set_imageIntegral(box, &f_inner, Interval::ZERO | Interval::TWO_PI, 15,5000);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(18, 5, 1e9, false, false);
+    s.cameleon_cycle(14, 5, 1e9, false, false);
 //    s.cameleon_propagation(15, 1e6, activated_pave, false);  
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     /////////////// Drawing ///////////////
-    s.draw(1024, true);
+    s.draw(1024, true, "", false);
 //    s.print_pave_info(0, -1.64,0.11,"b[b]");
 
     /// Truth
@@ -162,7 +165,7 @@ void station_keeping_attractor(){
         double phi = atan2(cos(t), -sin(t))+M_PI-atan2(sin(t), cos(t)+c);
         x.push_back(2*atan(tan(phi/2.0)));
     }
-    vibes::drawPolygon(x, y, "blue[]");
+    vibes::drawPolygon(x, y, "red[]");
 
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 
@@ -434,12 +437,39 @@ void car_on_the_hill_integrator(){
 //    activated_pave[0] = Interval(7.7809, 7.7810);
 //    initial_pave_list.push_back(activated_pave);
 
-//    s.cameleon_propagation(10, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(13, 1e9, activated_pave); // 25
+    s.cameleon_propagation(18, 1e9, activated_pave); // 25
+//    s.cameleon_propagation_with_inner(13, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
     vibes::axisLimits(-2,13, -6, 6);
+}
+
+void pendulum_cycle(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+//    ibex::Function f(x1, x2, Return(x2,
+//                                    -9.81/1.0*sin(x1)-1.0*x2));
+    ibex::Function f(x1, x2, Return(x2,
+                                    -9.81/1.0*sin(x1)));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+
+    IntervalVector box(2);
+    box[0] = Interval(-4,4);
+    box[1] = Interval(-4,4);
+
+    Scheduler s(box, f_list, false, false, false, false, false);
+
+    //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
+    s.cameleon_cycle(12, 5, 1e9, false, false, false);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    s.draw(1024, true);
+//    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
 void integrator(){
@@ -447,7 +477,7 @@ void integrator(){
     vibes::beginDrawing();
     Variable x1, x2, q, p;
     ibex::Function f0(x1, x2, Return(1.0+0.0*x1,
-                                    -sin(x2)));
+                                    -sin(x2) + Interval(-0.1, 0.1)));
 //    ibex::Function f0(q, p, Return(4*p*(q*q+p*p)+20*p,
 //                                   -(4*q*(q*q+p*p)-20*q)));
 //    ibex::Function f0(x1, x2, Return(1.0+0.0*x1, cos(x2)*cos(x2)));
@@ -471,8 +501,8 @@ void integrator(){
     activated_pave[0] = Interval(0.3,0.5);
     activated_pave[1] = Interval(-0.5,0.5);
 
-//    s.cameleon_propagation(19, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
+    s.cameleon_propagation(13, 1e9, activated_pave); // 25
+//    s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -492,7 +522,7 @@ void van_der_pol_integration(){
     box[0] = Interval(-6.0, 6.0);
     box[1] = Interval(-6.0, 6.0);
 
-    Scheduler s(box, f_list, false);
+    Scheduler s(box, f_list, true, true, true, false, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(-4.0, -3.0);
@@ -844,7 +874,7 @@ int main()
 //    ball();
 
     /// **** STATION KEEPING ***** //
-//    station_keeping_attractor();
+    station_keeping_attractor();
 
     /// **** CAR ON THE HILL ***** //
 //    car_on_the_hill_attractor();
@@ -879,7 +909,10 @@ int main()
 //    integrator_genesio();
 //    integrator_ratschan3();
 
+    /// **** PENDULUM ***** //
+//    pendulum_cycle();
+
     /// **** TEST ***** //
-    test();
+//    test();
     return 0;
 }
