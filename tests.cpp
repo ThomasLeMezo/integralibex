@@ -918,3 +918,15 @@ void test_possible_path(){
     p->print();
     test_draw(p, "inter");
 }
+
+void test_infinity(){
+    Variable x, y;
+    ibex::Function f(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x)));
+
+    IntervalVector box(2);
+    box[0] = Interval::POS_REALS + Interval(4);
+    box[1] = Interval::NEG_REALS - Interval(4);
+    cout << box << endl;
+    cout << f.eval(box) << endl;
+
+}

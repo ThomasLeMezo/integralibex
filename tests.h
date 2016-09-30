@@ -42,4 +42,6 @@ void test_car_on_hill();
 void test_inter_pave_perimeter();
 void test_possible_path();
 
+void test_infinity();
+
 #endif // TESTS_H

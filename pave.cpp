@@ -456,10 +456,10 @@ void Pave::draw(bool filled, bool inner_only){
 
             /// INNER
             set_inner_mode(true);
-            if(!is_bassin())
+//            if(!is_bassin())
                 draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
-            else
-                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
+//            else
+//                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
 
             /// POLYGON
             Pave *p_polygon = new Pave(this);
