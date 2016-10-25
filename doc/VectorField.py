@@ -67,11 +67,11 @@ from numpy import *
 # V = -2*x2
 
 #### Genesio
-# x1, x2 = np.meshgrid(np.arange(-70,70,1.0), np.arange(-1000,1000,100))
-# x1, x2 = np.meshgrid(np.arange(-20,10,0.5), np.arange(-15,5,0.5))
+x1, x2 = np.meshgrid(np.arange(-70,70,1.0), np.arange(-1000,1000,100))
+x1, x2 = np.meshgrid(np.arange(-20,10,0.5), np.arange(-15,5,0.5))
 # x1, x2 = np.meshgrid(np.arange(-0.5,0.5,0.05), np.arange(-0.5,0.5,0.05))
-# U=(-x1+x2)
-# V=(0.1*x1-2*x2-x1*x1-0.1*x1*x1*x1)
+U=(-x1+x2)
+V=(0.1*x1-2*x2-x1*x1-0.1*x1*x1*x1)
 
 #### Van Der Pol
 # x1, x2 = np.meshgrid(np.arange(-1.0,13.0, .3), np.arange(-6.0,6.0, .2))
@@ -84,10 +84,10 @@ from numpy import *
 # V = -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2
 
 #### Host & parasites
-x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,2.0, 0.1))
-x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,2.0, 0.1))
-U = (1-x2)*x1
-V = x2*(1-2*x2/(1+x1))
+# x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,2.0, 0.1))
+# x1, x2 = np.meshgrid(np.arange(-1.0,2.0, 0.1), np.arange(-1.0,2.0, 0.1))
+# U = (1-x2)*x1
+# V = x2*(1-2*x2/(1+x1))
 
 #### Drawing
 

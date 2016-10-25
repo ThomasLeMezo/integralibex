@@ -928,5 +928,32 @@ void test_infinity(){
     box[1] = Interval::NEG_REALS - Interval(4);
     cout << box << endl;
     cout << f.eval(box) << endl;
+}
 
+void test_chi_function(){
+    Variable phi, d;
+
+    ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1.0/d-1)*sin(phi)),
+                                    -cos(phi)));
+    IntervalVector box(2);
+    box[0] = Interval(-0.785398, 0);
+    box[1] = Interval(0, 1.25);
+    cout << box << endl;
+    IntervalVector result = f.eval_vector(box);
+    cout << "result = " << result << endl;
+
+//    result[0] = Interval(-1e300, 0.14);
+    cout << "result = " << result << endl;
+
+    cout << isfinite(result[0].lb()) << " -> " << result[0].lb()<< endl;
+    cout << isfinite(result[0].ub()) << " -> " << result[0].ub() << endl;
+
+    Interval theta = atan2(result[1], result[0]);
+    cout << "theta = " << theta << endl;
+
+    //
+    cout << "Test equal <=0" << endl;
+    Interval t1(-3, -2);
+    if(t1.is_subset(Interval::NEG_REALS))
+        cout << "ok" << endl;
 }

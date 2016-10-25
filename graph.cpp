@@ -95,6 +95,8 @@ Graph::Graph(Graph* g, int graph_id):
     m_inner_mode = g->get_inner_mode();
     m_positive_invariant = g->get_positive_invariant();
     m_pos_attractor_list = g->get_pos_attractor_list();
+
+    m_inside_curve_list = g->get_inside_curve_list();
 }
 
 Graph::Graph(Graph* g, Pave* activated_node, int graph_id) : Graph(g, graph_id){
@@ -475,6 +477,7 @@ void Graph::print_pave_info(double x, double y, string color) const{
     cout << "*******************" << endl;
     cout << "BOX = " << p->get_position() << endl;
     cout << p << endl;
+    cout << "active = " << p->is_active() << endl;
     p->print_theta_list();
     cout << "inner mode = " << p->get_inner_mode() << endl;
     p->reset_full_empty();
@@ -536,7 +539,18 @@ int Graph::size() const{
 void Graph::mark_empty_node(){
     for(Pave *pave:m_node_list){
         if(pave->is_active()){
-            if(!pave->is_theta_more_than_two_pi()){
+            bool removed_inside_curve = false;
+            if(m_inside_curve_list.size()>0 && pave->is_full_outer()){
+                for(ibex::Function *f_curve:m_inside_curve_list){
+                    Interval result = f_curve->eval(pave->get_position());
+                    if(result.is_subset(Interval::NEG_REALS)){
+                        pave->set_empty_inner();
+                        pave->set_bassin(true);
+                        removed_inside_curve = true;
+                    }
+                }
+            }
+            if(!pave->is_theta_more_than_two_pi() || removed_inside_curve){
                 pave->reset_full_empty();
                 bool empty_outer = false;
                 bool empty_inner = false;
@@ -554,7 +568,7 @@ void Graph::mark_empty_node(){
                     m_count_alive--;
                 }
             }
-            else{
+            else if(pave->is_active()){
                 pave->set_full();
             }
         }
@@ -1153,4 +1167,12 @@ void Graph::reset_queues(){
     }
     m_node_queue_inner.clear();
     m_node_queue_outer.clear();
+}
+
+std::list<ibex::Function*>  Graph::get_inside_curve_list() const{
+    return m_inside_curve_list;
+}
+
+void Graph::push_back_inside_curve(ibex::Function* curve){
+    m_inside_curve_list.push_back(curve);
 }

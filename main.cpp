@@ -45,7 +45,8 @@ void test(){
 
 //    sandbox();
 
-    test_infinity();
+//    test_infinity();
+    test_chi_function();
 
 //    Variable x, y;
 //    try{
@@ -129,12 +130,13 @@ void station_keeping_attractor(){
 
     IntervalVector box(2);
     box[0] = -Interval::PI | Interval::PI;
-    box[1] = Interval(1e-5, 10.0);
+//    box[1] = Interval(1e-5, 10.0);
+    box[1] = Interval(0.001, 10.0);
 
 //    box[0] = Interval(-2, -1.1);
 //    box[1] = Interval(0.6,1.6);
 
-    Scheduler s(box, f_list, false);
+    Scheduler s(box, f_list, false, true, true, false, false);
 
     /////////////// Symetries ///////////////
     ibex::Function f_sym23(phi, d, Return(phi-Interval::TWO_PI, d));
@@ -143,21 +145,20 @@ void station_keeping_attractor(){
     ibex::Function f_sym32(phi, d, Return(phi+Interval::TWO_PI, d));
     s.set_symetry(&f_sym32,3, 1);
 
-    /////////////// Inner ///////////////
-//    Variable t;
-//    ibex::Function f_inner(t, Return(2*atan(tan((atan2(cos(t), -sin(t))+Interval::PI-atan2(sin(t), cos(t)+1.0/sqrt(2.0)))/2.0)),
-//                               sqrt(pow(cos(t)+1/sqrt(2.0), 2)+pow(sin(t), 2))));
-//    s.set_imageIntegral(box, &f_inner, Interval::ZERO | Interval::TWO_PI, 15,5000);
+    /////////////// Inner curve ///////////////
+    ibex::Function f_inside_curve(phi, d, d*(d+2*sin(phi))+1/2.0);
+    s.push_back_inside_curve(&f_inside_curve);
 
     /////////////// Compute ///////////////
-    s.cameleon_cycle(14, 5, 1e9, false, false);
+//    s.cameleon_cycle(14, 5, 1e9, false, false);
+    s.cameleon_viability(10, 1e9, true);
 //    s.cameleon_propagation(15, 1e6, activated_pave, false);  
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     /////////////// Drawing ///////////////
     s.draw(1024, true, "", false);
-//    s.print_pave_info(0, -1.64,0.11,"b[b]");
+    s.print_pave_info(0, -1.17,1.47,"b[b]");
 
     /// Truth
     vector<double> x, y;
@@ -392,7 +393,7 @@ void car_on_the_hill_limit_path(){
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    Scheduler s(box, f_list, false);
+    Scheduler s(box, f_list, false, false, false, false, false);
 
     IntervalVector activated_pave(2);
 //    activated_pave[0] = Interval(11.028646, 11.028647); // Point limite : x0 = 11.02864(6-7)
@@ -880,7 +881,7 @@ int main()
 //    ball();
 
     /// **** STATION KEEPING ***** //
-//    station_keeping_attractor();
+    station_keeping_attractor();
 
     /// **** CAR ON THE HILL ***** //
 //    car_on_the_hill_attractor();
@@ -919,6 +920,6 @@ int main()
 //    pendulum_cycle();
 
     /// **** TEST ***** //
-    test();
+//    test();
     return 0;
 }

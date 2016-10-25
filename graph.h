@@ -24,6 +24,7 @@ public:
     void                        push_back(Pave* p);
     void                        push_back_queue(Pave *p);
     void                        push_back_external_border(Pave *p);
+    void                        push_back_inside_curve(ibex::Function* curve);
 
     void                        copy_to_inner();
 
@@ -101,6 +102,7 @@ public:
     std::vector<std::vector<Pave *> >     get_contour_nodes();
     bool                        get_positive_invariant() const;
     std::vector<std::vector<std::vector< std::vector<ibex::IntervalVector>>>> get_pos_attractor_list() const;
+    std::list<ibex::Function *> get_inside_curve_list() const;
 
 
     // Other functions
@@ -126,6 +128,7 @@ private:
     std::list<Pave*> m_node_queue_outer;
 
     ibex::IntervalVector m_search_box;
+    std::list<ibex::Function*> m_inside_curve_list;
 
     Utils *m_utils;
 

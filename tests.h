@@ -43,5 +43,6 @@ void test_inter_pave_perimeter();
 void test_possible_path();
 
 void test_infinity();
+void test_chi_function();
 
 #endif // TESTS_H

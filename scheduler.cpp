@@ -120,6 +120,11 @@ void Scheduler::set_symetry(Function *f, int face_in, int face_out){
     g->set_symetry(f, face_in, face_out);
 }
 
+void Scheduler::push_back_inside_curve(ibex::Function *curve){
+    Graph *g = m_graph_list[0];
+    g->push_back_inside_curve(curve);
+}
+
 void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe){
     vector<IntervalVector> initial_boxes;
     initial_boxes.push_back(initial_boxe);
@@ -338,6 +343,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
         // Process the backward with the subpaving
         cout << "GRAPH No 0 (" << graph->size() << ")" << endl;
+        graph->mark_empty_node();
 
         graph->set_inner_mode(true);
         graph->update_queue(border_condition, true);

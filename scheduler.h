@@ -13,8 +13,9 @@ class Scheduler : public QObject
 {
     Q_OBJECT
 /***************** Functions ******************/
-public:
+private:
     Scheduler(const ibex::IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton);
+public:
     Scheduler(const ibex::IntervalVector &box, const vector<ibex::IntervalVector> &remove_boxes, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_in=true, bool border_out=true);
     Scheduler(const ibex::IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_inner_in, bool border_inner_out, bool border_outer_in, bool border_outer_out);
     ~Scheduler();
@@ -31,6 +32,7 @@ public:
     void attractor_to_kernel();
 
     void set_symetry(ibex::Function *f, int face_in, int face_out);
+    void push_back_inside_curve(ibex::Function *curve);
 //    void set_imageIntegral(const ibex::IntervalVector &range, ibex::Function *f, const ibex::Interval &t_range, int nbBisectionT, int nbBisectionXY);
     void set_inner_mode(bool val);
     void set_external_boundary(bool in, bool out);
