@@ -309,7 +309,12 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
     graph->compute_all_propagation_zone();
     //    graph->debug_marker2 = true;
 
-    if(iterations < iterations_max && graph->size()>4){
+    if(iterations < iterations_max && graph->size()<4){
+        while(!graph->is_sufficiently_discretized()){ // NEW [X week]
+            graph->reset_queues();
+            graph->sivia(2*graph->get_alive_node(),true, false, false);
+        }
+
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         cout << "GRAPH No 0 (" << graph->size() << ")" << endl;
@@ -343,7 +348,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
         // Process the backward with the subpaving
         cout << "GRAPH No 0 (" << graph->size() << ")" << endl;
-        graph->mark_empty_node();
+        graph->mark_empty_node(); // NEW => for [X week]
 
         graph->set_inner_mode(true);
         graph->update_queue(border_condition, true);

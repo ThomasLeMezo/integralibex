@@ -547,6 +547,7 @@ void Graph::mark_empty_node(){
                         pave->set_empty_inner();
                         pave->set_bassin(true);
                         removed_inside_curve = true;
+                        pave->set_external_border(true);
                     }
                 }
             }

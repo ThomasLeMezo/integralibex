@@ -465,11 +465,45 @@ void pendulum_cycle(){
     box[0] = Interval(-3,3);
     box[1] = Interval(-3,3);
 
-    // Scheduler(bool border_inner_in, bool border_inner_out, bool border_outer_in, bool border_outer_out));
-    Scheduler s(box, f_list, false, false, false, false, true);
+    Scheduler s(box, f_list, false, true, true, false, true);
 
-    //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
-    s.cameleon_cycle(12, 5, 1e9, false, false, false);
+    /////////////// Inner curve ///////////////
+    // x2^2/2 +g(1-cos(x1)) <= 9/2
+    ibex::Function f_inside_curve(x1, x2, pow(x2,2)/2.0 +9.81*(1.0-cos(x1))-4.5);
+    s.push_back_inside_curve(&f_inside_curve);
+
+    /////////////// Compute ///////////////
+    s.cameleon_viability(9, 1e9, true);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    s.draw(1024, true, "", false);
+//    s.print_pave_info(0, -3.8, -3.97,"b[b]");
+}
+
+void hann_max_pos_inv(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f(x1, x2, Return(-x1+2*(pow(x1,2))*x2,
+                                    -x2));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+
+    IntervalVector box(2);
+    box[0] = Interval(-4,4);
+    box[1] = Interval(-4,4);
+
+    Scheduler s(box, f_list, false, true, true, false, true);
+
+    /////////////// Inner curve ///////////////
+    ibex::Function f_inside_curve(x1, x2, pow(x1,2) + pow(x2,2) - 1/2.0);
+
+    s.push_back_inside_curve(&f_inside_curve);
+
+    /////////////// Compute ///////////////
+    s.cameleon_viability(8, 1e9, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -881,7 +915,7 @@ int main()
 //    ball();
 
     /// **** STATION KEEPING ***** //
-    station_keeping_attractor();
+//    station_keeping_attractor();
 
     /// **** CAR ON THE HILL ***** //
 //    car_on_the_hill_attractor();
@@ -916,8 +950,11 @@ int main()
 //    integrator_genesio();
 //    integrator_ratschan3();
 
+    /// **** Max POS INV ***** //
+    hann_max_pos_inv();
+
     /// **** PENDULUM ***** //
-//    pendulum_cycle();
+    pendulum_cycle();
 
     /// **** TEST ***** //
 //    test();
