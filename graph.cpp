@@ -544,14 +544,15 @@ void Graph::mark_empty_node(){
                 for(ibex::Function *f_curve:m_inside_curve_list){
                     Interval result = f_curve->eval(pave->get_position());
                     if(result.is_subset(Interval::NEG_REALS)){
+//                        removed_inside_curve = true;
                         pave->set_empty_inner();
                         pave->set_bassin(true);
-                        removed_inside_curve = true;
                         pave->set_external_border(true);
                     }
                 }
             }
-            if(!pave->is_theta_more_than_two_pi() || removed_inside_curve){
+            bool test_two_pi = pave->is_theta_more_than_two_pi();
+            if(removed_inside_curve || !test_two_pi){
                 pave->reset_full_empty();
                 bool empty_outer = false;
                 bool empty_inner = false;
@@ -569,7 +570,7 @@ void Graph::mark_empty_node(){
                     m_count_alive--;
                 }
             }
-            else if(pave->is_active()){
+            else if(test_two_pi && pave->is_active()){
                 pave->set_full();
             }
         }

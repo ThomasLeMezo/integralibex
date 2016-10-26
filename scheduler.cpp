@@ -339,7 +339,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         if(graph->get_alive_node()==0)
             break;
 
-        graph->sivia(2*graph->get_alive_node()+graph->size(), true, false, false);
+        graph->sivia(2*graph->get_alive_node(), true, false, false);
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 

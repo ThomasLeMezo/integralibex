@@ -131,7 +131,7 @@ void station_keeping_attractor(){
     IntervalVector box(2);
     box[0] = -Interval::PI | Interval::PI;
 //    box[1] = Interval(1e-5, 10.0);
-    box[1] = Interval(0.001, 10.0);
+    box[1] = Interval(0.0, 10.0);
 
 //    box[0] = Interval(-2, -1.1);
 //    box[1] = Interval(0.6,1.6);
@@ -145,13 +145,16 @@ void station_keeping_attractor(){
     ibex::Function f_sym32(phi, d, Return(phi+Interval::TWO_PI, d));
     s.set_symetry(&f_sym32,3, 1);
 
+    ibex::Function f_sym00(phi, d, Return(phi+Interval::TWO_PI, d));
+    s.set_symetry(&f_sym00,0, 0);
+
     /////////////// Inner curve ///////////////
     ibex::Function f_inside_curve(phi, d, d*(d+2*sin(phi))+1/2.0);
     s.push_back_inside_curve(&f_inside_curve);
 
     /////////////// Compute ///////////////
 //    s.cameleon_cycle(14, 5, 1e9, false, false);
-    s.cameleon_viability(10, 1e9, true);
+    s.cameleon_viability(8, 1e9, true);
 //    s.cameleon_propagation(15, 1e6, activated_pave, false);  
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -524,18 +527,49 @@ void predator_prey_max_pos_inv(){
     f_list.push_back(&f);
 
     IntervalVector box(2);
-    box[0] = Interval(-1,4);
-    box[1] = Interval(-2,5);
+    box[0] = Interval(-0.01,4);
+    box[1] = Interval(-0.01,5);
 
     Scheduler s(box, f_list, false, true, true, false, true);
 
     /////////////// Inner curve ///////////////
-    ibex::Function f_inside_curve(x1, x2, pow(x1,2) + pow(x2,2) - 1/2.0);
+    //Log[(x2/x1)] - (1/2)/(21/10) (2 x1 + x2) >= 0 & x2 <= 3 & x2 >=0 & x1 >= 0
+//    ibex::Function f_inside_curve(x1, x2, max(-x1, max(x2-3, -(log(x2/x1)-0.5/2.1*(2*x1+x2)))));
+    ibex::Function f_inside_curve(x1, x2, 0.5*((-(21.0/10.0) + x1)*(505.0/147.0*(-(21.0/10.0) + x1) + 10.0/21.0*(-(99.0/50.0) + x2)) + (10.0/21.0*(-(21.0/10.0) + x1) + (2665.0*(-(99.0/50.0) + x2))/1386.0)*(-(99.0/50.0) + x2)) - 1.0/8.0);
 
-//    s.push_back_inside_curve(&f_inside_curve);
+    s.push_back_inside_curve(&f_inside_curve);
 
     /////////////// Compute ///////////////
     s.cameleon_viability(8, 1e9, true);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    s.draw(1024, true, "", false);
+    s.print_pave_info(0, 0.0,0.0,"b[b]");
+}
+
+void circle3_max_pos_inv(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f(x1, x2, Return(x1-x2-pow(x1,3),
+                                    x1-pow(x1,2)*x2));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+
+    IntervalVector box(2);
+    box[0] = Interval(-4,4);
+    box[1] = Interval(-4,4);
+
+    Scheduler s(box, f_list, false, true, true, false, true);
+
+    /////////////// Inner curve ///////////////
+    ibex::Function f_inside_curve(x1, x2, pow(x1,2) + pow(x2,2) - 3.0);
+    s.push_back_inside_curve(&f_inside_curve);
+
+    /////////////// Compute ///////////////
+    s.cameleon_viability(11, 1e9, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -985,6 +1019,7 @@ int main()
     /// **** Max POS INV ***** //
 //    hann_max_pos_inv();
     predator_prey_max_pos_inv();
+//    circle3_max_pos_inv();
 
     /// **** PENDULUM ***** //
 //    pendulum_cycle();

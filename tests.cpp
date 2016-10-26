@@ -944,6 +944,8 @@ void test_chi_function(){
 
 //    result[0] = Interval(-1e300, 0.14);
     cout << "result = " << result << endl;
+    result[0] = Interval::NEG_REALS;
+    result[1] = Interval(-1, -0.5);
 
     cout << isfinite(result[0].lb()) << " -> " << result[0].lb()<< endl;
     cout << isfinite(result[0].ub()) << " -> " << result[0].ub() << endl;
@@ -956,4 +958,12 @@ void test_chi_function(){
     Interval t1(-3, -2);
     if(t1.is_subset(Interval::NEG_REALS))
         cout << "ok" << endl;
+
+    ibex::Variable x1, x2;
+    ibex::Function f_inside_curve(x1, x2, 0.5*((-(21.0/10.0) + x1)*(505.0/147.0*(-(21.0/10.0) + x1) + 10.0/21.0*(-(99.0/50.0) + x2)) + (10.0/21.0*(-(21.0/10.0) + x1) + (2665.0*(-(99.0/50.0) + x2))/1386.0)*(-(99.0/50.0) + x2)) - 1.0/8.0);
+    IntervalVector test(2);
+    test[0] = Interval(-0.01,0.15);
+    test[1] = Interval(-0.01,0.15);
+    cout << "test inside = " << f_inside_curve.eval_vector(test) << endl;
+
 }
