@@ -511,6 +511,38 @@ void hann_max_pos_inv(){
 //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
+void predator_prey_max_pos_inv(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    // −3x 1 + 4x 21 − 0.5x 1 x 2 − x 31
+    // −2.1x 2 + x 1 x 2
+    ibex::Function f(x1, x2, Return(-3.0*x1+4.0*pow(x1,2)-0.5*x1*x2-pow(x1, 3),
+                                    -2.1*x2+x1*x2));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+
+    IntervalVector box(2);
+    box[0] = Interval(-1,4);
+    box[1] = Interval(-2,5);
+
+    Scheduler s(box, f_list, false, true, true, false, true);
+
+    /////////////// Inner curve ///////////////
+    ibex::Function f_inside_curve(x1, x2, pow(x1,2) + pow(x2,2) - 1/2.0);
+
+//    s.push_back_inside_curve(&f_inside_curve);
+
+    /////////////// Compute ///////////////
+    s.cameleon_viability(8, 1e9, true);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    s.draw(1024, true, "", false);
+//    s.print_pave_info(0, -3.8, -3.97,"b[b]");
+}
+
 void integrator(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
@@ -951,10 +983,11 @@ int main()
 //    integrator_ratschan3();
 
     /// **** Max POS INV ***** //
-    hann_max_pos_inv();
+//    hann_max_pos_inv();
+    predator_prey_max_pos_inv();
 
     /// **** PENDULUM ***** //
-    pendulum_cycle();
+//    pendulum_cycle();
 
     /// **** TEST ***** //
 //    test();
