@@ -7,16 +7,6 @@ using namespace ibex;
 
 // cout << setprecision(80) << "..." << endl;
 
-Utils::Utils()
-{
-//    m_imageIntegral_activated = false;
-}
-
-Utils::~Utils(){
-//    if(m_imageIntegral_activated)
-//        delete(m_imageIntegral);
-}
-
 // ********************************************************************************
 // ****************** Contractors functions ***************************************
 /**

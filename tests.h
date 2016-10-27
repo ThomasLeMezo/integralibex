@@ -45,4 +45,6 @@ void test_possible_path();
 void test_infinity();
 void test_chi_function();
 
+void test_diff_infinity();
+
 #endif // TESTS_H

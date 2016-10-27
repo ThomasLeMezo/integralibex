@@ -46,7 +46,7 @@ void test(){
 //    sandbox();
 
 //    test_infinity();
-    test_chi_function();
+//    test_chi_function();
 
 //    Variable x, y;
 //    try{
@@ -55,6 +55,8 @@ void test(){
 //    catch(const ibex::SyntaxError & e){
 //        std::cerr << e << endl;
 //    }
+
+    test_diff_infinity();
 }
 
 void van_der_pol_cycle(){
@@ -577,6 +579,35 @@ void circle3_max_pos_inv(){
 //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
+void dipole_max_pos_inv(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f(x1, x2, Return((x1-1.0)/pow(x2*x2+pow(x1-1.0,2),1.5)-(x1+1.0)/pow(x2*x2+pow(x1+1.0,2),1.5),
+                                    x2/pow(x2*x2+pow(x1-1.0,2),1.5)-x2/pow(x2*x2+pow(x1+1.0,2),1.5)));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+
+    IntervalVector box(2);
+    box[0] = Interval(-4,4);
+    box[1] = Interval(-4,4);
+
+    Scheduler s(box, f_list, false, true, true, false, true);
+
+    /////////////// Inner curve ///////////////
+    ibex::Function f_inside_curve(x1, x2, pow(x1+1,2) + pow(x2,2) - 1.0);
+    s.push_back_inside_curve(&f_inside_curve);
+
+    /////////////// Compute ///////////////
+    s.cameleon_viability(15, 1e9, true);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    s.draw(1024, true, "", false);
+//    s.print_pave_info(0, -3.8, -3.97,"b[b]");
+}
+
 void integrator(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
@@ -611,7 +642,7 @@ void integrator(){
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
-//    s.print_pave_info(0, 1, 1.25);
+    s.print_pave_info(0, 5.5, 0.0);
 }
 
 void van_der_pol_integration(){
@@ -1018,8 +1049,9 @@ int main()
 
     /// **** Max POS INV ***** //
 //    hann_max_pos_inv();
-    predator_prey_max_pos_inv();
+//    predator_prey_max_pos_inv();
 //    circle3_max_pos_inv();
+    dipole_max_pos_inv();
 
     /// **** PENDULUM ***** //
 //    pendulum_cycle();

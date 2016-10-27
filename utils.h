@@ -3,7 +3,6 @@
 
 #include "ibex.h"
 #include "pave.h"
-#include "imageintegral.h"
 #include "ibex-geometry/ibex_CtcPolar.h"
 
 class Utils
@@ -14,8 +13,8 @@ public:
     // ************************ Functions ************************
     // ***********************************************************
 
-    Utils();
-    ~Utils();
+    Utils(){}
+    ~Utils(){}
 
     void rotate_segment_and_box(ibex::IntervalVector &Sk, const ibex::Interval &theta, ibex::IntervalVector &box, bool modifyBox);
     void translate_segment_and_box(ibex::IntervalVector &Sk, ibex::IntervalVector &box, bool toZero, bool modifyBox);

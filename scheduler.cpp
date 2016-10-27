@@ -4,7 +4,6 @@
 #include "omp.h"
 
 #include "graphdot.h"
-#include "imageintegral.h"
 
 using namespace std;
 using namespace ibex;
@@ -94,10 +93,13 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
     Graph *g = m_graph_list[0];
 
     /// ****** CREATE BORDER EXTRA BOXES *******
-    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
+//    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
+    IntervalVector Rspace(2);
+    vector<IntervalVector> list_border = m_utils.diff(Rspace, box);
 
     for(IntervalVector b:list_border){
         Pave* p = new Pave(b, f_list, diseable_singleton, false);
+        p->set_infinity_pave(true, box);
         p->set_external_border(true);
         if(border_inner_in)
             p->set_full_inner_in();

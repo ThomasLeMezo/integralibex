@@ -228,11 +228,13 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
-            for(int face=0; face<4; face++){
-                if(change_tab[face]){
-                    for(Pave *p:pave->get_brothers(face)){
-                        if(!p->is_in_queue()){
-                            add_to_queue(p);
+            if(!pave->is_external_border()){
+                for(int face=0; face<4; face++){
+                    if(change_tab[face]){
+                        for(Pave *p:pave->get_brothers(face)){
+                            if(!p->is_in_queue()){
+                                add_to_queue(p);
+                            }
                         }
                     }
                 }
@@ -544,7 +546,7 @@ void Graph::mark_empty_node(){
                 for(ibex::Function *f_curve:m_inside_curve_list){
                     Interval result = f_curve->eval(pave->get_position());
                     if(result.is_subset(Interval::NEG_REALS)){
-//                        removed_inside_curve = true;
+                        //                        removed_inside_curve = true;
                         pave->set_empty_inner();
                         pave->set_bassin(true);
                         pave->set_external_border(true);

@@ -9,7 +9,7 @@ using namespace std;
 using namespace ibex;
 
 Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f_list, bool diseable_singeleton, bool active):
-    m_position(2)
+    m_position(2), m_search_box(2)
 {
     m_position = position;    // Box corresponding to the Pave
     m_borders.reserve(4);
@@ -33,6 +33,7 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_removed_pave_outer = false;
 
     m_bassin = false;
+    m_infinity_pave = false;
 
     // Border building
     IntervalVector coordinate(2);
@@ -160,7 +161,7 @@ const std::vector<ibex::Interval> Pave::compute_theta(ibex::Interval dx, ibex::I
 }
 
 Pave::Pave(const Pave *p):
-    m_position(2)
+    m_position(2), m_search_box(2)
 {
     m_position = p->get_position();    // Box corresponding to the Pave
     m_f_list = p->get_f_list();
@@ -206,7 +207,10 @@ Pave::Pave(const Pave *p):
     m_cpt_continuity_outer= p->get_cpt_continuity_outer();
 
     m_bassin = p->is_bassin();
+    m_infinity_pave = p->is_infinity_pave();
     m_theta_more_than_two_pi = p->is_theta_more_than_two_pi();
+
+    m_search_box = p->get_search_box();
 }
 
 Pave::~Pave(){
@@ -443,9 +447,25 @@ void Pave::draw(bool filled, bool inner_only){
     //        draw_borders(filled, "#00FF00AA[#00FF00AA]");
     //    }
     //    else{
-    vibes::drawBox(m_position, "#D3D3D3[]");
+    IntervalVector position(m_position);
+    if(!m_position.is_unbounded()){
+        vibes::drawBox(m_position, "#D3D3D3[]");
+    }
+    else{
+        IntervalVector box_draw(m_position);
+        if(box_draw[0].lb() == NEG_INFINITY)
+            box_draw[0] = Interval(m_search_box[0].lb()-0.1*m_search_box[0].diam(), box_draw[0].ub());
+        if(box_draw[1].lb() == NEG_INFINITY)
+            box_draw[1] = Interval(m_search_box[1].lb()-0.1*m_search_box[1].diam(), box_draw[1].ub());
+        if(box_draw[0].ub() == POS_INFINITY)
+            box_draw[0] = Interval(box_draw[0].lb(), m_search_box[0].ub()+0.1*m_search_box[0].diam());
+        if(box_draw[1].ub() == POS_INFINITY)
+            box_draw[1] = Interval(box_draw[1].lb(), m_search_box[1].ub()+0.1*m_search_box[1].diam());
+        vibes::drawBox(box_draw, "#D3D3D3[]");
+        position = box_draw;
+    }
     if(m_compute_inner){
-        if(!m_external_border){
+        if(!m_external_border || m_infinity_pave){
             bool mode = get_inner_mode();
             bool backward = get_backward_function();
             /// OUTER
@@ -487,7 +507,7 @@ void Pave::draw(bool filled, bool inner_only){
 
     // Draw theta
     //    set_backward_function(false);
-    draw_theta();
+    draw_theta(position);
     //    }
 
     //    if(m_segment_list.size()!=0){
@@ -502,8 +522,8 @@ void Pave::draw(bool filled, bool inner_only){
     //    }
 }
 
-void Pave::draw_theta() const{
-    double size = 0.8*min(m_position[0].diam(), m_position[1].diam())/2.0;
+void Pave::draw_theta(IntervalVector position) const{
+    double size = 0.8*min(position[0].diam(), position[1].diam())/2.0;
 
     std::vector<std::string> color_map;
     color_map.push_back("black[gray]");
@@ -513,7 +533,7 @@ void Pave::draw_theta() const{
     for(int k=0; k<(int)get_theta_list().size(); k++){
         double size_ratio = size * (1-0.1*k);
         for(Interval i:get_theta_list(k)){
-            vibes::drawSector(m_position[0].mid(), m_position[1].mid(), size_ratio, size_ratio, (-i.lb())*180.0/M_PI, (-i.ub())*180.0/M_PI, color_map[k%color_map.size()]);
+            vibes::drawSector(position[0].mid(), position[1].mid(), size_ratio, size_ratio, (-i.lb())*180.0/M_PI, (-i.ub())*180.0/M_PI, color_map[k%color_map.size()]);
         }
     }
 }
@@ -557,7 +577,7 @@ void Pave::draw_test(int size, string comment) const{
     for(int i=0; i<(int)m_borders.size(); i++){
         m_borders[i]->draw(true, offset[i%2]*(((i+3)%4>1)?-1:1), true);
     }
-    draw_theta();
+    draw_theta(m_position);
 
     vibes::setFigureProperties(vibesParams("viewbox", "equal"));
     vibes::axisAuto();
@@ -1689,4 +1709,17 @@ void Pave::reset_segment_list(){
 
 bool Pave::is_theta_more_than_two_pi() const{
     return m_theta_more_than_two_pi;
+}
+
+bool Pave::is_infinity_pave() const{
+    return m_infinity_pave;
+}
+
+void Pave::set_infinity_pave(bool val, IntervalVector search_box){
+    m_infinity_pave = val;
+    m_search_box = search_box;
+}
+
+ibex::IntervalVector Pave::get_search_box() const{
+    return m_search_box;
 }

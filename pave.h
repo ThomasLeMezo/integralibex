@@ -32,7 +32,7 @@ public:
     void                        draw(bool filled, bool inner_only=false);
     void                        draw_borders(bool filled, std::string color_polygon="g[g]", bool complementary=false) const;
     void                        draw_test(int size, std::string comment) const;
-    void                        draw_theta() const;
+    void                        draw_theta(ibex::IntervalVector position) const;
     void                        print();
     void                        print_theta_list();
 
@@ -54,6 +54,7 @@ public:
     bool                        is_in_queue_inner() const;
     bool                        is_active() const;
     bool                        is_bassin() const;
+    bool                        is_infinity_pave() const;
     bool                        is_border() const;
     bool                        is_marked_attractor() const;
     bool                        is_marked() const;
@@ -97,6 +98,7 @@ public:
     void                        set_segment(bool in, bool out);
     void                        set_active(bool val);
     void                        set_bassin(bool val);
+    void                        set_infinity_pave(bool val, ibex::IntervalVector search_box);
     void                        set_theta(std::vector<ibex::Interval> theta_list);
     void                        set_theta(ibex::Interval theta);
     void                        set_in_queue(bool flag);
@@ -182,6 +184,8 @@ public:
     double                              get_area_outer() const;
     double                              get_perimeter() const;
 
+    ibex::IntervalVector                get_search_box() const;
+
     std::vector<std::vector<ibex::IntervalVector> > get_segment_list();
 
     // Other functions
@@ -230,6 +234,7 @@ private:
     bool                        m_marker;
     bool                        m_external_border;
     bool                        m_bassin;
+    bool                        m_infinity_pave;
     bool                        m_removed_pave_inner;
     bool                        m_removed_pave_outer;
 
@@ -246,6 +251,8 @@ private:
     bool                        m_theta_more_than_two_pi;
 
     std::vector< std::vector<ibex::IntervalVector>> m_segment_list;
+
+    ibex::IntervalVector        m_search_box;
 
 };
 

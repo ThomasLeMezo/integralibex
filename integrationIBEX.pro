@@ -33,8 +33,7 @@ SOURCES += main.cpp \
     /opt/VIBES/client-api/C++/src/vibes.cpp \
     graph.cpp \
     inclusion.cpp \
-    graphdot.cpp \
-    imageintegral.cpp
+    graphdot.cpp
 
 HEADERS  +=     border.h \
     pave.h \
@@ -44,8 +43,7 @@ HEADERS  +=     border.h \
     /opt/VIBES/client-api/C++/src/vibes.h \
     graph.h \
     inclusion.h \
-    graphdot.h \
-    imageintegral.h
+    graphdot.h
 
 #INCLUDEPATH += /usr/local/include/opencv2
 LIBS += -L/usr/local/lib

@@ -4,8 +4,6 @@
 #include <vibes.h>
 #include "iomanip"
 #include "graphdot.h"
-//#include "opencv2/imgproc/imgproc.hpp"
-//#include "opencv2/highgui/highgui.hpp"
 
 using namespace ibex;
 using namespace std;
@@ -965,5 +963,16 @@ void test_chi_function(){
     test[0] = Interval(-0.01,0.15);
     test[1] = Interval(-0.01,0.15);
     cout << "test inside = " << f_inside_curve.eval_vector(test) << endl;
+}
 
+void test_diff_infinity(){
+    Utils u;
+    IntervalVector box_R(2);
+    IntervalVector box_search(2);
+    box_search[0] = Interval(-1,1);
+    box_search[1] = Interval(-1,1);
+
+    vector<IntervalVector> box_diff_list = u.diff(box_R, box_search);
+    for(IntervalVector &box:box_diff_list)
+        cout << box << endl;
 }
