@@ -268,7 +268,10 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
         delete(p2);
     }
     else{
-        this->CtcPaveForward(p, false, change_tab, union_functions);
+        for(int i=0; i<p->get_f_list().size(); i++){
+            p->set_active_function(i);
+            this->CtcPaveForward(p, false, change_tab, union_functions);
+        }
     }
 
     // Test if only one border is not empty

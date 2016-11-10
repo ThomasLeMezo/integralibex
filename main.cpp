@@ -486,6 +486,40 @@ void pendulum_cycle(){
 //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
+void pendulum_integration(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(x2,
+                                    -9.81/1.0*sin(x1)-1.0*x2));
+    ibex::Function f2(x1, x2, Return(x2,
+                                    -9.81/1.0*sin(x1)-1.0*x2-5.0*x2));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+    f_list.push_back(&f2);
+
+    IntervalVector box(2);
+    box[0] = Interval(-3,3);
+    box[1] = Interval(-3,3);
+
+    Scheduler s(box, f_list, false, true, true, false, false);
+
+    /////////////// Initial condition ///////////////
+    IntervalVector initial_box(2);
+    initial_box[0] = Interval(1.0,1.1);
+    initial_box[1] = Interval(-0.2, 0.0);
+
+    /////////////// Compute ///////////////
+    s.cameleon_propagation_with_inner(10,1e9,initial_box);
+//    s.cameleon_propagation(13,1e9,initial_box);
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+
+    s.draw(1024, true, "", false);
+//    s.print_pave_info(0, -3.8, -3.97,"b[b]");
+}
+
 void hann_max_pos_inv(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
@@ -643,6 +677,7 @@ void integrator(){
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
     s.print_pave_info(0, 5.5, 0.0);
+    s.print_pave_info(0, 2.5, 2.3);
 }
 
 void van_der_pol_integration(){
@@ -678,8 +713,8 @@ void van_der_pol_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x + 1.0)));
-    ibex::Function f2(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x - 1.0)));
+    ibex::Function f1(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x + 1.0)));
+    ibex::Function f2(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x - 1.0)));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -692,7 +727,7 @@ void van_der_pol_kernel(){
     Scheduler s(box, f_list, true, true, true, false, false);
 
     /////////////// Compute ///////////////
-    s.compute_attractor(14, 1e9);
+    s.compute_attractor(5, 1e9);
     s.draw(1024, true, "attractor");
     s.attractor_to_kernel();
     s.draw(1024, true, "invert");
@@ -1031,7 +1066,7 @@ int main()
     /// **** VAN DER POL ***** //
 //    van_der_pol_cycle();
 //    van_der_pol_integration();
-//    van_der_pol_kernel();
+    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
 //    integrator();
@@ -1051,10 +1086,11 @@ int main()
 //    hann_max_pos_inv();
 //    predator_prey_max_pos_inv();
 //    circle3_max_pos_inv();
-    dipole_max_pos_inv();
+//    dipole_max_pos_inv();
 
     /// **** PENDULUM ***** //
 //    pendulum_cycle();
+//    pendulum_integration();
 
     /// **** TEST ***** //
 //    test();

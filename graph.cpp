@@ -228,13 +228,11 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
-            if(!pave->is_external_border()){
-                for(int face=0; face<4; face++){
-                    if(change_tab[face]){
-                        for(Pave *p:pave->get_brothers(face)){
-                            if(!p->is_in_queue()){
-                                add_to_queue(p);
-                            }
+            for(int face=0; face<4; face++){
+                if(change_tab[face]){
+                    for(Pave *p:pave->get_brothers(face)){
+                        if(!p->is_in_queue()){
+                            add_to_queue(p);
                         }
                     }
                 }
@@ -644,6 +642,9 @@ void Graph::set_empty(){
     for(Pave *node : m_node_list){
         if(node->is_active() && !node->is_removed_pave())
             node->set_empty();
+    }
+    for(Pave *node : m_node_border_list){
+        node->set_empty();
     }
 }
 

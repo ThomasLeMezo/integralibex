@@ -482,6 +482,7 @@ void Pave::draw(bool filled, bool inner_only){
 //                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
 
             /// POLYGON
+            if(!m_position.is_unbounded()){
             Pave *p_polygon = new Pave(this);
             p_polygon->set_inner_mode(true);
             if(!inner_only){
@@ -490,6 +491,11 @@ void Pave::draw(bool filled, bool inner_only){
             }
             p_polygon->draw_borders(true, "y[y]");
             delete(p_polygon);
+            }
+            else{
+                if(!is_empty())
+                    vibes::drawBox(position, "y[y]");
+            }
 
             set_inner_mode(mode);
             set_backward_function(backward);
@@ -502,6 +508,11 @@ void Pave::draw(bool filled, bool inner_only){
         if(!m_external_border){
             vibes::drawBox(m_position, "#4C4CFF[#4C4CFF]");
             draw_borders(filled, "y[y]"); // yellow
+        }
+        else{
+            reset_full_empty();
+            if(!is_empty())
+                vibes::drawBox(position, "y[y]");
         }
     }
 
