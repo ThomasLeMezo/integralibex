@@ -461,7 +461,7 @@ void Pave::draw(bool filled, bool inner_only){
             box_draw[0] = Interval(box_draw[0].lb(), m_search_box[0].ub()+0.1*m_search_box[0].diam());
         if(box_draw[1].ub() == POS_INFINITY)
             box_draw[1] = Interval(box_draw[1].lb(), m_search_box[1].ub()+0.1*m_search_box[1].diam());
-        vibes::drawBox(box_draw, "#D3D3D3[]");
+        vibes::drawBox(box_draw, "#000000[]", vibes::Params("LineStyle", "--")); //D3D3D3
         position = box_draw;
     }
     if(m_compute_inner){

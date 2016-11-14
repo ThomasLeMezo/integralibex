@@ -508,10 +508,10 @@ void pendulum_integration(){
     /////////////// Initial condition ///////////////
     IntervalVector initial_box(2);
     initial_box[0] = Interval(1.0,1.1);
-    initial_box[1] = Interval(-0.2, 0.0);
+    initial_box[1] = Interval(-0.5, 0.0);
 
     /////////////// Compute ///////////////
-    s.cameleon_propagation_with_inner(10,1e9,initial_box);
+    s.cameleon_propagation_with_inner(11,1e9,initial_box);
 //    s.cameleon_propagation(13,1e9,initial_box);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -727,7 +727,7 @@ void van_der_pol_kernel(){
     Scheduler s(box, f_list, true, true, true, false, false);
 
     /////////////// Compute ///////////////
-    s.compute_attractor(5, 1e9);
+    s.compute_attractor(14, 1e9);
     s.draw(1024, true, "attractor");
     s.attractor_to_kernel();
     s.draw(1024, true, "invert");
@@ -1066,10 +1066,10 @@ int main()
     /// **** VAN DER POL ***** //
 //    van_der_pol_cycle();
 //    van_der_pol_integration();
-    van_der_pol_kernel();
+//    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
-//    integrator();
+    integrator();
 
     /// **** BASSIN ***** //
 //    bassin_ratschan6();

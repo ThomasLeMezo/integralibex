@@ -93,13 +93,13 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
     Graph *g = m_graph_list[0];
 
     /// ****** CREATE BORDER EXTRA BOXES *******
-    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
-//    IntervalVector Rspace(2);
-//    vector<IntervalVector> list_border = m_utils.diff(Rspace, box);
+//    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
+    IntervalVector Rspace(2);
+    vector<IntervalVector> list_border = m_utils.diff(Rspace, box);
 
     for(IntervalVector b:list_border){
         Pave* p = new Pave(b, f_list, diseable_singleton, false);
-//        p->set_infinity_pave(true, box);
+        p->set_infinity_pave(true, box);
         p->set_external_border(true);
         if(border_inner_in)
             p->set_full_inner_in();
@@ -208,7 +208,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         // Outer
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
-        graph->process(process_iterations_max, false);
+        graph->process(process_iterations_max, false, true);
 
         graph->mark_empty_node();
         iterations++;
@@ -237,7 +237,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         // Outer
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
-        graph->process(process_iterations_max, false);
+        graph->process(process_iterations_max, false, true);
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;

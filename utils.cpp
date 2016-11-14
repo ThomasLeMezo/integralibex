@@ -29,7 +29,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
         Interval theta2(theta);
 
         contract_polar.contract(Dx, Dy, rho, theta2);
-//        CtcPolarCorrection(Dx, Dy, rho, theta2);
+        //        CtcPolarCorrection(Dx, Dy, rho, theta2);
 
         // Compute x_front
         y_list.push_back(x + Dx);
@@ -75,7 +75,7 @@ void Utils::CtcPropagateLeftSide(ibex::Interval &x, ibex::Interval &y, const std
         Interval x_tmp(x), y_tmp(y);
         Interval rho(Interval::POS_REALS);
         this->contract_polar.contract(x_tmp, y_tmp, rho, theta);
-//        CtcPolarCorrection(x_tmp, y_tmp, rho, theta);
+        //        CtcPolarCorrection(x_tmp, y_tmp, rho, theta);
         x_list.push_back(x_tmp);
         y_list.push_back(y_tmp);
     }
@@ -268,10 +268,7 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
         delete(p2);
     }
     else{
-        for(int i=0; i<p->get_f_list().size(); i++){
-            p->set_active_function(i);
-            this->CtcPaveForward(p, false, change_tab, union_functions);
-        }
+        this->CtcPaveForward(p, false, change_tab, union_functions);
     }
 
     // Test if only one border is not empty
