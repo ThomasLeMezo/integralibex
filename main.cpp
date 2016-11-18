@@ -75,7 +75,7 @@ void van_der_pol_cycle(){
     box[0] = Interval(-4,4);
     box[1] = Interval(-4,4);
 
-    Scheduler s(box, f_list, false, false, false, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
     s.cameleon_cycle(12, 5, 1e9, true, false, false);
@@ -104,7 +104,7 @@ void ball(){
     box[0] = Interval(0.0, 20.0);
     box[1] = Interval(-20.0, 20.0);
 
-    Scheduler s(box, f_list, false, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(10.0, 16.0);
@@ -138,7 +138,7 @@ void station_keeping_attractor(){
     //    box[0] = Interval(-2, -1.1);
     //    box[1] = Interval(0.6,1.6);
 
-    Scheduler s(box, f_list, false, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, false);
 
     /////////////// Symetries ///////////////
     ibex::Function f_sym23(phi, d, Return(phi-Interval::TWO_PI, d));
@@ -195,7 +195,7 @@ void car_on_the_hill_attractor(){
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    Scheduler s(box, f_list, true, true, true, true, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, true, false);
     //    vector<IntervalVector> bassin_list;
     //    Scheduler s(box, bassin_list, f_list, u, true, false, false);
 
@@ -236,7 +236,7 @@ void car_on_the_hill_kernel(){
     if(is_attractor){
         s.attractor_to_kernel();
         //    s.draw(1024, true, "invert"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-        s.cameleon_viability(8, 1e9);
+        s.cameleon_viability(3, 1e9);
 
         cout << "************************" << endl;
         cout << "TOTAL TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -280,7 +280,7 @@ void car_on_the_hill_bassin(){
 
     // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
     // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
-    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, MAZE_DISEABLE_SINGLETON_ON, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
@@ -332,7 +332,7 @@ void cercle_capture_bassin(){
 
     list_boxes_removed.push_back(box_remove);
 
-    Scheduler s(box, list_boxes_removed, f_list, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, MAZE_DISEABLE_SINGLETON_ON); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_cycle(15, 5, 1e9, false, false);
@@ -371,7 +371,7 @@ void pendulum_capture_bassin(){
     box_remove[1] = Interval(-0.1,0.1);
     list_boxes_removed.push_back(box_remove);
 
-    Scheduler s(box, list_boxes_removed, f_list, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, MAZE_DISEABLE_SINGLETON_ON); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_cycle(14, 5, 1e9, false, false);
@@ -401,7 +401,7 @@ void car_on_the_hill_limit_path(){
     box[0] = Interval(-1.0, 13.0);
     box[1] = Interval(-16, 16);
 
-    Scheduler s(box, f_list, false, false, false, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
 
     IntervalVector activated_pave(2);
     //    activated_pave[0] = Interval(11.028646, 11.028647); // Point limite : x0 = 11.02864(6-7)
@@ -434,7 +434,7 @@ void car_on_the_hill_integrator(){
     box[0] = Interval(-2.0, 13.0);
     box[1] = Interval(-6, 6);
 
-    Scheduler s(box, f_list, false, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, false);
 
     vector<IntervalVector> initial_pave_list;
     IntervalVector activated_pave(2);
@@ -473,7 +473,7 @@ void pendulum_cycle(){
     box[0] = Interval(-3,3);
     box[1] = Interval(-3,3);
 
-    Scheduler s(box, f_list, false, true, true, false, true);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, true);
 
     /////////////// Inner curve ///////////////
     // x2^2/2 +g(1-cos(x1)) <= 9/2
@@ -514,7 +514,7 @@ void pendulum_integration(){
     initial_box[1] = Interval(-0.5, 0.0);
 
     /////////////// Compute ///////////////
-    s.cameleon_propagation_with_inner(11,1e9,initial_box);
+    s.cameleon_propagation_with_inner(10,1e9,initial_box);
     //    s.cameleon_propagation(13,1e9,initial_box);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -537,7 +537,7 @@ void hann_max_pos_inv(){
     box[0] = Interval(-4,4);
     box[1] = Interval(-4,4);
 
-    Scheduler s(box, f_list, false, true, true, false, true);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, true);
 
     /////////////// Inner curve ///////////////
     ibex::Function f_inside_curve(x1, x2, pow(x1,2) + pow(x2,2) - 1/2.0);
@@ -569,7 +569,7 @@ void predator_prey_max_pos_inv(){
     box[0] = Interval(-0.01,4);
     box[1] = Interval(-0.01,5);
 
-    Scheduler s(box, f_list, false, true, true, false, true);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, true);
 
     /////////////// Inner curve ///////////////
     //Log[(x2/x1)] - (1/2)/(21/10) (2 x1 + x2) >= 0 & x2 <= 3 & x2 >=0 & x1 >= 0
@@ -601,7 +601,7 @@ void circle3_max_pos_inv(){
     box[0] = Interval(-4,4);
     box[1] = Interval(-4,4);
 
-    Scheduler s(box, f_list, false, true, true, false, true);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, true);
 
     /////////////// Inner curve ///////////////
     ibex::Function f_inside_curve(x1, x2, pow(x1,2) + pow(x2,2) - 3.0);
@@ -630,7 +630,7 @@ void dipole_max_pos_inv(){
     box[0] = Interval(-4,4);
     box[1] = Interval(-4,4);
 
-    Scheduler s(box, f_list, false, true, true, false, true);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, true);
 
     /////////////// Inner curve ///////////////
     ibex::Function f_inside_curve(x1, x2, pow(x1+1,2) + pow(x2,2) - 1.0);
@@ -653,7 +653,7 @@ void integrator(){
                                      -sin(x2) + Interval(-0.1, 0.1)));
     //    ibex::Function f0(q, p, Return(4*p*(q*q+p*p)+20*p,
     //                                   -(4*q*(q*q+p*p)-20*q)));
-    //    ibex::Function f0(x1, x2, Return(1.0+0.0*x1, cos(x2)*cos(x2)));
+//        ibex::Function f0(x1, x2, Return(1.0+0.0*x1, cos(x2)*cos(x2)));
     //    ibex::Function f1(x1, x2, Return(1.0+0.0*x1,
     //                                    -sin(x2)-0.1));
     //    ibex::Function f2(x1, x2, Return(1.0+0.0*x1,
@@ -668,19 +668,19 @@ void integrator(){
     box[0] = Interval(0,5);
     box[1] = Interval(-2,2);
 
-    Scheduler s(box, f_list, true, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(0.3,0.5);
     activated_pave[1] = Interval(-0.5,0.5);
 
-    s.cameleon_propagation(13, 1e9, activated_pave); // 25
-    //    s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
+//    s.cameleon_propagation(13, 1e9, activated_pave);
+    s.cameleon_propagation_with_inner(10, 1e9, activated_pave);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    cout << endl << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
-    s.print_pave_info(0, 5.5, 0.0);
-    s.print_pave_info(0, 2.5, 2.3);
+//    s.print_pave_info(0, 5.5, 0.0);
+//    s.print_pave_info(0, 2.5, 2.3);
 }
 
 void van_der_pol_integration(){
@@ -696,7 +696,7 @@ void van_der_pol_integration(){
     box[0] = Interval(-6.0, 6.0);
     box[1] = Interval(-6.0, 6.0);
 
-    Scheduler s(box, f_list, true, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(-4.0, -3.0);
@@ -716,8 +716,8 @@ void van_der_pol_kernel(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f1(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x + 1.0)));
-    ibex::Function f2(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x - 1.0)));
+    ibex::Function f1(x, y, Return(y,-(1.0*(1.0-pow(x, 2))*y-x + 1.0)));
+    ibex::Function f2(x, y, Return(y,-(1.0*(1.0-pow(x, 2))*y-x - 1.0)));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -727,19 +727,22 @@ void van_der_pol_kernel(){
     box[0] = Interval(-8.0, 8.0);
     box[1] = Interval(-8.0, 8.0);
 
-    Scheduler s(box, f_list, true, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
     /////////////// Compute ///////////////
-    s.compute_attractor(14, 1e9);
+    bool is_attractor = s.compute_attractor(14, 1e9);
     s.draw(1024, true, "attractor");
-    s.attractor_to_kernel();
-    s.draw(1024, true, "invert");
-    s.cameleon_viability(3, 1e9);
+    if(is_attractor){
+        s.attractor_to_kernel();
+        s.draw(1024, true, "invert");
+        s.cameleon_viability(3, 1e9);
+    }
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     /////////////// Drawing ///////////////
-    s.draw(1024, true);
+    if(is_attractor)
+        s.draw(1024, true);
 }
 
 void bassin_van_der_pol(){
@@ -767,7 +770,7 @@ void bassin_van_der_pol(){
 
     // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
     // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
-    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, MAZE_DISEABLE_SINGLETON_ON, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
@@ -800,7 +803,7 @@ void car_on_the_hill_trajectory(){
     box[0] = Interval(-2.0, 13.0);
     box[1] = Interval(-10, 10);
 
-    Scheduler s(box, f_list, false, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, false);
 
     IntervalVector paveA(2);
     paveA[0] = Interval(0.0, 1.0);
@@ -843,7 +846,7 @@ void bassin_ratschan6(){
 
     // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
     // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
-    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, MAZE_DISEABLE_SINGLETON_ON, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_viability(10, 1e9, true); // 10 = 256 s
@@ -875,7 +878,7 @@ void bassin_parrilo(){
 
     // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
     // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
-    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, MAZE_DISEABLE_SINGLETON_ON, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_viability(10, 1e9, true); // 10 = 256 s
@@ -907,7 +910,7 @@ void bassin_ratschan3(){
 
     // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
     // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
-    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, MAZE_DISEABLE_SINGLETON_ON, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_viability(10, 1e9, true); // 10 = 256 s
@@ -932,7 +935,7 @@ void integrator_ratschan3(){
     //    box[0] = Interval(-8,8);
     //    box[1] = Interval(-8,8);
 
-    Scheduler s(box, f_list, true, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
     IntervalVector activated_pave(2);
     activated_pave[0] = Interval(-0.1,0.1);
@@ -971,7 +974,7 @@ void bassin_genesio(){
 
     // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
     // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
-    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, MAZE_DISEABLE_SINGLETON_ON, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_viability(10, 1e9, true); // 10 = 256 s
@@ -995,7 +998,7 @@ void integrator_genesio(){
     box[0] = Interval(-70,70);
     box[1] = Interval(-200,200);
 
-    Scheduler s(box, f_list, true, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
     IntervalVector activated_pave(2);
     //    activated_pave[0] = Interval(-10,10);
@@ -1033,7 +1036,7 @@ void bassin_bacha(){
 
     // const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list,
     // const IntervalVector &u, bool diseable_singleton, bool border_in, bool border_out
-    Scheduler s(box, list_boxes_removed, f_list, true, false, true); // diseable singleton = true
+    Scheduler s(box, list_boxes_removed, f_list, MAZE_DISEABLE_SINGLETON_ON, false, true); // diseable singleton = true
 
     /////////////// Compute ///////////////
     s.cameleon_viability(8, 1e9, true); // 10 = 256 s
@@ -1056,10 +1059,10 @@ int main()
     //    car_on_the_hill_attractor();
     //    car_on_the_hill_bassin();
 
-    car_on_the_hill_kernel();
+    //    car_on_the_hill_kernel();
 
     //    car_on_the_hill_trajectory();
-    //    car_on_the_hill_integrator();
+    //        car_on_the_hill_integrator();
     //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
@@ -1072,7 +1075,7 @@ int main()
     //    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
-    //    integrator();
+        integrator();
 
     /// **** BASSIN ***** //
     //    bassin_ratschan6();
@@ -1092,8 +1095,8 @@ int main()
     //    dipole_max_pos_inv();
 
     /// **** PENDULUM ***** //
-    //    pendulum_cycle();
-    //    pendulum_integration();
+    //        pendulum_cycle();
+    //        pendulum_integration();
 
     /// **** TEST ***** //
     //    test();

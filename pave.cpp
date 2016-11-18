@@ -22,7 +22,8 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     m_in_queue_inner = false;
     m_in_queue_outer = false;
     m_copy_node = NULL;
-    m_first_process = false;
+    m_first_process_inner = false;
+    m_first_process_outer = false;
     m_inner_mode = false;
     m_compute_inner = false;
 
@@ -173,7 +174,8 @@ Pave::Pave(const Pave *p):
     m_full_outer = true;
     m_in_queue_inner = p->is_in_queue_inner();
     m_in_queue_outer = p->is_in_queue_outer();
-    m_first_process = p->get_first_process();
+    m_first_process_inner = p->get_first_process_inner();
+    m_first_process_outer = p->get_first_process_outer();
     m_active = p->is_active();
     m_diseable_singeleton = p->get_diseable_singelton();
     m_external_border = p->is_external_border();
@@ -476,21 +478,21 @@ void Pave::draw(bool filled, bool inner_only){
 
             /// INNER
             set_inner_mode(true);
-//            if(!is_bassin())
-                draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
-//            else
-//                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
+            //            if(!is_bassin())
+            draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+            //            else
+            //                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
 
             /// POLYGON
             if(!m_position.is_unbounded()){
-            Pave *p_polygon = new Pave(this);
-            p_polygon->set_inner_mode(true);
-            if(!inner_only){
-                set_inner_mode(false);
-                p_polygon->inter(*this, false);
-            }
-            p_polygon->draw_borders(true, "y[y]");
-            delete(p_polygon);
+                Pave *p_polygon = new Pave(this);
+                p_polygon->set_inner_mode(true);
+                if(!inner_only){
+                    set_inner_mode(false);
+                    p_polygon->inter(*this, false);
+                }
+                p_polygon->draw_borders(true, "y[y]");
+                delete(p_polygon);
             }
             else{
                 if(!is_empty())
@@ -1104,15 +1106,48 @@ void Pave::print(){
 }
 
 bool Pave::get_first_process() const{
-    return m_first_process;
+    if(!m_compute_inner){
+        return get_first_process_outer();
+    }
+    else{
+        if(m_inner_mode)
+            return get_first_process_inner();
+        else
+            return get_first_process_outer();
+    }
 }
 
-void Pave::set_first_process_true(){
-    m_first_process = true;
+bool Pave::get_first_process_inner() const{
+    return m_first_process_inner;
 }
 
-void Pave::set_first_process_false(){
-    m_first_process = false;
+bool Pave::get_first_process_outer() const{
+    return m_first_process_outer;
+}
+
+void Pave::set_first_process_inner(bool val){
+    m_first_process_inner = val;
+}
+
+void Pave::set_first_process_outer(bool val){
+    m_first_process_outer = val;
+}
+
+void Pave::set_first_process(bool val){
+    if(!m_compute_inner){
+        return set_first_process_outer(val);
+    }
+    else{
+        if(m_inner_mode)
+            return set_first_process_inner(val);
+        else
+            return set_first_process_outer(val);
+    }
+}
+
+void Pave::set_first_process_all(bool val){
+    set_first_process_outer(val);
+    set_first_process_inner(val);
 }
 
 std::vector<ibex::Function *> Pave::get_f_list() const{
@@ -1456,10 +1491,15 @@ void Pave::increment_cpt_consistency(){
 }
 
 void Pave::increment_cpt_continuity(){
-    if(m_inner_mode)
-        m_cpt_continuity_inner++;
-    else
+    if(!m_compute_inner){
         m_cpt_continuity_outer++;
+    }
+    else{
+        if(m_inner_mode)
+            m_cpt_continuity_inner++;
+        else
+            m_cpt_continuity_outer++;
+    }
 }
 
 bool Pave::is_bassin() const{

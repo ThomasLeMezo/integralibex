@@ -105,8 +105,10 @@ public:
     void                        set_in_queue_inner(bool flag);
     void                        set_in_queue_outer(bool flag);
     void                        set_copy_node(Pave *p);
-    void                        set_first_process_true();
-    void                        set_first_process_false();
+    void                        set_first_process(bool val);
+    void                        set_first_process_inner(bool val);
+    void                        set_first_process_outer(bool val);
+    void                        set_first_process_all(bool val);
 
     void                        set_continuity_in(bool enable);
     void                        set_continuity_out(bool enable);
@@ -165,6 +167,8 @@ public:
     int                                 get_active_function() const;
 
     bool                                get_first_process() const;
+    bool                                get_first_process_inner() const;
+    bool                                get_first_process_outer() const;
 
     bool                                get_diseable_singelton() const;
 
@@ -226,7 +230,8 @@ private:
     bool                        m_in_queue_inner;
     bool                        m_in_queue_outer;
 
-    bool                        m_first_process;
+    bool                        m_first_process_inner;
+    bool                        m_first_process_outer;
 
     bool                        m_active;
     bool                        m_diseable_singeleton;

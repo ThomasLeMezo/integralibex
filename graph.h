@@ -4,6 +4,8 @@
 #include <pave.h>
 #include <utils.h>
 
+enum GRAPH_BW_FW_DIRECTION {GRAPH_FORWARD=false, GRAPH_BACKWARD=true};
+
 class Graph
 {
 public:
@@ -13,8 +15,8 @@ public:
     Graph(Graph* g, Pave* activated_node, int graph_id=-1);
     ~Graph();
 
-    int                         process(int max_iterations, bool backward, bool union_functions=false);
-    void                        sivia(int nb_node, bool backward, bool do_not_bisect_empty=false, bool do_not_bisect_full=false, bool apply_heuristic=false);
+    int                         process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool union_functions=false);
+    void                        sivia(int nb_node, GRAPH_BW_FW_DIRECTION direction, bool do_not_bisect_empty=false, bool do_not_bisect_full=false, bool apply_heuristic=false);
     void                        remove_empty_node();
     void                        mark_empty_node();
 

@@ -163,7 +163,7 @@ void Graph::clear_node_queue_outer(){
     m_node_queue_outer.clear();
 }
 
-void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_not_bisect_full, bool apply_heuristic){
+void Graph::sivia(int nb_node, GRAPH_BW_FW_DIRECTION direction, bool do_not_bisect_empty, bool do_not_bisect_full, bool apply_heuristic){
     //    if(nb_node<=m_count_alive)
     //        return;
     vector<Pave *> tmp_pave_list(m_node_list);
@@ -187,14 +187,14 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
                 compute_propagation_zone(tmp);
         }
         else{
-            tmp->bisect(tmp_pave_list, backward, apply_heuristic);
+            tmp->bisect(tmp_pave_list, direction, apply_heuristic);
             delete(tmp);
             m_count_alive++;
         }
     }
 
     for(Pave *p:tmp_pave_list){
-        if(backward && !p->is_removed_pave()){
+        if(direction && !p->is_removed_pave()){
             add_to_queue_outer(p);
             if(m_compute_inner){
                 add_to_queue_inner(p);
@@ -207,7 +207,7 @@ void Graph::sivia(int nb_node, bool backward, bool do_not_bisect_empty, bool do_
     cout << "--> sivia outer(" << m_node_queue_outer.size() << ") inner(" <<  m_node_queue_inner.size() << ")" << endl;
 }
 
-int Graph::process(int max_iterations, bool backward, bool union_functions){
+int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool union_functions){
     int iterations = 0;
     while(!is_empty_node_queue() && iterations < max_iterations){
         iterations++;
@@ -216,7 +216,7 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
         pave->set_in_queue(false);
 
         /// ******* PROCESS CONTINUITY *******
-        bool change = m_utils->CtcContinuity(pave, backward);
+        bool change = m_utils->CtcContinuity(pave, direction);
         pave->increment_cpt_continuity();
         if(pave->is_active() && !pave->is_removed_pave() && !pave->is_removed_pave_outer() && (change || pave->get_first_process())){
 
@@ -224,7 +224,7 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
             std::vector<bool> change_tab;
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
-            m_utils->CtcConsistency(pave, backward, change_tab, union_functions);
+            m_utils->CtcConsistency(pave, direction, change_tab, union_functions);
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
@@ -238,7 +238,7 @@ int Graph::process(int max_iterations, bool backward, bool union_functions){
                 }
             }
 
-            pave->set_first_process_false();
+            pave->set_first_process(false);
             pave->increment_cpt_consistency();
         }
         //        if(debug_marker1 && iterations>=11995 /**&& iterations%5==0**/){
@@ -660,7 +660,7 @@ void Graph::set_empty_outer_full_inner(){
         }
 
         if(pave->is_active())
-            pave->set_first_process_true();
+            pave->set_first_process_all(true);
     }
 }
 
@@ -672,11 +672,11 @@ void Graph::set_symetry(Function* f, int face_in, int face_out){
     p->get_border(face_out)->add_inclusion(i);
 }
 
-void Graph::set_all_first_process(){
-    for(Pave *pave:m_node_list){
-        pave->set_first_process_true();
-    }
-}
+//void Graph::set_all_first_process(){
+//    for(Pave *pave:m_node_list){
+//        pave->set_first_process(true);
+//    }
+//}
 
 int Graph::get_graph_id(){
     return m_graph_id;
@@ -741,7 +741,7 @@ void Graph::build_graph(){
 void Graph::update_queue(bool border_condition, bool empty_condition){
     clear_node_queue();
     for(Pave *p:m_node_list){
-        p->set_first_process_true();
+        p->set_first_process(true);
         p->set_in_queue(false);
         p->reset_full_empty();
 
@@ -918,7 +918,7 @@ void Graph::set_inner_mode(bool val){
     m_inner_mode = val;
     for(Pave *p:m_node_list){
         p->set_inner_mode(val);
-        p->set_first_process_true();
+        p->set_first_process(true);
     }
     for(Pave *p:m_node_border_list){
         p->set_inner_mode(val);
@@ -941,12 +941,12 @@ void Graph::add_to_queue_outer(Pave *p){
 
 bool Graph::is_empty_node_queue(){
     if(!m_compute_inner)
-        return m_node_queue_outer.size() == 0;
+        return (m_node_queue_outer.size() == 0);
     else{
         if(m_inner_mode)
-            return m_node_queue_inner.size() == 0;
+            return (m_node_queue_inner.size() == 0);
         else
-            return m_node_queue_outer.size() == 0;
+            return (m_node_queue_outer.size() == 0);
     }
 }
 
@@ -1118,11 +1118,14 @@ vector<double> Graph::get_perimeters(){
 }
 
 bool Graph::is_positive_invariant(){
+    bool one_pave_not_empty = false;
     for(Pave *p:m_node_list){
         if(!p->is_positive_invariant())
             return false;
+        if(!p->is_empty())
+            one_pave_not_empty = true;
     }
-    return true;
+    return one_pave_not_empty && true;
 }
 
 void Graph::push_back_pos_attractor(){

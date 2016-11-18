@@ -19,7 +19,7 @@ Scheduler::~Scheduler(){
     }
 }
 
-Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_in, bool border_out){
+Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &bassin_boxes, const std::vector<ibex::Function *> &f_list, MAZE_DISEABLE_SINGLETON diseable_singleton, bool border_in, bool border_out){
     m_graph_id = -1;
     Graph *g = new Graph(&m_utils, get_graph_id());
     m_graph_list.push_back(g);
@@ -87,7 +87,7 @@ Scheduler::Scheduler(const IntervalVector &box, const vector<IntervalVector> &ba
     g->set_inner_mode(true);
 }
 
-Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, bool diseable_singleton, bool border_inner_in, bool border_inner_out, bool border_outer_in, bool border_outer_out):
+Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function *> &f_list, MAZE_DISEABLE_SINGLETON diseable_singleton, bool border_inner_in, bool border_inner_out, bool border_outer_in, bool border_outer_out):
     Scheduler(box, f_list, diseable_singleton)
 {
     Graph *g = m_graph_list[0];
@@ -142,11 +142,11 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        graph->sivia(4,false, false, false); // Start with 4 boxes
+        graph->sivia(4,GRAPH_FORWARD, false, false); // Start with 4 boxes
         graph->set_empty();
         for(IntervalVector initial_box:initial_boxes)
             graph->set_active_pave(initial_box);
-        graph->process(process_iterations_max, false, true);
+        graph->process(process_iterations_max, GRAPH_FORWARD, true);
         graph->mark_empty_node();
         iterations++;
     }
@@ -157,7 +157,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph->mark_empty_node();
-        graph->sivia(2*graph->get_alive_node(), false, false, false);
+        graph->sivia(2*graph->get_alive_node(), GRAPH_FORWARD, false, false);
 
         graph->set_empty();
         for(IntervalVector initial_box:initial_boxes)
@@ -165,7 +165,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
-        graph->process(process_iterations_max, false, true);
+        graph->process(process_iterations_max, GRAPH_FORWARD, true);
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -196,19 +196,19 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
 
-        graph->sivia(4, false, false, false); // Start with 4 boxes
+        graph->sivia(4, GRAPH_FORWARD, false, false); // Start with 4 boxes
         graph->set_empty_outer_full_inner();
         graph->set_active_outer_inner(initial_boxes);
 
         // Inner
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
-        graph->process(process_iterations_max, true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD);
 
         // Outer
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
-        graph->process(process_iterations_max, false, true);
+        graph->process(process_iterations_max, GRAPH_FORWARD, true);
 
         graph->mark_empty_node();
         iterations++;
@@ -220,24 +220,22 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph->mark_empty_node();
-        //        if(iterations>12 && iterations <16)
-        //            graph->sivia(2*graph->get_alive_node(), false, false, false, true);
-        //        else
-        graph->sivia(2*graph->get_alive_node(), false, false, false);
+        graph->sivia(2*graph->get_alive_node(), GRAPH_FORWARD, false, false);
         graph->set_empty_outer_full_inner();
-        graph->set_active_outer_inner(initial_boxes);
+        graph->set_active_outer_inner(initial_boxes); // And add to queue
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
-        // Inner
-        graph->set_inner_mode(true);
-        graph->set_backward_function(true);
-        graph->process(process_iterations_max, true);
 
         // Outer
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
-        graph->process(process_iterations_max, false, true);
+        graph->process(process_iterations_max, GRAPH_FORWARD, true);
+
+        // Inner
+        graph->set_inner_mode(true);
+        graph->set_backward_function(true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD);
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -256,8 +254,8 @@ bool Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        graph->sivia(4,true, false, false); // Start with 4 boxes
-        graph->process(process_iterations_max, true); // ? Usefull ??? ToDo
+        graph->sivia(4,GRAPH_BACKWARD, false, false); // Start with 4 boxes
+        graph->process(process_iterations_max, GRAPH_BACKWARD); // ? Usefull ??? ToDo
         iterations++;
     }
 
@@ -268,7 +266,7 @@ bool Scheduler::compute_attractor(int iterations_max, int process_iterations_max
         if(graph->get_alive_node()==0 || m_graph_list.size()==0)
             break;
         graph->clear_node_queue();
-        graph->sivia(2*graph->get_alive_node(), true, false, false);
+        graph->sivia(2*graph->get_alive_node(), GRAPH_BACKWARD, false, false);
 
         for(int nb_f=0; nb_f<graph->get_f_size(); nb_f++){
             graph->set_active_f(nb_f);
@@ -279,8 +277,8 @@ bool Scheduler::compute_attractor(int iterations_max, int process_iterations_max
             cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
             // Process the backward with the subpaving
-            cout << "GRAPH No " << 0 << " (" << graph->size() << ")" << endl;
-            graph->process(process_iterations_max, true);
+            cout << "GRAPH No " << nb_f << " (" << graph->size() << ")" << endl;
+            graph->process(process_iterations_max, GRAPH_BACKWARD, true);
             cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
             // Remove empty pave
@@ -321,7 +319,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
     if(iterations < iterations_max && graph->size()<4){
         while(!graph->is_sufficiently_discretized()){ // NEW [X week]
             graph->reset_queues();
-            graph->sivia(2*graph->get_alive_node(),true, false, false);
+            graph->sivia(2*graph->get_alive_node(),GRAPH_BACKWARD, false, false);
         }
 
         const clock_t begin_time = clock();
@@ -331,11 +329,11 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
         graph->set_inner_mode(true);
         graph->update_queue(border_condition, true);
-        graph->process(process_iterations_max, true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD);
 
         graph->set_inner_mode(false);
         graph->update_queue(true, true);
-        graph->process(process_iterations_max, true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD);
 
         cout << "--> time (processing) = " << float( clock() - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -348,7 +346,7 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         if(graph->get_alive_node()==0)
             break;
 
-        graph->sivia(2*graph->get_alive_node(), true, false, false);
+        graph->sivia(2*graph->get_alive_node(), GRAPH_BACKWARD, false, false);
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -361,11 +359,11 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
 
         graph->set_inner_mode(true);
         graph->update_queue(border_condition, true);
-        graph->process(process_iterations_max, true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD);
 
         graph->set_inner_mode(false);
         graph->update_queue(true, true);
-        graph->process(process_iterations_max, true, true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD, true);
 
         cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -392,12 +390,12 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
     if(iterations < iterations_max && graph_initial->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        graph_initial->sivia(4,true, false, false); // Start with 4 boxes
+        graph_initial->sivia(4,GRAPH_BACKWARD, false, false); // Start with 4 boxes
         while(!graph_initial->is_sufficiently_discretized()){
             graph_initial->reset_queues();
-            graph_initial->sivia(2*graph_initial->get_alive_node(),true, false, false);
+            graph_initial->sivia(2*graph_initial->get_alive_node(),GRAPH_BACKWARD, false, false);
         }
-        graph_initial->process(process_iterations_max, true); // ? Usefull ??? ToDo
+        graph_initial->process(process_iterations_max, GRAPH_BACKWARD); // ? Usefull ??? ToDo
         iterations++;
     }
 
@@ -413,12 +411,12 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 break;
             if(!(stop_first_pos_invariant && graph->get_positive_invariant())){
                 graph->clear_node_queue();
-                graph->sivia(2*graph->get_alive_node(), true, false, do_not_bisect_inside);
+                graph->sivia(2*graph->get_alive_node(), GRAPH_BACKWARD, false, do_not_bisect_inside);
                 const clock_t sivia_time = clock();
                 cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
                 // Process the backward with the subpaving
-                int graph_list_process_cpt = graph->process(process_iterations_max, true);
+                int graph_list_process_cpt = graph->process(process_iterations_max, GRAPH_BACKWARD);
 
                 cout << "--> processing outer = " << graph_list_process_cpt << endl;
                 cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
@@ -460,7 +458,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                         Graph* graph_propagation = new Graph(graph, pave_start); // copy graph with 1 activated node (pave_start)
                         Graph* graph_diff = new Graph(graph, get_graph_id());
 
-                        graph_propagation->process(process_iterations_max, false); // process forward
+                        graph_propagation->process(process_iterations_max, GRAPH_FORWARD); // process forward
                         graph->inter(*graph_propagation); // intersect the graph with the propagation graph
                         graph->reset_pave_segment_list();
                         graph_diff->diff(*graph);
@@ -515,7 +513,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
 
-        graph->sivia(4, false, false, false); // Start with 4 boxes
+        graph->sivia(4, GRAPH_FORWARD, false, false); // Start with 4 boxes
         graph->set_empty_outer_full_inner();
         graph->clear_node_queue();
         Graph *graph_backward = new Graph(graph);
@@ -525,22 +523,22 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         // INNER
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
-        graph->process(process_iterations_max, true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD);
         // OUTER
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
-        graph->process(process_iterations_max, false, true);
+        graph->process(process_iterations_max, GRAPH_FORWARD, true);
 
         /// Backward graph
         graph_backward->set_active_outer_inner(boxB);
         //        // INNER
         graph_backward->set_inner_mode(true);
         graph_backward->set_backward_function(false); // Invert bc of bwd
-        graph_backward->process(process_iterations_max, true);
+        graph_backward->process(process_iterations_max, GRAPH_BACKWARD);
         // OUTER
         graph_backward->set_inner_mode(false);
         graph_backward->set_backward_function(true); // Invert bc of bwd
-        graph_backward->process(process_iterations_max, false, true);
+        graph_backward->process(process_iterations_max, GRAPH_FORWARD, true);
 
         // Intersect graph
         graph->inter(graph_backward, true);
@@ -559,7 +557,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
             cout << "size = " << graph->size() << endl;
             break;
         }
-        graph->sivia(2*graph->get_alive_node(), false, false, false);
+        graph->sivia(2*graph->get_alive_node(), GRAPH_FORWARD, false, false);
 
         graph->set_empty_outer_full_inner();
         graph->clear_node_queue();
@@ -571,11 +569,11 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         // INNER
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
-        graph->process(process_iterations_max, true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD);
         // OUTER
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
-        graph->process(process_iterations_max, false, true);
+        graph->process(process_iterations_max, GRAPH_FORWARD, true);
 
         /// Backward graph
         //        cout << "GRAPH BWD (" << graph_backward->size() << ")" << endl;
@@ -583,11 +581,11 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         //        // INNER
         graph_backward->set_inner_mode(true);
         graph_backward->set_backward_function(false); // Invert bc of bwd
-        graph_backward->process(process_iterations_max, true);
+        graph_backward->process(process_iterations_max, GRAPH_BACKWARD);
         // OUTER
         graph_backward->set_inner_mode(false);
         graph_backward->set_backward_function(true); // Invert bc of bwd
-        graph_backward->process(process_iterations_max, false, true);
+        graph_backward->process(process_iterations_max, GRAPH_FORWARD, true);
 
         //        graph->draw(1024, true, "fwd");
         //        graph_backward->draw(1024, true, "bwd");

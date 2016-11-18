@@ -624,7 +624,7 @@ void test_copy_graph(){
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f);
     Graph g(box, f_list, &utils, 1);
-    g.sivia(0.0, 4, false, false);
+    g.sivia(4, GRAPH_FORWARD, false);
 
     GraphDot graphDot(&g);
     graphDot.write("g.dot");
