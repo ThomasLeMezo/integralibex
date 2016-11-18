@@ -7,6 +7,12 @@
 #include "ibex.h"
 #include "utils.h"
 
+enum MAZE_DISEABLE_SINGLETON {MAZE_DISEABLE_SINGLETON_ON=true, MAZE_DISEABLE_SINGLETON_OFF=false};
+enum MAZE_BORDER_INNER_IN {MAZE_BORDER_INNER_IN_FULL=true, MAZE_BORDER_INNER_IN_EMPTY=false};
+enum MAZE_BORDER_INNER_OUT {MAZE_BORDER_INNER_OUT_FULL=true, MAZE_BORDER_INNER_OUT_EMPTY=false};
+enum MAZE_BORDER_OUTER_IN {MAZE_BORDER_OUTER_IN_FULL=true, MAZE_BORDER_OUTER_IN_EMPTY=false};
+enum MAZE_BORDER_OUTER_OUT {MAZE_BORDER_OUTER_OUT_FULL=true, MAZE_BORDER_OUTER_OUT_EMPTY=false};
+
 class Pave;
 class Border;
 class Scheduler : public QObject
@@ -25,7 +31,7 @@ public:
     void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe);
     void cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector> &initial_boxes);
     void cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe);
-    void compute_attractor(int iterations_max, int process_iterations_max);
+    bool compute_attractor(int iterations_max, int process_iterations_max);
     void cameleon_viability(int iterations_max, int process_iterations_max, bool border_condition=false);
     void find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &boxA, const ibex::IntervalVector &boxB);
 

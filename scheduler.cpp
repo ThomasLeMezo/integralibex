@@ -93,13 +93,13 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
     Graph *g = m_graph_list[0];
 
     /// ****** CREATE BORDER EXTRA BOXES *******
-//    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
-    IntervalVector Rspace(2);
-    vector<IntervalVector> list_border = m_utils.diff(Rspace, box);
+    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
+//    IntervalVector Rspace(2);
+//    vector<IntervalVector> list_border = m_utils.diff(Rspace, box);
 
     for(IntervalVector b:list_border){
         Pave* p = new Pave(b, f_list, diseable_singleton, false);
-        p->set_infinity_pave(true, box);
+//        p->set_infinity_pave(true, box);
         p->set_external_border(true);
         if(border_inner_in)
             p->set_full_inner_in();
@@ -146,7 +146,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
         graph->set_empty();
         for(IntervalVector initial_box:initial_boxes)
             graph->set_active_pave(initial_box);
-        graph->process(process_iterations_max, false);
+        graph->process(process_iterations_max, false, true);
         graph->mark_empty_node();
         iterations++;
     }
@@ -165,7 +165,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
-        graph->process(process_iterations_max, false);
+        graph->process(process_iterations_max, false, true);
 
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -244,14 +244,15 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
     }
 }
 
-void Scheduler::compute_attractor(int iterations_max, int process_iterations_max){
+bool Scheduler::compute_attractor(int iterations_max, int process_iterations_max){
     if(this->m_graph_list.size()<1 && this->m_graph_list[0]->size() <1)
-        return;
+        return false;
 
     int iterations = 0;
     Graph *graph = m_graph_list[0];
     ///////////////////////////// INNER MODE //////////////////////////////
     graph->set_full();
+    graph->set_compute_inner(false);
 
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
@@ -271,7 +272,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
         for(int nb_f=0; nb_f<graph->get_f_size(); nb_f++){
             graph->set_active_f(nb_f);
-            if(nb_f>0)
+//            if(nb_f>0)
                 graph->update_queue();
 
             const clock_t sivia_time = clock();
@@ -290,7 +291,7 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
         if(graph->is_positive_invariant()){
             cout << "NO MORE ATTRACTOR TO FIND" << endl;
             graph->push_back_pos_attractor();
-            break;
+            return true;
         }
 
 //        if(graph->identify_attractor()){
@@ -301,8 +302,8 @@ void Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
         cout << "--> time (total) = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
-
     }
+    return false;
 }
 
 void Scheduler::cameleon_viability(int iterations_max, int process_iterations_max, bool border_condition){
