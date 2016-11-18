@@ -41,8 +41,8 @@ public:
     // Setter
     void                        set_full();
     void                        set_active_pave(const ibex::IntervalVector &box);
-    void                        set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_list);
-    void                        set_active_outer_inner(const ibex::IntervalVector &box);
+    void                        initialize_queues_with_initial_condition(const std::vector<ibex::IntervalVector> &box_list);
+    void                        initialize_queues_with_initial_condition(const ibex::IntervalVector &box);
     void                        set_symetry(ibex::Function *f, int face_in, int face_out);
     void                        set_empty();
     void                        set_empty_outer_full_inner();
@@ -75,6 +75,7 @@ public:
     void                        reset_pave_segment_list();
 
     void                        reset_queues();
+    void                        reset_full_empty();
 
     // Getter
     Pave*                       get_pave(double x, double y) const;

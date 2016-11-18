@@ -193,22 +193,26 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
     graph->set_external_boundary(true, true);
     graph->set_empty_outer_full_inner();
 
-    if(iterations < iterations_max && graph->size()<4){
+    if(iterations < iterations_max && !graph->is_sufficiently_discretized()){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
 
-        graph->sivia(4, GRAPH_FORWARD, false, false); // Start with 4 boxes
+        while(!graph->is_sufficiently_discretized()){
+            graph->reset_queues();
+            graph->sivia(2*graph->get_alive_node(),GRAPH_FORWARD, false, false);
+        }
+//        graph->sivia(4, GRAPH_FORWARD, false, false); // Start with 4 boxes
         graph->set_empty_outer_full_inner();
-        graph->set_active_outer_inner(initial_boxes);
-
-        // Inner
-        graph->set_inner_mode(true);
-        graph->set_backward_function(true);
-        graph->process(process_iterations_max, GRAPH_BACKWARD);
+        graph->initialize_queues_with_initial_condition(initial_boxes);
 
         // Outer
         graph->set_inner_mode(false);
         graph->set_backward_function(false);
         graph->process(process_iterations_max, GRAPH_FORWARD, true);
+
+        // Inner
+        graph->set_inner_mode(true);
+        graph->set_backward_function(true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD);
 
         graph->mark_empty_node();
         iterations++;
@@ -219,10 +223,10 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
 
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        graph->mark_empty_node();
+//        graph->mark_empty_node();
         graph->sivia(2*graph->get_alive_node(), GRAPH_FORWARD, false, false);
         graph->set_empty_outer_full_inner();
-        graph->set_active_outer_inner(initial_boxes); // And add to queue
+        graph->initialize_queues_with_initial_condition(initial_boxes); // And add to queue
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
@@ -237,9 +241,12 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         graph->set_backward_function(true);
         graph->process(process_iterations_max, GRAPH_BACKWARD);
 
+        graph->mark_empty_node();
+
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
     }
+    graph->set_backward_function(false);
 }
 
 bool Scheduler::compute_attractor(int iterations_max, int process_iterations_max){
@@ -519,7 +526,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         Graph *graph_backward = new Graph(graph);
 
         //// Outer Graph
-        graph->set_active_outer_inner(boxA);
+        graph->initialize_queues_with_initial_condition(boxA);
         // INNER
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
@@ -530,7 +537,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->process(process_iterations_max, GRAPH_FORWARD, true);
 
         /// Backward graph
-        graph_backward->set_active_outer_inner(boxB);
+        graph_backward->initialize_queues_with_initial_condition(boxB);
         //        // INNER
         graph_backward->set_inner_mode(true);
         graph_backward->set_backward_function(false); // Invert bc of bwd
@@ -565,7 +572,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 
         /// Forward graph
         cout << "GRAPH FWD (" << graph->size() << ")" << endl;
-        graph->set_active_outer_inner(boxA);
+        graph->initialize_queues_with_initial_condition(boxA);
         // INNER
         graph->set_inner_mode(true);
         graph->set_backward_function(true);
@@ -577,7 +584,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 
         /// Backward graph
         //        cout << "GRAPH BWD (" << graph_backward->size() << ")" << endl;
-        graph_backward->set_active_outer_inner(boxB);
+        graph_backward->initialize_queues_with_initial_condition(boxB);
         //        // INNER
         graph_backward->set_inner_mode(true);
         graph_backward->set_backward_function(false); // Invert bc of bwd

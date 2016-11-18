@@ -675,7 +675,7 @@ void integrator(){
     activated_pave[1] = Interval(-0.5,0.5);
 
 //    s.cameleon_propagation(13, 1e9, activated_pave);
-    s.cameleon_propagation_with_inner(10, 1e9, activated_pave);
+    s.cameleon_propagation_with_inner(13, 1e9, activated_pave);
 
     cout << endl << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);

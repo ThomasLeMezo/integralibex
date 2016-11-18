@@ -305,13 +305,13 @@ const std::vector<Pave *> Graph::get_pave(const ibex::IntervalVector &box) const
     return node_list_inter;
 }
 
-void Graph::set_active_outer_inner(const ibex::IntervalVector &box){
+void Graph::initialize_queues_with_initial_condition(const ibex::IntervalVector &box){
     std::vector<ibex::IntervalVector> box_list;
     box_list.push_back(box);
-    set_active_outer_inner(box_list);
+    initialize_queues_with_initial_condition(box_list);
 }
 
-void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_list){
+void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::IntervalVector> &box_list){
     clear_node_queue_inner();
     clear_node_queue_outer();
 
@@ -320,28 +320,32 @@ void Graph::set_active_outer_inner(const std::vector<ibex::IntervalVector> &box_
     }
 
     for(Pave *pave:m_node_list){
-        if(!pave->is_removed_pave_outer()){
+        if(pave->is_active() /*&& !pave->is_removed_pave_outer()*/){
             for(IntervalVector box:box_list){
                 if(!(box & pave->get_position()).is_empty()){
 
-                    // Inner
-                    if(pave->get_position().is_strict_interior_subset(box)){
-                        pave->set_empty_inner_in(); // Do not set removed pave inner !!! => bc out is not empty
-                        pave->set_removed_pave_inner(true);
-                        add_to_queue_inner(pave);
-                        pave->set_bassin(true);
-                    }
-
                     // Outer
                     pave->set_full_outer();
+
+                    // Inner
+                    if(pave->get_position().is_strict_interior_subset(box)){
+                        pave->set_empty_inner_in(); // Do not set removed pave inner !!! => bc inner out is not empty
+//                        pave->set_removed_pave_inner(true);
+//                        add_to_queue_inner(pave);
+                        pave->set_bassin(true);
+                    }
                 }
             }
         }
     }
 
     for(Pave *pave:m_node_list){
-        if(!pave->is_removed_pave_inner() && pave->is_near_removed_inner())
+        // Inner pave
+        if(pave->is_active() && !pave->is_removed_pave_outer()){
             add_to_queue_inner(pave);
+        }
+
+        // Outer pave
         if(pave->is_full_outer()){
             for(int face=0; face<4; face++){
                 vector<Pave*> pave_brother_list = pave->get_brothers(face);
@@ -419,7 +423,6 @@ Pave& Graph::operator[](int id){
 }
 
 void Graph::draw(int size, bool filled, string comment, bool inner_only, int position, bool pos_invariant){
-
     // Magenta = #FF00FF
     // Gray light =  #D3D3D3
     // Blue = #4C4CFF
@@ -539,6 +542,8 @@ int Graph::size() const{
 void Graph::mark_empty_node(){
     for(Pave *pave:m_node_list){
         if(pave->is_active()){
+
+            // Removing pave that satisfies a special condition (given by a function < 0)
             bool removed_inside_curve = false;
             if(m_inside_curve_list.size()>0 && pave->is_full_outer()){
                 for(ibex::Function *f_curve:m_inside_curve_list){
@@ -551,21 +556,27 @@ void Graph::mark_empty_node(){
                     }
                 }
             }
+
+            // Analyze if a pave is empty and should be removed
             bool test_two_pi = pave->is_theta_more_than_two_pi();
-            if(removed_inside_curve || !test_two_pi){
+            if(!test_two_pi || removed_inside_curve){
                 pave->reset_full_empty();
                 bool empty_outer = false;
                 bool empty_inner = false;
+
+                // Outer
                 if(pave->is_removed_pave_outer() || pave->is_empty_outer()){
                     pave->set_removed_pave_outer(true);
                     empty_outer = true;
                 }
+
+                // Inner
                 if(m_compute_inner && (pave->is_removed_pave_inner() || pave->is_empty_inner())){
                     pave->set_removed_pave_inner(true);
                     empty_inner = true;
                 }
 
-                if(empty_outer && (!m_compute_inner || empty_inner)){
+                if(empty_outer || (m_compute_inner && empty_inner)){
                     pave->set_active(false);
                     m_count_alive--;
                 }
@@ -1148,6 +1159,12 @@ void Graph::set_positive_invariant(bool val){
 void Graph::reset_pave_segment_list(){
     for(Pave *p:m_node_list){
         p->reset_segment_list();
+    }
+}
+
+void Graph::reset_full_empty(){
+    for(Pave *p:m_node_list){
+        p->reset_full_empty();
     }
 }
 
