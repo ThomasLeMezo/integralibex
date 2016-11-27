@@ -93,13 +93,13 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
     Graph *g = m_graph_list[0];
 
     /// ****** CREATE BORDER EXTRA BOXES *******
-    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
-//    IntervalVector Rspace(2);
-//    vector<IntervalVector> list_border = m_utils.diff(Rspace, box);
+//    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
+    IntervalVector Rspace(2);
+    vector<IntervalVector> list_border = m_utils.diff(Rspace, box);
 
     for(IntervalVector b:list_border){
-        Pave* p = new Pave(b, f_list, diseable_singleton, false);
-//        p->set_infinity_pave(true, box);
+        Pave* p = new Pave(b, f_list, diseable_singleton, true);
+        p->set_infinity_pave(true, box);
         p->set_external_border(true);
         if(border_inner_in)
             p->set_full_inner_in();
@@ -223,7 +223,6 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
 
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-//        graph->mark_empty_node();
         graph->sivia(2*graph->get_alive_node(), GRAPH_FORWARD, false, false);
         graph->set_empty_outer_full_inner();
         graph->initialize_queues_with_initial_condition(initial_boxes); // And add to queue

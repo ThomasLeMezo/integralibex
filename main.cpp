@@ -452,9 +452,14 @@ void car_on_the_hill_integrator(){
     s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.get_graph_list(0)->get_border_list()[0]->set_full_outer();
+    s.get_graph_list(0)->get_border_list()[1]->set_full_outer();
+    s.get_graph_list(0)->get_border_list()[2]->set_full_outer();
+    s.get_graph_list(0)->get_border_list()[3]->set_full_outer();
+
     s.draw(1024, true);
     vibes::drawBox(activated_pave, "red[]");
-    vibes::axisLimits(-2,13, -6, 6);
+    vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 }
 
 void pendulum_cycle(){
@@ -481,7 +486,7 @@ void pendulum_cycle(){
     s.push_back_inside_curve(&f_inside_curve);
 
     /////////////// Compute ///////////////
-    s.cameleon_viability(9, 1e9, true);
+    s.cameleon_viability(15, 1e9, true);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -654,15 +659,15 @@ void integrator(){
     //    ibex::Function f0(q, p, Return(4*p*(q*q+p*p)+20*p,
     //                                   -(4*q*(q*q+p*p)-20*q)));
 //        ibex::Function f0(x1, x2, Return(1.0+0.0*x1, cos(x2)*cos(x2)));
-    //    ibex::Function f1(x1, x2, Return(1.0+0.0*x1,
-    //                                    -sin(x2)-0.1));
-    //    ibex::Function f2(x1, x2, Return(1.0+0.0*x1,
-    //                                    -sin(x2)+0.1));
+//        ibex::Function f1(x1, x2, Return(1.0+0.0*x1,
+//                                        -sin(x2)-0.1));
+//        ibex::Function f2(x1, x2, Return(1.0+0.0*x1,
+//                                        -sin(x2)+0.1));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f0);
-    //    f_list.push_back(&f1);
-    //    f_list.push_back(&f2);
+//      f_list.push_back(&f1);
+//      f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(0,5);
@@ -675,11 +680,15 @@ void integrator(){
     activated_pave[1] = Interval(-0.5,0.5);
 
 //    s.cameleon_propagation(13, 1e9, activated_pave);
-    s.cameleon_propagation_with_inner(13, 1e9, activated_pave);
+    s.cameleon_propagation_with_inner(10, 1e9, activated_pave);
 
     cout << endl << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.get_graph_list(0)->get_border_list()[2]->set_full_outer();
+//    s.get_graph_list(0)->get_border_list()[3]->set_full_outer();
     s.draw(1024, true);
-//    s.print_pave_info(0, 5.5, 0.0);
+    vibes::drawBox(activated_pave, "red[]");
+//    s.print_pave_info(0,0.0,0.0);
+    s.print_pave_info(0, 5.5, 0.0);
 //    s.print_pave_info(0, 2.5, 2.3);
 }
 
@@ -1059,10 +1068,10 @@ int main()
     //    car_on_the_hill_attractor();
     //    car_on_the_hill_bassin();
 
-    //    car_on_the_hill_kernel();
+//        car_on_the_hill_kernel();
 
-    //    car_on_the_hill_trajectory();
-    //        car_on_the_hill_integrator();
+//        car_on_the_hill_trajectory();
+//        car_on_the_hill_integrator();
     //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
@@ -1070,8 +1079,8 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    //    van_der_pol_cycle();
-    //    van_der_pol_integration();
+//        van_der_pol_cycle();
+//        van_der_pol_integration();
     //    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
@@ -1095,8 +1104,8 @@ int main()
     //    dipole_max_pos_inv();
 
     /// **** PENDULUM ***** //
-    //        pendulum_cycle();
-    //        pendulum_integration();
+    //  pendulum_cycle();
+    //  pendulum_integration();
 
     /// **** TEST ***** //
     //    test();

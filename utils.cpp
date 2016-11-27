@@ -244,6 +244,7 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
 
     if(backward){
         if(p->get_compute_inner() && p->get_inner_mode() && p->get_f_list().size()>1){
+            // Case several cones
             vector<Pave*> list_pave;
             for(int i=0; i<p->get_f_list().size(); i++){
                 Pave *p_tmp = new Pave(p);
@@ -259,6 +260,7 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
                 delete(p_tmp);
         }
         else{
+            // Case 1 cones
             this->CtcPaveBackward(p, true, change_tab);
         }
 
@@ -282,12 +284,12 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
         p->set_empty();
 
     // Reduce impact of change when backward (mandatory)
-    if(backward){
-        for(int face = 0; face<4; face++){
-            if((p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out())))
-                change_tab[face] = false;
-        }
-    }
+    //        if(backward && !p->get_inner_mode()){
+    //            for(int face = 0; face<4; face++){
+    //                if((p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out())))
+    //                    change_tab[face] = false;
+    //            }
+    //        }
 }
 
 bool Utils::CtcContinuity(Pave *p, bool backward){
@@ -295,40 +297,44 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
 
     for(int face = 0; face < 4; face++){
         // **************** OUT CONTINUITY *************
-        if(p->get_border(face)->get_continuity_out()){
+        //        if(p->get_border(face)->get_continuity_out()){
+        if(backward){
             Interval segment_in = Interval::EMPTY_SET;
 
             for(int b = 0; b < (int)p->get_border(face)->get_inclusions().size(); b++){
                 segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
             }
 
-            if(backward && (p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out()))){
+            if(p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out())){
                 change = true;
-                p->get_border(face)->set_segment_out(segment_in, backward);
+                p->get_border(face)->set_segment_out(segment_in, true);
             }
         }
+        //        }
 
         // **************** IN CONTINUITY *************
-        if(p->get_border(face)->get_continuity_in()){
-            Interval segment_out = Interval::EMPTY_SET;
+        //        if(p->get_border(face)->get_continuity_in()){
+        Interval segment_out = Interval::EMPTY_SET;
 
-            for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
-                segment_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
-            }
+        for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
+            segment_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
+        }
 
-            if(backward){
+        if(backward){
+            if(!p->get_inner_mode()){
                 if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())){
                     change = true;
-                    p->get_border(face)->set_segment_in(segment_out, backward);
-                }
-            }
-            else{
-                if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
-                    change = true;
-                    p->get_border(face)->set_segment_in(segment_out, backward);
+                    p->get_border(face)->set_segment_in(segment_out, true);
                 }
             }
         }
+        else{
+            if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
+                change = true;
+                p->get_border(face)->set_segment_in(segment_out, false);
+            }
+        }
+        //        }
     }
 
     return change;

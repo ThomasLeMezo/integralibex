@@ -218,12 +218,16 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
         /// ******* PROCESS CONTINUITY *******
         bool change = m_utils->CtcContinuity(pave, direction);
         pave->increment_cpt_continuity();
-        if(pave->is_active() && !pave->is_removed_pave() && !pave->is_removed_pave_outer() && (change || pave->get_first_process())){
+        /// TODO improve external inifinity border consistency
+        if(!pave->is_external_border() && pave->is_active()
+                && !pave->is_removed_pave() && !pave->is_removed_pave_outer()
+                && (change || pave->get_first_process())){
 
             /// ******* PROCESS CONSISTENCY *******
             std::vector<bool> change_tab;
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
+
             m_utils->CtcConsistency(pave, direction, change_tab, union_functions);
 
             /// ******* PUSH BACK NEW PAVES *******
@@ -241,13 +245,14 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
             pave->set_first_process(false);
             pave->increment_cpt_consistency();
         }
-        //        if(debug_marker1 && iterations>=11995 /**&& iterations%5==0**/){
-        //            cout << "iterations = " << iterations << endl;
-        //            draw(1024, true, "process_inner");
-        //            print_pave_info(4.998, 0.005, "g");
-        //            print_pave_info(5.001, 0.005, "g");
-        //            cin.ignore();
-        //        }
+        //                if(debug_marker1/* && iterations >= 8*/ /**&& iterations%5==0**/){
+        //                    draw(1024, true, "process_inner");
+        //                    pave->print();
+        //                    cout << "iterations = " << iterations << endl;
+        ////                    print_pave_info(4.998, 0.005, "g");
+        ////                    print_pave_info(5.001, 0.005, "g");
+        ////                    cin.ignore();
+        //                }
     }
 
     clear_node_queue();
@@ -329,9 +334,11 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
 
                     // Inner
                     if(pave->get_position().is_strict_interior_subset(box)){
-                        pave->set_empty_inner_in(); // Do not set removed pave inner !!! => bc inner out is not empty
-//                        pave->set_removed_pave_inner(true);
-//                        add_to_queue_inner(pave);
+                        if(!pave->is_empty_inner()){
+                            pave->set_empty_inner_in(); // Do not set removed pave inner !!! => bc inner out is not empty
+                            // pave->set_removed_pave_inner(true);
+                            add_to_queue_inner(pave);
+                        }
                         pave->set_bassin(true);
                     }
                 }
@@ -341,9 +348,17 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
 
     for(Pave *pave:m_node_list){
         // Inner pave
-        if(pave->is_active() && !pave->is_removed_pave_outer()){
+//        if(pave->is_removed_pave_inner() && !pave->is_removed_pave_outer()){
+//            for(int face=0; face<4; face++){
+//                vector<Pave*> pave_brother_list = pave->get_brothers(face);
+//                for(Pave *pave_brother:pave_brother_list){
+//                    if(!pave->is_removed_pave_outer() && !pave->is_removed_pave_inner())
+//                        add_to_queue_inner(pave_brother);
+//                }
+//            }
+//        }
+        if(!pave->is_removed_pave_outer())
             add_to_queue_inner(pave);
-        }
 
         // Outer pave
         if(pave->is_full_outer()){
@@ -581,7 +596,7 @@ void Graph::mark_empty_node(){
                     m_count_alive--;
                 }
             }
-            else if(test_two_pi && pave->is_active()){
+            else if(test_two_pi){
                 pave->set_full();
             }
         }
@@ -672,6 +687,10 @@ void Graph::set_empty_outer_full_inner(){
 
         if(pave->is_active())
             pave->set_first_process_all(true);
+    }
+    for(Pave *pave : m_node_border_list){
+        pave->set_empty_outer();
+        pave->set_full_inner();
     }
 }
 

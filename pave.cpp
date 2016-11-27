@@ -467,7 +467,7 @@ void Pave::draw(bool filled, bool inner_only){
         position = box_draw;
     }
     if(m_compute_inner){
-        if(!m_external_border || m_infinity_pave){
+        if(!m_external_border){
             bool mode = get_inner_mode();
             bool backward = get_backward_function();
             /// OUTER
@@ -504,6 +504,10 @@ void Pave::draw(bool filled, bool inner_only){
         }
         else if(is_bassin()){
             vibes::drawBox(m_position, "#FF0000[#FF0000]");
+        }
+        else if(m_infinity_pave){
+            if(!is_empty_outer())
+                vibes::drawBox(position, "orange[orange]");
         }
     }
     else{
@@ -1084,6 +1088,7 @@ void Pave::print(){
     cout << "PAVE x=" << get_position()[0] << " y= " << m_position[1] << endl;
     cout << this << endl;
     cout << "theta[0]=" << get_theta(0) << " theta[1]=" << get_theta(1) << endl;
+    cout << "mode " << (get_inner_mode()?"inner":"outer") << endl;
     for(int face = 0; face < 4; face++){
         if(get_border(face)->get_inclusions().size()==0){
             cout << "border=" << face << " " << (get_border(face))
