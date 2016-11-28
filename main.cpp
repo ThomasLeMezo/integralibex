@@ -1071,7 +1071,7 @@ int main()
 //        car_on_the_hill_kernel();
 
 //        car_on_the_hill_trajectory();
-//        car_on_the_hill_integrator();
+        car_on_the_hill_integrator();
     //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
@@ -1084,7 +1084,7 @@ int main()
     //    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
-        integrator();
+//        integrator();
 
     /// **** BASSIN ***** //
     //    bassin_ratschan6();
