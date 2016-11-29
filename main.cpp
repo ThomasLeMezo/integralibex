@@ -452,10 +452,6 @@ void car_on_the_hill_integrator(){
     s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-    s.get_graph_list(0)->get_border_list()[0]->set_full_outer();
-    s.get_graph_list(0)->get_border_list()[1]->set_full_outer();
-    s.get_graph_list(0)->get_border_list()[2]->set_full_outer();
-    s.get_graph_list(0)->get_border_list()[3]->set_full_outer();
 
     s.draw(1024, true);
     vibes::drawBox(activated_pave, "red[]");
