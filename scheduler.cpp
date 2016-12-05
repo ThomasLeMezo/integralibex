@@ -190,12 +190,6 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
     int iterations = 0;
 
     graph->set_compute_inner(true);
-
-    graph->set_inner_mode(false);
-    graph->set_external_boundary(false, false);
-
-    graph->set_inner_mode(true);
-    graph->set_external_boundary(true, true);
     graph->set_empty_outer_full_inner();
 
     if(iterations < iterations_max && !graph->is_sufficiently_discretized()){

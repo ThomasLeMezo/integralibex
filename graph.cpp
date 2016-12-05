@@ -219,7 +219,7 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
         bool change = m_utils->CtcContinuity(pave, direction);
         pave->increment_cpt_continuity();
         /// TODO improve external inifinity border consistency
-        if(!pave->is_external_border() && pave->is_active()
+        if(pave->is_active()
                 && !pave->is_removed_pave() && !pave->is_removed_pave_outer()
                 && (change || pave->get_first_process())){
 
@@ -227,13 +227,13 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
             std::vector<bool> change_tab;
             for(int i=0; i<4; i++)
                 change_tab.push_back(false);
-
-            m_utils->CtcConsistency(pave, direction, change_tab, union_functions);
+            if(!pave->is_external_border()) // Temporary (until Ctc ok)
+                m_utils->CtcConsistency(pave, direction, change_tab, union_functions);
 
             /// ******* PUSH BACK NEW PAVES *******
             // Warn scheduler to process new pave
             for(int face=0; face<4; face++){
-                if(change_tab[face]){
+                if(change_tab[face] || pave->is_external_border()){ // Temporary
                     for(Pave *p:pave->get_brothers(face)){
                         if(!p->is_in_queue()){
                             add_to_queue(p);
@@ -371,6 +371,13 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
             }
         }
     }
+
+    // Temp
+//    for(Pave *pave : m_node_border_list){
+//        pave->set_full_outer();
+//        pave->set_full_inner();
+//        add_to_queue_outer(pave);
+//    }
 }
 
 void Graph::set_active_pave(const IntervalVector &box){
@@ -691,6 +698,7 @@ void Graph::set_empty_outer_full_inner(){
     for(Pave *pave : m_node_border_list){
         pave->set_empty_outer();
         pave->set_full_inner();
+        pave->set_first_process_all(true);
     }
 }
 

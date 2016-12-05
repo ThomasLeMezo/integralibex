@@ -962,7 +962,8 @@ bool Pave::is_full_geometricaly() const{
 const std::vector<Pave *> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
     for(Inclusion *i:get_border(face)->get_inclusions()){
-        if(i->get_border()->get_pave()->is_active())
+//        if(i->get_border()->get_pave()->is_active())
+        if(!i->get_border()->get_pave()->is_removed_pave_outer())
             brothers_list.push_back(i->get_border()->get_pave());
     }
     return brothers_list;
