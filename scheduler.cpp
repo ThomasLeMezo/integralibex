@@ -93,7 +93,7 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
     Graph *g = m_graph_list[0];
 
     /// ****** CREATE BORDER EXTRA BOXES *******
-//    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
+    //    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
     IntervalVector Rspace(2);
     vector<IntervalVector> list_border = m_utils.diff(Rspace, box);
 
@@ -142,7 +142,12 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
 
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        graph->sivia(4,GRAPH_FORWARD, false, false); // Start with 4 boxes
+        while(!graph->is_sufficiently_discretized()){
+            //        graph->sivia(4,GRAPH_FORWARD, false, false); // Start with 4 boxes
+            graph->reset_queues();
+            graph->sivia(2*graph->get_alive_node(),GRAPH_FORWARD, false, false);
+        }
+
         graph->set_empty();
         for(IntervalVector initial_box:initial_boxes)
             graph->set_active_pave(initial_box);
@@ -200,7 +205,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
             graph->reset_queues();
             graph->sivia(2*graph->get_alive_node(),GRAPH_FORWARD, false, false);
         }
-//        graph->sivia(4, GRAPH_FORWARD, false, false); // Start with 4 boxes
+        //        graph->sivia(4, GRAPH_FORWARD, false, false); // Start with 4 boxes
         graph->set_empty_outer_full_inner();
         graph->initialize_queues_with_initial_condition(initial_boxes);
 
@@ -276,8 +281,8 @@ bool Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
         for(int nb_f=0; nb_f<graph->get_f_size(); nb_f++){
             graph->set_active_f(nb_f);
-//            if(nb_f>0)
-                graph->update_queue();
+            //            if(nb_f>0)
+            graph->update_queue();
 
             const clock_t sivia_time = clock();
             cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
@@ -298,11 +303,11 @@ bool Scheduler::compute_attractor(int iterations_max, int process_iterations_max
             return true;
         }
 
-//        if(graph->identify_attractor()){
-//            cout << "NO MORE ATTRACTOR TO FIND" << endl;
-//            graph->push_back_pos_attractor();
-//            break;
-//        }
+        //        if(graph->identify_attractor()){
+        //            cout << "NO MORE ATTRACTOR TO FIND" << endl;
+        //            graph->push_back_pos_attractor();
+        //            break;
+        //        }
 
         cout << "--> time (total) = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -499,8 +504,8 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
     if(m_graph_list.size()>1)
         emit publishLog(QString::number(m_graph_list.size()) + " possible cycles were found");
-//    else
-        //        emit publishLog(QString::number(m_graph_list.size()) + " possible cycle was found");
+    //    else
+    //        emit publishLog(QString::number(m_graph_list.size()) + " possible cycle was found");
 }
 
 void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &boxA, const ibex::IntervalVector &boxB){
