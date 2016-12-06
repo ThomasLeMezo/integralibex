@@ -143,7 +143,7 @@ void Scheduler::cameleon_propagation(int iterations_max, int process_iterations_
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         while(!graph->is_sufficiently_discretized()){
-            //        graph->sivia(4,GRAPH_FORWARD, false, false); // Start with 4 boxes
+                    graph->sivia(4,GRAPH_FORWARD, false, false); // Start with 4 boxes
             graph->reset_queues();
             graph->sivia(2*graph->get_alive_node(),GRAPH_FORWARD, false, false);
         }

@@ -125,7 +125,7 @@ void hybrid_system(){
     const clock_t begin_time = clock();
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f(x, y, Return(y,1.0+0.0*x));
+    ibex::Function f(x, y, Return(1.0+0.0*x,1.0+0.0*x));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f);
 
@@ -136,20 +136,23 @@ void hybrid_system(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, false);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(1.0,1.1);
+    activated_pave[0] = Interval(0.0, 0.5);
     activated_pave[1] = Interval(0.0,0.1);
 
     ibex::Function f_sym(x, y, Return(x, y-1));
-    ibex::Function f_sym(x, y, Return(x, y-1));
-    s.set_symetry(&f_sym,0, 2);
     s.set_symetry(&f_sym,2,0);
 
-        s.cameleon_propagation(2, 1e9, activated_pave);
-//    s.cameleon_propagation_with_inner(14,1e9,activated_pave);
+    ibex::Function f_sym2(x, y, Return(x, y+1));
+    s.set_symetry(&f_sym2,0,2);
+
+//        s.cameleon_propagation(10, 1e9, activated_pave);
+    s.cameleon_propagation_with_inner(10,1e9,activated_pave);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
+//    s.print_pave_info(0, 1.4,0.86);
+//    s.print_pave_info(0, 1.4,0.33);
 }
 
 void station_keeping_attractor(){

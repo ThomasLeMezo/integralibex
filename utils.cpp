@@ -283,13 +283,13 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
     if(nb_not_empty==1)
         p->set_empty();
 
-    // Reduce impact of change when backward (mandatory)
-    //        if(backward && !p->get_inner_mode()){
-    //            for(int face = 0; face<4; face++){
-    //                if((p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out())))
-    //                    change_tab[face] = false;
-    //            }
-    //        }
+//     Reduce impact of change when backward (mandatory)
+//            if(backward && !p->get_inner_mode()){
+//                for(int face = 0; face<4; face++){
+//                    if((p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out())))
+//                        change_tab[face] = false;
+//                }
+//            }
 }
 
 bool Utils::CtcContinuity(Pave *p, bool backward){
