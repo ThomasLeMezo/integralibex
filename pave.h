@@ -154,6 +154,8 @@ public:
     std::vector<ibex::Interval>                 get_all_theta_bwd() const;
     std::vector<ibex::Interval>                 get_all_theta_fwd() const;
 
+    ibex::IntervalVector                        get_vector_field() const;
+
     const ibex::IntervalVector&         get_position() const;
 
     std::vector<Border *> &             get_borders();
@@ -197,6 +199,8 @@ public:
     const std::vector<ibex::Interval>   compute_theta(ibex::Interval dx, ibex::Interval dy);
     const std::vector<ibex::Interval>   compute_theta_union(std::vector<ibex::Function *> f_list, bool backward_function);
 
+    const ibex::IntervalVector          compute_vector_field(std::vector<ibex::Function *> f_list);
+
     const std::vector<ibex::Interval>   compute_half_circle(const ibex::IntervalVector pt_start, const ibex::IntervalVector pt_end, bool trigo_rotation);
 
     /***************** Variables ******************/
@@ -210,6 +214,8 @@ private:
     std::vector< std::vector<ibex::Interval>>   m_theta_list_bwd;
     std::vector< ibex::Interval>                m_theta_bwd;
     std::vector<ibex::Interval>                 m_theta_union_list_bwd; // list of union theta
+
+    ibex::IntervalVector                        m_vector_field;
 
     bool                        m_backward_function;
 

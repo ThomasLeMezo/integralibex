@@ -78,7 +78,7 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
-    s.cameleon_cycle(12, 5, 1e9, true, false, false);
+    s.cameleon_cycle(2, 5, 1e9, true, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -90,6 +90,10 @@ void van_der_pol_cycle(){
     //    cout << endl;
     s.draw(1024, true);
     //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
+}
+
+void simon_cos(){
+
 }
 
 void ball(){
@@ -713,8 +717,7 @@ void integrator(){
     s.cameleon_propagation_with_inner(10, 1e9, activated_pave);
 
     cout << endl << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-    s.get_graph_list(0)->get_border_list()[2]->set_full_outer();
-//    s.get_graph_list(0)->get_border_list()[3]->set_full_outer();
+
     s.draw(1024, true);
     vibes::drawBox(activated_pave, "red[]");
 //    s.print_pave_info(0,0.0,0.0);
@@ -855,6 +858,42 @@ void car_on_the_hill_trajectory(){
     paveB[1] = Interval(-1.0, 1.0);
 
     s.find_path(15, 1e9, paveA, paveB); // 25
+
+    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    s.draw(1024, true);
+    vibes::drawBox(paveA, "g[]");
+    vibes::drawBox(paveB, "g[]");
+    vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
+}
+
+void cos_trajectory(){
+    const clock_t begin_time = clock();
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(1.0 + 0.0*x1,
+                                     sin(x1)+Interval(-0.05, 0.05)));
+//    ibex::Function f2(x1, x2, Return(x2,
+//                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+//    f_list.push_back(&f2);
+
+    IntervalVector box(2);
+    box[0] = Interval(0.0, 20.0);
+    box[1] = Interval(-1.0, 4.0);
+
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, false);
+
+    IntervalVector paveA(2);
+    paveA[0] = Interval(0.0,0.08);
+    paveA[1] = Interval(-0.078,0.078);
+
+    IntervalVector paveB(2);
+    paveB[0] = Interval(1,18.5);
+    paveB[1] = Interval(2.1,3);
+
+//    s.find_path(11, 1e9, paveA, paveB); // 25
+    s.cameleon_propagation(1, 1e9, paveA);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
     s.draw(1024, true);
@@ -1090,7 +1129,7 @@ int main()
 {
     /// **** BALL ***** //
 //        ball();
-        hybrid_system();
+//        hybrid_system();
 
     /// **** STATION KEEPING ***** //
     //    station_keeping_attractor();
@@ -1110,7 +1149,7 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-//        van_der_pol_cycle();
+        van_der_pol_cycle();
 //        van_der_pol_integration();
     //    van_der_pol_kernel();
 
@@ -1137,6 +1176,10 @@ int main()
     /// **** PENDULUM ***** //
     //  pendulum_cycle();
     //  pendulum_integration();
+
+
+    /// **** DUAL TUBE **** //
+//    cos_trajectory();
 
     /// **** TEST ***** //
     //    test();

@@ -416,7 +416,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 break;
             if(!(stop_first_pos_invariant && graph->get_positive_invariant())){
                 graph->clear_node_queue();
-                graph->sivia(2*graph->get_alive_node(), GRAPH_BACKWARD, false, do_not_bisect_inside);
+                graph->sivia(2*graph->get_alive_node(), GRAPH_BACKWARD, false, do_not_bisect_inside, false);
                 const clock_t sivia_time = clock();
                 cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 

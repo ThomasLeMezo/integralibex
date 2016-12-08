@@ -176,8 +176,6 @@ void Graph::sivia(int nb_node, GRAPH_BW_FW_DIRECTION direction, bool do_not_bise
 
         if(do_not_bisect_empty || do_not_bisect_full)
             tmp->reset_full_empty();
-        //        if(m_utils->m_imageIntegral_activated)
-        //            tmp->set_inner(m_utils->m_imageIntegral->testBox(tmp->get_position()));
 
         if(!tmp->is_active() || tmp->is_removed_pave_union()
                 || ((do_not_bisect_empty && tmp->is_empty_inter()) || (do_not_bisect_full && tmp->is_full_inter()))

@@ -9,7 +9,7 @@ using namespace std;
 using namespace ibex;
 
 Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f_list, bool diseable_singeleton, bool active):
-    m_position(2), m_search_box(2)
+    m_position(2), m_search_box(2), m_vector_field(2)
 {
     m_position = position;    // Box corresponding to the Pave
     m_borders.reserve(4);
@@ -68,6 +68,8 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
         }
     }
 
+    m_vector_field = compute_vector_field(f_list);
+
     if(m_theta.size()==0)
         m_theta.push_back(Interval::EMPTY_SET);
     if(m_theta_bwd.size()==0)
@@ -103,6 +105,13 @@ const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f, bool ba
         cout << "ERROR : f is NULL" << endl;
         exit(1);
     }
+}
+
+const ibex::IntervalVector Pave::compute_vector_field(std::vector<ibex::Function*> f_list){
+    IntervalVector dposition(2, Interval::EMPTY_SET);
+    for(Function *f:f_list)
+        dposition = dposition | f->eval_vector(m_position);
+    return dposition;
 }
 
 const std::vector<ibex::Interval> Pave::compute_theta_union(std::vector<ibex::Function *> f_list, bool backward_function){
@@ -162,7 +171,7 @@ const std::vector<ibex::Interval> Pave::compute_theta(ibex::Interval dx, ibex::I
 }
 
 Pave::Pave(const Pave *p):
-    m_position(2), m_search_box(2)
+    m_position(2), m_search_box(2), m_vector_field(2)
 {
     m_position = p->get_position();    // Box corresponding to the Pave
     m_f_list = p->get_f_list();
@@ -191,6 +200,8 @@ Pave::Pave(const Pave *p):
     m_theta_union_list = p->get_theta_union_list_fwd();
     m_theta_union_list_bwd = p->get_theta_union_list_bwd();
     m_backward_function = p->get_backward_function();
+
+    m_vector_field = p->get_vector_field();
 
     for(int face = 0; face < 4; face++){
         Border *b = new Border(p->get_border_const(face));
@@ -606,8 +617,16 @@ void Pave::draw_test(int size, string comment) const{
 void Pave::bisect(vector<Pave*> &result, bool backward, bool apply_heuristic){
     // Create 4 new paves
     ibex::LargestFirst bisector(0.0, 0.5);
+    std::pair<IntervalVector, IntervalVector> result_boxes(IntervalVector(2), IntervalVector(2));
 
-    std::pair<IntervalVector, IntervalVector> result_boxes = bisector.bisect(m_position);
+    if(apply_heuristic){
+
+        //result_boxes = m_position.bisect(dim_bisect);
+        // To Do test smaller angle...
+    }
+    else{
+        result_boxes = bisector.bisect(m_position);
+    }
 
     Pave *pave1 = new Pave(result_boxes.first, m_f_list, m_diseable_singeleton, m_active); // Left or Up
     Pave *pave2 = new Pave(result_boxes.second, m_f_list, m_diseable_singeleton, m_active); // Right or Down
@@ -962,7 +981,7 @@ bool Pave::is_full_geometricaly() const{
 const std::vector<Pave *> Pave::get_brothers(int face){
     vector<Pave*> brothers_list;
     for(Inclusion *i:get_border(face)->get_inclusions()){
-//        if(i->get_border()->get_pave()->is_active())
+        //        if(i->get_border()->get_pave()->is_active())
         if(!i->get_border()->get_pave()->is_removed_pave_outer())
             brothers_list.push_back(i->get_border()->get_pave());
     }
@@ -1779,4 +1798,8 @@ void Pave::set_infinity_pave(bool val, IntervalVector search_box){
 
 ibex::IntervalVector Pave::get_search_box() const{
     return m_search_box;
+}
+
+ibex::IntervalVector Pave::get_vector_field() const{
+    return m_vector_field;
 }
