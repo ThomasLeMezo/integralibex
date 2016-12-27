@@ -416,7 +416,6 @@ bool Border::set_segment_in(ibex::Interval segment_in, bool inclusion){
 }
 
 bool Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
-    bool change = false;
     Interval i(Interval::EMPTY_SET);
     if(inclusion)
         i = get_segment_out() & segment_out & m_segment_full;
@@ -425,13 +424,11 @@ bool Border::set_segment_out(ibex::Interval segment_out, bool inclusion){
 
     if(i != get_segment_out()){
         set_segment_out(i);
-        change = true;
+        if(m_pave->get_diseable_singelton() && get_segment_out().is_degenerated())
+            set_segment_out(Interval::EMPTY_SET);
+        return true;
     }
-
-    if(m_pave->get_diseable_singelton() && get_segment_out().is_degenerated())
-        set_segment_out(Interval::EMPTY_SET);
-
-    return change;
+    return false;
 }
 
 bool Border::set_segment_in(ibex::Interval segment_in){
