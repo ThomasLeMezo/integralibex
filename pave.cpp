@@ -620,7 +620,30 @@ void Pave::bisect(vector<Pave*> &result, bool backward, bool apply_heuristic){
     std::pair<IntervalVector, IntervalVector> result_boxes(IntervalVector(2), IntervalVector(2));
 
     if(apply_heuristic){
+//        std::pair<IntervalVector, IntervalVector> bisection_0 = m_position.bisect(0);
+//        std::pair<IntervalVector, IntervalVector> bisection_1 = m_position.bisect(1);
 
+//        IntervalVector vectField_b0_first = get_f_list()[0]->eval_vector(bisection_0.first);
+//        IntervalVector vectField_b0_second = get_f_list()[0]->eval_vector(bisection_0.second);
+//        IntervalVector vectField_b1_first  = get_f_list()[0]->eval_vector(bisection_1.first);
+//        IntervalVector vectField_b1_second = get_f_list()[0]->eval_vector(bisection_1.second);
+
+//        double b0_first_max = vectField_b0_first.diam().max();
+//        double b0_second_max = vectField_b0_second.diam().max();
+//        double b1_first_max = vectField_b1_first.diam().max();
+//        double b1_second_max = vectField_b1_second.diam().max();
+
+//        if(!isinf(b0_first_max) && !isinf(b1_first_max)){
+//            if(b0_first_max > b1_first_max){
+//                result_boxes = bisection_1;
+//            }
+//            else{
+//                result_boxes = bisection_0;
+//            }
+//        }
+//        else{
+            result_boxes = bisector.bisect(m_position);
+//        }
         //result_boxes = m_position.bisect(dim_bisect);
         // To Do test smaller angle...
     }

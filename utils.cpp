@@ -29,7 +29,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
         Interval theta2(theta);
 
         contract_polar.contract(Dx, Dy, rho, theta2);
-        //        CtcPolarCorrection(Dx, Dy, rho, theta2);
+//                CtcPolarCorrection(Dx, Dy, rho, theta2);
 
         // Compute x_front
         y_list.push_back(x + Dx);

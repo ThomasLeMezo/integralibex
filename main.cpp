@@ -78,7 +78,7 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
-    s.cameleon_cycle(2, 5, 1e9, true, false, false);
+    s.cameleon_cycle(10, 5, 1e9, true, false, false);
 
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -533,9 +533,9 @@ void pendulum_integration(){
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
-                                     -9.81/1.0*sin(x1)-1.0*x2));
+                                     -9.81/1.0*sin(x1+(-Interval::PI/6.0|Interval::PI/6.0))-1.0*x2));
     ibex::Function f2(x1, x2, Return(x2,
-                                     -9.81/1.0*sin(x1)-1.0*x2-5.0*x2));
+                                     -9.81/1.0*sin(x1+(-Interval::PI/6.0|Interval::PI/6.0))-1.0*x2+9.81*sin(x1+(-Interval::PI/6.0|Interval::PI/6.0))));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -549,8 +549,8 @@ void pendulum_integration(){
 
     /////////////// Initial condition ///////////////
     IntervalVector initial_box(2);
-    initial_box[0] = Interval(1.0,1.1);
-    initial_box[1] = Interval(-0.5, 0.0);
+    initial_box[0] = Interval(0.0);
+    initial_box[1] = Interval(0.0);
 
     /////////////// Compute ///////////////
     s.cameleon_propagation_with_inner(10,1e9,initial_box);
@@ -559,6 +559,7 @@ void pendulum_integration(){
     cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     s.draw(1024, true, "", false);
+    vibes::drawCircle(initial_box[0].mid(), initial_box[0].mid(), 0.1, "red[]");
     //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
@@ -689,7 +690,7 @@ void integrator(){
     vibes::beginDrawing();
     Variable x1, x2, q, p;
     ibex::Function f0(x1, x2, Return(1.0+0.0*x1,
-                                     -sin(x2) + Interval(-0.1, 0.1)));
+                                     -sin(x2)+ Interval(-0.1, 0.1)));
     //    ibex::Function f0(q, p, Return(4*p*(q*q+p*p)+20*p,
     //                                   -(4*q*(q*q+p*p)-20*q)));
 //        ibex::Function f0(x1, x2, Return(1.0+0.0*x1, cos(x2)*cos(x2)));
@@ -714,14 +715,14 @@ void integrator(){
     activated_pave[1] = Interval(-0.5,0.5);
 
 //    s.cameleon_propagation(13, 1e9, activated_pave);
-    s.cameleon_propagation_with_inner(10, 1e9, activated_pave);
+    s.cameleon_propagation_with_inner(13, 1e9, activated_pave);
 
     cout << endl << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
 
     s.draw(1024, true);
     vibes::drawBox(activated_pave, "red[]");
 //    s.print_pave_info(0,0.0,0.0);
-    s.print_pave_info(0, 5.5, 0.0);
+//    s.print_pave_info(0, 5.5, 0.0);
 //    s.print_pave_info(0, 2.5, 2.3);
 }
 
@@ -1149,12 +1150,12 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-        van_der_pol_cycle();
+//        van_der_pol_cycle();
 //        van_der_pol_integration();
     //    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
-//        integrator();
+        integrator();
 
     /// **** BASSIN ***** //
     //    bassin_ratschan6();
@@ -1175,7 +1176,7 @@ int main()
 
     /// **** PENDULUM ***** //
     //  pendulum_cycle();
-    //  pendulum_integration();
+//      pendulum_integration();
 
 
     /// **** DUAL TUBE **** //

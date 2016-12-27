@@ -1,6 +1,9 @@
 #include "graph.h"
 #include "vibes.h"
 
+#include <iostream>
+#include <fstream>
+
 using namespace std;
 using namespace ibex;
 
@@ -207,8 +210,13 @@ void Graph::sivia(int nb_node, GRAPH_BW_FW_DIRECTION direction, bool do_not_bise
 
 int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool union_functions){
     int iterations = 0;
+//    ofstream myfile;
+//    myfile.open ("queue.txt", ios::out | ios::app);
+//    myfile << "\n";
+
     while(!is_empty_node_queue() && iterations < max_iterations){
         iterations++;
+//        myfile << get_node_queue().size() << ",";
         Pave *pave = get_node_queue_access().front();
         pop_front_queue();
         pave->set_in_queue(false);
@@ -258,6 +266,7 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
         cout << "--> processing inner (" << iterations << ")" << endl;
     else
         cout << "--> processing outer (" << iterations << ")" << endl;
+//    myfile.close();
     return iterations;
 }
 
