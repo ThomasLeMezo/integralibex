@@ -13,8 +13,8 @@ CONFIG += qt
 TARGET = integrationIBEX
 TEMPLATE = app
 
-QMAKE_CXXFLAGS +=-I/usr/local/include/ -O0 -DNDEBUG -Wno-deprecated -frounding-math -std=c++11 -fopenmp
-QMAKE_LFLAGS += -fopenmp
+QMAKE_CXXFLAGS +=-I/usr/local/include/ -O3 -DNDEBUG -Wno-deprecated -frounding-math -std=c++11 -fopenmp -D_GLIBCXX_PARALLEL
+QMAKE_LFLAGS += -fopenmp -D_GLIBCXX_PARALLEL
 
 INCLUDEPATH += /usr/local/include/
 INCLUDEPATH += /opt/VIBES/client-api/C++/src/
@@ -45,19 +45,7 @@ HEADERS  +=     border.h \
     inclusion.h \
     graphdot.h
 
-#INCLUDEPATH += /usr/local/include/opencv2
 LIBS += -L/usr/local/lib
-#LIBS += -lopencv_core
-#LIBS += -lopencv_imgproc
-#LIBS += -lopencv_highgui
-#LIBS += -lopencv_ml
-#LIBS += -lopencv_video
-#LIBS += -lopencv_features2d
-#LIBS += -lopencv_calib3d
-#LIBS += -lopencv_objdetect
-#LIBS += -lopencv_contrib
-#LIBS += -lopencv_legacy
-#LIBS += -lopencv_flann
 
 DISTFILES += \
     NOTES

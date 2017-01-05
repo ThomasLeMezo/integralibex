@@ -172,6 +172,7 @@ bool Border::add_inclusion(Inclusion *inclusion){
     if(!(test.is_empty()) && (test[0].is_degenerated() != test[1].is_degenerated())){
         m_inclusions.push_back(inclusion);
         inclusion->set_owner(this);
+#pragma omp critical
         inclusion->get_border()->add_inclusion_receving(inclusion); // Add a ref to inclusion (for removal purpose)
         return true;
     }
@@ -463,7 +464,7 @@ const ibex::Interval Border::get_segment_out() const{
         return get_segment_out_inner();
 }
 
-const ibex::Interval Border::get_segment_in_inner() const{
+const Interval Border::get_segment_in_inner() const{
     return m_segment_in_inner;
 }
 
@@ -503,7 +504,7 @@ const ibex::IntervalVector Border::get_segment_in_union_out_2D() const{
 
 }
 
-const std::vector<Inclusion *> Border::get_inclusions() const{
+const std::vector<Inclusion *>& Border::get_inclusions() const{
     return m_inclusions;
 }
 

@@ -99,7 +99,7 @@ public:
     const ibex::Interval            get_segment_out_inner() const;
     const ibex::Interval            get_segment_out_outer() const;
 
-    const std::vector<Inclusion *>  get_inclusions() const ;
+    const std::vector<Inclusion *>& get_inclusions() const ;
     const std::vector<Inclusion*>&  get_inclusions_receving() const;
     Inclusion *get_inclusion(int i);
     const ibex::IntervalVector &    get_position() const;

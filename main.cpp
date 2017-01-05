@@ -831,7 +831,11 @@ void bassin_van_der_pol(){
 }
 
 void car_on_the_hill_trajectory(){
-    const clock_t begin_time = clock();
+//    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
+
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
@@ -840,27 +844,36 @@ void car_on_the_hill_trajectory(){
                                      -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-    f_list.push_back(&f2);
+//    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(-2.0, 13.0);
     box[1] = Interval(-10, 10);
 
-    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, MAZE_BORDER_INNER_IN_FULL, MAZE_BORDER_INNER_OUT_FULL,
+                                                        MAZE_BORDER_OUTER_IN_EMPTY, MAZE_BORDER_OUTER_OUT_EMPTY);
 
     IntervalVector paveA(2);
-    paveA[0] = Interval(0.0, 1.0);
-    paveA[1] = Interval(0.0, 1.0);
+//    paveA[0] = Interval(0.0, 1.0);
+//    paveA[1] = Interval(0.0, 1.0);
+    paveA[0] = Interval(-1, 2.0);
+    paveA[1] = Interval(-6, 6);
 
     IntervalVector paveB(2);
     //    paveB[0] = Interval(2.0, 3.0);
     //    paveB[1] = Interval(2.0, 3.0);
-    paveB[0] = Interval(7.0,9.0);
-    paveB[1] = Interval(-1.0, 1.0);
+    paveB[0] = Interval(11.5,12.0);
+    paveB[1] = Interval(-6.0, 6.0);
 
     s.find_path(15, 1e9, paveA, paveB); // 25
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u +
+             end.tv_usec - start.tv_usec) / 1.e6;
+
+//    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    cout << "TIME = " << delta << endl;
     s.draw(1024, true);
     vibes::drawBox(paveA, "g[]");
     vibes::drawBox(paveB, "g[]");
@@ -1150,12 +1163,12 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-//        van_der_pol_cycle();
+        van_der_pol_cycle();
 //        van_der_pol_integration();
     //    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
-        integrator();
+//        integrator();
 
     /// **** BASSIN ***** //
     //    bassin_ratschan6();
