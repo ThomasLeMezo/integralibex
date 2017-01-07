@@ -189,7 +189,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 
         }
         cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
-        m_graph_list[0]->draw_vtk(std::to_string(iterations));
+//        m_graph_list[0]->draw_vtk(std::to_string(iterations));
         iterations++;
     }
 }

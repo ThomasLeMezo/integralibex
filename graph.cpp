@@ -140,10 +140,10 @@ int Graph::process(int max_iterations, bool backward, bool inner){
             pave->set_first_process_false();
         }
 
-        if(iterations%100==0){
-            cout << '\r' << "ITERATIONS = " << iterations << " / " << max_iterations
-                 << " " << "node queue size = " << m_node_queue.size() << "/" << m_node_list.size() << flush;
-        }
+//        if(iterations%100==0){
+//            cout << '\r' << "ITERATIONS = " << iterations << " / " << max_iterations
+//                 << " " << "node queue size = " << m_node_queue.size() << "/" << m_node_list.size() << flush;
+//        }
     }
 
     cout << '\r' << "ITERATIONS = " << iterations << " / " << max_iterations << endl;
