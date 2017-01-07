@@ -60,7 +60,9 @@ void test(){
 }
 
 void van_der_pol_cycle(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
     vibes::beginDrawing();
     Variable x, y;
     ibex::Function f(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x)));
@@ -78,9 +80,11 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
-    s.cameleon_cycle(10, 5, 1e9, true, false, false);
+    s.cameleon_cycle(15, 5, 1e9, true, false, false);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     //    cout << "AREA OUTER = " << s.get_graph_list(0)->get_area_outer() << endl;
     //    vector<double> perimeters = s.get_graph_list(0)->get_perimeters();
@@ -249,13 +253,15 @@ void car_on_the_hill_attractor(){
 }
 
 void car_on_the_hill_kernel(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
-                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +2.0));
+                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 +0.5));
     ibex::Function f2(x1, x2, Return(x2,
-                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
+                                     -9.81*sin( (-1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -0.5));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
     f_list.push_back(&f2);
@@ -267,8 +273,12 @@ void car_on_the_hill_kernel(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, MAZE_BORDER_INNER_IN_FULL, MAZE_BORDER_INNER_OUT_FULL, MAZE_BORDER_OUTER_IN_FULL, MAZE_BORDER_OUTER_OUT_EMPTY);
 
     /////////////// Compute ///////////////
-    bool is_attractor = s.compute_attractor(20, 1e9);
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    bool is_attractor = s.compute_attractor(22, 1e9);
+
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
+
     s.draw(1024, true, "attractor"); vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 
     if(is_attractor){
@@ -277,7 +287,9 @@ void car_on_the_hill_kernel(){
         s.cameleon_viability(3, 1e9);
 
         cout << "************************" << endl;
-        cout << "TOTAL TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        gettimeofday(&end, NULL);
+        double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+        cout << "TOTAL TIME = " << delta << endl;
 
         /////////////// Drawing ///////////////
         s.draw(1024, true);
@@ -831,10 +843,8 @@ void bassin_van_der_pol(){
 }
 
 void car_on_the_hill_trajectory(){
-//    const clock_t begin_time = clock();
     struct timeval start, end;
     gettimeofday(&start, NULL);
-
 
     vibes::beginDrawing();
     Variable x1, x2;
@@ -868,12 +878,9 @@ void car_on_the_hill_trajectory(){
     s.find_path(15, 1e9, paveA, paveB); // 25
 
     gettimeofday(&end, NULL);
-
-    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u +
-             end.tv_usec - start.tv_usec) / 1.e6;
-
-//    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
     cout << "TIME = " << delta << endl;
+
     s.draw(1024, true);
     vibes::drawBox(paveA, "g[]");
     vibes::drawBox(paveB, "g[]");
@@ -881,7 +888,9 @@ void car_on_the_hill_trajectory(){
 }
 
 void cos_trajectory(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(1.0 + 0.0*x1,
@@ -907,9 +916,12 @@ void cos_trajectory(){
     paveB[1] = Interval(2.1,3);
 
 //    s.find_path(11, 1e9, paveA, paveB); // 25
-    s.cameleon_propagation(1, 1e9, paveA);
+    s.cameleon_propagation(10, 1e9, paveA);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
+
     s.draw(1024, true);
     vibes::drawBox(paveA, "g[]");
     vibes::drawBox(paveB, "g[]");
@@ -1150,7 +1162,7 @@ int main()
 
     /// **** CAR ON THE HILL ***** //
     //    car_on_the_hill_attractor();
-    //    car_on_the_hill_bassin();
+//        car_on_the_hill_bassin();
 
 //        car_on_the_hill_kernel();
 
@@ -1163,12 +1175,12 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-        van_der_pol_cycle();
+//        van_der_pol_cycle();
 //        van_der_pol_integration();
     //    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
-//        integrator();
+        integrator();
 
     /// **** BASSIN ***** //
     //    bassin_ratschan6();

@@ -112,6 +112,7 @@ public:
     Pave&                       operator[](int id);
     void                        build_graph();
     void                        pop_front_queue();
+    void                        pop_back_queue();
 
     void                        print_pave_info(double x, double y, string color) const;
     void                        print() const;

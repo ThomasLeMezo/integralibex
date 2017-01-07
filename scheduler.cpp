@@ -259,7 +259,7 @@ bool Scheduler::compute_attractor(int iterations_max, int process_iterations_max
 
     if(iterations < iterations_max && graph->size()<4){
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        graph->sivia(4,GRAPH_BACKWARD, false, false); // Start with 4 boxes
+        graph->sivia(16,GRAPH_BACKWARD, false, false); // Start with 4 boxes
         graph->process(process_iterations_max, GRAPH_BACKWARD); // ? Usefull ??? ToDo
         iterations++;
     }
@@ -271,7 +271,7 @@ bool Scheduler::compute_attractor(int iterations_max, int process_iterations_max
         if(graph->get_alive_node()==0 || m_graph_list.size()==0)
             break;
         graph->clear_node_queue();
-        graph->sivia(2*graph->get_alive_node(), GRAPH_BACKWARD, false, false);
+        graph->sivia(int(2*graph->get_alive_node()), GRAPH_BACKWARD, false, false);
 
         for(int nb_f=0; nb_f<graph->get_f_size(); nb_f++){
             graph->set_active_f(nb_f);
