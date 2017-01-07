@@ -10,7 +10,7 @@ class GraphDot
 public:
     GraphDot(Graph *g);
 
-    void write(string namefile);
+    void write(std::string namefile);
     void parse_node_definition(Pave *p, ofstream &file, int node_id);
     void parse_node_link(Pave *p, ofstream &file);
     void parse_graph(ofstream &file);

@@ -15,14 +15,14 @@ public:
     ~Scheduler();
 
     void cameleon_cycle(int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool inner);
-    void cameleon_propagation(int iterations_max, int process_iterations_max, vector<ibex::IntervalVector> &initial_boxes, bool inner=false);
+    void cameleon_propagation(int iterations_max, int process_iterations_max, std::vector<ibex::IntervalVector> &initial_boxes, bool inner=false);
     void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe, bool inner=false);
 
     void set_symetry(ibex::Function *f, int axis_in, int side_in, int axis_out, int side_out);
 
     // ******** Drawing functions ********
     void draw();
-    void print_pave_info(int graph, double x, double y, string color);
+    void print_pave_info(int graph, double x, double y, std::string color);
 
     // Getter
     Graph* get_graph_list(int i);

@@ -168,10 +168,10 @@ void capture_attractor(){
 
 int main()
 {
-    integration();
+//    integration();
 //    ball();
 //    capture_attractor();
-//    van_der_pol_cycle();
+    van_der_pol_cycle();
 //    lorenz_attractor();
 //    test();
 

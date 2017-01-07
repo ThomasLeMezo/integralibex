@@ -29,7 +29,7 @@ public:
 //    void                        print();
 
     // ******** Graph building ********
-    void                        bisect(vector<Pave *> &result);
+    void                        bisect(std::vector<Pave *> &result);
     void                        remove_from_brothers();
     void                        remove_brothers(Pave* p, int face);
 
@@ -56,17 +56,17 @@ public:
     void                        disable_continuity();
 
     void                        update_theta();
-    void                        update_ray_vector(const ibex::IntervalVector &theta, std::vector<Generator> &ray_vector_list);
+    void                        update_ray_vector(const ibex::IntervalVector &theta, std::vector<PPL::Generator> &ray_vector_list);
 
     // Getters
     const std::vector<Pave*>            get_brothers(int face);
-    const vector<PPL::Generator>&       get_ray_vector_field() const;
-    const vector<PPL::Generator> &      get_ray_vector_backward_field() const;
-    const vector<PPL::Generator>&       get_ray_command() const;
+    const std::vector<PPL::Generator>&       get_ray_vector_field() const;
+    const std::vector<PPL::Generator> &      get_ray_vector_backward_field() const;
+    const std::vector<PPL::Generator>&       get_ray_command() const;
     const ibex::IntervalVector&         get_position() const;
-    const C_Polyhedron                  get_volume_in() const;
-    const C_Polyhedron                  get_volume_out() const;
-    const C_Polyhedron                  get_volume_in_out() const;
+    const PPL::C_Polyhedron                  get_volume_in() const;
+    const PPL::C_Polyhedron                  get_volume_out() const;
+    const PPL::C_Polyhedron                  get_volume_in_out() const;
 
     const std::vector<Border *> &       get_borders();
     Border*                             get_border(int face);

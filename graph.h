@@ -45,7 +45,7 @@ public:
 
     // Other functions
     Pave&                           operator[](int id);
-    void                            draw_vtk(string filename);
+    void                            draw_vtk(std::string filename);
     void                            print_pave_info(double x, double y) const;
 
 private:

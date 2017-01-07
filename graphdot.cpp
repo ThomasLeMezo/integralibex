@@ -6,7 +6,7 @@ GraphDot::GraphDot(Graph *g){
     m_graph = g;
 }
 
-void GraphDot::write(string namefile){
+void GraphDot::write(std::string namefile){
     ofstream file;
     file.open(namefile);
     parse_graph(file);
