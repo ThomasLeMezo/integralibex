@@ -80,7 +80,7 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
-    s.cameleon_cycle(15, 5, 1e9, true, false, false);
+    s.cameleon_cycle(15, 5, 1e9, false, false, false);
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -101,7 +101,9 @@ void simon_cos(){
 }
 
 void ball(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
     vibes::beginDrawing();
     Variable x, y;
     ibex::Function f(x, y, Return(y,-10-0.1*y*abs(y)));
@@ -118,13 +120,15 @@ void ball(){
     activated_pave[0] = Interval(10.0, 16.0);
     activated_pave[1] = Interval(-4.0, 4.0);
 
-    ibex::Function f_sym(x, y, Return(x, -y-2.0));
+    ibex::Function f_sym(x, y, Return(x, -y));
     s.set_symetry(&f_sym,3, 3);
 
-    //    s.cameleon_propagation(20, 1000000, activated_pave);
-    s.cameleon_propagation_with_inner(14,1e9,activated_pave);
+    s.cameleon_propagation_with_inner(20,1e9,activated_pave); // 20
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
+
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 }
@@ -866,8 +870,8 @@ void car_on_the_hill_trajectory(){
     IntervalVector paveA(2);
 //    paveA[0] = Interval(0.0, 1.0);
 //    paveA[1] = Interval(0.0, 1.0);
-    paveA[0] = Interval(-1, 2.0);
-    paveA[1] = Interval(-6, 6);
+    paveA[0] = Interval(6, 7);
+    paveA[1] = Interval(-9, -8);
 
     IntervalVector paveB(2);
     //    paveB[0] = Interval(2.0, 3.0);
@@ -875,7 +879,7 @@ void car_on_the_hill_trajectory(){
     paveB[0] = Interval(11.5,12.0);
     paveB[1] = Interval(-6.0, 6.0);
 
-    s.find_path(15, 1e9, paveA, paveB); // 25
+    s.find_path(18, 1e9, paveA, paveB); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1161,12 +1165,12 @@ int main()
     //    station_keeping_attractor();
 
     /// **** CAR ON THE HILL ***** //
-    //    car_on_the_hill_attractor();
+//        car_on_the_hill_attractor();
 //        car_on_the_hill_bassin();
 
 //        car_on_the_hill_kernel();
 
-//        car_on_the_hill_trajectory();
+        car_on_the_hill_trajectory();
 //        car_on_the_hill_integrator();
     //    car_on_the_hill_limit_path();
 
@@ -1180,7 +1184,7 @@ int main()
     //    van_der_pol_kernel();
 
     /// **** INTEGRATOR ***** //
-        integrator();
+//        integrator();
 
     /// **** BASSIN ***** //
     //    bassin_ratschan6();

@@ -197,7 +197,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
 
         while(!graph->is_sufficiently_discretized()){
             graph->reset_queues();
-            graph->sivia(2*graph->get_alive_node(),GRAPH_FORWARD, false, false);
+            graph->sivia(max(2*graph->get_alive_node(), 4),GRAPH_FORWARD, false, false);
         }
         //        graph->sivia(4, GRAPH_FORWARD, false, false); // Start with 4 boxes
         graph->set_empty_outer_full_inner();
