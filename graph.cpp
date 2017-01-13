@@ -249,6 +249,7 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
             }
             if(pave != NULL)
             {
+                pave->lock();
                 pave->set_in_queue(false);
 
                 /// ******* PROCESS CONTINUITY *******
@@ -258,14 +259,21 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
                 /// TODO improve external inifinity border consistency
                 if(pave->is_active()
                         && !pave->is_removed_pave() && !pave->is_removed_pave_outer()
-                        && (change || pave->get_first_process())){
+                        && (change || pave->get_first_process()))
+                {
+
 
                     /// ******* PROCESS CONSISTENCY *******
                     std::vector<bool> change_tab;
                     for(int i=0; i<4; i++)
                         change_tab.push_back(false);
+
                     if(!pave->is_external_border()) // Temporary (until Ctc ok)
                         m_utils->CtcConsistency(pave, direction, change_tab, union_functions);
+
+                    pave->set_first_process(false);
+                    pave->increment_cpt_consistency();
+
 
                     /// ******* PUSH BACK NEW PAVES *******
                     // Warn scheduler to process new pave
@@ -279,9 +287,9 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
                         }
                     }
 
-                    pave->set_first_process(false);
-                    pave->increment_cpt_consistency();
                 }
+                pave->unlock();
+
                 //                if(debug_marker1/* && iterations >= 8*/ /**&& iterations%5==0**/){
                 //                    draw(1024, true, "process_inner");
                 //                    pave->print();
@@ -1026,22 +1034,20 @@ void Graph::set_inner_mode(bool val){
 }
 
 void Graph::add_to_queue_inner(Pave *p){
-#pragma omp critical
-    {
-        if(!p->is_in_queue_inner()){
-            m_node_queue_inner.push_back(p);
-            p->set_in_queue_inner(true);
-        }
+    if(!p->is_in_queue_inner()){
+        p->lock();
+        m_node_queue_inner.push_back(p);
+        p->set_in_queue_inner(true);
+        p->unlock();
     }
 }
 
 void Graph::add_to_queue_outer(Pave *p){
-#pragma omp critical
-    {
-        if(!p->is_in_queue_outer()){
-            m_node_queue_outer.push_back(p);
-            p->set_in_queue_outer(true);
-        }
+    if(!p->is_in_queue_outer()){
+        p->lock();
+        m_node_queue_outer.push_back(p);
+        p->set_in_queue_outer(true);
+        p->unlock();
     }
 }
 

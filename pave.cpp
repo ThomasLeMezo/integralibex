@@ -1826,3 +1826,14 @@ ibex::IntervalVector Pave::get_search_box() const{
 ibex::IntervalVector Pave::get_vector_field() const{
     return m_vector_field;
 }
+
+void Pave::lock(){
+    for(vector<Border*>::iterator b = m_borders.begin(); b<m_borders.end(); ++b)
+        (*b)->lock();
+}
+
+void Pave::unlock(){
+    for(vector<Border*>::iterator b = m_borders.begin(); b<m_borders.end(); ++b)
+        (*b)->unlock();
+}
+

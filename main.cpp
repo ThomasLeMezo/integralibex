@@ -96,6 +96,32 @@ void van_der_pol_cycle(){
     //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
+void wave_cycle(){
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
+    vibes::beginDrawing();
+    Variable x, y;
+    ibex::Function f(x, y, Return(x+exp(y)*sin(x),
+                                  y-exp(y)*cos(x)));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f);
+
+    IntervalVector box(2);
+    box[0] = Interval(-10,10);
+    box[1] = Interval(-30,30);
+
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
+    s.cameleon_cycle(15, 5, 1e9, false, false, false);
+
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
+
+    s.draw(1024, true);
+}
+
 void simon_cos(){
 
 }
@@ -134,7 +160,8 @@ void ball(){
 }
 
 void hybrid_system(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x, y;
     ibex::Function f(x, y, Return(1.0+0.0*x,1.0+0.0*x));
@@ -160,7 +187,9 @@ void hybrid_system(){
 //        s.cameleon_propagation(10, 1e9, activated_pave);
     s.cameleon_propagation_with_inner(10,1e9,activated_pave);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 //    s.print_pave_info(0, 1.4,0.86);
@@ -168,7 +197,8 @@ void hybrid_system(){
 }
 
 void station_keeping_attractor(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable phi, d;
     ibex::Function f(phi, d, Return(chi(cos(phi)-sqrt(2)/2, sin(phi)/d+1, (1.0/d-1)*sin(phi)),
@@ -205,7 +235,9 @@ void station_keeping_attractor(){
     s.cameleon_viability(8, 1e9, true);
     //    s.cameleon_propagation(15, 1e6, activated_pave, false);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     /////////////// Drawing ///////////////
     s.draw(1024, true, "", false);
@@ -226,7 +258,8 @@ void station_keeping_attractor(){
 }
 
 void car_on_the_hill_attractor(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
@@ -249,7 +282,9 @@ void car_on_the_hill_attractor(){
     s.compute_attractor(12, 1e9);
     //    s.cameleon_cycle(12, 5, 1e9, false, false);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     /////////////// Drawing ///////////////
     s.draw(1024, true, "invert f");
@@ -304,7 +339,9 @@ void car_on_the_hill_kernel(){
 }
 
 void car_on_the_hill_bassin(){
-    const clock_t begin_time = clock();
+//    omp_set_num_threads(1);
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
@@ -339,9 +376,11 @@ void car_on_the_hill_bassin(){
     /////////////// Compute ///////////////
     // int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool compute_inner
     //    s.cameleon_cycle(15, 5, 1e9, false, false, true);
-    s.cameleon_viability(7, 1e9, true);
+    s.cameleon_viability(15, 1e9, true);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     /////////////// Drawing ///////////////
     s.draw(1024, true);
@@ -352,7 +391,8 @@ void car_on_the_hill_bassin(){
 }
 
 void cercle_capture_bassin(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2, x, y;
     //    ibex::Function f(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
@@ -391,7 +431,9 @@ void cercle_capture_bassin(){
     /////////////// Compute ///////////////
     s.cameleon_cycle(15, 5, 1e9, false, false);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     /////////////// Drawing ///////////////
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
@@ -401,7 +443,8 @@ void cercle_capture_bassin(){
 }
 
 void pendulum_capture_bassin(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f(x1, x2, Return(x2,
@@ -430,7 +473,9 @@ void pendulum_capture_bassin(){
     /////////////// Compute ///////////////
     s.cameleon_cycle(14, 5, 1e9, false, false);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     /////////////// Drawing ///////////////
     s.draw(1024, true);
     //    vibes::axisLimits(-1,13, -8,11);
@@ -440,7 +485,8 @@ void pendulum_capture_bassin(){
 }
 
 void car_on_the_hill_limit_path(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     //    ibex::Function f1(x1, x2, Return(-x2,
@@ -464,12 +510,15 @@ void car_on_the_hill_limit_path(){
 
     s.cameleon_propagation(25, 1e9, activated_pave);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     s.draw(1024, true);
 }
 
 void car_on_the_hill_integrator(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
@@ -505,7 +554,9 @@ void car_on_the_hill_integrator(){
     //    s.cameleon_propagation(18, 1e9, activated_pave); // 25
     s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     s.draw(1024, true);
     vibes::drawBox(activated_pave, "red[]");
@@ -513,7 +564,8 @@ void car_on_the_hill_integrator(){
 }
 
 void pendulum_cycle(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f(x1, x2, Return(x2,
@@ -538,14 +590,17 @@ void pendulum_cycle(){
     /////////////// Compute ///////////////
     s.cameleon_viability(15, 1e9, true);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     s.draw(1024, true, "", false);
     //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
 void pendulum_integration(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
@@ -572,7 +627,9 @@ void pendulum_integration(){
     s.cameleon_propagation_with_inner(10,1e9,initial_box);
     //    s.cameleon_propagation(13,1e9,initial_box);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     s.draw(1024, true, "", false);
     vibes::drawCircle(initial_box[0].mid(), initial_box[0].mid(), 0.1, "red[]");
@@ -580,7 +637,8 @@ void pendulum_integration(){
 }
 
 void hann_max_pos_inv(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f(x1, x2, Return(-x1+2*(pow(x1,2))*x2,
@@ -603,14 +661,17 @@ void hann_max_pos_inv(){
     /////////////// Compute ///////////////
     s.cameleon_viability(8, 1e9, true);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     s.draw(1024, true, "", false);
     //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
 void predator_prey_max_pos_inv(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     // −3x 1 + 4x 21 − 0.5x 1 x 2 − x 31
@@ -637,14 +698,17 @@ void predator_prey_max_pos_inv(){
     /////////////// Compute ///////////////
     s.cameleon_viability(8, 1e9, true);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     s.draw(1024, true, "", false);
     s.print_pave_info(0, 0.0,0.0,"b[b]");
 }
 
 void circle3_max_pos_inv(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f(x1, x2, Return(x1-x2-pow(x1,3),
@@ -666,14 +730,17 @@ void circle3_max_pos_inv(){
     /////////////// Compute ///////////////
     s.cameleon_viability(11, 1e9, true);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     s.draw(1024, true, "", false);
     //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
 void dipole_max_pos_inv(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f(x1, x2, Return((x1-1.0)/pow(x2*x2+pow(x1-1.0,2),1.5)-(x1+1.0)/pow(x2*x2+pow(x1+1.0,2),1.5),
@@ -695,14 +762,17 @@ void dipole_max_pos_inv(){
     /////////////// Compute ///////////////
     s.cameleon_viability(15, 1e9, true);
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     s.draw(1024, true, "", false);
     //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
 }
 
 void integrator(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2, q, p;
     ibex::Function f0(x1, x2, Return(1.0+0.0*x1,
@@ -733,7 +803,9 @@ void integrator(){
 //    s.cameleon_propagation(13, 1e9, activated_pave);
     s.cameleon_propagation_with_inner(13, 1e9, activated_pave);
 
-    cout << endl << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     s.draw(1024, true);
     vibes::drawBox(activated_pave, "red[]");
@@ -743,7 +815,8 @@ void integrator(){
 }
 
 void van_der_pol_integration(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x, y;
     ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
@@ -764,7 +837,9 @@ void van_der_pol_integration(){
     //    s.cameleon_propagation(20, 1e9, activated_pave); // 25
     s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     s.draw(1024, true);
     vibes::drawBox(activated_pave, "red[]");
 
@@ -772,7 +847,8 @@ void van_der_pol_integration(){
 }
 
 void van_der_pol_kernel(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x, y;
     ibex::Function f1(x, y, Return(y,-(1.0*(1.0-pow(x, 2))*y-x + 1.0)));
@@ -797,7 +873,9 @@ void van_der_pol_kernel(){
         s.cameleon_viability(3, 1e9);
     }
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     /////////////// Drawing ///////////////
     if(is_attractor)
@@ -805,7 +883,8 @@ void van_der_pol_kernel(){
 }
 
 void bassin_van_der_pol(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x, y;
     ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x)));
@@ -836,7 +915,9 @@ void bassin_van_der_pol(){
     //    s.cameleon_cycle(15, 5, 1e9, false, false, true);
     s.cameleon_viability(7, 1e9, true); // 10 = 256 s
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
 
     /////////////// Drawing ///////////////
     s.draw(1024, true);
@@ -933,7 +1014,8 @@ void cos_trajectory(){
 }
 
 void bassin_ratschan6(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2+(1-x1*x1-x2*x2)*x1,
@@ -959,13 +1041,16 @@ void bassin_ratschan6(){
     /////////////// Compute ///////////////
     s.cameleon_viability(10, 1e9, true); // 10 = 256 s
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     /////////////// Drawing ///////////////
     s.draw(1024, true);
 }
 
 void bassin_parrilo(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(-x1+(1+x1)*x2,
@@ -991,13 +1076,16 @@ void bassin_parrilo(){
     /////////////// Compute ///////////////
     s.cameleon_viability(10, 1e9, true); // 10 = 256 s
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     /////////////// Drawing ///////////////
     s.draw(1024, true);
 }
 
 void bassin_ratschan3(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(-4*x1*x1*x1+6*x1*x1-2*x1,
@@ -1023,13 +1111,16 @@ void bassin_ratschan3(){
     /////////////// Compute ///////////////
     s.cameleon_viability(10, 1e9, true); // 10 = 256 s
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     /////////////// Drawing ///////////////
     s.draw(1024, true);
 }
 
 void integrator_ratschan3(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(-(-4*x1*x1*x1+6*x1*x1-2*x1),
@@ -1054,14 +1145,17 @@ void integrator_ratschan3(){
     //    s.cameleon_propagation(19, 1e9, activated_pave); // 25
     s.cameleon_propagation_with_inner(13, 1e9, activated_pave); // 25
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     s.draw(1024, true);
     s.print_pave_info(0, 0.4,0.1);
 
 }
 
 void bassin_genesio(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(-x1+x2,
@@ -1087,14 +1181,17 @@ void bassin_genesio(){
     /////////////// Compute ///////////////
     s.cameleon_viability(10, 1e9, true); // 10 = 256 s
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     /////////////// Drawing ///////////////
     s.draw(1024, true);
     //    vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
 }
 
 void integrator_genesio(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(-(-x1+x2),
@@ -1117,13 +1214,16 @@ void integrator_genesio(){
     //    s.cameleon_propagation(19, 1e9, activated_pave); // 25
     s.cameleon_propagation_with_inner(18, 1e9, activated_pave); // 25
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     s.draw(1024, true);
 
 }
 
 void bassin_bacha(){
-    const clock_t begin_time = clock();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,
@@ -1149,7 +1249,9 @@ void bassin_bacha(){
     /////////////// Compute ///////////////
     s.cameleon_viability(8, 1e9, true); // 10 = 256 s
 
-    cout << "TIME = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
     /////////////// Drawing ///////////////
     s.draw(1024, true);
 }
@@ -1166,11 +1268,11 @@ int main()
 
     /// **** CAR ON THE HILL ***** //
 //        car_on_the_hill_attractor();
-//        car_on_the_hill_bassin();
+        car_on_the_hill_bassin();
 
 //        car_on_the_hill_kernel();
 
-        car_on_the_hill_trajectory();
+//        car_on_the_hill_trajectory();
 //        car_on_the_hill_integrator();
     //    car_on_the_hill_limit_path();
 
@@ -1210,6 +1312,9 @@ int main()
 
     /// **** DUAL TUBE **** //
 //    cos_trajectory();
+
+    /// **** WAVES **** //
+//    wave_cycle();
 
     /// **** TEST ***** //
     //    test();

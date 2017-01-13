@@ -4,6 +4,7 @@
 #include <ibex.h>
 #include <border.h>
 #include <string>
+#include <omp.h>
 
 class Border;
 class Pave
@@ -202,6 +203,9 @@ public:
     const ibex::IntervalVector          compute_vector_field(std::vector<ibex::Function *> f_list);
 
     const std::vector<ibex::Interval>   compute_half_circle(const ibex::IntervalVector pt_start, const ibex::IntervalVector pt_end, bool trigo_rotation);
+
+    void lock();
+    void unlock();
 
     /***************** Variables ******************/
 

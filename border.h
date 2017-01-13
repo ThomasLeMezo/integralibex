@@ -4,6 +4,7 @@
 #include <ibex.h>
 #include <pave.h>
 #include <inclusion.h>
+#include <omp.h>
 
 class Pave;
 class Inclusion;
@@ -137,6 +138,9 @@ public:
     bool                            is_empty();
     bool                            is_full();
 
+    void                            lock();
+    void                            unlock();
+
 /***************** Variables ******************/
 private:
     ibex::Interval                  m_segment_in_outer, m_segment_out_outer;
@@ -174,6 +178,8 @@ private:
     std::vector<bool>               m_zone_function_in_bwd;
     std::vector<bool>               m_zone_function_out_fwd;
     std::vector<bool>               m_zone_function_out_bwd;
+
+    omp_nest_lock_t                 m_writelock;
 
 };
 

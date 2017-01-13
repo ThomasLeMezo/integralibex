@@ -5,6 +5,8 @@
 #include <utils.h>
 
 enum GRAPH_BW_FW_DIRECTION {GRAPH_FORWARD=false, GRAPH_BACKWARD=true};
+//enum GRAPH_COMPUTE_INNER {GRAPH_COMP_INNER_FALSE=false, GRAPH_COMP_INNER_TRUE=true};
+//enum GRAPH_MODE {GRAPH_INNER=true, GRAPH_OUTER=false};
 
 class Graph
 {

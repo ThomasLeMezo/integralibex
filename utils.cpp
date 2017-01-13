@@ -302,8 +302,9 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
             Interval segment_in = Interval::EMPTY_SET;
 
             for(int b = 0; b < (int)p->get_border(face)->get_inclusions().size(); b++){
-                #pragma omp critical
+                p->get_border(face)->get_inclusion(b)->get_border()->lock();
                 segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
+                p->get_border(face)->get_inclusion(b)->get_border()->unlock();
             }
 
             if(p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out())){
@@ -318,8 +319,9 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
         Interval segment_out = Interval::EMPTY_SET;
 
         for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
-            #pragma omp critical
+            p->get_border(face)->get_inclusion(b)->get_border()->lock();
             segment_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
+            p->get_border(face)->get_inclusion(b)->get_border()->unlock();
         }
 
         if(backward){

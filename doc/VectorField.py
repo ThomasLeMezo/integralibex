@@ -74,9 +74,14 @@ from numpy import *
 #V=(0.1*x1-2*x2-x1*x1-0.1*x1*x1*x1)
 
 #### Magnet ?
-x1, x2 = np.meshgrid(np.arange(-5.0,5.0,0.1), np.arange(-5.0,5.0,0.1))
-U = x1
-V = 1.0/(x1-1.0)-1.0/(x1+1.0)
+# x1, x2 = np.meshgrid(np.arange(-5.0,5.0,0.1), np.arange(-5.0,5.0,0.1))
+# U = x1
+# V = 1.0/(x1-1.0)-1.0/(x1+1.0)
+
+##### Waves
+x1, x2 = np.meshgrid(np.arange(-10,10,0.5), np.arange(0.0,10.0,0.5))
+U = x1+exp(x2)*sin(x1+2)
+V = x2-exp(x2)*cos(x1+2)
 
 
 #### Van Der Pol
