@@ -36,7 +36,8 @@ Border::Border(const IntervalVector &position, const int face, Pave *pave): m_po
     m_zone_propagation = false;
     m_backward_function = false;
 
-    omp_init_nest_lock(&m_writelock);
+    omp_init_nest_lock(&m_lock_write);
+    omp_init_lock(&m_lock_read);
 }
 
 Border::Border(const Border *border): m_position(2)
@@ -69,13 +70,15 @@ Border::Border(const Border *border): m_position(2)
         m_zone_function_out_fwd = border->get_zone_function_out_fwd();
         m_zone_function_out_bwd = border->get_zone_function_out_bwd();
     }
-    omp_init_nest_lock(&m_writelock);
+    omp_init_nest_lock(&m_lock_write);
+    omp_init_lock(&m_lock_read);
 }
 
 Border::~Border(){
     for(Inclusion *i :m_inclusions)
         delete(i);
-    omp_destroy_nest_lock(&m_writelock);
+    omp_destroy_lock(&m_lock_read);
+    omp_destroy_nest_lock(&m_lock_write);
 }
 
 void Border::draw(bool same_size, double offset, bool test, bool two_offset) const{
@@ -853,10 +856,22 @@ bool Border::get_backward_function() const{
     return m_backward_function;
 }
 
-void Border::lock(){
-    omp_set_nest_lock(&m_writelock);
+void Border::lock_read(){
+    omp_set_lock(&m_lock_read);
 }
 
-void Border::unlock(){
-    omp_unset_nest_lock(&m_writelock);
+int Border::lock_test_read(){
+    omp_test_lock(&m_lock_read);
+}
+
+void Border::unlock_read(){
+    omp_unset_lock(&m_lock_read);
+}
+
+void Border::lock_write(){
+    omp_set_nest_lock(&m_lock_write);
+}
+
+void Border::unlock_write(){
+    omp_unset_nest_lock(&m_lock_write);
 }

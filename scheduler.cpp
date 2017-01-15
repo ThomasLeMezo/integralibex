@@ -355,11 +355,10 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         const clock_t sivia_time = clock();
         cout << "--> time (sivia) = " << float( sivia_time - begin_time ) /  CLOCKS_PER_SEC << endl;
 
-        //        if(iterations == 0)
-        //            graph->debug_marker2 = true;
 
         // Process the backward with the subpaving
         cout << "GRAPH No 0 (" << graph->size() << ")" << endl;
+        graph->set_inner_mode(true);
         graph->mark_empty_node(); // NEW => for [X week]
 
         graph->set_inner_mode(true);
@@ -400,6 +399,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
             graph_initial->reset_queues();
             graph_initial->sivia(2*graph_initial->get_alive_node(),GRAPH_BACKWARD, false, false);
         }
+        cout << "test - iterations" << endl;
         graph_initial->process(process_iterations_max, GRAPH_BACKWARD); // ? Usefull ??? ToDo
         iterations++;
     }

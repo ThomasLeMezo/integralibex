@@ -204,8 +204,12 @@ public:
 
     const std::vector<ibex::Interval>   compute_half_circle(const ibex::IntervalVector pt_start, const ibex::IntervalVector pt_end, bool trigo_rotation);
 
-    void lock();
-    void unlock();
+    void                                lock_pave();
+    void                                unlock_pave();
+    void                                lock_pave_queue();
+    void                                unlock_pave_queue();
+    void                                lock_border();
+    void                                unlock_border();
 
     /***************** Variables ******************/
 
@@ -268,6 +272,9 @@ private:
     std::vector< std::vector<ibex::IntervalVector>> m_segment_list;
 
     ibex::IntervalVector        m_search_box;
+
+    omp_lock_t                  m_lock;
+    omp_lock_t                  m_lock_queue;
 
 };
 

@@ -302,14 +302,16 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
             Interval segment_in = Interval::EMPTY_SET;
 
             for(int b = 0; b < (int)p->get_border(face)->get_inclusions().size(); b++){
-                p->get_border(face)->get_inclusion(b)->get_border()->lock();
+                p->get_border(face)->get_inclusion(b)->get_border()->lock_read();
                 segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
-                p->get_border(face)->get_inclusion(b)->get_border()->unlock();
+                p->get_border(face)->get_inclusion(b)->get_border()->unlock_read();
             }
 
             if(p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out())){
                 change = true;
+                p->get_border(face)->lock_read();
                 p->get_border(face)->set_segment_out(segment_in, true);
+                p->get_border(face)->unlock_read();
             }
         }
         //        }
@@ -319,23 +321,27 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
         Interval segment_out = Interval::EMPTY_SET;
 
         for(int b = 0; b < p->get_border(face)->get_inclusions().size(); b++){
-            p->get_border(face)->get_inclusion(b)->get_border()->lock();
+            p->get_border(face)->get_inclusion(b)->get_border()->lock_read();
             segment_out |= p->get_border(face)->get_inclusion(b)->get_segment_out();
-            p->get_border(face)->get_inclusion(b)->get_border()->unlock();
+            p->get_border(face)->get_inclusion(b)->get_border()->unlock_read();
         }
 
         if(backward){
             if(!p->get_inner_mode()){
                 if(p->get_border(face)->get_segment_in() != (segment_out & p->get_border(face)->get_segment_in())){
                     change = true;
+                    p->get_border(face)->lock_read();
                     p->get_border(face)->set_segment_in(segment_out, true);
+                    p->get_border(face)->unlock_read();
                 }
             }
         }
         else{
             if(p->get_border(face)->get_segment_in() != (p->get_border(face)->get_segment_in() | segment_out & p->get_border(face)->get_segment_full())){
                 change = true;
+                p->get_border(face)->lock_read();
                 p->get_border(face)->set_segment_in(segment_out, false);
+                p->get_border(face)->unlock_read();
             }
         }
         //        }

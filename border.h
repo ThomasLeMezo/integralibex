@@ -138,8 +138,11 @@ public:
     bool                            is_empty();
     bool                            is_full();
 
-    void                            lock();
-    void                            unlock();
+    void                            lock_read();
+    int                             lock_test_read();
+    void                            lock_write();
+    void                            unlock_read();
+    void                            unlock_write();
 
 /***************** Variables ******************/
 private:
@@ -179,7 +182,8 @@ private:
     std::vector<bool>               m_zone_function_out_fwd;
     std::vector<bool>               m_zone_function_out_bwd;
 
-    omp_nest_lock_t                 m_writelock;
+    omp_lock_t                      m_lock_read;
+    omp_nest_lock_t                 m_lock_write;
 
 };
 

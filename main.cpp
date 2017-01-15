@@ -80,7 +80,7 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
-    s.cameleon_cycle(15, 5, 1e9, false, false, false);
+    s.cameleon_cycle(15, 5, 1e9, true, false, false);
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -353,14 +353,14 @@ void car_on_the_hill_bassin(){
                                      -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2));
 
     std::vector<ibex::Function*> f_list;
-    //    f_list.push_back(&f1);
-    //    f_list.push_back(&f2);
+    f_list.push_back(&f1);
+    f_list.push_back(&f2);
     f_list.push_back(&f3);
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
-    //    box[1] = Interval(-16, 16);
-    box[1] = Interval(-8, 10);
+        box[1] = Interval(-16, 16);
+//    box[1] = Interval(-8, 10);
 
     std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
@@ -1268,7 +1268,7 @@ int main()
 
     /// **** CAR ON THE HILL ***** //
 //        car_on_the_hill_attractor();
-        car_on_the_hill_bassin();
+//        car_on_the_hill_bassin();
 
 //        car_on_the_hill_kernel();
 
@@ -1281,7 +1281,7 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-//        van_der_pol_cycle();
+        van_der_pol_cycle();
 //        van_der_pol_integration();
     //    van_der_pol_kernel();
 

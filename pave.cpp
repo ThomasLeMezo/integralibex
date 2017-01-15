@@ -87,6 +87,9 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
         m_theta_more_than_two_pi = false;
     else
         m_theta_more_than_two_pi = true;
+
+    omp_init_lock(&m_lock);
+    omp_init_lock(&m_lock_queue);
 }
 
 const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f, bool backward_function){
@@ -224,12 +227,16 @@ Pave::Pave(const Pave *p):
     m_theta_more_than_two_pi = p->is_theta_more_than_two_pi();
 
     m_search_box = p->get_search_box();
+    omp_init_lock(&m_lock);
+    omp_init_lock(&m_lock_queue);
 }
 
 Pave::~Pave(){
     for(int face=0; face<4; face++){
         delete(m_borders[face]);
     }
+    omp_destroy_lock(&m_lock);
+    omp_destroy_lock(&m_lock_queue);
 }
 
 Pave& Pave::operator&=(const Pave &p){
@@ -620,30 +627,30 @@ void Pave::bisect(vector<Pave*> &result, bool backward, bool apply_heuristic){
     std::pair<IntervalVector, IntervalVector> result_boxes(IntervalVector(2), IntervalVector(2));
 
     if(apply_heuristic){
-//        std::pair<IntervalVector, IntervalVector> bisection_0 = m_position.bisect(0);
-//        std::pair<IntervalVector, IntervalVector> bisection_1 = m_position.bisect(1);
+        //        std::pair<IntervalVector, IntervalVector> bisection_0 = m_position.bisect(0);
+        //        std::pair<IntervalVector, IntervalVector> bisection_1 = m_position.bisect(1);
 
-//        IntervalVector vectField_b0_first = get_f_list()[0]->eval_vector(bisection_0.first);
-//        IntervalVector vectField_b0_second = get_f_list()[0]->eval_vector(bisection_0.second);
-//        IntervalVector vectField_b1_first  = get_f_list()[0]->eval_vector(bisection_1.first);
-//        IntervalVector vectField_b1_second = get_f_list()[0]->eval_vector(bisection_1.second);
+        //        IntervalVector vectField_b0_first = get_f_list()[0]->eval_vector(bisection_0.first);
+        //        IntervalVector vectField_b0_second = get_f_list()[0]->eval_vector(bisection_0.second);
+        //        IntervalVector vectField_b1_first  = get_f_list()[0]->eval_vector(bisection_1.first);
+        //        IntervalVector vectField_b1_second = get_f_list()[0]->eval_vector(bisection_1.second);
 
-//        double b0_first_max = vectField_b0_first.diam().max();
-//        double b0_second_max = vectField_b0_second.diam().max();
-//        double b1_first_max = vectField_b1_first.diam().max();
-//        double b1_second_max = vectField_b1_second.diam().max();
+        //        double b0_first_max = vectField_b0_first.diam().max();
+        //        double b0_second_max = vectField_b0_second.diam().max();
+        //        double b1_first_max = vectField_b1_first.diam().max();
+        //        double b1_second_max = vectField_b1_second.diam().max();
 
-//        if(!isinf(b0_first_max) && !isinf(b1_first_max)){
-//            if(b0_first_max > b1_first_max){
-//                result_boxes = bisection_1;
-//            }
-//            else{
-//                result_boxes = bisection_0;
-//            }
-//        }
-//        else{
-            result_boxes = bisector.bisect(m_position);
-//        }
+        //        if(!isinf(b0_first_max) && !isinf(b1_first_max)){
+        //            if(b0_first_max > b1_first_max){
+        //                result_boxes = bisection_1;
+        //            }
+        //            else{
+        //                result_boxes = bisection_0;
+        //            }
+        //        }
+        //        else{
+        result_boxes = bisector.bisect(m_position);
+        //        }
         //result_boxes = m_position.bisect(dim_bisect);
         // To Do test smaller angle...
     }
@@ -1827,13 +1834,50 @@ ibex::IntervalVector Pave::get_vector_field() const{
     return m_vector_field;
 }
 
-void Pave::lock(){
-    for(vector<Border*>::iterator b = m_borders.begin(); b<m_borders.end(); ++b)
-        (*b)->lock();
+void Pave::lock_border()
+{
+    int tester[4] = {0, 0, 0, 0};
+    bool all_lock = false;
+    while(!all_lock){
+        all_lock = true;
+        for(int i=0; i<4; ++i){
+            tester[i] = m_borders[i]->lock_test_read();
+            if(tester[i]==0){
+                all_lock = false;
+                break;
+            }
+        }
+        for(int i=0; i<4; i++){
+            if(tester[i]!=0){
+                m_borders[i]->unlock_read();
+            }
+        }
+    }
 }
 
-void Pave::unlock(){
+void Pave::unlock_border()
+{
     for(vector<Border*>::iterator b = m_borders.begin(); b<m_borders.end(); ++b)
-        (*b)->unlock();
+        (*b)->unlock_read();
+}
+
+void Pave::lock_pave()
+{
+    omp_set_lock(&m_lock);
+}
+
+void Pave::unlock_pave()
+{
+    omp_unset_lock(&m_lock);
+}
+
+void Pave::lock_pave_queue()
+{
+    omp_set_lock(&m_lock_queue);
+}
+
+void Pave::unlock_pave_queue()
+{
+    omp_unset_lock(&m_lock_queue);
 }
 
