@@ -517,6 +517,7 @@ void car_on_the_hill_limit_path(){
 }
 
 void car_on_the_hill_integrator(){
+    omp_set_num_threads(1);
     struct timeval start, end;
     gettimeofday(&start, NULL);
     vibes::beginDrawing();
@@ -552,7 +553,7 @@ void car_on_the_hill_integrator(){
     //    initial_pave_list.push_back(activated_pave);
 
     //    s.cameleon_propagation(18, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(18, 1e9, activated_pave); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -801,7 +802,7 @@ void integrator(){
     activated_pave[1] = Interval(-0.5,0.5);
 
 //    s.cameleon_propagation(13, 1e9, activated_pave);
-    s.cameleon_propagation_with_inner(13, 1e9, activated_pave);
+    s.cameleon_propagation_with_inner(12, 1e9, activated_pave);
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -815,6 +816,7 @@ void integrator(){
 }
 
 void van_der_pol_integration(){
+    omp_set_num_threads(1);
     struct timeval start, end;
     gettimeofday(&start, NULL);
     vibes::beginDrawing();
@@ -834,8 +836,8 @@ void van_der_pol_integration(){
     activated_pave[0] = Interval(-4.0, -3.0);
     activated_pave[1] = Interval(3.0, 4.0);
 
-    //    s.cameleon_propagation(20, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(15, 1e9, activated_pave); // 25
+//    s.cameleon_propagation(17, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1259,6 +1261,7 @@ void bassin_bacha(){
 
 int main()
 {
+    omp_set_num_threads(1);
     /// **** BALL ***** //
 //        ball();
 //        hybrid_system();
@@ -1273,7 +1276,7 @@ int main()
 //        car_on_the_hill_kernel();
 
 //        car_on_the_hill_trajectory();
-//        car_on_the_hill_integrator();
+        car_on_the_hill_integrator();
     //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
@@ -1281,7 +1284,7 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-        van_der_pol_cycle();
+//        van_der_pol_cycle();
 //        van_der_pol_integration();
     //    van_der_pol_kernel();
 

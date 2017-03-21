@@ -41,7 +41,7 @@ Graph::Graph(Utils *utils, int graph_id=0):
 Graph::Graph(Graph* g, int graph_id):
     m_search_box(2)
 {
-#pragma omp parallel for schedule(static) ordered
+//#pragma omp parallel for schedule(static) ordered
     for(std::vector<Pave *>::iterator pave = g->get_node_list().begin(); pave < g->get_node_list().end(); ++pave){
         Pave *p_copy = new Pave(*pave);
         (*pave)->set_copy_node(p_copy);
@@ -60,7 +60,7 @@ Graph::Graph(Graph* g, int graph_id):
     }
 
     // For node list
-#pragma omp parallel for schedule(dynamic)
+//#pragma omp parallel for schedule(dynamic)
     for(int node_nb=0; node_nb<m_node_list.size(); ++node_nb){
         Pave* pave_root = g->get_node_list()[node_nb];
         Pave* pave_copy = pave_root->get_copy_node();
@@ -166,7 +166,7 @@ void Graph::clear_node_queue_inner(){
 }
 
 void Graph::clear_node_queue_outer(){
-#pragma omp parallel for
+//#pragma omp parallel for
     for(auto node = m_node_list.begin(); node < m_node_list.end(); ++node){
         (*node)->set_in_queue_outer(false);
     }
@@ -213,7 +213,7 @@ void Graph::sivia(int nb_node, GRAPH_BW_FW_DIRECTION direction, bool do_not_bise
     }
 
     if(m_compute_inner){
-#pragma omp parallel for
+//#pragma omp parallel for
         for(vector<Pave *>::iterator p=tmp_pave_list.begin(); p<tmp_pave_list.end(); ++p){
             compute_propagation_zone((*p));
         }
@@ -225,38 +225,38 @@ void Graph::sivia(int nb_node, GRAPH_BW_FW_DIRECTION direction, bool do_not_bise
 int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool union_functions){
     int iterations_final=0;
     int iterations_thread = 0;
-    omp_lock_t queue_lock;
-    omp_init_lock(&queue_lock);
+//    omp_lock_t queue_lock;
+//    omp_init_lock(&queue_lock);
 
-#pragma omp parallel for private(iterations_thread) schedule(dynamic)
+//#pragma omp parallel for private(iterations_thread)// schedule(dynamic)
     for(int iterations=0; iterations<max_iterations; iterations++){
         ++iterations_thread;
         if(iterations<max_iterations)
         {
-            Pave *pave;
+            Pave *pave = NULL;
 
-            omp_set_lock(&queue_lock);
+            //omp_set_lock(&queue_lock);
             if(!is_empty_node_queue())
             {
-                if(omp_get_thread_num()%2==0)
-                {
+//                if(omp_get_thread_num()%2==0)
+//                {
                     pave = get_node_queue_access().front();
                     pop_front_queue();
-                }
-                else
-                {
-                    pave = get_node_queue_access().back();
-                    pop_back_queue();
-                }
+//                }
+//                else
+//                {
+//                    pave = get_node_queue_access().back();
+//                    pop_back_queue();
+//                }
             }
-            omp_unset_lock(&queue_lock);
+            //omp_unset_lock(&queue_lock);
 
             if(pave != NULL)
             {
-                pave->lock_pave();
-                pave->lock_pave_queue();
+//                pave->lock_pave();
+//                pave->lock_pave_queue();
                 pave->set_in_queue(false);
-                pave->unlock_pave_queue();
+//                pave->unlock_pave_queue();
 
                 /// ******* PROCESS CONTINUITY *******
                 bool change;
@@ -289,12 +289,12 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
                     for(int face=0; face<4; face++){
                         if(change_tab[face] || pave->is_external_border()){ // Temporary
                             for(Pave *p:pave->get_brothers(face)){
-                                omp_set_lock(&queue_lock);
+                                //omp_set_lock(&queue_lock);
                                 p->lock_pave_queue();
                                 if(!p->is_in_queue())
                                     add_to_queue(p);
                                 p->unlock_pave_queue();
-                                omp_unset_lock(&queue_lock);
+                                //omp_unset_lock(&queue_lock);
                             }
                         }
                     }
@@ -306,13 +306,13 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
             }
         }
 
-        omp_set_lock(&queue_lock);
+        //omp_set_lock(&queue_lock);
         if(is_empty_node_queue()){
             if(iterations<max_iterations)
                 iterations_final+=iterations_thread;
             iterations=max_iterations;
         }
-        omp_unset_lock(&queue_lock);
+        //omp_unset_lock(&queue_lock);
     }
 
     clear_node_queue();
@@ -325,7 +325,7 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
 }
 
 void Graph::set_full(){
-#pragma omp parallel for
+//#pragma omp parallel for
     for(vector<Pave *>::iterator node = m_node_list.begin(); node<m_node_list.end(); ++node){
         if((*node)->is_active() && !(*node)->is_removed_pave())
             (*node)->set_full();
@@ -382,14 +382,14 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
     clear_node_queue_inner();
     clear_node_queue_outer();
 
-#pragma omp parallel for
+//#pragma omp parallel for
     for(vector<Pave*>::iterator pave=m_node_list.begin(); pave<m_node_list.end(); ++pave){
         (*pave)->reset_full_empty();
     }
 
     //    std::for_each(m_node_list.begin(), m_node_list.end(), std::bind(&Pave::reset_full_empty, std::placeholders::_1));
 
-#pragma omp parallel for
+//#pragma omp parallel for
     for(std::vector<Pave*>::iterator pave = m_node_list.begin(); pave<m_node_list.end(); ++pave){
         //    for(Pave *pave:m_node_list){
         if((*pave)->is_active() /*&& !pave->is_removed_pave_outer()*/){
@@ -413,7 +413,7 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
         }
     }
 
-#pragma omp parallel for
+//#pragma omp parallel for
     for(std::vector<Pave*>::iterator pave = m_node_list.begin(); pave<m_node_list.end(); ++pave){
         // Inner pave
         //        if(pave->is_removed_pave_inner() && !pave->is_removed_pave_outer()){
@@ -630,7 +630,7 @@ int Graph::size() const{
 }
 
 void Graph::mark_empty_node(){
-#pragma omp parallel for
+//#pragma omp parallel for
     for (vector<Pave*>::iterator pave = m_node_list.begin(); pave < m_node_list.end(); ++pave){
         if((*pave)->is_active()){
 
@@ -726,7 +726,7 @@ Pave* Graph::get_semi_full_node(){
 
 void Graph::diff(const Graph &g){
     if(this->size() == g.size()){
-#pragma omp parallel for
+//#pragma omp parallel for
         for(int i=0; i<g.size(); ++i){
             m_node_list[i]->diff(*(g.get_node_const(i)));
         }
@@ -735,7 +735,7 @@ void Graph::diff(const Graph &g){
 
 void Graph::inter(const Graph &g, bool with_bwd){
     if(this->size() == g.size()){
-#pragma omp parallel for
+//#pragma omp parallel for
         for(int i=0; i<g.size(); ++i){
             m_node_list[i]->inter(*(g.get_node_const(i)), with_bwd);
         }
@@ -753,10 +753,12 @@ void Graph::set_empty(){
 }
 
 void Graph::set_empty_outer_full_inner(){
-#pragma omp parallel for
+//#pragma omp parallel for
     for(vector<Pave*>::iterator pave = m_node_list.begin(); pave < m_node_list.end(); ++pave){
-        if(!(*pave)->is_removed_pave_outer())
+        if(!(*pave)->is_removed_pave_outer()){
             (*pave)->set_empty_outer();
+//              (*pave)->set_full_outer();
+        }
         if(!(*pave)->is_removed_pave_inner()){
             (*pave)->set_full_inner();
         }
@@ -768,11 +770,13 @@ void Graph::set_empty_outer_full_inner(){
             (*pave)->set_first_process_all(true);
     }
 
-    for(Pave *pave : m_node_border_list){
-        pave->set_empty_outer();
-        pave->set_full_inner();
-        pave->set_first_process_all(true);
-    }
+//    for(Pave *pave : m_node_border_list){
+//        if(pave->is_active()){
+//            pave->set_empty_outer();
+//            pave->set_full_inner();
+//            pave->set_first_process_all(true);
+//        }
+//    }
 }
 
 void Graph::set_symetry(Function* f, int face_in, int face_out){
@@ -853,7 +857,7 @@ void Graph::update_queue(bool border_condition, bool empty_condition){
     clear_node_queue();
     omp_lock_t add_queue;
     omp_init_lock(&add_queue);
-#pragma omp parallel for
+//#pragma omp parallel for
     for(vector<Pave *>::iterator p=m_node_list.begin(); p<m_node_list.end(); ++p){
         (*p)->set_first_process(true);
         (*p)->set_in_queue(false);
@@ -863,9 +867,9 @@ void Graph::update_queue(bool border_condition, bool empty_condition){
                     (!(*p)->is_full() && !(*p)->is_empty())
                     || (border_condition && (*p)->is_border())
                     || (empty_condition && (*p)->is_near_empty()))){
-            omp_set_lock(&add_queue);
+            //omp_set_lock(&add_queue);
             add_to_queue((*p));
-            omp_unset_lock(&add_queue);
+            //omp_unset_lock(&add_queue);
         }
     }
     if(get_inner_mode())
@@ -884,7 +888,7 @@ int Graph::get_f_size() const{
 }
 
 void Graph::set_active_f(int id){
-#pragma omp parallel for
+//#pragma omp parallel for
     for(vector<Pave *>::iterator p=m_node_list.begin(); p<m_node_list.end(); ++p){
         (*p)->set_active_function(id);
     }
@@ -1024,7 +1028,7 @@ bool Graph::get_inner_mode(){
 
 void Graph::set_compute_inner(bool val){
     m_compute_inner = val;
-#pragma omp parallel for
+//#pragma omp parallel for
     for(vector<Pave*>::iterator pave = m_node_list.begin(); pave < m_node_list.end(); ++pave){
         (*pave)->set_compute_inner(val);
     }
@@ -1281,7 +1285,7 @@ void Graph::set_positive_invariant(bool val){
 }
 
 void Graph::reset_pave_segment_list(){
-#pragma omp parallel for
+//#pragma omp parallel for
     for(vector<Pave *>::iterator p = m_node_list.begin(); p<m_node_list.end(); ++p){
         (*p)->reset_segment_list();
     }

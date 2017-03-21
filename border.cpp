@@ -857,21 +857,21 @@ bool Border::get_backward_function() const{
 }
 
 void Border::lock_read(){
-    omp_set_lock(&m_lock_read);
+    //omp_set_lock(&m_lock_read);
 }
 
 int Border::lock_test_read(){
-    omp_test_lock(&m_lock_read);
+//    omp_test_lock(&m_lock_read);
 }
 
 void Border::unlock_read(){
-    omp_unset_lock(&m_lock_read);
+    //omp_unset_lock(&m_lock_read);
 }
 
 void Border::lock_write(){
-    omp_set_nest_lock(&m_lock_write);
+//    omp_set_nest_lock(&m_lock_write);
 }
 
 void Border::unlock_write(){
-    omp_unset_nest_lock(&m_lock_write);
+//    omp_unset_nest_lock(&m_lock_write);
 }

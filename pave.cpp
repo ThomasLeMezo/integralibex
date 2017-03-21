@@ -88,8 +88,8 @@ Pave::Pave(const IntervalVector &position, const std::vector<ibex::Function*> &f
     else
         m_theta_more_than_two_pi = true;
 
-    omp_init_lock(&m_lock);
-    omp_init_lock(&m_lock_queue);
+//    omp_init_lock(&m_lock);
+//    omp_init_lock(&m_lock_queue);
 }
 
 const std::vector<ibex::Interval> Pave::compute_theta(ibex::Function *f, bool backward_function){
@@ -227,16 +227,16 @@ Pave::Pave(const Pave *p):
     m_theta_more_than_two_pi = p->is_theta_more_than_two_pi();
 
     m_search_box = p->get_search_box();
-    omp_init_lock(&m_lock);
-    omp_init_lock(&m_lock_queue);
+//    omp_init_lock(&m_lock);
+//    omp_init_lock(&m_lock_queue);
 }
 
 Pave::~Pave(){
     for(int face=0; face<4; face++){
         delete(m_borders[face]);
     }
-    omp_destroy_lock(&m_lock);
-    omp_destroy_lock(&m_lock_queue);
+//    omp_destroy_lock(&m_lock);
+//    omp_destroy_lock(&m_lock_queue);
 }
 
 Pave& Pave::operator&=(const Pave &p){
@@ -1863,21 +1863,21 @@ void Pave::unlock_border()
 
 void Pave::lock_pave()
 {
-    omp_set_lock(&m_lock);
+    //omp_set_lock(&m_lock);
 }
 
 void Pave::unlock_pave()
 {
-    omp_unset_lock(&m_lock);
+    //omp_unset_lock(&m_lock);
 }
 
 void Pave::lock_pave_queue()
 {
-    omp_set_lock(&m_lock_queue);
+    //omp_set_lock(&m_lock_queue);
 }
 
 void Pave::unlock_pave_queue()
 {
-    omp_unset_lock(&m_lock_queue);
+    //omp_unset_lock(&m_lock_queue);
 }
 

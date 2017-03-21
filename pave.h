@@ -273,8 +273,8 @@ private:
 
     ibex::IntervalVector        m_search_box;
 
-    omp_lock_t                  m_lock;
-    omp_lock_t                  m_lock_queue;
+//    omp_lock_t                  m_lock;
+//    omp_lock_t                  m_lock_queue;
 
 };
 

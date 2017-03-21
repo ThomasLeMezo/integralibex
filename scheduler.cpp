@@ -96,9 +96,8 @@ Scheduler::Scheduler(const IntervalVector &box, const std::vector<ibex::Function
     //    vector<IntervalVector> list_border = m_utils.get_segment_from_box(box, 0.1);
     IntervalVector Rspace(2);
     vector<IntervalVector> list_border = m_utils.diff(Rspace, box);
-
     for(IntervalVector b:list_border){
-        Pave* p = new Pave(b, f_list, diseable_singleton, true);
+        Pave* p = new Pave(b, f_list, diseable_singleton, false);
         p->set_infinity_pave(true, box);
         p->set_external_border(true);
         if(border_inner_in)
@@ -523,9 +522,9 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->clear_node_queue();
         Graph *graph_backward = new Graph(graph);
 
-#pragma omp parallel sections num_threads(2)
+//#pragma omp parallel sections num_threads(2)
         {
-#pragma omp section
+//#pragma omp section
             {
                 //// Outer Graph
                 graph->initialize_queues_with_initial_condition(boxA);
@@ -538,7 +537,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
                 graph->set_backward_function(false);
                 graph->process(process_iterations_max, GRAPH_FORWARD, true);
             }
-#pragma omp section
+//#pragma omp section
             {
                 /// Backward graph
                 graph_backward->initialize_queues_with_initial_condition(boxB);
@@ -575,9 +574,9 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->clear_node_queue();
         Graph *graph_backward = new Graph(graph);
 
-#pragma omp parallel sections num_threads(2)
+//#pragma omp parallel sections num_threads(2)
         {
-#pragma omp section
+//#pragma omp section
             {
                 /// Forward graph
                 cout << "GRAPH FWD (" << graph->size() << ")" << endl;
@@ -591,7 +590,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
                 graph->set_backward_function(false);
                 graph->process(process_iterations_max, GRAPH_FORWARD, true);
             }
-#pragma omp section
+//#pragma omp section
             {
                 /// Backward graph
                 //        cout << "GRAPH BWD (" << graph_backward->size() << ")" << endl;
