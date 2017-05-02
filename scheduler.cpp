@@ -502,6 +502,13 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 }
 
 void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &boxA, const ibex::IntervalVector &boxB){
+    vector<ibex::IntervalVector>  list_box_from, list_box_to;
+    list_box_from.push_back(boxA);
+    list_box_to.push_back(boxB);
+    find_path(iterations_max, process_iterations_max, list_box_from, list_box_to);
+}
+
+void Scheduler::find_path(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector>  &list_box_from, const vector<ibex::IntervalVector>  &list_box_to){
     Graph *graph = m_graph_list[0];
     if(m_graph_list.size()!=1 && graph->size() !=1)
         return;
@@ -527,7 +534,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 //#pragma omp section
             {
                 //// Outer Graph
-                graph->initialize_queues_with_initial_condition(boxA);
+                graph->initialize_queues_with_initial_condition(list_box_from);
                 // INNER
                 graph->set_inner_mode(true);
                 graph->set_backward_function(true);
@@ -540,7 +547,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 //#pragma omp section
             {
                 /// Backward graph
-                graph_backward->initialize_queues_with_initial_condition(boxB);
+                graph_backward->initialize_queues_with_initial_condition(list_box_to);
                 //        // INNER
                 graph_backward->set_inner_mode(true);
                 graph_backward->set_backward_function(false); // Invert bc of bwd
@@ -580,7 +587,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
             {
                 /// Forward graph
                 cout << "GRAPH FWD (" << graph->size() << ")" << endl;
-                graph->initialize_queues_with_initial_condition(boxA);
+                graph->initialize_queues_with_initial_condition(list_box_from);
                 // INNER
                 graph->set_inner_mode(true);
                 graph->set_backward_function(true);
@@ -594,7 +601,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
             {
                 /// Backward graph
                 //        cout << "GRAPH BWD (" << graph_backward->size() << ")" << endl;
-                graph_backward->initialize_queues_with_initial_condition(boxB);
+                graph_backward->initialize_queues_with_initial_condition(list_box_to);
                 //        // INNER
                 graph_backward->set_inner_mode(true);
                 graph_backward->set_backward_function(false); // Invert bc of bwd

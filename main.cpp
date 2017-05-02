@@ -77,10 +77,11 @@ void van_der_pol_cycle(){
     box[0] = Interval(-4,4);
     box[1] = Interval(-4,4);
 
-    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
+    // bool border_inner_in, bool border_inner_out, bool border_outer_in, bool border_outer_out
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, true);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
-    s.cameleon_cycle(15, 5, 1e9, true, false, false);
+    s.cameleon_cycle(10, 5, 1e9, false, false, false);
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -836,14 +837,33 @@ void van_der_pol_integration(){
     activated_pave[0] = Interval(-4.0, -3.0);
     activated_pave[1] = Interval(3.0, 4.0);
 
+    IntervalVector box1(2), box2(2), box3(2), box4(2);
+    box1[0] = Interval(-7, 7);
+    box1[1] = Interval(-7, -5);
+
+    box2[0] = Interval(5, 7);
+    box2[1] = Interval(-7, 7);
+
+    box3[0] = Interval(-7, 7);
+    box3[1] = Interval(5, 7);
+
+    box4[0] = Interval(-7, -5);
+    box4[1] = Interval(-7, 7);
+
+    vector<IntervalVector> list_activated_pave;
+    list_activated_pave.push_back(box1);
+    list_activated_pave.push_back(box2);
+    list_activated_pave.push_back(box3);
+    list_activated_pave.push_back(box4);
 //    s.cameleon_propagation(17, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
+//    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
+    s.cameleon_propagation_with_inner(14, 1e9, list_activated_pave); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
     cout << "TIME = " << delta << endl;
     s.draw(1024, true);
-    vibes::drawBox(activated_pave, "red[]");
+//    vibes::drawBox(activated_pave, "red[]");
 
     //    s.print_pave_info(0, -3.99, 3.055);
 }
@@ -950,19 +970,30 @@ void car_on_the_hill_trajectory(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, MAZE_BORDER_INNER_IN_FULL, MAZE_BORDER_INNER_OUT_FULL,
                                                         MAZE_BORDER_OUTER_IN_EMPTY, MAZE_BORDER_OUTER_OUT_EMPTY);
 
+    vector<IntervalVector> list_from, list_to;
+
     IntervalVector paveA(2);
 //    paveA[0] = Interval(0.0, 1.0);
 //    paveA[1] = Interval(0.0, 1.0);
     paveA[0] = Interval(6, 7);
     paveA[1] = Interval(-9, -8);
+    list_from.push_back(paveA);
 
     IntervalVector paveB(2);
     //    paveB[0] = Interval(2.0, 3.0);
     //    paveB[1] = Interval(2.0, 3.0);
     paveB[0] = Interval(11.5,12.0);
     paveB[1] = Interval(-6.0, 6.0);
+    list_to.push_back(paveB);
 
-    s.find_path(18, 1e9, paveA, paveB); // 25
+    IntervalVector paveC(2);
+    paveC[0] = Interval(-2,-1);
+    paveC[1] = Interval(-0.5, 0.5);
+    list_from.push_back(paveC);
+    list_to.push_back(paveC);
+
+
+    s.find_path(18, 1e9, list_from, list_to); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1275,8 +1306,8 @@ int main()
 
 //        car_on_the_hill_kernel();
 
-//        car_on_the_hill_trajectory();
-        car_on_the_hill_integrator();
+        car_on_the_hill_trajectory();
+//        car_on_the_hill_integrator();
     //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
