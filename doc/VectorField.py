@@ -79,16 +79,16 @@ from numpy import *
 # V = 1.0/(x1-1.0)-1.0/(x1+1.0)
 
 ##### Waves
-x1, x2 = np.meshgrid(np.arange(-10,10,0.5), np.arange(0.0,10.0,0.5))
-U = x1+exp(x2)*sin(x1+2)
-V = x2-exp(x2)*cos(x1+2)
+#x1, x2 = np.meshgrid(np.arange(-10,10,0.5), np.arange(0.0,10.0,0.5))
+#U = x1+exp(x2)*sin(x1+2)
+#V = x2-exp(x2)*cos(x1+2)
 
 
 #### Van Der Pol
 # x1, x2 = np.meshgrid(np.arange(-1.0,13.0, .3), np.arange(-6.0,6.0, .2))
-# x1, x2 = np.meshgrid(np.arange(-4.0,4.0, .4), np.arange(-4.0,4.0, .4))
-# U = x2
-# V = (1-x1**2)*x2-x1
+x1, x2 = np.meshgrid(np.arange(-6.0,6.0, .3), np.arange(-6.0,6.0, .3))
+U = x2
+V = (1-x1**2)*x2-x1
 
 #### Car on the hill ?
 # U = x2
@@ -100,9 +100,14 @@ V = x2-exp(x2)*cos(x1+2)
 # U = (1-x2)*x1
 # V = x2*(1-2*x2/(1+x1))
 
+##### Waves
+# x1, x2 = np.meshgrid(np.arange(-1,1,0.1), np.arange(-1.5,1.5,0.1))
+# U = 0.5*x1+x1**2-x2**2
+# V = -0.5*x2+x1**2
+
 #### Drawing
 
-coeff = np.maximum(np.minimum(V**2+U**2, 1.5*np.ones(V.shape)), 0.5*np.ones(V.shape))
+# coeff = np.maximum(np.minimum(V**2+U**2, 1.5*np.ones(V.shape)), 0.5*np.ones(V.shape))
 
 U = U / (sqrt(U*U+V*V))
 V = V / (sqrt(U*U+V*V))

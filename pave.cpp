@@ -468,22 +468,8 @@ void Pave::draw(bool filled, bool inner_only){
     //    }
     //    else{
     IntervalVector position(m_position);
-    if(!m_position.is_unbounded()){
-        vibes::drawBox(m_position, "#D3D3D3[]");
-    }
-    else{
-        IntervalVector box_draw(m_position);
-        if(box_draw[0].lb() == NEG_INFINITY)
-            box_draw[0] = Interval(m_search_box[0].lb()-0.1*m_search_box[0].diam(), box_draw[0].ub());
-        if(box_draw[1].lb() == NEG_INFINITY)
-            box_draw[1] = Interval(m_search_box[1].lb()-0.1*m_search_box[1].diam(), box_draw[1].ub());
-        if(box_draw[0].ub() == POS_INFINITY)
-            box_draw[0] = Interval(box_draw[0].lb(), m_search_box[0].ub()+0.1*m_search_box[0].diam());
-        if(box_draw[1].ub() == POS_INFINITY)
-            box_draw[1] = Interval(box_draw[1].lb(), m_search_box[1].ub()+0.1*m_search_box[1].diam());
-        vibes::drawBox(box_draw, "#000000[]", vibes::Params("LineStyle", "--")); //D3D3D3
-        position = box_draw;
-    }
+
+
     if(m_compute_inner){
         if(!m_external_border){
             bool mode = get_inner_mode();
@@ -492,12 +478,14 @@ void Pave::draw(bool filled, bool inner_only){
             if(!inner_only){
                 set_inner_mode(false);
                 draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
+//                  draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
             }
 
             /// INNER
             set_inner_mode(true);
             //            if(!is_bassin())
             draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+//            draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
             //            else
             //                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
 
@@ -524,8 +512,8 @@ void Pave::draw(bool filled, bool inner_only){
             vibes::drawBox(m_position, "#FF0000[#FF0000]");
         }
         else if(m_infinity_pave){
-            if(!is_empty_outer())
-                vibes::drawBox(position, "orange[orange]");
+//            if(!is_empty_outer())
+//                vibes::drawBox(position, "orange[orange]");
         }
     }
     else{
@@ -542,6 +530,7 @@ void Pave::draw(bool filled, bool inner_only){
 
     // Draw theta
     //    set_backward_function(false);
+    set_backward_function(true);
     draw_theta(position);
     //    }
 
@@ -555,6 +544,23 @@ void Pave::draw(bool filled, bool inner_only){
     //            vibes::drawLine(x, y, "g[g]",vibesParams("LineWidth",10.0));
     //        }
     //    }
+
+    if(!m_position.is_unbounded()){
+        vibes::drawBox(m_position, "#2a2a2a[]");
+    }
+    else{
+        IntervalVector box_draw(m_position);
+        if(box_draw[0].lb() == NEG_INFINITY)
+            box_draw[0] = Interval(m_search_box[0].lb()-0.1*m_search_box[0].diam(), box_draw[0].ub());
+        if(box_draw[1].lb() == NEG_INFINITY)
+            box_draw[1] = Interval(m_search_box[1].lb()-0.1*m_search_box[1].diam(), box_draw[1].ub());
+        if(box_draw[0].ub() == POS_INFINITY)
+            box_draw[0] = Interval(box_draw[0].lb(), m_search_box[0].ub()+0.1*m_search_box[0].diam());
+        if(box_draw[1].ub() == POS_INFINITY)
+            box_draw[1] = Interval(box_draw[1].lb(), m_search_box[1].ub()+0.1*m_search_box[1].diam());
+        vibes::drawBox(box_draw, "#000000[]", vibes::Params("LineStyle", "--")); //D3D3D3
+        position = box_draw;
+    }
 }
 
 void Pave::draw_theta(IntervalVector position) const{

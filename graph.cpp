@@ -238,16 +238,8 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
             //omp_set_lock(&queue_lock);
             if(!is_empty_node_queue())
             {
-//                if(omp_get_thread_num()%2==0)
-//                {
                     pave = get_node_queue_access().front();
                     pop_front_queue();
-//                }
-//                else
-//                {
-//                    pave = get_node_queue_access().back();
-//                    pop_back_queue();
-//                }
             }
             //omp_unset_lock(&queue_lock);
 
@@ -1329,4 +1321,24 @@ std::list<ibex::Function*>  Graph::get_inside_curve_list() const{
 
 void Graph::push_back_inside_curve(ibex::Function* curve){
     m_inside_curve_list.push_back(curve);
+}
+
+void Graph::forward(int process_iterations_max){
+    set_inner_mode(true);
+    set_backward_function(true);
+    process(process_iterations_max, GRAPH_BACKWARD);
+    // OUTER
+    set_inner_mode(false);
+    set_backward_function(false);
+    process(process_iterations_max, GRAPH_FORWARD, true);
+}
+
+void Graph::backward(int process_iterations_max){
+    set_inner_mode(true);
+    set_backward_function(false); // Invert bc of bwd
+    process(process_iterations_max, GRAPH_BACKWARD);
+    // OUTER
+    set_inner_mode(false);
+    set_backward_function(true); // Invert bc of bwd
+    process(process_iterations_max, GRAPH_FORWARD, true);
 }

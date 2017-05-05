@@ -501,14 +501,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     //        emit publishLog(QString::number(m_graph_list.size()) + " possible cycle was found");
 }
 
-void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &boxA, const ibex::IntervalVector &boxB){
-    vector<ibex::IntervalVector>  list_box_from, list_box_to;
-    list_box_from.push_back(boxA);
-    list_box_to.push_back(boxB);
-    find_path(iterations_max, process_iterations_max, list_box_from, list_box_to);
-}
-
-void Scheduler::find_path(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector>  &list_box_from, const vector<ibex::IntervalVector>  &list_box_to){
+void Scheduler::find_path(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector>  &list_box_from, const vector<ibex::IntervalVector>  &list_box_to, const vector<ibex::IntervalVector>  &list_box_from_and_to){
     Graph *graph = m_graph_list[0];
     if(m_graph_list.size()!=1 && graph->size() !=1)
         return;
@@ -529,35 +522,14 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->clear_node_queue();
         Graph *graph_backward = new Graph(graph);
 
-//#pragma omp parallel sections num_threads(2)
-        {
-//#pragma omp section
-            {
-                //// Outer Graph
-                graph->initialize_queues_with_initial_condition(list_box_from);
-                // INNER
-                graph->set_inner_mode(true);
-                graph->set_backward_function(true);
-                graph->process(process_iterations_max, GRAPH_BACKWARD);
-                // OUTER
-                graph->set_inner_mode(false);
-                graph->set_backward_function(false);
-                graph->process(process_iterations_max, GRAPH_FORWARD, true);
-            }
-//#pragma omp section
-            {
-                /// Backward graph
-                graph_backward->initialize_queues_with_initial_condition(list_box_to);
-                //        // INNER
-                graph_backward->set_inner_mode(true);
-                graph_backward->set_backward_function(false); // Invert bc of bwd
-                graph_backward->process(process_iterations_max, GRAPH_BACKWARD);
-                // OUTER
-                graph_backward->set_inner_mode(false);
-                graph_backward->set_backward_function(true); // Invert bc of bwd
-                graph_backward->process(process_iterations_max, GRAPH_FORWARD, true);
-            }
-        }
+        //// Outer Graph
+        graph->initialize_queues_with_initial_condition(list_box_from);
+        graph->forward(process_iterations_max);
+
+        /// Backward graph
+        graph_backward->initialize_queues_with_initial_condition(list_box_to);
+        graph_backward->backward(process_iterations_max);
+
         // Intersect graph
         graph->inter(graph_backward, true);
         delete(graph_backward);
@@ -581,41 +553,22 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->clear_node_queue();
         Graph *graph_backward = new Graph(graph);
 
-//#pragma omp parallel sections num_threads(2)
-        {
-//#pragma omp section
-            {
-                /// Forward graph
-                cout << "GRAPH FWD (" << graph->size() << ")" << endl;
-                graph->initialize_queues_with_initial_condition(list_box_from);
-                // INNER
-                graph->set_inner_mode(true);
-                graph->set_backward_function(true);
-                graph->process(process_iterations_max, GRAPH_BACKWARD);
-                // OUTER
-                graph->set_inner_mode(false);
-                graph->set_backward_function(false);
-                graph->process(process_iterations_max, GRAPH_FORWARD, true);
-            }
-//#pragma omp section
-            {
-                /// Backward graph
-                //        cout << "GRAPH BWD (" << graph_backward->size() << ")" << endl;
-                graph_backward->initialize_queues_with_initial_condition(list_box_to);
-                //        // INNER
-                graph_backward->set_inner_mode(true);
-                graph_backward->set_backward_function(false); // Invert bc of bwd
-                graph_backward->process(process_iterations_max, GRAPH_BACKWARD);
-                // OUTER
-                graph_backward->set_inner_mode(false);
-                graph_backward->set_backward_function(true); // Invert bc of bwd
-                graph_backward->process(process_iterations_max, GRAPH_FORWARD, true);
+        /// Forward graph
+        cout << "GRAPH FWD (" << graph->size() << ")" << endl;
+        graph->initialize_queues_with_initial_condition(list_box_from);
+        // INNER
+        graph->forward(process_iterations_max);
 
-                //        graph->draw(1024, true, "fwd");
-                //        graph_backward->draw(1024, true, "bwd");
-                //        cin.ignore();
-            }
-        }
+        /// Backward graph
+        //        cout << "GRAPH BWD (" << graph_backward->size() << ")" << endl;
+        graph_backward->initialize_queues_with_initial_condition(list_box_to);
+        //        // INNER
+        graph_backward->backward(process_iterations_max);
+
+        //        graph->draw(1024, true, "fwd");
+        //        graph_backward->draw(1024, true, "bwd");
+        //        cin.ignore();
+
         graph->inter(graph_backward, true);
         delete(graph_backward);
 

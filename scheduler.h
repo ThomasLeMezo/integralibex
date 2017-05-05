@@ -33,8 +33,7 @@ public:
     void cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe);
     bool compute_attractor(int iterations_max, int process_iterations_max);
     void cameleon_viability(int iterations_max, int process_iterations_max, bool border_condition=false);
-    void find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &boxA, const ibex::IntervalVector &boxB);
-    void find_path(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector> &list_box_from, const vector<ibex::IntervalVector> &list_box_to);
+    void find_path(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector> &list_box_from, const vector<ibex::IntervalVector> &list_box_to, const vector<ibex::IntervalVector> &list_box_from_and_to);
 
     void attractor_to_kernel();
 

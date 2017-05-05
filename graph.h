@@ -24,6 +24,7 @@ public:
 
     void                        inter(const Graph &g, bool with_bwd=false);
     void                        diff(const Graph &g);
+//    const Graph &               operator|(const Graph &g);
 
     void                        push_back(Pave* p);
     void                        push_back_queue(Pave *p);
@@ -31,6 +32,9 @@ public:
     void                        push_back_inside_curve(ibex::Function* curve);
 
     void                        copy_to_inner();
+
+    void                        forward(int process_iterations_max);
+    void                        backward(int process_iterations_max);
 
     // Test
     bool                        is_empty();
