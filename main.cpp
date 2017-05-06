@@ -185,7 +185,7 @@ void hybrid_system(){
     ibex::Function f_sym2(x, y, Return(x, y+1));
     s.set_symetry(&f_sym2,0,2);
 
-//        s.cameleon_propagation(10, 1e9, activated_pave);
+    //        s.cameleon_propagation(10, 1e9, activated_pave);
     s.cameleon_propagation_with_inner(10,1e9,activated_pave);
 
     gettimeofday(&end, NULL);
@@ -193,8 +193,8 @@ void hybrid_system(){
     cout << "TIME = " << delta << endl;
     s.draw(1024, true);
     vibes::axisLimits(box[0].lb()-1.0,box[0].ub()+1.0, box[1].lb()-1.0,box[1].ub()+1.0);
-//    s.print_pave_info(0, 1.4,0.86);
-//    s.print_pave_info(0, 1.4,0.33);
+    //    s.print_pave_info(0, 1.4,0.86);
+    //    s.print_pave_info(0, 1.4,0.33);
 }
 
 void station_keeping_attractor(){
@@ -340,7 +340,7 @@ void car_on_the_hill_kernel(){
 }
 
 void car_on_the_hill_bassin(){
-//    omp_set_num_threads(1);
+    //    omp_set_num_threads(1);
     struct timeval start, end;
     gettimeofday(&start, NULL);
     vibes::beginDrawing();
@@ -360,8 +360,8 @@ void car_on_the_hill_bassin(){
 
     IntervalVector box(2);
     box[0] = Interval(-1.0, 13.0);
-        box[1] = Interval(-16, 16);
-//    box[1] = Interval(-8, 10);
+    box[1] = Interval(-16, 16);
+    //    box[1] = Interval(-8, 10);
 
     std::vector<IntervalVector> list_boxes_removed;
     IntervalVector box_remove(2);
@@ -605,8 +605,8 @@ void car_on_the_hill_invariant(){
     list_activated_pave.push_back(box2);
     list_activated_pave.push_back(box3);
     list_activated_pave.push_back(box4);
-//    s.cameleon_propagation(17, 1e9, activated_pave); // 25
-//    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
+    //    s.cameleon_propagation(17, 1e9, activated_pave); // 25
+    //    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
     s.cameleon_propagation_with_inner(17, 1e9, list_activated_pave); // 25
 
     gettimeofday(&end, NULL);
@@ -617,6 +617,143 @@ void car_on_the_hill_invariant(){
     vibes::drawBox(box2, "black[]");
     vibes::drawBox(box3, "black[]");
     vibes::drawBox(box4, "black[]");
+
+    //    s.print_pave_info(0, -3.99, 3.055);
+}
+
+void brusselator_invariant_TR(){
+    // ToDo : strategie de bisection (heuristique) autour de la condition curve
+    // 2x plus important sur la limite par exemple : permettrait de moins découper l'espace d'état ?
+
+    omp_set_num_threads(1);
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(-(1.0+x1*x1*x2-1.5*x1-x1),
+                                     -(1.5*x1-x1*x1*x2)));
+
+//    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
+    double Radius = 0.25;
+    ibex::Function f_target_curve(x1, x2, pow(x1-0.9, 2)+pow(x2-0.3, 2)-0.25);
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+//    box[0] = Interval(-10.0, 1);
+//    box[1] = Interval(1, 3.8);
+    box[0] = Interval(0, 2);
+    box[1] = Interval(-1, 1);
+
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
+
+    s.cameleon_propagation_with_inner(16, 1e9, &f_target_curve); // 25
+
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
+    s.draw(1024, true);
+
+    // Draw target
+    vector<double> x, y;
+    for(double t=-M_PI; t<=M_PI; t+=0.01){
+//        x.push_back(2.0*0.25*cos(t));
+//        y.push_back(2.0*0.25*sin(t)+3.0);
+        x.push_back(sqrt(Radius)*cos(t)+0.9);
+        y.push_back(sqrt(Radius)*sin(t)+0.3);
+
+    }
+    vibes::drawPolygon(x, y, "red[]", vibesParams("LineWidth",5));
+
+    //    s.print_pave_info(0, -3.99, 3.055);
+}
+
+void van_der_pol_TR(){
+    omp_set_num_threads(1);
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(x2,(1.0*(1.0-pow(x1, 2))*x2-x1)));
+
+//    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
+    double Radius = 0.25;
+    ibex::Function f_target_curve(x1, x2, pow(x1-1.0, 2)+pow(x2-1.0, 2)-0.25);
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+//    box[0] = Interval(-10.0, 1);
+//    box[1] = Interval(1, 3.8);
+    box[0] = Interval(-3, 3);
+    box[1] = Interval(-3, 3);
+
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
+
+    s.cameleon_propagation_with_inner(16, 1e9, &f_target_curve); // 25
+
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
+    s.draw(1024, true);
+
+    // Draw target
+    vector<double> x, y;
+    for(double t=-M_PI; t<=M_PI; t+=0.01){
+//        x.push_back(2.0*0.25*cos(t));
+//        y.push_back(2.0*0.25*sin(t)+3.0);
+        x.push_back(sqrt(Radius)*cos(t)+1.0);
+        y.push_back(sqrt(Radius)*sin(t)+1.0);
+
+    }
+    vibes::drawPolygon(x, y, "red[]", vibesParams("LineWidth",5));
+
+    //    s.print_pave_info(0, -3.99, 3.055);
+}
+
+void electromechanical_machine_invariant_TR(){
+    omp_set_num_threads(1);
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(-x2,
+                                     -(0.2-0.7*sin(x1)-0.05*x2)));
+
+//    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
+    double Radius = 0.01;
+    ibex::Function f_target_curve(x1, x2, x1*x1+x2*x2-0.01);
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+
+    IntervalVector box(2);
+//    box[0] = Interval(-10.0, 1);
+//    box[1] = Interval(1, 3.8);
+    box[0] = Interval(-0.1, 0.8);
+    box[1] = Interval(-0.4, 0.42);
+
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
+
+    s.cameleon_propagation_with_inner(16, 1e9, &f_target_curve); // 25
+
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
+    s.draw(1024, true);
+
+    // Draw target
+    vector<double> x, y;
+    for(double t=-M_PI; t<=M_PI; t+=0.01){
+//        x.push_back(2.0*0.25*cos(t));
+//        y.push_back(2.0*0.25*sin(t)+3.0);
+        x.push_back(sqrt(Radius)*cos(t));
+        y.push_back(sqrt(Radius)*sin(t));
+
+    }
+    vibes::drawPolygon(x, y, "red[]", vibesParams("LineWidth",5));
 
     //    s.print_pave_info(0, -3.99, 3.055);
 }
@@ -837,16 +974,16 @@ void integrator(){
                                      -sin(x2)+ Interval(-0.1, 0.1)));
     //    ibex::Function f0(q, p, Return(4*p*(q*q+p*p)+20*p,
     //                                   -(4*q*(q*q+p*p)-20*q)));
-//        ibex::Function f0(x1, x2, Return(1.0+0.0*x1, cos(x2)*cos(x2)));
-//        ibex::Function f1(x1, x2, Return(1.0+0.0*x1,
-//                                        -sin(x2)-0.1));
-//        ibex::Function f2(x1, x2, Return(1.0+0.0*x1,
-//                                        -sin(x2)+0.1));
+    //        ibex::Function f0(x1, x2, Return(1.0+0.0*x1, cos(x2)*cos(x2)));
+    //        ibex::Function f1(x1, x2, Return(1.0+0.0*x1,
+    //                                        -sin(x2)-0.1));
+    //        ibex::Function f2(x1, x2, Return(1.0+0.0*x1,
+    //                                        -sin(x2)+0.1));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f0);
-//      f_list.push_back(&f1);
-//      f_list.push_back(&f2);
+    //      f_list.push_back(&f1);
+    //      f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(0,5);
@@ -858,7 +995,7 @@ void integrator(){
     activated_pave[0] = Interval(0.3,0.5);
     activated_pave[1] = Interval(-0.5,0.5);
 
-//    s.cameleon_propagation(13, 1e9, activated_pave);
+    //    s.cameleon_propagation(13, 1e9, activated_pave);
     s.cameleon_propagation_with_inner(12, 1e9, activated_pave);
 
     gettimeofday(&end, NULL);
@@ -867,9 +1004,9 @@ void integrator(){
 
     s.draw(1024, true);
     vibes::drawBox(activated_pave, "red[]");
-//    s.print_pave_info(0,0.0,0.0);
-//    s.print_pave_info(0, 5.5, 0.0);
-//    s.print_pave_info(0, 2.5, 2.3);
+    //    s.print_pave_info(0,0.0,0.0);
+    //    s.print_pave_info(0, 5.5, 0.0);
+    //    s.print_pave_info(0, 2.5, 2.3);
 }
 
 void van_der_pol_integration(){
@@ -878,7 +1015,7 @@ void van_der_pol_integration(){
     gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x, y;
-//    ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x)));
+    //    ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x)));
     ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x)));
 
     std::vector<ibex::Function*> f_list;
@@ -897,8 +1034,8 @@ void van_der_pol_integration(){
     vector<IntervalVector> list_activated_pave;
     list_activated_pave.push_back(activated_pave);
 
-//    s.cameleon_propagation(17, 1e9, activated_pave); // 25
-//    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
+    //    s.cameleon_propagation(17, 1e9, activated_pave); // 25
+    //    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
     s.cameleon_propagation_with_inner(16, 1e9, list_activated_pave); // 25
 
     gettimeofday(&end, NULL);
@@ -920,14 +1057,14 @@ void van_der_pol_integration_trajectory(){
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-//    f_list.push_back(&f2);
+    //    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(-6.0, 6.0);
     box[1] = Interval(-6.0, 6.0);
 
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, MAZE_BORDER_INNER_IN_FULL, MAZE_BORDER_INNER_OUT_FULL,
-                                                        MAZE_BORDER_OUTER_IN_EMPTY, MAZE_BORDER_OUTER_OUT_EMPTY);
+                MAZE_BORDER_OUTER_IN_EMPTY, MAZE_BORDER_OUTER_OUT_EMPTY);
 
     vector<IntervalVector> list_from, list_to, list_from_to;
 
@@ -944,8 +1081,8 @@ void van_der_pol_integration_trajectory(){
     IntervalVector paveC(2);
     paveC[0] = Interval(-0.5,0.5);
     paveC[1] = Interval(1.0, 2.0);
-//    list_from.push_back(paveC);
-//    list_to.push_back(paveC);
+    //    list_from.push_back(paveC);
+    //    list_to.push_back(paveC);
 
     s.find_path(17, 1e9, list_from, list_to, list_from_to); // 25
 
@@ -998,8 +1135,8 @@ void van_der_pol_invariant(){
     list_activated_pave.push_back(box2);
     list_activated_pave.push_back(box3);
     list_activated_pave.push_back(box4);
-//    s.cameleon_propagation(17, 1e9, activated_pave); // 25
-//    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
+    //    s.cameleon_propagation(17, 1e9, activated_pave); // 25
+    //    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
     s.cameleon_propagation_with_inner(15, 1e9, list_activated_pave); // 25
 
     gettimeofday(&end, NULL);
@@ -1141,20 +1278,20 @@ void car_on_the_hill_trajectory(){
                                      -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-//    f_list.push_back(&f2);
+    //    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(-2.0, 13.0);
     box[1] = Interval(-10, 10);
 
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, MAZE_BORDER_INNER_IN_FULL, MAZE_BORDER_INNER_OUT_FULL,
-                                                        MAZE_BORDER_OUTER_IN_EMPTY, MAZE_BORDER_OUTER_OUT_EMPTY);
+                MAZE_BORDER_OUTER_IN_EMPTY, MAZE_BORDER_OUTER_OUT_EMPTY);
 
     vector<IntervalVector> list_from, list_to, list_from_to;
 
     IntervalVector paveA(2);
-//    paveA[0] = Interval(0.0, 1.0);
-//    paveA[1] = Interval(0.0, 1.0);
+    //    paveA[0] = Interval(0.0, 1.0);
+    //    paveA[1] = Interval(0.0, 1.0);
     paveA[0] = Interval(6, 7);
     paveA[1] = Interval(-9, -8);
     list_from.push_back(paveA);
@@ -1192,11 +1329,11 @@ void cos_trajectory(){
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(1.0 + 0.0*x1,
                                      sin(x1)+Interval(-0.05, 0.05)));
-//    ibex::Function f2(x1, x2, Return(x2,
-//                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
+    //    ibex::Function f2(x1, x2, Return(x2,
+    //                                     -9.81*sin( (1.1/1.2*sin(x1)-1.2*sin(1.1*x1))/2.0 ) -0.7*x2 -2.0));
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
-//    f_list.push_back(&f2);
+    //    f_list.push_back(&f2);
 
     IntervalVector box(2);
     box[0] = Interval(0.0, 20.0);
@@ -1212,7 +1349,7 @@ void cos_trajectory(){
     paveB[0] = Interval(1,18.5);
     paveB[1] = Interval(2.1,3);
 
-//    s.find_path(11, 1e9, paveA, paveB); // 25
+    //    s.find_path(11, 1e9, paveA, paveB); // 25
     s.cameleon_propagation(10, 1e9, paveA);
 
     gettimeofday(&end, NULL);
@@ -1473,21 +1610,21 @@ int main()
 {
     omp_set_num_threads(1);
     /// **** BALL ***** //
-//        ball();
-//        hybrid_system();
+    //        ball();
+    //        hybrid_system();
 
     /// **** STATION KEEPING ***** //
-    //    station_keeping_attractor();
+//            station_keeping_attractor();
 
     /// **** CAR ON THE HILL ***** //
-//        car_on_the_hill_attractor();
-//        car_on_the_hill_bassin();
+    //        car_on_the_hill_attractor();
+    //        car_on_the_hill_bassin();
 
-//        car_on_the_hill_kernel();
+    //        car_on_the_hill_kernel();
 
-//        car_on_the_hill_trajectory();
-//        car_on_the_hill_integrator();
-        car_on_the_hill_invariant();
+    //        car_on_the_hill_trajectory();
+    //        car_on_the_hill_integrator();
+    //        car_on_the_hill_invariant();
     //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
@@ -1495,14 +1632,14 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-//        van_der_pol_cycle();
-//        van_der_pol_invariant();
-//        van_der_pol_kernel();
-//        van_der_pol_max_invariant();
-//        van_der_pol_integration_trajectory();
+    //        van_der_pol_cycle();
+    //        van_der_pol_invariant();
+    //        van_der_pol_kernel();
+    //        van_der_pol_max_invariant();
+    //        van_der_pol_integration_trajectory();
 
     /// **** INTEGRATOR ***** //
-//        integrator();
+    //        integrator();
 
     /// **** BASSIN ***** //
     //    bassin_ratschan6();
@@ -1521,16 +1658,20 @@ int main()
     //    circle3_max_pos_inv();
     //    dipole_max_pos_inv();
 
+//     electromechanical_machine_invariant_TR();
+//     brusselator_invariant_TR();
+    van_der_pol_TR();
+
     /// **** PENDULUM ***** //
     //  pendulum_cycle();
-//      pendulum_integration();
+    //      pendulum_integration();
 
 
     /// **** DUAL TUBE **** //
-//    cos_trajectory();
+    //    cos_trajectory();
 
     /// **** WAVES **** //
-//    wave_cycle();
+    //    wave_cycle();
 
     /// **** TEST ***** //
     //    test();

@@ -13,7 +13,7 @@ CONFIG += qt
 TARGET = integrationIBEX
 TEMPLATE = app
 
-QMAKE_CXXFLAGS +=-I/usr/local/include/ -O3 -DNDEBUG -Wno-deprecated -frounding-math -std=c++11 -fopenmp -D_GLIBCXX_PARALLEL
+QMAKE_CXXFLAGS +=-I/usr/local/include/ -O3 -DNDEBUG -Wno-deprecated -frounding-math -std=c++14 -fopenmp -D_GLIBCXX_PARALLEL
 QMAKE_LFLAGS += -fopenmp -D_GLIBCXX_PARALLEL
 
 INCLUDEPATH += /usr/local/include/
