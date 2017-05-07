@@ -635,7 +635,10 @@ void brusselator_invariant_TR(){
 
 //    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
     double Radius = 0.25;
-    ibex::Function f_target_curve(x1, x2, pow(x1-0.9, 2)+pow(x2-0.3, 2)-0.25);
+    ibex::NumConstraint constraint_outer(x1, x2, pow(x1-0.9, 2)+pow(x2-0.3, 2)<=0.25);
+    ibex::NumConstraint constraint_inner(x1, x2, pow(x1-0.9, 2)+pow(x2-0.3, 2)>0.25);
+    ibex::CtcFwdBwd contractor_outer(constraint_outer);
+    ibex::CtcFwdBwd contractor_inner(constraint_inner);
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -648,7 +651,7 @@ void brusselator_invariant_TR(){
 
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
-    s.cameleon_propagation_with_inner(16, 1e9, &f_target_curve); // 25
+    s.cameleon_propagation_with_inner(16, 1e9, &contractor_outer, &contractor_inner); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -679,24 +682,26 @@ void van_der_pol_TR(){
 
 //    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
     double Radius = 0.25;
-    ibex::Function f_target_curve(x1, x2, pow(x1-1.0, 2)+pow(x2-1.0, 2)-0.25);
+    NumConstraint c_out(x1, x2, pow(x1-1.0, 2)+pow(x2-1.0, 2)<=0.25);
+    NumConstraint c_in(x1, x2, pow(x1-1.0, 2)+pow(x2-1.0, 2)>0.25);
+    CtcFwdBwd curve_contractor_out(c_out);
+    CtcFwdBwd curve_contractor_in(c_in);
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
 
     IntervalVector box(2);
-//    box[0] = Interval(-10.0, 1);
-//    box[1] = Interval(1, 3.8);
     box[0] = Interval(-3, 3);
     box[1] = Interval(-3, 3);
 
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
-    s.cameleon_propagation_with_inner(16, 1e9, &f_target_curve); // 25
+    s.cameleon_propagation_with_inner(6, 1e9, &curve_contractor_out, &curve_contractor_in); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
     cout << "TIME = " << delta << endl;
+
     s.draw(1024, true);
 
     // Draw target
@@ -710,7 +715,8 @@ void van_der_pol_TR(){
     }
     vibes::drawPolygon(x, y, "red[]", vibesParams("LineWidth",5));
 
-    //    s.print_pave_info(0, -3.99, 3.055);
+        s.print_pave_info(0, 1, 1.1);
+
 }
 
 void electromechanical_machine_invariant_TR(){
@@ -724,7 +730,10 @@ void electromechanical_machine_invariant_TR(){
 
 //    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
     double Radius = 0.01;
-    ibex::Function f_target_curve(x1, x2, x1*x1+x2*x2-0.01);
+    ibex::NumConstraint constraint_outer(x1, x2, x1*x1+x2*x2 <= 0.01);
+    ibex::NumConstraint constraint_inner(x1, x2, x1*x1+x2*x2 > 0.01);
+    ibex::CtcFwdBwd contractor_outer(constraint_outer);
+    ibex::CtcFwdBwd contractor_inner(constraint_inner);
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -737,7 +746,7 @@ void electromechanical_machine_invariant_TR(){
 
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
-    s.cameleon_propagation_with_inner(16, 1e9, &f_target_curve); // 25
+    s.cameleon_propagation_with_inner(16, 1e9, &contractor_outer, &contractor_inner); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1636,7 +1645,7 @@ int main()
     //        van_der_pol_invariant();
     //        van_der_pol_kernel();
     //        van_der_pol_max_invariant();
-    //        van_der_pol_integration_trajectory();
+//            van_der_pol_integration_trajectory();
 
     /// **** INTEGRATOR ***** //
     //        integrator();
@@ -1660,7 +1669,7 @@ int main()
 
 //     electromechanical_machine_invariant_TR();
 //     brusselator_invariant_TR();
-    van_der_pol_TR();
+     van_der_pol_TR();
 
     /// **** PENDULUM ***** //
     //  pendulum_cycle();

@@ -31,7 +31,7 @@ public:
     void cameleon_propagation(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe);
     void cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector> &initial_boxes);
     void cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::IntervalVector &initial_boxe);
-    void cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::Function *curve);
+    void cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::CtcFwdBwd *contractor_outer, ibex::CtcFwdBwd *contractor_inner);
     bool compute_attractor(int iterations_max, int process_iterations_max);
     void cameleon_viability(int iterations_max, int process_iterations_max, bool border_condition=false);
     void find_path(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector> &list_box_from, const vector<ibex::IntervalVector> &list_box_to, const vector<ibex::IntervalVector> &list_box_from_and_to);

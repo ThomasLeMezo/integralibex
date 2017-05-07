@@ -848,6 +848,27 @@ void Border::inter_inner(std::vector<Border*> border_list){
         m_segment_in_inner &= Interval::EMPTY_SET;
 }
 
+void Border::contract_initial_condition(ibex::IntervalVector &box_out, ibex::IntervalVector &box_in){
+    IntervalVector result_outer(get_position() & box_out), result_inner(get_position() & box_in);
+
+    if(!(result_outer[m_face%2]).is_empty()){
+        m_empty_outer = false;
+        m_full_outer = true;
+    }
+
+    if((result_outer[m_face%2].is_strict_subset(m_segment_in_inner))){
+        m_full_inner = false;
+    }
+
+    m_segment_in_outer= result_outer[m_face%2];
+    m_segment_out_outer = result_outer[m_face%2];
+
+    if(result_inner[m_face%2].is_strict_subset(m_segment_in_inner)){
+        cout << "m_segment" << m_face << " = " << result_inner[m_face%2] << endl;
+    }
+    m_segment_in_inner= result_inner[m_face%2];
+}
+
 void Border::set_backward_function(bool val){
     m_backward_function = val;
 }
@@ -861,7 +882,7 @@ void Border::lock_read(){
 }
 
 int Border::lock_test_read(){
-//    omp_test_lock(&m_lock_read);
+    //    omp_test_lock(&m_lock_read);
 }
 
 void Border::unlock_read(){
@@ -869,9 +890,9 @@ void Border::unlock_read(){
 }
 
 void Border::lock_write(){
-//    omp_set_nest_lock(&m_lock_write);
+    //    omp_set_nest_lock(&m_lock_write);
 }
 
 void Border::unlock_write(){
-//    omp_unset_nest_lock(&m_lock_write);
+    //    omp_unset_nest_lock(&m_lock_write);
 }

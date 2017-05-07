@@ -1563,6 +1563,24 @@ void Pave::increment_cpt_continuity(){
     }
 }
 
+void Pave::contract_initial_condition(CtcFwdBwd *contractor_outer, CtcFwdBwd *contractor_inner){
+    IntervalVector result_outer(get_position()), result_inner(get_position());
+    contractor_outer->contract(result_outer);
+    contractor_inner->contract(result_inner);
+
+    if(result_inner.is_strict_subset(get_position())){
+        cout << get_position() << '\t' << result_inner << endl;
+    }
+
+    for(Border *b:m_borders){
+        b->contract_initial_condition(result_outer, result_inner);
+    }
+
+    if(!result_outer.is_empty() && result_outer.is_interior_subset(get_position())){
+        set_full_outer();
+    }
+}
+
 bool Pave::is_bassin() const{
     return m_bassin;
 }

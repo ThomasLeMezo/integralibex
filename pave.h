@@ -29,6 +29,8 @@ public:
     void                        increment_cpt_consistency();
     void                        increment_cpt_continuity();
 
+    void                        contract_initial_condition(ibex::CtcFwdBwd *contractor_out, ibex::CtcFwdBwd *contractor_inner);
+
     // ******** Drawing functions ********
     void                        draw(bool filled, bool inner_only=false);
     void                        draw_borders(bool filled, std::string color_polygon="g[g]", bool complementary=false) const;

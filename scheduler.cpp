@@ -234,7 +234,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
     graph->set_backward_function(false);
 }
 
-void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::Function *curve){
+void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::CtcFwdBwd *contractor_outer, ibex::CtcFwdBwd *contractor_inner){
     Graph *graph = m_graph_list[0];
     if(m_graph_list.size()!=1 && graph->size() !=1)
         return;
@@ -252,7 +252,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         }
         //        graph->sivia(4, GRAPH_FORWARD, false, false); // Start with 4 boxes
         graph->set_empty_outer_full_inner();
-        graph->initialize_queues_with_initial_condition(curve);
+        graph->initialize_queues_with_initial_condition(contractor_outer, contractor_inner);
 
         graph->forward(process_iterations_max);
 
@@ -267,7 +267,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
         cout << "************ ITERATION = " << iterations << " ************" << endl;
         graph->sivia(2*graph->get_alive_node(), GRAPH_FORWARD, false, false);
         graph->set_empty_outer_full_inner();
-        graph->initialize_queues_with_initial_condition(curve); // And add to queue
+        graph->initialize_queues_with_initial_condition(contractor_outer, contractor_inner); // And add to queue
 
         // Process the forward with the subpaving
         cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;

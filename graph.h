@@ -49,7 +49,7 @@ public:
     void                        set_active_pave(const ibex::IntervalVector &box);
     void                        initialize_queues_with_initial_condition(const std::vector<ibex::IntervalVector> &box_list);
     void                        initialize_queues_with_initial_condition(const ibex::IntervalVector &box);
-    void                        initialize_queues_with_initial_condition(const ibex::Function *curve);
+    void                        initialize_queues_with_initial_condition(ibex::CtcFwdBwd *contractor_out, ibex::CtcFwdBwd *contractor_in);
     void                        set_symetry(ibex::Function *f, int face_in, int face_out);
     void                        set_empty();
     void                        set_empty_outer_full_inner();

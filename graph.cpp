@@ -440,7 +440,7 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
     //    }
 }
 
-void Graph::initialize_queues_with_initial_condition(const ibex::Function *curve){
+void Graph::initialize_queues_with_initial_condition(ibex::CtcFwdBwd *contractor_out, ibex::CtcFwdBwd *contractor_in){
     clear_node_queue_inner();
     clear_node_queue_outer();
 
@@ -451,21 +451,15 @@ void Graph::initialize_queues_with_initial_condition(const ibex::Function *curve
 
     for(std::vector<Pave*>::iterator pave = m_node_list.begin(); pave<m_node_list.end(); ++pave){
         if((*pave)->is_active() /*&& !pave->is_removed_pave_outer()*/){
-            Interval result = curve->eval((*pave)->get_position());
-            if(!(result & Interval::NEG_REALS).is_empty()){
-                // Outer
-                (*pave)->set_full_outer();
 
-                // Inner
-                if(result.is_strict_interior_subset(Interval::NEG_REALS)){
-                    if(!(*pave)->is_empty_inner()){
-                        (*pave)->set_empty_inner_in(); // Do not set removed pave inner !!! => bc inner out is not empty
-                        // pave->set_removed_pave_inner(true);
-                        add_to_queue_inner((*pave));
-                    }
-                    (*pave)->set_bassin(true);
-                }
+            (*pave)->contract_initial_condition(contractor_out, contractor_in);
+
+            if(!(*pave)->is_empty_inner() && !(*pave)->is_full_inner()){
+                //                        (*pave)->set_empty_inner_in(); // Do not set removed pave inner !!! => bc inner out is not empty
+                // pave->set_removed_pave_inner(true);
+                add_to_queue_inner((*pave));
             }
+            (*pave)->set_bassin(true);
         }
     }
 
@@ -474,7 +468,7 @@ void Graph::initialize_queues_with_initial_condition(const ibex::Function *curve
             add_to_queue_inner((*pave));
 
         // Outer pave
-        if((*pave)->is_full_outer()){
+        if(!(*pave)->is_empty_outer()){
             for(int face=0; face<4; face++){
                 vector<Pave*> pave_brother_list = (*pave)->get_brothers(face);
                 for(Pave *pave_brother:pave_brother_list){

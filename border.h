@@ -36,6 +36,8 @@ public:
     void                            copy_to_inner();
     void                            inter_inner(std::vector<Border*> border_list);
 
+    void                            contract_initial_condition(ibex::IntervalVector &box_out, ibex::IntervalVector &box_in);
+
     // Setters
 
     void                            set_full();
