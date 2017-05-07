@@ -863,9 +863,9 @@ void Border::contract_initial_condition(ibex::IntervalVector &box_out, ibex::Int
     m_segment_in_outer= result_outer[m_face%2];
     m_segment_out_outer = result_outer[m_face%2];
 
-    if(result_inner[m_face%2].is_strict_subset(m_segment_in_inner)){
-        cout << "m_segment" << m_face << " = " << result_inner[m_face%2] << endl;
-    }
+//    if(result_inner[m_face%2].is_strict_subset(m_segment_in_inner)){
+//        cout << "m_segment" << m_face << " = " << result_inner[m_face%2] << endl;
+//    }
     m_segment_in_inner= result_inner[m_face%2];
 }
 

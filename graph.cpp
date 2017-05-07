@@ -440,7 +440,7 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
     //    }
 }
 
-void Graph::initialize_queues_with_initial_condition(ibex::CtcFwdBwd *contractor_out, ibex::CtcFwdBwd *contractor_in){
+void Graph::initialize_queues_with_initial_condition(ibex::Ctc *contractor_out, ibex::Ctc *contractor_in){
     clear_node_queue_inner();
     clear_node_queue_outer();
 

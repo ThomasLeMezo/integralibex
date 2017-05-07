@@ -29,7 +29,7 @@ public:
     void                        increment_cpt_consistency();
     void                        increment_cpt_continuity();
 
-    void                        contract_initial_condition(ibex::CtcFwdBwd *contractor_out, ibex::CtcFwdBwd *contractor_inner);
+    void                        contract_initial_condition(ibex::Ctc *contractor_out, ibex::Ctc *contractor_inner);
 
     // ******** Drawing functions ********
     void                        draw(bool filled, bool inner_only=false);

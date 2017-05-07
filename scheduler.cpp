@@ -234,7 +234,7 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
     graph->set_backward_function(false);
 }
 
-void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::CtcFwdBwd *contractor_outer, ibex::CtcFwdBwd *contractor_inner){
+void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::Ctc *contractor_outer, ibex::Ctc *contractor_inner){
     Graph *graph = m_graph_list[0];
     if(m_graph_list.size()!=1 && graph->size() !=1)
         return;

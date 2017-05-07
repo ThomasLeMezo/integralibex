@@ -633,10 +633,24 @@ void brusselator_invariant_TR(){
     ibex::Function f1(x1, x2, Return(-(1.0+x1*x1*x2-1.5*x1-x1),
                                      -(1.5*x1-x1*x1*x2)));
 
-//    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
+    //    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
     double Radius = 0.25;
-    ibex::NumConstraint constraint_outer(x1, x2, pow(x1-0.9, 2)+pow(x2-0.3, 2)<=0.25);
-    ibex::NumConstraint constraint_inner(x1, x2, pow(x1-0.9, 2)+pow(x2-0.3, 2)>0.25);
+        ibex::NumConstraint constraint_outer(x1, x2, pow(x1-0.9, 2)+pow(x2-0.3, 2)<=0.25);
+        ibex::NumConstraint constraint_inner(x1, x2, pow(x1-0.9, 2)+pow(x2-0.3, 2)>0.2);
+
+//    ibex::NumConstraint c1(x1, x2, x1<=1.0);
+//    ibex::NumConstraint c2(x1, x2, x1>=0.4);
+//    ibex::NumConstraint c3(x1, x2, x2>=0.2);
+//    ibex::NumConstraint c4(x1, x2, x2<=0.8);
+//    ibex::CtcFwdBwd out1(c1), out2(c2), out3(c3), out4(c4);
+
+//    Array<Ctc> constraints_outer;
+//    constraints_outer.add(out1);
+//    constraints_outer.add(out2);
+//    constraints_outer.add(out3);
+//    constraints_outer.add(out4);
+//    ibex::CtcQInter contractor_outer(constraints_outer, 4);
+
     ibex::CtcFwdBwd contractor_outer(constraint_outer);
     ibex::CtcFwdBwd contractor_inner(constraint_inner);
 
@@ -644,14 +658,14 @@ void brusselator_invariant_TR(){
     f_list.push_back(&f1);
 
     IntervalVector box(2);
-//    box[0] = Interval(-10.0, 1);
-//    box[1] = Interval(1, 3.8);
+    //    box[0] = Interval(-10.0, 1);
+    //    box[1] = Interval(1, 3.8);
     box[0] = Interval(0, 2);
     box[1] = Interval(-1, 1);
 
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
-    s.cameleon_propagation_with_inner(16, 1e9, &contractor_outer, &contractor_inner); // 25
+    s.cameleon_propagation_with_inner(2, 1e9, &contractor_outer, &contractor_inner); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -661,8 +675,8 @@ void brusselator_invariant_TR(){
     // Draw target
     vector<double> x, y;
     for(double t=-M_PI; t<=M_PI; t+=0.01){
-//        x.push_back(2.0*0.25*cos(t));
-//        y.push_back(2.0*0.25*sin(t)+3.0);
+        //        x.push_back(2.0*0.25*cos(t));
+        //        y.push_back(2.0*0.25*sin(t)+3.0);
         x.push_back(sqrt(Radius)*cos(t)+0.9);
         y.push_back(sqrt(Radius)*sin(t)+0.3);
 
@@ -680,7 +694,7 @@ void van_der_pol_TR(){
     Variable x1, x2;
     ibex::Function f1(x1, x2, Return(x2,(1.0*(1.0-pow(x1, 2))*x2-x1)));
 
-//    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
+    //    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
     double Radius = 0.25;
     NumConstraint c_out(x1, x2, pow(x1-1.0, 2)+pow(x2-1.0, 2)<=0.25);
     NumConstraint c_in(x1, x2, pow(x1-1.0, 2)+pow(x2-1.0, 2)>0.25);
@@ -696,7 +710,7 @@ void van_der_pol_TR(){
 
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
-    s.cameleon_propagation_with_inner(6, 1e9, &curve_contractor_out, &curve_contractor_in); // 25
+    s.cameleon_propagation_with_inner(15, 1e9, &curve_contractor_out, &curve_contractor_in); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -707,16 +721,13 @@ void van_der_pol_TR(){
     // Draw target
     vector<double> x, y;
     for(double t=-M_PI; t<=M_PI; t+=0.01){
-//        x.push_back(2.0*0.25*cos(t));
-//        y.push_back(2.0*0.25*sin(t)+3.0);
+        //        x.push_back(2.0*0.25*cos(t));
+        //        y.push_back(2.0*0.25*sin(t)+3.0);
         x.push_back(sqrt(Radius)*cos(t)+1.0);
         y.push_back(sqrt(Radius)*sin(t)+1.0);
-
     }
     vibes::drawPolygon(x, y, "red[]", vibesParams("LineWidth",5));
-
-        s.print_pave_info(0, 1, 1.1);
-
+    //        s.print_pave_info(0, 1, 1.1);
 }
 
 void electromechanical_machine_invariant_TR(){
@@ -728,7 +739,7 @@ void electromechanical_machine_invariant_TR(){
     ibex::Function f1(x1, x2, Return(-x2,
                                      -(0.2-0.7*sin(x1)-0.05*x2)));
 
-//    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
+    //    ibex::Function f_target_curve(x1, x2, x1*x1+(x2-3)*(x2-3)-0.25);
     double Radius = 0.01;
     ibex::NumConstraint constraint_outer(x1, x2, x1*x1+x2*x2 <= 0.01);
     ibex::NumConstraint constraint_inner(x1, x2, x1*x1+x2*x2 > 0.01);
@@ -739,8 +750,8 @@ void electromechanical_machine_invariant_TR(){
     f_list.push_back(&f1);
 
     IntervalVector box(2);
-//    box[0] = Interval(-10.0, 1);
-//    box[1] = Interval(1, 3.8);
+    //    box[0] = Interval(-10.0, 1);
+    //    box[1] = Interval(1, 3.8);
     box[0] = Interval(-0.1, 0.8);
     box[1] = Interval(-0.4, 0.42);
 
@@ -756,8 +767,8 @@ void electromechanical_machine_invariant_TR(){
     // Draw target
     vector<double> x, y;
     for(double t=-M_PI; t<=M_PI; t+=0.01){
-//        x.push_back(2.0*0.25*cos(t));
-//        y.push_back(2.0*0.25*sin(t)+3.0);
+        //        x.push_back(2.0*0.25*cos(t));
+        //        y.push_back(2.0*0.25*sin(t)+3.0);
         x.push_back(sqrt(Radius)*cos(t));
         y.push_back(sqrt(Radius)*sin(t));
 
@@ -1623,7 +1634,7 @@ int main()
     //        hybrid_system();
 
     /// **** STATION KEEPING ***** //
-//            station_keeping_attractor();
+    //            station_keeping_attractor();
 
     /// **** CAR ON THE HILL ***** //
     //        car_on_the_hill_attractor();
@@ -1645,7 +1656,7 @@ int main()
     //        van_der_pol_invariant();
     //        van_der_pol_kernel();
     //        van_der_pol_max_invariant();
-//            van_der_pol_integration_trajectory();
+    //            van_der_pol_integration_trajectory();
 
     /// **** INTEGRATOR ***** //
     //        integrator();
@@ -1667,9 +1678,9 @@ int main()
     //    circle3_max_pos_inv();
     //    dipole_max_pos_inv();
 
-//     electromechanical_machine_invariant_TR();
-//     brusselator_invariant_TR();
-     van_der_pol_TR();
+    //     electromechanical_machine_invariant_TR();
+    brusselator_invariant_TR();
+    //     van_der_pol_TR();
 
     /// **** PENDULUM ***** //
     //  pendulum_cycle();
