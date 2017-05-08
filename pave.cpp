@@ -477,15 +477,15 @@ void Pave::draw(bool filled, bool inner_only){
             /// OUTER
             if(!inner_only){
                 set_inner_mode(false);
-//                draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
-                  draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+                draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
+//                  draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
             }
 
             /// INNER
             set_inner_mode(true);
             //            if(!is_bassin())
-//            draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
-            draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
+            draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+//            draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
             //            else
             //                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
 
