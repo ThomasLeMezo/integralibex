@@ -538,6 +538,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
 }
 
 void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &box_a, const ibex::IntervalVector  &box_b, const ibex::IntervalVector  &box_c){
+
     Graph *graph = m_graph_list[0];
     if(m_graph_list.size()!=1 && graph->size() !=1)
         return;
@@ -562,20 +563,31 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         Graph *graph_ab = new Graph(graph);
         Graph *graph_bc = new Graph(graph);
 
+#pragma omp parallel sections num_threads(4)
+{
+    #pragma omp section
+    {
         //// Outer Graph
         graph_a->initialize_queues_with_initial_condition(box_a);
         graph_a->forward(process_iterations_max);
-
+    }
+    #pragma omp section
+    {
         graph_bc->initialize_queues_with_initial_condition(box_b);
         graph_bc->forward(process_iterations_max);
-
+    }
+    #pragma omp section
+    {
         /// Backward graph
         graph_c->initialize_queues_with_initial_condition(box_c);
         graph_c->backward(process_iterations_max);
-
+    }
+    #pragma omp section
+    {
         graph_ab->initialize_queues_with_initial_condition(box_b);
         graph_ab->backward(process_iterations_max);
-
+    }
+}
         // Intersect & union graph
         (*graph_ab) |= (*graph_bc);
         (*graph_a) &= (*graph_c);
@@ -609,20 +621,31 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         Graph *graph_ab = new Graph(graph);
         Graph *graph_bc = new Graph(graph);
 
+#pragma omp parallel sections num_threads(4)
+{
+    #pragma omp section
+    {
         //// Outer Graph
         graph_a->initialize_queues_with_initial_condition(box_a);
         graph_a->forward(process_iterations_max);
-
+    }
+    #pragma omp section
+    {
         graph_bc->initialize_queues_with_initial_condition(box_b);
         graph_bc->forward(process_iterations_max);
-
+    }
+    #pragma omp section
+    {
         /// Backward graph
         graph_c->initialize_queues_with_initial_condition(box_c);
-//        graph_c->draw(512, true, "graph_c_p", false, 1); vibes::drawBox(box_b, "#FF00FF[]");
         graph_c->backward(process_iterations_max);
-
+    }
+    #pragma omp section
+    {
         graph_ab->initialize_queues_with_initial_condition(box_b);
         graph_ab->backward(process_iterations_max);
+    }
+}
 
         // Intersect & union graph
         (*graph_ab) |= (*graph_bc);

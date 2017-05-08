@@ -1102,7 +1102,7 @@ void van_der_pol_integration_trajectory(){
     paveC[1] = Interval(-2.2, -1.5);
 
     // A -> B -> C
-    s.find_path(16, 1e9, paveA, paveB, paveC); // 25
+    s.find_path(20, 1e9, paveA, paveB, paveC); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1587,7 +1587,6 @@ void bassin_bacha(){
 
 int main()
 {
-    omp_set_num_threads(1);
     /// **** BALL ***** //
     //        ball();
     //        hybrid_system();
@@ -1612,9 +1611,9 @@ int main()
 
     /// **** VAN DER POL ***** //
     //        van_der_pol_cycle();
-            van_der_pol_invariant();
+//            van_der_pol_invariant();
     //        van_der_pol_kernel();
-    //        van_der_pol_integration_trajectory();
+            van_der_pol_integration_trajectory();
 
     /// **** INTEGRATOR ***** //
     //        integrator();
