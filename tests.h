@@ -47,4 +47,6 @@ void test_chi_function();
 
 void test_diff_infinity();
 
+void test_contractor();
+
 #endif // TESTS_H

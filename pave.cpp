@@ -530,7 +530,7 @@ void Pave::draw(bool filled, bool inner_only){
 
     // Draw theta
     //    set_backward_function(false);
-    set_backward_function(true);
+//    set_backward_function(true);
     draw_theta(position);
     //    }
 

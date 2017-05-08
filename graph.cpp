@@ -552,7 +552,7 @@ void Graph::draw(int size, bool filled, string comment, bool inner_only, int pos
     stringstream ss;
     ss << "cycleSOLVER" << m_graph_id << " " << comment;
     vibes::newFigure(ss.str());
-    vibes::setFigureProperties(vibesParams("x",position,"y",position,"width",size,"height",size));
+    vibes::setFigureProperties(vibesParams("x",position*size,"y",10,"width",size,"height",size));
 
     for(Pave *node:m_node_list){
         node->draw(filled, inner_only);
@@ -772,6 +772,26 @@ void Graph::inter(const Graph &g, bool with_bwd){
             m_node_list[i]->inter(*(g.get_node_const(i)), with_bwd);
         }
     }
+}
+// I1& operator&=(I1&, I2);
+Graph& Graph::operator&=(Graph&g2){
+    if(this->size() == g2.size()){
+        //#pragma omp parallel for
+        for(int i=0; i<g2.size(); ++i){
+            m_node_list[i]->inter(*(g2.get_node_const(i)), true);
+        }
+    }
+    return (*this);
+}
+
+Graph& Graph::operator|=(const Graph&g2){
+    if(this->size() == g2.size()){
+        //#pragma omp parallel for
+        for(int i=0; i<g2.size(); ++i){
+            (*(m_node_list[i])) |= (*(g2.get_node_const(i)));
+        }
+    }
+    return (*this);
 }
 
 void Graph::set_empty(){

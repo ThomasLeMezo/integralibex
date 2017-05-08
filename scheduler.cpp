@@ -537,7 +537,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     //        emit publishLog(QString::number(m_graph_list.size()) + " possible cycle was found");
 }
 
-void Scheduler::find_path(int iterations_max, int process_iterations_max, const vector<ibex::IntervalVector>  &list_box_from, const vector<ibex::IntervalVector>  &list_box_to, const vector<ibex::IntervalVector>  &list_box_from_and_to){
+void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &box_a, const ibex::IntervalVector  &box_b, const ibex::IntervalVector  &box_c){
     Graph *graph = m_graph_list[0];
     if(m_graph_list.size()!=1 && graph->size() !=1)
         return;
@@ -556,19 +556,34 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         graph->sivia(4, GRAPH_FORWARD, false, false); // Start with 4 boxes
         graph->set_empty_outer_full_inner();
         graph->clear_node_queue();
-        Graph *graph_backward = new Graph(graph);
+
+        Graph *graph_a = graph;
+        Graph *graph_c = new Graph(graph);
+        Graph *graph_ab = new Graph(graph);
+        Graph *graph_bc = new Graph(graph);
 
         //// Outer Graph
-        graph->initialize_queues_with_initial_condition(list_box_from);
-        graph->forward(process_iterations_max);
+        graph_a->initialize_queues_with_initial_condition(box_a);
+        graph_a->forward(process_iterations_max);
+
+        graph_bc->initialize_queues_with_initial_condition(box_b);
+        graph_bc->forward(process_iterations_max);
 
         /// Backward graph
-        graph_backward->initialize_queues_with_initial_condition(list_box_to);
-        graph_backward->backward(process_iterations_max);
+        graph_c->initialize_queues_with_initial_condition(box_c);
+        graph_c->backward(process_iterations_max);
 
-        // Intersect graph
-        graph->inter(graph_backward, true);
-        delete(graph_backward);
+        graph_ab->initialize_queues_with_initial_condition(box_b);
+        graph_ab->backward(process_iterations_max);
+
+        // Intersect & union graph
+        (*graph_ab) |= (*graph_bc);
+        (*graph_a) &= (*graph_ab);
+        (*graph_a) &= (*graph_c);
+
+        delete(graph_bc);
+        delete(graph_ab);
+        delete(graph_c);
         graph->mark_empty_node();
         iterations++;
     }
@@ -587,26 +602,42 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 
         graph->set_empty_outer_full_inner();
         graph->clear_node_queue();
-        Graph *graph_backward = new Graph(graph);
 
-        /// Forward graph
-        cout << "GRAPH FWD (" << graph->size() << ")" << endl;
-        graph->initialize_queues_with_initial_condition(list_box_from);
-        // INNER
-        graph->forward(process_iterations_max);
+        /////
+        Graph *graph_a = graph;
+        Graph *graph_c = new Graph(graph);
+        Graph *graph_ab = new Graph(graph);
+        Graph *graph_bc = new Graph(graph);
+
+        //// Outer Graph
+        graph_a->initialize_queues_with_initial_condition(box_a);
+        graph_a->forward(process_iterations_max);
+
+        graph_bc->initialize_queues_with_initial_condition(box_b);
+        graph_bc->forward(process_iterations_max);
 
         /// Backward graph
-        //        cout << "GRAPH BWD (" << graph_backward->size() << ")" << endl;
-        graph_backward->initialize_queues_with_initial_condition(list_box_to);
-        //        // INNER
-        graph_backward->backward(process_iterations_max);
+        graph_c->initialize_queues_with_initial_condition(box_c);
+//        graph_c->draw(512, true, "graph_c_p", false, 1); vibes::drawBox(box_b, "#FF00FF[]");
+        graph_c->backward(process_iterations_max);
 
-        //        graph->draw(1024, true, "fwd");
-        //        graph_backward->draw(1024, true, "bwd");
-        //        cin.ignore();
+        graph_ab->initialize_queues_with_initial_condition(box_b);
+        graph_ab->backward(process_iterations_max);
 
-        graph->inter(graph_backward, true);
-        delete(graph_backward);
+        // Intersect & union graph
+        (*graph_ab) |= (*graph_bc);
+
+//        graph_a->draw(512, true, "graph_a", false, 0); vibes::drawBox(box_a, "#FF0000[]");
+//        graph_ab->draw(512, true, "graph_ab", false, 1); vibes::drawBox(box_b, "#FF00FF[]");
+//        graph_c->draw(512, true, "graph_c", false, 2); vibes::drawBox(box_c, "#0B0B61[]");
+
+        (*graph_a) &= (*graph_ab);
+        (*graph_a) &= (*graph_c);
+
+        delete(graph_bc);
+        delete(graph_ab);
+        delete(graph_c);
+        ////
 
         //        graph->draw(1024, true, "inter");
 

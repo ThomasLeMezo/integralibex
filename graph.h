@@ -24,6 +24,8 @@ public:
 
     void                        inter(const Graph &g, bool with_bwd=false);
     void                        diff(const Graph &g);
+    Graph&                      operator&=(Graph&g2);
+    Graph&                      operator|=(const Graph&g2);
 //    const Graph &               operator|(const Graph &g);
 
     void                        push_back(Pave* p);

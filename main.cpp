@@ -56,7 +56,8 @@ void test(){
     //        std::cerr << e << endl;
     //    }
 
-    test_diff_infinity();
+//    test_diff_infinity();
+    test_contractor();
 }
 
 void van_der_pol_cycle(){
@@ -1073,7 +1074,7 @@ void van_der_pol_integration_trajectory(){
 
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x)));
+    ibex::Function f1(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x)));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -1086,34 +1087,29 @@ void van_der_pol_integration_trajectory(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, MAZE_BORDER_INNER_IN_FULL, MAZE_BORDER_INNER_OUT_FULL,
                 MAZE_BORDER_OUTER_IN_EMPTY, MAZE_BORDER_OUTER_OUT_EMPTY);
 
-    vector<IntervalVector> list_from, list_to, list_from_to;
-
     IntervalVector paveA(2);
-    paveA[0] = Interval(1.0, 1.4);
-    paveA[1] = Interval(1.0, 2.0);
-    list_from.push_back(paveA);
+    paveA[0] = Interval(-0.5, 0.8);
+    paveA[1] = Interval(0.2, 0.4);
 
     IntervalVector paveB(2);
-    paveB[0] = Interval(-1.4, -1.0);
-    paveB[1] = Interval(-2.0, -1.0);
-    list_to.push_back(paveB);
+    paveB[0] = Interval(1.4, 1.7);
+    paveB[1] = Interval(0.6, 0.8);
 
     IntervalVector paveC(2);
-    paveC[0] = Interval(-0.5,0.5);
-    paveC[1] = Interval(1.0, 2.0);
-    //    list_from.push_back(paveC);
-    //    list_to.push_back(paveC);
+    paveC[0] = Interval(-1,-0.5);
+    paveC[1] = Interval(-2.7, -2.4);
 
-    s.find_path(17, 1e9, list_from, list_to, list_from_to); // 25
+    // A -> B -> C
+    s.find_path(18, 1e9, paveA, paveB, paveC); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
     cout << "TIME = " << delta << endl;
 
     s.draw(1024, true);
-    vibes::drawBox(paveA, "g[]");
-    vibes::drawBox(paveB, "g[]");
-    vibes::drawBox(paveC, "g[]");
+    vibes::drawBox(paveA, "#FF0000[]");
+    vibes::drawBox(paveB, "#FF00FF[]");
+    vibes::drawBox(paveC, "#0B0B61[]");
 }
 
 void van_der_pol_invariant(){
@@ -1307,29 +1303,23 @@ void car_on_the_hill_trajectory(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, MAZE_BORDER_INNER_IN_FULL, MAZE_BORDER_INNER_OUT_FULL,
                 MAZE_BORDER_OUTER_IN_EMPTY, MAZE_BORDER_OUTER_OUT_EMPTY);
 
-    vector<IntervalVector> list_from, list_to, list_from_to;
-
     IntervalVector paveA(2);
     //    paveA[0] = Interval(0.0, 1.0);
     //    paveA[1] = Interval(0.0, 1.0);
     paveA[0] = Interval(6, 7);
     paveA[1] = Interval(-9, -8);
-    list_from.push_back(paveA);
 
     IntervalVector paveB(2);
     //    paveB[0] = Interval(2.0, 3.0);
     //    paveB[1] = Interval(2.0, 3.0);
     paveB[0] = Interval(11.5,12.0);
     paveB[1] = Interval(-6.0, 6.0);
-    list_to.push_back(paveB);
 
     IntervalVector paveC(2);
     paveC[0] = Interval(-2,-1);
     paveC[1] = Interval(-0.5, 0.5);
-    list_from.push_back(paveC);
-    list_to.push_back(paveC);
 
-    s.find_path(18, 1e9, list_from, list_to, list_from_to); // 25
+    s.find_path(18, 1e9, paveA, paveB, paveC); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1656,7 +1646,7 @@ int main()
     //        van_der_pol_invariant();
     //        van_der_pol_kernel();
     //        van_der_pol_max_invariant();
-    //            van_der_pol_integration_trajectory();
+                van_der_pol_integration_trajectory();
 
     /// **** INTEGRATOR ***** //
     //        integrator();
@@ -1679,8 +1669,8 @@ int main()
     //    dipole_max_pos_inv();
 
     //     electromechanical_machine_invariant_TR();
-    brusselator_invariant_TR();
-    //     van_der_pol_TR();
+//    brusselator_invariant_TR();
+//         van_der_pol_TR();
 
     /// **** PENDULUM ***** //
     //  pendulum_cycle();
@@ -1694,6 +1684,6 @@ int main()
     //    wave_cycle();
 
     /// **** TEST ***** //
-    //    test();
+//        test();
     return 0;
 }

@@ -976,3 +976,44 @@ void test_diff_infinity(){
     for(IntervalVector &box:box_diff_list)
         cout << box << endl;
 }
+
+void test_contractor(){
+    Variable x(2);
+    Interval a, b, c, d;
+    a = Interval(-1);
+    b = Interval(2);
+    c = Interval(-1);
+    d = Interval(3);
+    NumConstraint nc0(x, a*x[0]+b*x[1]<=0);
+    NumConstraint nc1(x, c*x[0]+d*x[1]>=0);
+
+    Interval e, f;
+    e = Interval(-1);
+    f = Interval(2, 3);
+    NumConstraint nc(x, e*x[0]+f*x[1]=0);
+
+    CtcFwdBwd c0(nc0);
+    CtcFwdBwd c1(nc1);
+
+    CtcFwdBwd c2(nc);
+
+    /* The initial box: [0,10]x[0,10] */
+    IntervalVector initbox(2);
+    initbox[0] = Interval(1);
+    initbox[1] = Interval(-10, 10);
+
+    /* Create the array of all the contractors */
+    Array<Ctc> array(c0,c1);
+    /* Create the q-intersection of the N contractors */
+    CtcQInter q(array,2); // 2 is the number of variables, 5 the number of correct measurement
+    /* Perform a first contraction */
+    IntervalVector box=initbox;
+    q.contract(box);
+    cout << "after q-inter =" << box << endl;
+
+    IntervalVector box2 = initbox;
+    c2.contract(box2);
+    cout << "after c = " << box2 << endl;
+
+
+}
