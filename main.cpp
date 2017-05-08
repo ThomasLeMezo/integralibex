@@ -1081,26 +1081,28 @@ void van_der_pol_integration_trajectory(){
     //    f_list.push_back(&f2);
 
     IntervalVector box(2);
-    box[0] = Interval(-6.0, 6.0);
-    box[1] = Interval(-6.0, 6.0);
+    box[0] = Interval(-3.0, 3.0);
+    box[1] = Interval(-3.0, 3.0);
 
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, MAZE_BORDER_INNER_IN_FULL, MAZE_BORDER_INNER_OUT_FULL,
                 MAZE_BORDER_OUTER_IN_EMPTY, MAZE_BORDER_OUTER_OUT_EMPTY);
 
     IntervalVector paveA(2);
-    paveA[0] = Interval(-0.5, 0.8);
-    paveA[1] = Interval(0.2, 0.4);
+//    paveA[0] = Interval(-0.5, 0.8);
+//    paveA[1] = Interval(0.15, 0.4);
+    paveA[0] = Interval(0.0, 0.6);
+    paveA[1] = Interval(0.8, 1.8);
 
     IntervalVector paveB(2);
-    paveB[0] = Interval(1.4, 1.7);
-    paveB[1] = Interval(0.6, 0.8);
+    paveB[0] = Interval(0.7, 1.5);
+    paveB[1] = Interval(-0.2, 0.2);
 
     IntervalVector paveC(2);
-    paveC[0] = Interval(-1,-0.5);
-    paveC[1] = Interval(-2.7, -2.4);
+    paveC[0] = Interval(0.2,0.6);
+    paveC[1] = Interval(-2.2, -1.5);
 
     // A -> B -> C
-    s.find_path(18, 1e9, paveA, paveB, paveC); // 25
+    s.find_path(16, 1e9, paveA, paveB, paveC); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1108,8 +1110,8 @@ void van_der_pol_integration_trajectory(){
 
     s.draw(1024, true);
     vibes::drawBox(paveA, "#FF0000[]");
-    vibes::drawBox(paveB, "#FF00FF[]");
-    vibes::drawBox(paveC, "#0B0B61[]");
+    vibes::drawBox(paveB, "#FF0000[]");
+    vibes::drawBox(paveC, "black[]");
 }
 
 void van_der_pol_invariant(){
@@ -1118,7 +1120,7 @@ void van_der_pol_invariant(){
     gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x)));
+    ibex::Function f1(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x)));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -1127,6 +1129,7 @@ void van_der_pol_invariant(){
     box[0] = Interval(-6.2, 6.2);
     box[1] = Interval(-6.2, 6.2);
 
+//    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
     IntervalVector activated_pave(2);
@@ -1153,7 +1156,7 @@ void van_der_pol_invariant(){
     list_activated_pave.push_back(box4);
     //    s.cameleon_propagation(17, 1e9, activated_pave); // 25
     //    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(15, 1e9, list_activated_pave); // 25
+    s.cameleon_propagation_with_inner(16, 1e9, list_activated_pave); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1201,40 +1204,6 @@ void van_der_pol_kernel(){
     /////////////// Drawing ///////////////
     if(is_attractor)
         s.draw(1024, true);
-}
-
-void van_der_pol_max_invariant(){
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
-    vibes::beginDrawing();
-    Variable x, y;
-    ibex::Function f1(x, y, Return(y,1.0*(1.0-pow(x, 2))*y-x));
-
-    std::vector<ibex::Function*> f_list;
-    f_list.push_back(&f1);
-
-    IntervalVector box(2);
-    box[0] = Interval(-4.0, 4.0);
-    box[1] = Interval(-4.0, 4.0);
-
-    vector<IntervalVector> list_boxes_removed;
-    IntervalVector box_removed(2);
-    box_removed[0] = Interval(-0.5, 0.5);
-    box_removed[1] = Interval(-0.5, 0.5);
-    list_boxes_removed.push_back(box_removed);
-
-    Scheduler s(box, list_boxes_removed, f_list, MAZE_DISEABLE_SINGLETON_ON, true, false); // diseable singleton = true
-
-    /////////////// Compute ///////////////
-
-    s.cameleon_viability(16, 1e9, true);
-
-    gettimeofday(&end, NULL);
-    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
-    cout << "TIME = " << delta << endl;
-
-    /////////////// Drawing ///////////////
-    s.draw(1024, true);
 }
 
 void bassin_van_der_pol(){
@@ -1643,10 +1612,9 @@ int main()
 
     /// **** VAN DER POL ***** //
     //        van_der_pol_cycle();
-    //        van_der_pol_invariant();
+            van_der_pol_invariant();
     //        van_der_pol_kernel();
-    //        van_der_pol_max_invariant();
-                van_der_pol_integration_trajectory();
+    //        van_der_pol_integration_trajectory();
 
     /// **** INTEGRATOR ***** //
     //        integrator();

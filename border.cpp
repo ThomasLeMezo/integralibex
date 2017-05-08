@@ -542,8 +542,14 @@ Border& Border::operator&=(const Border &b){
 }
 
 Border& Border::operator|=(const Border &b){
+    set_inner_mode(false);
     set_segment_in(b.get_segment_in(), false);
     set_segment_out(b.get_segment_out(), false);
+
+    set_inner_mode(true);
+    set_segment_in(b.get_segment_in_inner() | b.get_segment_out_inner(), true);
+    set_segment_out(b.get_segment_in_inner() | b.get_segment_out_inner(), true);
+
     return *this;
 }
 

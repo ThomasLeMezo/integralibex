@@ -578,8 +578,8 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 
         // Intersect & union graph
         (*graph_ab) |= (*graph_bc);
-        (*graph_a) &= (*graph_ab);
         (*graph_a) &= (*graph_c);
+        (*graph_a) &= (*graph_ab); // Order matters : because of intersection of inner (to improve...)
 
         delete(graph_bc);
         delete(graph_ab);
