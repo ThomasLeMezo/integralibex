@@ -571,11 +571,13 @@ void Border::inter_complementary(Border &b){
         set_empty_outer();
         set_full_inner();
     }
-    if(!b.is_empty_outer()){
-        if(is_empty_inner()){
-            set_full_inner();
-            set_full_outer();
-        }
+    else if(!b.is_empty_outer() && !is_empty_outer()){
+        set_full_inner();
+        set_full_outer();
+    }
+    else if(!b.is_empty_outer() && is_empty_inner()){
+        set_full_inner();
+        set_full_outer();
     }
 }
 
