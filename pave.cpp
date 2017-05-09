@@ -483,15 +483,15 @@ void Pave::draw(bool filled, bool inner_only){
             /// OUTER
             if(!inner_only){
                 set_inner_mode(false);
-                draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
-//                  draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+//                draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
+                  draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
             }
 
             /// INNER
             set_inner_mode(true);
             //            if(!is_bassin())
-            draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
-//            draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
+//            draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+            draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
             //            else
             //                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
 
@@ -536,7 +536,7 @@ void Pave::draw(bool filled, bool inner_only){
 
     // Draw theta
     //    set_backward_function(false);
-//    set_backward_function(true);
+    set_backward_function(true);
     draw_theta(position);
     //    }
 
@@ -577,7 +577,7 @@ void Pave::draw_theta(IntervalVector position) const{
     color_map.push_back("black[#A8A8A8]");
     color_map.push_back("g[]");
 
-    for(int k=0; k<(int)get_theta_list().size(); k++){
+    for(int k=0; k<(int)get_theta_list().size() && k<2; k++){
         double size_ratio = size * (1-0.1*k);
         for(Interval i:get_theta_list(k)){
             vibes::drawSector(position[0].mid(), position[1].mid(), size_ratio, size_ratio, (-i.lb())*180.0/M_PI, (-i.ub())*180.0/M_PI, color_map[k%color_map.size()]);

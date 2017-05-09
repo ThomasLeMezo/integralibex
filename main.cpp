@@ -1177,9 +1177,9 @@ void van_der_pol_kernel_invariant(){
     gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2;
-    ibex::Function f1(x1, x2, Return(x2,(1.0*(1.0-pow(x1, 2))*x2-x1-0.5)));
-    ibex::Function f2(x1, x2, Return(x2,(1.0*(1.0-pow(x1, 2))*x2-x1+0.5)));
-    ibex::Function f3(x1, x2, Return(x2,(1.0*(1.0-pow(x1, 2))*x2-x1+Interval(0.5, 0.5))));
+    ibex::Function f1(x1, x2, Return(x2,(1.0*(1.0-pow(x1, 2))*x2-x1-1)));
+    ibex::Function f2(x1, x2, Return(x2,(1.0*(1.0-pow(x1, 2))*x2-x1+1)));
+    ibex::Function f3(x1, x2, Return(x2,(1.0*(1.0-pow(x1, 2))*x2-x1+Interval(-1, 1))));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);

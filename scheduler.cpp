@@ -324,9 +324,11 @@ void Scheduler::cameleon_propagation_with_inner_kernel(int iterations_max, int p
         g_f2->forward(process_iterations_max);
     }
 }
-        g_f2->draw(512, true, "f2", false, 2);
-        g_f1->draw(512, true, "f1", false, 1);
-        g_f0->draw(512, true, "f0", false, 0);
+//        if(iterations == 14){
+//            g_f2->draw(512, true, "f2", false, 2);
+//            g_f1->draw(512, true, "f1", false, 1);
+//            g_f0->draw(512, true, "f0", false, 0);
+//        }
 
         g_f0->inter_kernel(*g_f1, *g_f2);
         delete(g_f1);

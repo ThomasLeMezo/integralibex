@@ -542,23 +542,16 @@ Border& Border::operator&=(const Border &b){
 }
 
 void Border::inter_kernel(const Border &b, const Border &b_union){
-//    set_inner_mode(false);
-//    set_segment_in(b.get_segment_in(), false);
-//    set_segment_out(b.get_segment_out(), false);
-
-//    set_inner_mode(true);
-//    set_segment_in(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
-//    set_segment_out(b.get_segment_in_inner() | b.get_segment_out_inner(), false);
-
     Interval inner_b = b.get_segment_in_inner() | b.get_segment_out_inner();
     Interval inner_b_union = b_union.get_segment_in_inner() | b_union.get_segment_out_inner();
+    Interval result = inner_b_union | inner_b | m_segment_in_inner | m_segment_out_inner;
 
-    m_segment_in_inner |= m_segment_out_inner | inner_b | inner_b_union;
-    m_segment_out_inner |= m_segment_in_inner;
+    m_segment_in_inner = result;
+    m_segment_out_inner = result;
 
-    m_segment_in_outer &= (b.get_segment_in_outer() | b.get_segment_out_outer());
-    m_segment_out_outer &= (b.get_segment_out_outer() | b.get_segment_in_outer());
-
+    Interval result_outer = (m_segment_in_outer | m_segment_out_outer) & (b.get_segment_in_outer() | b.get_segment_out_outer());
+    m_segment_in_outer = result_outer;
+    m_segment_out_outer = result_outer;
 }
 
 Border& Border::operator|=(const Border &b){
