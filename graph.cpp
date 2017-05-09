@@ -795,6 +795,12 @@ Graph& Graph::operator&=(Graph&g2){
     return (*this);
 }
 
+void Graph::inter_complementary(Graph &g){
+    for(int i=0; i<g.size(); ++i){
+        m_node_list[i]->inter_complementary(*(g.get_node_const(i)));
+    }
+}
+
 Graph& Graph::operator|=(const Graph&g2){
     if(this->size() == g2.size()){
         //#pragma omp parallel for

@@ -699,7 +699,9 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         // Intersect & union graph
         (*graph_ab) |= (*graph_bc);
         (*graph_a) &= (*graph_c);
-        (*graph_a) &= (*graph_ab); // Order matters : because of intersection of inner (to improve...)
+
+        graph_a->inter_complementary(*graph_ab);
+//        (*graph_a) &= (*graph_ab); // Order matters : because of intersection of inner (to improve...)
 
         delete(graph_bc);
         delete(graph_ab);
@@ -761,8 +763,9 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 //        graph_a->draw(512, true, "graph_a", false, 0); vibes::drawBox(box_a, "#FF0000[]");
 //        graph_ab->draw(512, true, "graph_ab", false, 1); vibes::drawBox(box_b, "#FF00FF[]");
 //        graph_c->draw(512, true, "graph_c", false, 2); vibes::drawBox(box_c, "#0B0B61[]");
+//        graph_ab->complementaire();
 
-        (*graph_a) &= (*graph_ab);
+        graph_a->inter_complementary(*graph_ab);
         (*graph_a) &= (*graph_c);
 
         delete(graph_bc);

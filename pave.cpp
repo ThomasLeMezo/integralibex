@@ -264,6 +264,12 @@ bool Pave::inter(const Pave &p, bool with_bwd){
     return change;
 }
 
+void Pave::inter_complementary(Pave &p){
+    for(int face = 0; face <4; face++){
+        get_border(face)->inter_complementary(*(p.get_border(face)));
+    }
+}
+
 void Pave::inter_kernel(const Pave &p, const Pave &p_union){
     for(int face = 0; face <4; face++){
         get_border(face)->inter_kernel(*(p.get_border_const(face)), *(p_union.get_border_const(face)));
@@ -483,15 +489,15 @@ void Pave::draw(bool filled, bool inner_only){
             /// OUTER
             if(!inner_only){
                 set_inner_mode(false);
-//                draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
-                  draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+                draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
+//                  draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
             }
 
             /// INNER
             set_inner_mode(true);
             //            if(!is_bassin())
-//            draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
-            draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
+            draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+//            draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
             //            else
             //                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
 
@@ -536,7 +542,7 @@ void Pave::draw(bool filled, bool inner_only){
 
     // Draw theta
     //    set_backward_function(false);
-    set_backward_function(true);
+//    set_backward_function(true);
     draw_theta(position);
     //    }
 
@@ -1312,9 +1318,29 @@ bool Pave::is_border() const{
 }
 
 void Pave::complementaire(){
-    for(Border *b:get_borders()){
-        b->complementaire();
-    }
+//    if(is_empty_outer()){
+//        set_empty_inner();
+//        set_full_outer();
+//    }
+//    else if(is_empty_inner()){
+//        set_full_inner();
+//        set_empty_outer();
+//    }
+//    else if(is_full_outer()){
+//        return;
+//    }
+//    else{
+        bool inner_mode = get_inner_mode();
+        set_inner_mode(true);
+        for(Border *b:get_borders()){
+            b->complementaire();
+        }
+        set_inner_mode(false);
+        for(Border *b:get_borders()){
+            b->complementaire();
+        }
+        set_inner_mode(inner_mode);
+//    }
 }
 
 IntervalVector Pave::get_bounding_pave() const{

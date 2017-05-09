@@ -23,6 +23,7 @@ public:
     void                        inter_kernel(const Pave &p, const Pave &p_union);
     bool                        diff(const Pave &p);
     bool                        inter_inner(const std::vector<Pave*> pave_list);
+    void                        inter_complementary(Pave &p);
 
     void                        complementaire();
     void                        copy_to_inner();

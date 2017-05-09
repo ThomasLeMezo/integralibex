@@ -28,6 +28,7 @@ public:
     Graph&                      operator&=(Graph&g2);
     Graph&                      operator|=(const Graph&g2);
 //    const Graph &               operator|(const Graph &g);
+    void                        inter_complementary(Graph &g);
 
     void                        push_back(Pave* p);
     void                        push_back_queue(Pave *p);

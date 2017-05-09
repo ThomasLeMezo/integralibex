@@ -566,6 +566,19 @@ Border& Border::operator|=(const Border &b){
     return *this;
 }
 
+void Border::inter_complementary(Border &b){
+    if(b.get_segment_in_inner().is_empty() && b.get_segment_out_inner().is_empty()){
+        set_empty_outer();
+        set_full_inner();
+    }
+    if(!b.is_empty_outer()){
+        if(is_empty_inner()){
+            set_full_inner();
+            set_full_outer();
+        }
+    }
+}
+
 bool Border::inter(const Border &b, bool with_bwd){
     bool change = false;
     if(with_bwd){
