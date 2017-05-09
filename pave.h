@@ -20,6 +20,7 @@ public:
     Pave&                       operator|=(const Pave &p);
     Border*                     operator[](int face);
     bool                        inter(const Pave &p, bool with_bwd=false);
+    void                        inter_kernel(const Pave &p, const Pave &p_union);
     bool                        diff(const Pave &p);
     bool                        inter_inner(const std::vector<Pave*> pave_list);
 

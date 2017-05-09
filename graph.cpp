@@ -773,6 +773,17 @@ void Graph::inter(const Graph &g, bool with_bwd){
         }
     }
 }
+
+void Graph::inter_kernel(const Graph &g, const Graph &g_union){
+    if(this->size() == g.size()){
+        //#pragma omp parallel for
+        for(int i=0; i<g.size(); ++i){
+            m_node_list[i]->inter_kernel(*(g.get_node_const(i)), *(g_union.get_node_const(i)));
+        }
+    }
+}
+
+
 // I1& operator&=(I1&, I2);
 Graph& Graph::operator&=(Graph&g2){
     if(this->size() == g2.size()){
@@ -1387,20 +1398,20 @@ void Graph::forward(int process_iterations_max){
     // INNER
     set_inner_mode(true);
     set_backward_function(true);
-    process(process_iterations_max, GRAPH_BACKWARD);
+    process(process_iterations_max, GRAPH_BACKWARD, false);
     // OUTER
     set_inner_mode(false);
     set_backward_function(false);
-    process(process_iterations_max, GRAPH_FORWARD, true);
+    process(process_iterations_max, GRAPH_FORWARD, false);
 }
 
 void Graph::backward(int process_iterations_max){
     // INNER
     set_inner_mode(true);
     set_backward_function(false); // Invert bc of bwd
-    process(process_iterations_max, GRAPH_BACKWARD);
+    process(process_iterations_max, GRAPH_BACKWARD, false);
     // OUTER
     set_inner_mode(false);
     set_backward_function(true); // Invert bc of bwd
-    process(process_iterations_max, GRAPH_FORWARD, true);
+    process(process_iterations_max, GRAPH_FORWARD, false);
 }

@@ -264,6 +264,12 @@ bool Pave::inter(const Pave &p, bool with_bwd){
     return change;
 }
 
+void Pave::inter_kernel(const Pave &p, const Pave &p_union){
+    for(int face = 0; face <4; face++){
+        get_border(face)->inter_kernel(*(p.get_border_const(face)), *(p_union.get_border_const(face)));
+    }
+}
+
 bool Pave::inter_inner(const std::vector<Pave*> pave_list){
     for(int face = 0; face <4; face++){
         vector<Border*> border_list;

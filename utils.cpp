@@ -243,26 +243,26 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool union_functions){
 
     if(backward){
-        if(p->get_compute_inner() && p->get_inner_mode() && p->get_f_list().size()>1){
-            // Case several cones
-            vector<Pave*> list_pave;
-            for(int i=0; i<p->get_f_list().size(); i++){
-                Pave *p_tmp = new Pave(p);
-                p_tmp->set_active_function(i);
-                this->CtcPaveBackward(p_tmp, true, change_tab);
-                list_pave.push_back(p_tmp);
-            }
-            // Intersect paves
-            p->inter_inner(list_pave);
+//        if(p->get_compute_inner() && p->get_inner_mode() && p->get_f_list().size()>1){
+//            // Case several cones
+//            vector<Pave*> list_pave;
+//            for(int i=0; i<p->get_f_list().size(); i++){
+//                Pave *p_tmp = new Pave(p);
+//                p_tmp->set_active_function(i);
+//                this->CtcPaveBackward(p_tmp, true, change_tab);
+//                list_pave.push_back(p_tmp);
+//            }
+//            // Intersect paves
+//            p->inter_inner(list_pave);
 
-            // Delete pave tmp
-            for(Pave *p_tmp:list_pave)
-                delete(p_tmp);
-        }
-        else{
+//            // Delete pave tmp
+//            for(Pave *p_tmp:list_pave)
+//                delete(p_tmp);
+//        }
+//        else{
             // Case 1 cones
             this->CtcPaveBackward(p, true, change_tab);
-        }
+//        }
 
         Pave *p2 = new Pave(p);
         this->CtcPaveForward(p2, true, change_tab, union_functions); // Test ? union_functions

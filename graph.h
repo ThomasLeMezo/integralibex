@@ -23,6 +23,7 @@ public:
     void                        mark_empty_node();
 
     void                        inter(const Graph &g, bool with_bwd=false);
+    void                        inter_kernel(const Graph &g, const Graph &g_union);
     void                        diff(const Graph &g);
     Graph&                      operator&=(Graph&g2);
     Graph&                      operator|=(const Graph&g2);

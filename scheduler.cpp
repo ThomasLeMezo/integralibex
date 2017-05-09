@@ -234,6 +234,112 @@ void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_
     graph->set_backward_function(false);
 }
 
+void Scheduler::cameleon_propagation_with_inner_kernel(int iterations_max, int process_iterations_max, const vector<IntervalVector> &initial_boxes){
+    Graph *graph = m_graph_list[0];
+    if(m_graph_list.size()!=1 && graph->size() !=1)
+        return;
+    int iterations = 0;
+
+    graph->set_compute_inner(true);
+    graph->set_empty_outer_full_inner();
+
+    if(iterations < iterations_max && !graph->is_sufficiently_discretized()){
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+
+        while(!graph->is_sufficiently_discretized()){
+            graph->reset_queues();
+            graph->sivia(max(2*graph->get_alive_node(), 4),GRAPH_FORWARD, false, false);
+        }
+        //        graph->sivia(4, GRAPH_FORWARD, false, false); // Start with 4 boxes
+        graph->set_empty_outer_full_inner();
+        graph->initialize_queues_with_initial_condition(initial_boxes);
+
+        Graph *g_f0 = graph;
+        Graph *g_f1 = new Graph(graph);
+        Graph *g_f2 = new Graph(graph);
+
+#pragma omp parallel sections
+{
+    #pragma omp section
+    {
+        g_f0->set_active_f(0);
+        g_f0->initialize_queues_with_initial_condition(initial_boxes);
+        g_f0->forward(process_iterations_max);
+    }
+    #pragma omp section
+    {
+        g_f1->set_active_f(1);
+        g_f1->initialize_queues_with_initial_condition(initial_boxes);
+        g_f1->forward(process_iterations_max);
+    }
+    #pragma omp section
+    {
+        g_f2->set_active_f(2);
+        g_f2->initialize_queues_with_initial_condition(initial_boxes);
+        g_f2->forward(process_iterations_max);
+    }
+}
+        g_f0->inter_kernel(*g_f1, *g_f2);
+        delete(g_f1);
+        delete(g_f2);
+
+        graph->mark_empty_node();
+        iterations++;
+    }
+    int nb_graph = 0;
+
+    while(iterations < iterations_max){
+
+        const clock_t begin_time = clock();
+        cout << "************ ITERATION = " << iterations << " ************" << endl;
+        graph->sivia(2*graph->get_alive_node(), GRAPH_FORWARD, false, false);
+        graph->set_empty_outer_full_inner();
+        //graph->initialize_queues_with_initial_condition(initial_boxes); // And add to queue
+
+        // Process the forward with the subpaving
+        cout << "GRAPH No "<< nb_graph << " (" << graph->size() << ")" << endl;
+
+        Graph *g_f0 = graph;
+        Graph *g_f1 = new Graph(graph);
+        Graph *g_f2 = new Graph(graph);
+
+#pragma omp parallel sections
+{
+    #pragma omp section
+    {
+        g_f0->set_active_f(0);
+        g_f0->initialize_queues_with_initial_condition(initial_boxes);
+        g_f0->forward(process_iterations_max);
+    }
+    #pragma omp section
+    {
+        g_f1->set_active_f(1);
+        g_f1->initialize_queues_with_initial_condition(initial_boxes);
+        g_f1->forward(process_iterations_max);
+    }
+    #pragma omp section
+    {
+        g_f2->set_active_f(2);
+        g_f2->initialize_queues_with_initial_condition(initial_boxes);
+        g_f2->forward(process_iterations_max);
+    }
+}
+        g_f2->draw(512, true, "f2", false, 2);
+        g_f1->draw(512, true, "f1", false, 1);
+        g_f0->draw(512, true, "f0", false, 0);
+
+        g_f0->inter_kernel(*g_f1, *g_f2);
+        delete(g_f1);
+        delete(g_f2);
+
+        graph->mark_empty_node();
+
+        cout << "--> graph_time = " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << endl;
+        iterations++;
+    }
+    graph->set_backward_function(false);
+}
+
 void Scheduler::cameleon_propagation_with_inner(int iterations_max, int process_iterations_max, ibex::Ctc *contractor_outer, ibex::Ctc *contractor_inner){
     Graph *graph = m_graph_list[0];
     if(m_graph_list.size()!=1 && graph->size() !=1)
