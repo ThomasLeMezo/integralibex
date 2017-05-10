@@ -1102,7 +1102,7 @@ void van_der_pol_integration_trajectory(){
     paveC[1] = Interval(-2.2, -1.5);
 
     // A -> B -> C
-    s.find_path(15, 1e9, paveA, paveB, paveC); // 25
+    s.find_path(10, 1e9, paveA, paveB, paveC, true); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1197,7 +1197,7 @@ void van_der_pol_kernel_invariant(){
     activated_pave[0] = Interval(-4.0, -3.0);
     activated_pave[1] = Interval(3.0, 4.0);
 
-    IntervalVector box1(2), box2(2), box3(2), box4(2);
+    IntervalVector box1(2), box2(2), box3(2), box4(2), box5(2);
     box1[0] = Interval(-7, 7);
     box1[1] = Interval(-7, -6);
 
@@ -1210,14 +1210,19 @@ void van_der_pol_kernel_invariant(){
     box4[0] = Interval(-7, -6);
     box4[1] = Interval(-7, 7);
 
+    box5[0] = Interval(-0.8, 0.8);
+    box5[1] = Interval(-0.5, 0.5);
+
     vector<IntervalVector> list_activated_pave;
     list_activated_pave.push_back(box1);
     list_activated_pave.push_back(box2);
     list_activated_pave.push_back(box3);
     list_activated_pave.push_back(box4);
 
+    list_activated_pave.push_back(box5);
+
 //    s.cameleon_propagation_with_inner(16, 1e9, list_activated_pave); // 25
-    s.cameleon_propagation_with_inner_kernel(16, 1e9, list_activated_pave);
+    s.cameleon_propagation_with_inner_kernel(20, 1e9, list_activated_pave);
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1349,7 +1354,7 @@ void car_on_the_hill_trajectory(){
     paveC[0] = Interval(-2,-1);
     paveC[1] = Interval(-0.5, 0.5);
 
-    s.find_path(18, 1e9, paveA, paveB, paveC); // 25
+    s.find_path(16, 1e9, paveA, paveB, paveC, false); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1673,9 +1678,9 @@ int main()
     /// **** VAN DER POL ***** //
     //        van_der_pol_cycle();
 //        van_der_pol_invariant();
-//    van_der_pol_kernel_invariant();
-    //    van_der_pol_kernel();
-        van_der_pol_integration_trajectory();
+    van_der_pol_kernel_invariant();
+//        van_der_pol_kernel();
+//        van_der_pol_integration_trajectory();
 
     /// **** INTEGRATOR ***** //
     //        integrator();

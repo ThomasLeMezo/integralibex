@@ -280,6 +280,7 @@ void Scheduler::cameleon_propagation_with_inner_kernel(int iterations_max, int p
     }
 }
         g_f0->inter_kernel(*g_f1, *g_f2);
+
         delete(g_f1);
         delete(g_f2);
 
@@ -331,6 +332,7 @@ void Scheduler::cameleon_propagation_with_inner_kernel(int iterations_max, int p
 //        }
 
         g_f0->inter_kernel(*g_f1, *g_f2);
+
         delete(g_f1);
         delete(g_f2);
 
@@ -645,7 +647,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
     //        emit publishLog(QString::number(m_graph_list.size()) + " possible cycle was found");
 }
 
-void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &box_a, const ibex::IntervalVector  &box_b, const ibex::IntervalVector  &box_c){
+void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &box_a, const ibex::IntervalVector  &box_b, const ibex::IntervalVector  &box_c, bool complementary){
 
     Graph *graph = m_graph_list[0];
     if(m_graph_list.size()!=1 && graph->size() !=1)
@@ -700,13 +702,19 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
         (*graph_ab) |= (*graph_bc);
         (*graph_a) &= (*graph_c);
 
-        graph_a->inter_complementary(*graph_ab);
-//        (*graph_a) &= (*graph_ab); // Order matters : because of intersection of inner (to improve...)
+        if(complementary)
+            graph_a->inter_complementary(*graph_ab);
+        else
+            (*graph_a) &= (*graph_ab); // ???? Order matters : because of intersection of inner (to improve...)
 
         delete(graph_bc);
         delete(graph_ab);
         delete(graph_c);
-        graph->mark_empty_node();
+
+        if(complementary)
+            graph->mark_empty_node_kernel_complementaire(*graph_ab); // Complementary
+        else
+            graph->mark_empty_node();
         iterations++;
     }
 
@@ -714,7 +722,7 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 
         const clock_t begin_time = clock();
         cout << "************ ITERATION = " << iterations << " ************" << endl;
-        graph->mark_empty_node();
+//        graph->mark_empty_node();
         if(graph->is_empty()){
             cout << "THERE IS NO PATH TO LINK THE TWO BOXES" << endl;
             cout << "size = " << graph->size() << endl;
@@ -741,6 +749,8 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
     }
     #pragma omp section
     {
+        if(complementary)
+            graph_bc->set_all_active_full_inner(); // Complementary
         graph_bc->initialize_queues_with_initial_condition(box_b);
         graph_bc->forward(process_iterations_max);
     }
@@ -752,6 +762,8 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
     }
     #pragma omp section
     {
+        if(complementary)
+            graph_ab->set_all_active_full_inner(); // Complementary
         graph_ab->initialize_queues_with_initial_condition(box_b);
         graph_ab->backward(process_iterations_max);
     }
@@ -759,14 +771,25 @@ void Scheduler::find_path(int iterations_max, int process_iterations_max, const 
 
         // Intersect & union graph
         (*graph_ab) |= (*graph_bc);
-
-//        graph_a->draw(512, true, "graph_a", false, 0); vibes::drawBox(box_a, "#FF0000[]");
-//        graph_ab->draw(512, true, "graph_ab", false, 1); vibes::drawBox(box_b, "#FF00FF[]");
-//        graph_c->draw(512, true, "graph_c", false, 2); vibes::drawBox(box_c, "#0B0B61[]");
-//        graph_ab->complementaire();
-
-        graph_a->inter_complementary(*graph_ab);
         (*graph_a) &= (*graph_c);
+
+        if(iterations >= 15){
+            graph_a->draw(512, true, "graph_a", false, 0); vibes::drawBox(box_a, "#FF0000[]"); vibes::drawBox(box_b, "#FF00FF[]");vibes::drawBox(box_c, "#0B0B61[]");
+            graph_ab->draw(512, true, "graph_ab", false, 1); vibes::drawBox(box_a, "#FF0000[]"); vibes::drawBox(box_b, "#FF00FF[]");vibes::drawBox(box_c, "#0B0B61[]");
+//        graph_c->draw(512, true, "graph_c", false, 2);
+        }
+
+        if(complementary)
+            graph_a->inter_complementary(*graph_ab); // Complementary
+        else
+            (*graph_a) &= (*graph_ab);
+
+//        graph_a->draw(512, true, "graph_a_2", false, 2); vibes::drawBox(box_a, "#FF0000[]"); vibes::drawBox(box_b, "#FF00FF[]");vibes::drawBox(box_c, "#0B0B61[]");
+
+        if(complementary)
+            graph->mark_empty_node_kernel_complementaire(*graph_ab); // Complementary
+        else
+            graph->mark_empty_node();
 
         delete(graph_bc);
         delete(graph_ab);

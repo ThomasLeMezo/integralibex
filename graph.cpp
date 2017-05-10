@@ -417,8 +417,9 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
         //                }
         //            }
         //        }
-        if(!(*pave)->is_removed_pave_outer())
-            add_to_queue_inner((*pave));
+
+//        if(!(*pave)->is_removed_pave_outer())
+//            add_to_queue_inner((*pave));
 
         // Outer pave
         if((*pave)->is_full_outer()){
@@ -706,6 +707,47 @@ void Graph::mark_empty_node(){
             }
             else if(test_two_pi){
                 (*pave)->set_full();
+            }
+        }
+    }
+}
+
+void Graph::mark_empty_node_kernel_complementaire(Graph &g){
+    //#pragma omp parallel for
+    for(int i=0; i<m_node_list.size(); i++){
+        Pave* pave = m_node_list[i];
+        Pave* pave_c = g.get_node_list()[i];
+
+        if(pave->is_active()){
+
+            // Analyze if a (*pave) is empty and should be removed
+            bool test_two_pi = pave->is_theta_more_than_two_pi();
+            if(!test_two_pi){
+                pave->reset_full_empty();
+                bool empty_outer = false;
+                bool empty_inner = false;
+
+                // Outer
+                if((pave->is_removed_pave_outer() && (pave_c->is_removed_pave_outer() || pave_c->is_removed_pave_inner()))
+                        || (pave->is_empty_outer() && (pave_c->is_empty_outer() || pave_c->is_empty_inner()))){
+                    pave->set_removed_pave_outer(true);
+                    empty_outer = true;
+                }
+
+                // Inner
+                if(m_compute_inner && ((pave->is_removed_pave_inner() && pave_c->is_empty_outer())
+                                       || (pave->is_empty_inner() && pave_c->is_empty_outer()))){
+                    pave->set_removed_pave_inner(true);
+                    empty_inner = true;
+                }
+
+                if(empty_outer || (m_compute_inner && empty_inner)){
+                    pave->set_active(false);
+                    m_count_alive--;
+                }
+            }
+            else if(test_two_pi){
+                pave->set_full();
             }
         }
     }
@@ -1066,6 +1108,14 @@ void Graph::set_all_active(){
     for(Pave *p:m_node_list){
         p->set_active(true);
         p->set_removed_pave(false);
+    }
+}
+
+void Graph::set_all_active_full_inner(){
+    for(Pave *p:m_node_list){
+        p->set_active(true);
+        p->set_removed_pave(false);
+        p->set_full_inner();
     }
 }
 

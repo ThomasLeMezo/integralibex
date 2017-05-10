@@ -265,8 +265,17 @@ bool Pave::inter(const Pave &p, bool with_bwd){
 }
 
 void Pave::inter_complementary(Pave &p){
-    for(int face = 0; face <4; face++){
-        get_border(face)->inter_complementary(*(p.get_border(face)));
+//    for(int face = 0; face <4; face++){
+//        get_border(face)->inter_complementary(*(p.get_border(face)));
+//    }
+
+    if(p.is_empty_inner()){
+        set_empty_outer();
+        set_full_inner();
+    }
+    else if(is_empty_inner() && !p.is_empty_outer()){
+        set_full_inner();
+        set_full_outer();
     }
 }
 
