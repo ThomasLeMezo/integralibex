@@ -991,8 +991,11 @@ void integrator(){
     gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x1, x2, q, p;
-    ibex::Function f0(x1, x2, Return(1.0+0.0*x1,
-                                     -sin(x2)+ Interval(-0.1, 0.1)));
+//    ibex::Function f0(x1, x2, Return(1.0+0.0*x1,
+//                                     -sin(x2)+ Interval(-0.1, 0.1)));
+    ibex::Function f0(x1, x2, Return(-x2,-(1.0*(1.0-pow(x1, 2))*x2-x1 -0.5)));
+    ibex::Function f1(x1, x2, Return(-x2,-(1.0*(1.0-pow(x1, 2))*x2-x1 +0.5)));
+
     //    ibex::Function f0(q, p, Return(4*p*(q*q+p*p)+20*p,
     //                                   -(4*q*(q*q+p*p)-20*q)));
     //        ibex::Function f0(x1, x2, Return(1.0+0.0*x1, cos(x2)*cos(x2)));
@@ -1003,21 +1006,23 @@ void integrator(){
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f0);
-    //      f_list.push_back(&f1);
+          f_list.push_back(&f1);
     //      f_list.push_back(&f2);
 
     IntervalVector box(2);
-    box[0] = Interval(0,5);
-    box[1] = Interval(-2,2);
+//    box[0] = Interval(0,5);
+//    box[1] = Interval(-2,2);
+    box[0] = Interval(-6, 6);
+    box[1] = Interval(-6, 6);
 
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
     IntervalVector activated_pave(2);
-    activated_pave[0] = Interval(0.3,0.5);
-    activated_pave[1] = Interval(-0.5,0.5);
+    activated_pave[0] = Interval(0.8,1.0);
+    activated_pave[1] = Interval(-1.8, -1.2);
 
     //    s.cameleon_propagation(13, 1e9, activated_pave);
-    s.cameleon_propagation_with_inner(12, 1e9, activated_pave);
+    s.cameleon_propagation_with_inner(15, 1e9, activated_pave);
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1121,7 +1126,7 @@ void van_der_pol_invariant(){
     vibes::beginDrawing();
     Variable x, y;
 //    ibex::Function f1(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x+Interval(-2,2))));
-    ibex::Function f1(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x)));
+    ibex::Function f1(x, y, Return(y,(1.0*(1.0-pow(x, 2))*y-x+0.0)));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -1157,7 +1162,7 @@ void van_der_pol_invariant(){
     list_activated_pave.push_back(box4);
     //    s.cameleon_propagation(17, 1e9, activated_pave); // 25
     //    s.cameleon_propagation_with_inner(17, 1e9, activated_pave); // 25
-    s.cameleon_propagation_with_inner(16, 1e9, list_activated_pave); // 25
+    s.cameleon_propagation_with_inner(18, 1e9, list_activated_pave); // 25
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1677,13 +1682,13 @@ int main()
 
     /// **** VAN DER POL ***** //
     //        van_der_pol_cycle();
-//        van_der_pol_invariant();
-    van_der_pol_kernel_invariant();
+        van_der_pol_invariant();
+//    van_der_pol_kernel_invariant();
 //        van_der_pol_kernel();
 //        van_der_pol_integration_trajectory();
 
     /// **** INTEGRATOR ***** //
-    //        integrator();
+//            integrator();
 
     /// **** BASSIN ***** //
     //    bassin_ratschan6();

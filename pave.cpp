@@ -488,6 +488,7 @@ void Pave::draw(bool filled, bool inner_only){
     //        draw_borders(filled, "#00FF00AA[#00FF00AA]");
     //    }
     //    else{
+
     IntervalVector position(m_position);
 
 
@@ -506,6 +507,7 @@ void Pave::draw(bool filled, bool inner_only){
             set_inner_mode(true);
             //            if(!is_bassin())
             draw_borders(true, "#FF00FF[#FF00FF]", true); // magenta
+
 //            draw_borders(true, "#4C4CFF[#4C4CFF]", true); // blue
             //            else
             //                draw_borders(true, "#FF0000[#FF0000]", true); // red (inside bassin)
@@ -552,7 +554,7 @@ void Pave::draw(bool filled, bool inner_only){
     // Draw theta
     //    set_backward_function(false);
 //    set_backward_function(true);
-    draw_theta(position);
+        draw_theta(position);
     //    }
 
     //    if(m_segment_list.size()!=0){

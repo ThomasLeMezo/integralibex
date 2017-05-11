@@ -384,7 +384,7 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
     //#pragma omp parallel for
     for(std::vector<Pave*>::iterator pave = m_node_list.begin(); pave<m_node_list.end(); ++pave){
         //    for(Pave *pave:m_node_list){
-        if((*pave)->is_active() /*&& !pave->is_removed_pave_outer()*/){
+        if((*pave)->is_active() /*&& !(*pave)->is_removed_pave_outer()*/){
             for(IntervalVector box:box_list){
                 if(!(box & (*pave)->get_position()).is_empty()){
 
@@ -395,7 +395,7 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
                     if((*pave)->get_position().is_strict_interior_subset(box)){
                         if(!(*pave)->is_empty_inner()){
                             (*pave)->set_empty_inner_in(); // Do not set removed pave inner !!! => bc inner out is not empty
-                            // pave->set_removed_pave_inner(true);
+                             (*pave)->set_removed_pave_inner(true);
                             add_to_queue_inner((*pave));
                         }
                         (*pave)->set_bassin(true);
@@ -418,8 +418,8 @@ void Graph::initialize_queues_with_initial_condition(const std::vector<ibex::Int
         //            }
         //        }
 
-//        if(!(*pave)->is_removed_pave_outer())
-//            add_to_queue_inner((*pave));
+        if(!(*pave)->is_removed_pave_outer())
+            add_to_queue_inner((*pave));
 
         // Outer pave
         if((*pave)->is_full_outer()){
@@ -868,7 +868,7 @@ void Graph::set_empty_outer_full_inner(){
     for(vector<Pave*>::iterator pave = m_node_list.begin(); pave < m_node_list.end(); ++pave){
         if(!(*pave)->is_removed_pave_outer()){
             (*pave)->set_empty_outer();
-            //              (*pave)->set_full_outer();
+//                          (*pave)->set_full_outer();
         }
         if(!(*pave)->is_removed_pave_inner()){
             (*pave)->set_full_inner();
