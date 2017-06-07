@@ -48,5 +48,9 @@ void test_chi_function();
 void test_diff_infinity();
 
 void test_contractor();
+void test_contractor2();
+
+//void ctcNorm(ibex::IntervalVector &x, ibex::IntervalVector &u, ibex::Interval& d);
+void test_contractor_n();
 
 #endif // TESTS_H

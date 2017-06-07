@@ -57,7 +57,10 @@ void test(){
     //    }
 
 //    test_diff_infinity();
-    test_contractor();
+//    test_contractor();
+//    test_contractor2();
+
+    test_contractor_n();
 }
 
 void van_der_pol_cycle(){
@@ -1277,6 +1280,67 @@ void van_der_pol_kernel(){
         s.draw(1024, true);
 }
 
+void van_der_pol_kernel_inner(){
+    omp_set_num_threads(1);
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+    vibes::beginDrawing();
+    Variable x1, x2;
+    ibex::Function f1(x1, x2, Return(-x2,-(1.0*(1.0-pow(x1, 2))*x2-x1-0.5)));
+    ibex::Function f2(x1, x2, Return(-x2,-(1.0*(1.0-pow(x1, 2))*x2-x1+0.5)));
+
+    std::vector<ibex::Function*> f_list;
+    f_list.push_back(&f1);
+    f_list.push_back(&f2);
+
+    IntervalVector box(2);
+    box[0] = Interval(-6.2, 6.2);
+    box[1] = Interval(-6.2, 6.2);
+
+//    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
+
+    IntervalVector activated_pave(2);
+    activated_pave[0] = Interval(-4.0, -3.0);
+    activated_pave[1] = Interval(3.0, 4.0);
+
+    IntervalVector box1(2), box2(2), box3(2), box4(2), box5(2);
+    box1[0] = Interval(-7, 7);
+    box1[1] = Interval(-7, -6);
+
+    box2[0] = Interval(6, 7);
+    box2[1] = Interval(-7, 7);
+
+    box3[0] = Interval(-7, 7);
+    box3[1] = Interval(6, 7);
+
+    box4[0] = Interval(-7, -6);
+    box4[1] = Interval(-7, 7);
+
+    box5[0] = Interval(-0.8, 0.8);
+    box5[1] = Interval(-0.5, 0.5);
+
+    vector<IntervalVector> list_activated_pave;
+    list_activated_pave.push_back(box1);
+    list_activated_pave.push_back(box2);
+    list_activated_pave.push_back(box3);
+    list_activated_pave.push_back(box4);
+
+    list_activated_pave.push_back(box5);
+
+//    s.cameleon_propagation_with_inner(16, 1e9, list_activated_pave); // 25
+    s.cameleon_propagation_with_inner(20, 1e9, list_activated_pave);
+
+    gettimeofday(&end, NULL);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "TIME = " << delta << endl;
+    s.draw(1024, true);
+    vibes::drawBox(box1, "black[]");
+    vibes::drawBox(box2, "black[]");
+    vibes::drawBox(box3, "black[]");
+    vibes::drawBox(box4, "black[]");
+}
+
 void bassin_van_der_pol(){
     struct timeval start, end;
     gettimeofday(&start, NULL);
@@ -1681,10 +1745,11 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    //        van_der_pol_cycle();
-        van_der_pol_invariant();
+//            van_der_pol_cycle();
+//        van_der_pol_invariant();
 //    van_der_pol_kernel_invariant();
 //        van_der_pol_kernel();
+//            van_der_pol_kernel_inner();
 //        van_der_pol_integration_trajectory();
 
     /// **** INTEGRATOR ***** //
@@ -1723,6 +1788,6 @@ int main()
     //    wave_cycle();
 
     /// **** TEST ***** //
-//        test();
+        test();
     return 0;
 }

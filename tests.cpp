@@ -5,8 +5,8 @@
 #include "iomanip"
 #include "graphdot.h"
 
-using namespace ibex;
 using namespace std;
+using namespace ibex;
 //using namespace cv;
 
 void test_draw(Pave *p, string drawing_name="test", bool full=true){
@@ -978,6 +978,7 @@ void test_diff_infinity(){
 }
 
 void test_contractor(){
+    Array<NumConstraint> array;
     Variable x(2);
     Interval a, b, c, d;
     a = Interval(-1);
@@ -986,16 +987,14 @@ void test_contractor(){
     d = Interval(3);
     NumConstraint nc0(x, a*x[0]+b*x[1]<=0);
     NumConstraint nc1(x, c*x[0]+d*x[1]>=0);
+    array.add(nc0);
+    array.add(nc1);
 
-    Interval e, f;
-    e = Interval(-1);
-    f = Interval(2, 3);
-    NumConstraint nc(x, e*x[0]+f*x[1]=0);
-
-    CtcFwdBwd c0(nc0);
-    CtcFwdBwd c1(nc1);
-
-    CtcFwdBwd c2(nc);
+//    Interval e, f;
+//    e = Interval(-1);
+//    f = Interval(2, 3);
+//    NumConstraint nc(x, e*x[0]+f*x[1]=0);
+//    array.add(nc);
 
     /* The initial box: [0,10]x[0,10] */
     IntervalVector initbox(2);
@@ -1003,17 +1002,136 @@ void test_contractor(){
     initbox[1] = Interval(-10, 10);
 
     /* Create the array of all the contractors */
-    Array<Ctc> array(c0,c1);
+
     /* Create the q-intersection of the N contractors */
-    CtcQInter q(array,2); // 2 is the number of variables, 5 the number of correct measurement
+//    CtcQInter q(array,2); // 2 is the number of variables, 5 the number of correct measurement
+    CtcHC4 hc4(array);
     /* Perform a first contraction */
     IntervalVector box=initbox;
-    q.contract(box);
-    cout << "after q-inter =" << box << endl;
+    hc4.contract(box);
+    cout << "after hc4 =" << box << endl;
+}
 
-    IntervalVector box2 = initbox;
-    c2.contract(box2);
-    cout << "after c = " << box2 << endl;
+void test_contractor2(){
+//    Variable X(3);
+//    Interval a, b;
+//    a = Interval(0.5, 1);
+//    b = Interval(-1.0);
 
+//    IntervalVector X0(2);
+//    X0[0] = Interval(0.25, 0.75);
+//    X0[1] = Interval(0.0);
 
+//    NumConstraint nc0(X, a*X0[0]+b*X0[1]+X[2]=0);
+//    NumConstraint nc1(X, a*X[0]+b*X[1]+X[2]=0);
+
+//    CtcFwdBwd c0(nc0);
+//    CtcFwdBwd c1(nc1);
+//    Array<Ctc> array(c0,c1);
+
+//    IntervalVector x_init(3);
+//    x_init[0] = Interval(1.0);
+//    x_init[1] = Interval(0.0, 1.0);
+//    x_init[2] = Interval::ALL_REALS;
+
+//    CtcQInter q(array,2);
+//    q.contract(x_init);
+//    cout << "after q-inter =" << x_init << endl;
+
+}
+
+//void ctcNorm(IntervalVector &x, IntervalVector &n, Interval& d)
+//{
+//  double vol;
+
+//  do{
+//    vol = x.volume() + n.volume() + d.diam();
+
+//    for(int i = 0 ; i < x.size() ; i++){
+//      if(x[i] == Interval::ZERO){
+////        n[i] = Interval::ZERO; // ToDo : ask Simon ?
+//        n[i] = Interval(-1, 1);
+//        continue;
+//      }
+
+//      Interval s = 0.;
+
+//      for(int j = 0 ; j < x.size() ; j++){
+//        if(i == j) continue;
+//        s += sqr(x[j]);
+//      }
+
+//      Interval xi_pos = x[i] & Interval::POS_REALS;
+//      Interval ni = 1. / sqrt((s/sqr(xi_pos)) + 1.);
+//      Interval xi_neg = x[i] & Interval::NEG_REALS;
+//      ni |= -1. / sqrt((s/sqr(xi_neg)) + 1.);
+//      n[i] &= ni;
+//    }
+
+//    Interval s = 0.;
+//    for(int i = 0 ; i < x.size() ; i++)
+//      s += sqr(x[i]);
+
+//    d &= sqrt(s);
+//    x &= d*n;
+
+//  }while(vol > x.volume() + n.volume() + d.diam());
+//}
+
+void test_contractor_n(){
+    vibes::beginDrawing();
+    vibes::newFigure("test");
+    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",1024,"height",1024));
+
+    IntervalVector a(2), b(2), c(2), v(2);
+
+    // Vector
+    v[0] = Interval(-1.1, -0.9);
+    v[1] = Interval(0.9, 1.1);
+
+    // a & b
+    a[0] = Interval(1, 2);
+    a[1] = Interval::ZERO;
+    b[0] = Interval::ZERO;
+    b[1] = Interval(2, 3);
+
+    cout << "a = " << a << endl;
+    cout << "b = " << b << endl;
+    cout << "v = " << v << endl;
+
+    vibes::drawBox(a, "g[]");
+    vibes::drawBox(b, "r[]");
+
+    c = b - a;
+    cout << "c = " << c << endl;
+
+    Interval alpha(Interval::POS_REALS);
+    for(int i=0; i<2; i++){
+        cout << c[i]/v[i] << endl;
+        alpha &= c[i]/v[i];
+    }
+    for(int i=0; i<2; i++){
+        c[i] &= alpha * v[i];
+        v[i] &= c[i] / alpha;
+    }
+
+    cout << "c+a = " << c + a << endl;
+    cout << "b-c = " << b - c << endl;
+    b &= c + a;
+    a &= b - c;
+
+    cout << "a = " << a << endl;
+    cout << "b = " << b << endl;
+    cout << "v = " << v << endl;
+
+    a[1] += Interval(-0.1, 0.1);
+    b[0] += Interval(-0.1, 0.1);
+    vibes::drawBox(a, "b[]");
+    vibes::drawBox(b, "b[]");
+
+    vector<double> x = {3.0, 0.0, 0.0};
+    vector<double> y = {0.0, 0.0, 3.0};
+    vibes::drawLine(x, y);
+
+    vibes::axisLimits(-1, 4, -1, 4);
 }
