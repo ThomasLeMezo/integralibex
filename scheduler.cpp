@@ -475,13 +475,13 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         cout << "GRAPH No 0 (" << graph->size() << ")" << endl;
         graph->mark_empty_node();
 
-        graph->set_inner_mode(true);
-        graph->update_queue(border_condition, true);
-        graph->process(process_iterations_max, GRAPH_BACKWARD);
+//        graph->set_inner_mode(true);
+//        graph->update_queue(border_condition, true);
+//        graph->process(process_iterations_max, GRAPH_BACKWARD);
 
         graph->set_inner_mode(false);
         graph->update_queue(true, true);
-        graph->process(process_iterations_max, GRAPH_BACKWARD);
+        graph->process(process_iterations_max, GRAPH_BACKWARD, false);
 
         cout << "--> time (processing) = " << float( clock() - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -504,13 +504,13 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         graph->set_inner_mode(true);
         graph->mark_empty_node(); // NEW => for [X week]
 
-        graph->set_inner_mode(true);
-        graph->update_queue(border_condition, true);
-        graph->process(process_iterations_max, GRAPH_BACKWARD);
+//        graph->set_inner_mode(true);
+//        graph->update_queue(border_condition, true);
+//        graph->process(process_iterations_max, GRAPH_BACKWARD);
 
         graph->set_inner_mode(false);
         graph->update_queue(true, true);
-        graph->process(process_iterations_max, GRAPH_BACKWARD, true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD, false);
 
         cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 

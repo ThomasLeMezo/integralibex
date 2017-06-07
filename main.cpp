@@ -57,7 +57,8 @@ void test(){
     //    }
 
 //    test_diff_infinity();
-    test_contractor();
+//    test_contractor();
+    test_hyperplan();
 }
 
 void van_der_pol_cycle(){
@@ -234,7 +235,7 @@ void station_keeping_attractor(){
 
     /////////////// Compute ///////////////
     //    s.cameleon_cycle(14, 5, 1e9, false, false);
-    s.cameleon_viability(8, 1e9, true);
+    s.cameleon_viability(18, 1e9, true);
     //    s.cameleon_propagation(15, 1e6, activated_pave, false);
 
     gettimeofday(&end, NULL);
@@ -1236,8 +1237,8 @@ void van_der_pol_kernel(){
     gettimeofday(&start, NULL);
     vibes::beginDrawing();
     Variable x, y;
-    ibex::Function f1(x, y, Return(y,-(1.0*(1.0-pow(x, 2))*y-x + 1.0)));
-    ibex::Function f2(x, y, Return(y,-(1.0*(1.0-pow(x, 2))*y-x - 1.0)));
+    ibex::Function f1(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x + 1.0)));
+    ibex::Function f2(x, y, Return(-y,-(1.0*(1.0-pow(x, 2))*y-x - 1.0)));
 
     std::vector<ibex::Function*> f_list;
     f_list.push_back(&f1);
@@ -1250,20 +1251,20 @@ void van_der_pol_kernel(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_ON, true, true, false, false);
 
     /////////////// Compute ///////////////
-    bool is_attractor = s.compute_attractor(14, 1e9);
-    s.draw(1024, true, "attractor");
-    if(is_attractor){
-        s.attractor_to_kernel();
-        s.draw(1024, true, "invert");
-        s.cameleon_viability(3, 1e9);
-    }
+//    bool is_attractor = s.compute_attractor(14, 1e9);
+//    s.draw(1024, true, "attractor");
+//    if(is_attractor){
+//        s.attractor_to_kernel();
+//        s.draw(1024, true, "invert");
+        s.cameleon_viability(10, 1e9);
+//    }
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
     cout << "TIME = " << delta << endl;
 
     /////////////// Drawing ///////////////
-    if(is_attractor)
+//    if(is_attractor)
         s.draw(1024, true);
 }
 
@@ -1653,11 +1654,11 @@ int main()
     //        hybrid_system();
 
     /// **** STATION KEEPING ***** //
-    //            station_keeping_attractor();
+//                station_keeping_attractor();
 
     /// **** CAR ON THE HILL ***** //
     //        car_on_the_hill_attractor();
-    //        car_on_the_hill_bassin();
+//            car_on_the_hill_bassin();
 
     //        car_on_the_hill_kernel();
 
@@ -1674,8 +1675,8 @@ int main()
     //        van_der_pol_cycle();
 //        van_der_pol_invariant();
 //    van_der_pol_kernel_invariant();
-    //    van_der_pol_kernel();
-        van_der_pol_integration_trajectory();
+//        van_der_pol_kernel();
+//        van_der_pol_integration_trajectory();
 
     /// **** INTEGRATOR ***** //
     //        integrator();
@@ -1713,6 +1714,6 @@ int main()
     //    wave_cycle();
 
     /// **** TEST ***** //
-//        test();
+        test();
     return 0;
 }

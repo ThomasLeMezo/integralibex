@@ -264,6 +264,15 @@ bool Pave::inter(const Pave &p, bool with_bwd){
     return change;
 }
 
+void Pave::union_outer(const std::vector<Pave*> pave_list){
+    for(int face = 0; face <4; face++){
+        vector<Border*> border_list;
+        for(Pave *p:pave_list)
+            border_list.push_back(p->get_border(face));
+        get_border(face)->union_outer(border_list);
+    }
+}
+
 void Pave::inter_complementary(Pave &p){
     for(int face = 0; face <4; face++){
         get_border(face)->inter_complementary(*(p.get_border(face)));

@@ -1014,6 +1014,24 @@ void test_contractor(){
     IntervalVector box2 = initbox;
     c2.contract(box2);
     cout << "after c = " << box2 << endl;
+}
 
+void test_hyperplan(){
+    IntervalVector iv1(3), iv2(3);
+    iv1[0] = Interval(1);
+    iv1[1] = Interval(0.5);
+    iv1[2] = Interval(1);
+
+    iv2[0] = Interval(1);
+    iv2[1] = Interval(2);
+    iv2[2] = Interval(3);
+
+    cout << iv1 << endl;
+    cout << iv2 << endl;
+    cout << ibex::hadamard_product(iv1, iv2) << endl;
+
+    Variable m(Dim::matrix(3,3));
+    Variable x(3);
+    NumConstraint(m,x, m*x>=0);
 
 }

@@ -48,5 +48,6 @@ void test_chi_function();
 void test_diff_infinity();
 
 void test_contractor();
+void test_hyperplan();
 
 #endif // TESTS_H

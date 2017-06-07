@@ -212,12 +212,12 @@ void Graph::sivia(int nb_node, GRAPH_BW_FW_DIRECTION direction, bool do_not_bise
         m_node_list.push_back(p);
     }
 
-    if(m_compute_inner){
+//    if(m_compute_inner){
         //#pragma omp parallel for
         for(vector<Pave *>::iterator p=tmp_pave_list.begin(); p<tmp_pave_list.end(); ++p){
             compute_propagation_zone((*p));
         }
-    }
+//    }
 
     cout << "--> sivia (" << m_node_list.size() << ") outer(" << m_node_queue_outer.size() << ") inner(" <<  m_node_queue_inner.size() << ")" << endl;
 }

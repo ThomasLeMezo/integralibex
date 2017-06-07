@@ -33,6 +33,7 @@ public:
     bool                            inter(const Border &b, bool with_bwd=false);
     void                            inter_kernel(const Border &b, const Border &b_union);
     void                            inter_complementary(Border &b);
+    void                            union_outer(std::vector<Border*> border_list);
     bool                            diff(const Border &b);
     void                            complementaire();
     void                            copy_to_inner();
