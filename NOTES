@@ -3,3 +3,11 @@ iner function : for Station Keeping pb : do not bisect if inner
 active pave : do not add no active pave inside queue list
 
 continuity : NOT USEFULL : but is available if we want to set constraint
+
+
+Noyau de viabilité :
+Pour améliorer le code :
+1) Calcul de l'extérieur du noyau (en bleu) avec l'union des cones
+2) Calcul de l'intérieur du noyau avec la méthode d'intersection des invariants MAIS pas d'information sur l'extérieur !
+Propagation des contraintes sans prendre en compte l'extérieur des ensembles (bleu) mais seulement l'intérieur (magenta)
+==> Algo pour calculer indépendemment les 2 (règles d'intersection)

@@ -21,6 +21,7 @@ public:
     void                        sivia(int nb_node, GRAPH_BW_FW_DIRECTION direction, bool do_not_bisect_empty=false, bool do_not_bisect_full=false, bool apply_heuristic=false);
     void                        remove_empty_node();
     void                        mark_empty_node();
+    void                        mark_empty_node_kernel_complementaire(Graph &g);
 
     void                        inter(const Graph &g, bool with_bwd=false);
     void                        inter_kernel(const Graph &g, const Graph &g_union);
@@ -61,6 +62,7 @@ public:
     void                        set_active_f(int id);
     void                        set_external_boundary(bool in, bool out);
     void                        set_all_active();
+    void                        set_all_active_full_inner();
 
     void                        set_inner_mode(bool val);
     void                        set_compute_inner(bool val);
