@@ -1035,3 +1035,31 @@ void test_hyperplan(){
     NumConstraint(m,x, m*x>=0);
 
 }
+
+void test_CtcFlow(){
+    IntervalVector p(2), vect(2), a(2), b(2);
+
+    p[0] = Interval(1.5, 1.625);
+    p[1] = Interval(-1, -0.75);
+
+    vect[0] = Interval(-1, -0.75);
+    vect[1] = Interval(-0.6875, 0.140625);
+
+    b[0] = Interval(1.5, 1.625);
+    b[1] = Interval(p[1].lb());
+
+    a[0] = Interval(p[0].ub());
+    a[1] = Interval(-0.9101562500000002, -0.75);
+
+    cout << "a = " << a << endl;
+    cout << "b = " << b << endl;
+    cout << "v = " << vect << endl;
+
+    Utils u;
+    u.CtcFlow(a, b, vect);
+
+    cout << "---" << endl;
+    cout << "a = " << a << endl;
+    cout << "b = " << b << endl;
+    cout << "v = " << vect << endl;
+}

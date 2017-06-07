@@ -58,10 +58,12 @@ void test(){
 
 //    test_diff_infinity();
 //    test_contractor();
-    test_hyperplan();
+//    test_hyperplan();
+    test_CtcFlow();
 }
 
 void van_der_pol_cycle(){
+    vibes::beginDrawing(); // Debug
     struct timeval start, end;
     gettimeofday(&start, NULL);
 
@@ -80,7 +82,7 @@ void van_der_pol_cycle(){
     box[1] = Interval(-4,4);
 
     // bool border_inner_in, bool border_inner_out, bool border_outer_in, bool border_outer_out
-    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, true);
+    Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
     s.cameleon_cycle(10, 5, 1e9, false, false, false);
@@ -96,7 +98,9 @@ void van_der_pol_cycle(){
     //        cout << "[" << p << "]";
     //    cout << endl;
     s.draw(1024, true);
-    //    s.print_pave_info(0, -3.8, -3.97,"b[b]");
+//    s.print_pave_info(0, 1.55, -0.83,"b[b]");
+//    s.print_pave_info(0, 1.55, -1.1,"r[r]");
+//    s.print_pave_info(0, 1.65, -0.83,"g[g]");
 }
 
 void wave_cycle(){
@@ -1682,8 +1686,8 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-    //        van_der_pol_cycle();
-        van_der_pol_invariant();
+            van_der_pol_cycle();
+//        van_der_pol_invariant();
 //    van_der_pol_kernel_invariant();
 //        van_der_pol_kernel();
 //        van_der_pol_integration_trajectory();
@@ -1724,6 +1728,6 @@ int main()
     //    wave_cycle();
 
     /// **** TEST ***** //
-        test();
+//        test();
     return 0;
 }

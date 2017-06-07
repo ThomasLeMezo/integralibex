@@ -36,6 +36,7 @@ void test_contractor_polar();
 void test_imageIntegral();
 
 void sandbox();
+void test_CtcFlow();
 
 void test_car_on_hill();
 

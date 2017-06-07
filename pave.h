@@ -37,7 +37,7 @@ public:
     // ******** Drawing functions ********
     void                        draw(bool filled, bool inner_only=false);
     void                        draw_borders(bool filled, std::string color_polygon="g[g]", bool complementary=false) const;
-    void                        draw_test(int size, std::string comment) const;
+    void                        draw_test(int size, std::string comment, int offset_window=0) const;
     void                        draw_theta(ibex::IntervalVector position) const;
     void                        print();
     void                        print_theta_list();

@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "pave.h"
 #include "iomanip"
+#include "vibes.h"
 
 using namespace std;
 using namespace ibex;
@@ -29,7 +30,7 @@ void Utils::CtcPropagateFront(ibex::Interval &x, ibex::Interval &y, const std::v
         Interval theta2(theta);
 
         contract_polar.contract(Dx, Dy, rho, theta2);
-//                CtcPolarCorrection(Dx, Dy, rho, theta2);
+        //                CtcPolarCorrection(Dx, Dy, rho, theta2);
 
         // Compute x_front
         y_list.push_back(x + Dx);
@@ -253,7 +254,7 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
                 list_pave.push_back(p_tmp);
             }
             // Intersect paves
-//            p->inter_inner(list_pave);
+            //            p->inter_inner(list_pave);
             p->union_outer(list_pave);
 
             // Delete pave tmp
@@ -262,14 +263,14 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
             }
         }
         else{
-//             Case 1 cones
-            this->CtcPaveBackward(p, true, change_tab);
+//            this->CtcPaveBackward(p, true, change_tab);
+            this->CtcPaveBackward2(p, true, change_tab);
         }
+//        Pave *p2 = new Pave(p);
+//        this->CtcPaveForward(p2, true, change_tab, union_functions); // Test ? union_functions
+//        *p &= *(p2);
+//        delete(p2);
 
-        Pave *p2 = new Pave(p);
-        this->CtcPaveForward(p2, true, change_tab, union_functions); // Test ? union_functions
-        *p &= *(p2);
-        delete(p2);
     }
     else{
         this->CtcPaveForward(p, false, change_tab, union_functions);
@@ -285,13 +286,13 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
     if(nb_not_empty==1)
         p->set_empty();
 
-//     Reduce impact of change when backward (mandatory)
-//            if(backward && !p->get_inner_mode()){
-//                for(int face = 0; face<4; face++){
-//                    if((p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out())))
-//                        change_tab[face] = false;
-//                }
-//            }
+    //     Reduce impact of change when backward (mandatory)
+    //            if(backward && !p->get_inner_mode()){
+    //                for(int face = 0; face<4; face++){
+    //                    if((p->get_border(face)->get_segment_full() == (p->get_border(face)->get_segment_in() | p->get_border(face)->get_segment_out())))
+    //                        change_tab[face] = false;
+    //                }
+    //            }
 }
 
 bool Utils::CtcContinuity(Pave *p, bool backward){
@@ -304,16 +305,16 @@ bool Utils::CtcContinuity(Pave *p, bool backward){
             Interval segment_in = Interval::EMPTY_SET;
 
             for(int b = 0; b < (int)p->get_border(face)->get_inclusions().size(); b++){
-                p->get_border(face)->get_inclusion(b)->get_border()->lock_read();
+//                p->get_border(face)->get_inclusion(b)->get_border()->lock_read();
                 segment_in |= p->get_border(face)->get_inclusion(b)->get_segment_in();
-                p->get_border(face)->get_inclusion(b)->get_border()->unlock_read();
+//                p->get_border(face)->get_inclusion(b)->get_border()->unlock_read();
             }
 
             if(p->get_border(face)->get_segment_out() != (segment_in & p->get_border(face)->get_segment_out())){
                 change = true;
-                p->get_border(face)->lock_read();
+//                p->get_border(face)->lock_read();
                 p->get_border(face)->set_segment_out(segment_in, true);
-                p->get_border(face)->unlock_read();
+//                p->get_border(face)->unlock_read();
             }
         }
         //        }
@@ -552,3 +553,60 @@ bool Utils::test_discontinuity(const Interval &theta1, const Interval &theta2, c
     }
     return (test_cos && test_sin && test_cos1 && test_sin1);
 }
+
+void Utils::CtcPaveBackward2(Pave *p, bool inclusion, std::vector<bool> &change_tab){
+    IntervalVector zero(2, Interval::ZERO);
+    if(zero.is_subset(p->get_vector_field()))
+        return;
+    IntervalVector test(2);
+    test[0] = Interval(1.5, 1.625);
+    test[1] = Interval(-1, -0.75);
+//    if(test == p->get_position())
+//        p->draw_test(512, "test_before");
+    vector<IntervalVector> seg_out_list;
+    for(int i=0; i<4; i++)
+        seg_out_list.push_back(IntervalVector(2, Interval::EMPTY_SET));
+
+    for(int face = 0; face < 4; face++){
+        IntervalVector in(2, Interval::EMPTY_SET);
+        for(int j=(face+1)%4; j!=face; j=(j+1)%4){
+            IntervalVector seg_out(p->get_border(j)->get_segment_out_2D());
+            IntervalVector seg_in(p->get_border(face)->get_segment_in_2D());
+            this->CtcFlow(seg_in, seg_out, p->get_vector_field());
+            if(!seg_in[face%2].is_degenerated())
+                in |= seg_in;
+            if(!seg_out[j%2].is_degenerated())
+                seg_out_list[j] |= seg_out;
+        }
+
+        if(p->get_border(face)->get_segment_in_2D() != in)
+            change_tab[face] = true;
+        p->get_border(face)->set_segment_in(in[face%2], true);
+    }
+    for(int face=0; face <4; face++){
+        if(p->get_border(face)->get_segment_out_2D() != seg_out_list[face])
+            change_tab[face] = true;
+        p->get_border(face)->set_segment_out(seg_out_list[face][face%2], true);
+    }
+//    if(test == p->get_position())
+//        p->draw_test(512, "test_after", 200);
+}
+
+void Utils::CtcFlow(ibex::IntervalVector &in, ibex::IntervalVector &out, const ibex::IntervalVector &vect){
+    // assert 0 not in v.
+    IntervalVector c(out-in);
+    IntervalVector v(vect);
+    Interval alpha(Interval::POS_REALS);
+
+    for(int i=0; i<v.size(); i++){
+        alpha &= c[i]/v[i];
+    }
+
+    c &= alpha*v;
+    out &= c+in;
+    in &= out-c;
+}
+
+
+
+

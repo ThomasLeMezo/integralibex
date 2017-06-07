@@ -636,12 +636,12 @@ void Pave::draw_borders(bool filled, string color_polygon, bool complementary) c
     }
 }
 
-void Pave::draw_test(int size, string comment) const{
-    vibes::beginDrawing();
+void Pave::draw_test(int size, string comment, int offset_window) const{
+//    vibes::beginDrawing();
     stringstream ss;
-    ss << "integralIbex - pave=" << m_position << comment;
+    ss << "integralIbex - pave=" /*<< m_position*/ << comment;
     vibes::newFigure(ss.str());
-    vibes::setFigureProperties(vibesParams("x",0,"y",0,"width",size,"height",size));
+    vibes::setFigureProperties(vibesParams("x",offset_window,"y",0,"width",size,"height",size));
 
     vibes::drawBox(m_position, "black[]");
     draw_borders(true, "y[y]");
