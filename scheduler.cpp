@@ -477,13 +477,13 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         cout << "GRAPH No 0 (" << graph->size() << ")" << endl;
         graph->mark_empty_node();
 
-        graph->set_inner_mode(true);
-        graph->update_queue(border_condition, true);
-        graph->process(process_iterations_max, GRAPH_BACKWARD);
+//        graph->set_inner_mode(true);
+//        graph->update_queue(border_condition, true);
+//        graph->process(process_iterations_max, GRAPH_BACKWARD);
 
         graph->set_inner_mode(false);
         graph->update_queue(true, true);
-        graph->process(process_iterations_max, GRAPH_BACKWARD);
+        graph->process(process_iterations_max, GRAPH_BACKWARD, false);
 
         cout << "--> time (processing) = " << float( clock() - begin_time ) /  CLOCKS_PER_SEC << endl;
         iterations++;
@@ -506,13 +506,13 @@ void Scheduler::cameleon_viability(int iterations_max, int process_iterations_ma
         graph->set_inner_mode(true);
         graph->mark_empty_node(); // NEW => for [X week]
 
-        graph->set_inner_mode(true);
-        graph->update_queue(border_condition, true);
-        graph->process(process_iterations_max, GRAPH_BACKWARD);
+//        graph->set_inner_mode(true);
+//        graph->update_queue(border_condition, true);
+//        graph->process(process_iterations_max, GRAPH_BACKWARD);
 
         graph->set_inner_mode(false);
         graph->update_queue(true, true);
-        graph->process(process_iterations_max, GRAPH_BACKWARD, true);
+        graph->process(process_iterations_max, GRAPH_BACKWARD, false);
 
         cout << "--> time (processing) = " << float( clock() - sivia_time ) /  CLOCKS_PER_SEC << endl;
 
@@ -580,6 +580,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                 }
                 else{
                     // Test if positive invariant
+#if 0
                     if(graph->is_positive_invariant()){
                         cout << "--> graph IS positive invariant" << endl;
                         graph->push_back_pos_attractor();
@@ -589,6 +590,7 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
                     else{
                         cout << "--> graph IS NOT positive invariant" << endl;
                     }
+#endif
 
                     // ***************************************************
                     //              REMOVE INSIDE PROCEDURE
@@ -641,10 +643,12 @@ void Scheduler::cameleon_cycle(int iterations_max, int graph_max, int process_it
         iterations++;
     }
 
+#if 0
     if(m_graph_list.size()>1)
         emit publishLog(QString::number(m_graph_list.size()) + " possible cycles were found");
     //    else
     //        emit publishLog(QString::number(m_graph_list.size()) + " possible cycle was found");
+#endif
 }
 
 void Scheduler::find_path(int iterations_max, int process_iterations_max, const ibex::IntervalVector &box_a, const ibex::IntervalVector  &box_b, const ibex::IntervalVector  &box_c, bool complementary){

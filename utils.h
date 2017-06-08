@@ -44,6 +44,11 @@ public:
     std::vector<ibex::IntervalVector> diff(const ibex::IntervalVector &box_initial, const ibex::IntervalVector &box_remove);
     bool test_discontinuity(const ibex::Interval &theta1, const ibex::Interval &theta2, const ibex::Interval &rotation);
 
+    // Experimental
+    void CtcFlow(ibex::IntervalVector &in, ibex::IntervalVector &out, const ibex::IntervalVector &vect);
+    void CtcPaveBackward2(Pave *p, bool inclusion, std::vector<bool> &change_tab);
+
+
     // ***********************************************************
     // ************************ Variables ************************
     // ***********************************************************

@@ -566,15 +566,37 @@ Border& Border::operator|=(const Border &b){
     return *this;
 }
 
-void Border::inter_complementary(Border &complementaire){
-    if(complementaire.get_segment_in_inner().is_empty() && complementaire.get_segment_out_inner().is_empty()){
-        set_empty_outer();
-        set_full_inner();
+void Border::union_outer(std::vector<Border *> border_list){
+//    set_inner_mode(false);
+//    set_segment_in(b.get_segment_in(), false);
+//    set_segment_out(b.get_segment_out(), false);
+
+
+    Interval segment_out(Interval::EMPTY_SET);
+
+    bool one_no_full = false;
+    for(int i=0; i<border_list.size(); i++){
+        if((!m_backward_function && m_zone_function_in_fwd[i]) || (m_backward_function && m_zone_function_in_bwd[i])){
+            segment_out |= border_list[i]->get_segment_in_outer();
+            one_no_full = true;
+        }
     }
-    else if(is_empty_inner() && !complementaire.is_empty_outer()){
-        set_full_inner();
-        set_full_outer();
-    }
+
+    if(one_no_full)
+        m_segment_in_outer &= segment_out;
+    else
+        m_segment_in_outer &= Interval::EMPTY_SET;
+}
+
+void Border::inter_complementary(Border &b){
+//    if(b.get_segment_in_inner().is_empty() && b.get_segment_out_inner().is_empty()){
+//        set_empty_outer();
+//        set_full_inner();
+//    }
+//    else if(is_empty_inner() && !complementaire.is_empty_outer()){
+//        set_full_inner();
+//        set_full_outer();
+//    }
 }
 
 bool Border::inter(const Border &b, bool with_bwd){

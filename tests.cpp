@@ -1124,6 +1124,7 @@ void test_contractor_n(){
     cout << "b = " << b << endl;
     cout << "v = " << v << endl;
 
+<<<<<<< HEAD
     a[1] += Interval(-0.1, 0.1);
     b[0] += Interval(-0.1, 0.1);
     vibes::drawBox(a, "b[]");
@@ -1134,4 +1135,57 @@ void test_contractor_n(){
     vibes::drawLine(x, y);
 
     vibes::axisLimits(-1, 4, -1, 4);
+=======
+    IntervalVector box2 = initbox;
+    c2.contract(box2);
+    cout << "after c = " << box2 << endl;
+}
+
+void test_hyperplan(){
+    IntervalVector iv1(3), iv2(3);
+    iv1[0] = Interval(1);
+    iv1[1] = Interval(0.5);
+    iv1[2] = Interval(1);
+
+    iv2[0] = Interval(1);
+    iv2[1] = Interval(2);
+    iv2[2] = Interval(3);
+
+    cout << iv1 << endl;
+    cout << iv2 << endl;
+    cout << ibex::hadamard_product(iv1, iv2) << endl;
+
+    Variable m(Dim::matrix(3,3));
+    Variable x(3);
+    NumConstraint(m,x, m*x>=0);
+
+}
+
+void test_CtcFlow(){
+    IntervalVector p(2), vect(2), a(2), b(2);
+
+    p[0] = Interval(1.5, 1.625);
+    p[1] = Interval(-1, -0.75);
+
+    vect[0] = Interval(-1, -0.75);
+    vect[1] = Interval(-0.6875, 0.140625);
+
+    b[0] = Interval(1.5, 1.625);
+    b[1] = Interval(p[1].lb());
+
+    a[0] = Interval(p[0].ub());
+    a[1] = Interval(-0.9101562500000002, -0.75);
+
+    cout << "a = " << a << endl;
+    cout << "b = " << b << endl;
+    cout << "v = " << vect << endl;
+
+    Utils u;
+    u.CtcFlow(a, b, vect);
+
+    cout << "---" << endl;
+    cout << "a = " << a << endl;
+    cout << "b = " << b << endl;
+    cout << "v = " << vect << endl;
+>>>>>>> 1a0df1c06061f47ee6a9ea6d781bd4f3d9012773
 }
