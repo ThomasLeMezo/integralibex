@@ -244,11 +244,8 @@ void Utils::CtcPaveForward(Pave *p, bool inclusion, std::vector<bool> &change_ta
 void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab, bool union_functions){
 
     if(backward){
-<<<<<<< HEAD
         if(p->get_compute_inner() && p->get_inner_mode() && p->get_f_list().size()>1){
-=======
-        if(/*p->get_compute_inner() && p->get_inner_mode() &&*/ p->get_f_list().size()>1){
->>>>>>> 1a0df1c06061f47ee6a9ea6d781bd4f3d9012773
+//        if(/*p->get_compute_inner() && p->get_inner_mode() &&*/ p->get_f_list().size()>1){
             // Case several cones
             vector<Pave*> list_pave;
             for(int i=0; i<p->get_f_list().size(); i++){
@@ -258,25 +255,7 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
                 list_pave.push_back(p_tmp);
             }
             // Intersect paves
-<<<<<<< HEAD
             p->inter_inner(list_pave);
-
-            // Delete pave tmp
-            for(Pave *p_tmp:list_pave)
-                delete(p_tmp);
-        }
-        else{
-            // Case 1 cones
-            this->CtcPaveBackward(p, true, change_tab);
-        }
-
-        Pave *p2 = new Pave(p);
-        this->CtcPaveForward(p2, true, change_tab, union_functions); // Test ? union_functions
-        *p &= *(p2);
-        delete(p2);
-=======
-            //            p->inter_inner(list_pave);
-            p->union_outer(list_pave);
 
             // Delete pave tmp
             for(Pave *p_tmp:list_pave){
@@ -292,7 +271,6 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
 //        *p &= *(p2);
 //        delete(p2);
 
->>>>>>> 1a0df1c06061f47ee6a9ea6d781bd4f3d9012773
     }
     else{
         this->CtcPaveForward(p, false, change_tab, union_functions);
@@ -589,16 +567,14 @@ void Utils::CtcPaveBackward2(Pave *p, bool inclusion, std::vector<bool> &change_
     for(int i=0; i<4; i++)
         seg_out_list.push_back(IntervalVector(2, Interval::EMPTY_SET));
 
-    for(int face = 0; face < 4; face++){
+    for(int face = 0; face < 4; face++){        
         IntervalVector in(2, Interval::EMPTY_SET);
         for(int j=(face+1)%4; j!=face; j=(j+1)%4){
             IntervalVector seg_out(p->get_border(j)->get_segment_out_2D());
             IntervalVector seg_in(p->get_border(face)->get_segment_in_2D());
-            this->CtcFlow(seg_in, seg_out, p->get_vector_field());
-            if(!seg_in[face%2].is_degenerated())
-                in |= seg_in;
-            if(!seg_out[j%2].is_degenerated())
-                seg_out_list[j] |= seg_out;
+            this->CtcFlow(seg_in, seg_out, p->get_backward_function()? -p->get_vector_field():p->get_vector_field());
+            in |= seg_in;
+            seg_out_list[j] |= seg_out;
         }
 
         if(p->get_border(face)->get_segment_in_2D() != in)
@@ -621,7 +597,8 @@ void Utils::CtcFlow(ibex::IntervalVector &in, ibex::IntervalVector &out, const i
     Interval alpha(Interval::POS_REALS);
 
     for(int i=0; i<v.size(); i++){
-        alpha &= c[i]/v[i];
+        // Issue with division by interval containing zero => need to separate cases
+        alpha &= ((c[i]/(v[i] & Interval::POS_REALS)) & Interval::POS_REALS) | ((c[i]/(v[i] & Interval::NEG_REALS)) & Interval::POS_REALS);
     }
 
     c &= alpha*v;
@@ -629,6 +606,38 @@ void Utils::CtcFlow(ibex::IntervalVector &in, ibex::IntervalVector &out, const i
     in &= out-c;
 }
 
+void Utils::CtcVect(ibex::IntervalVector &seg, const ibex::IntervalVector &vect, int face, bool in){
+    if(seg.is_empty())
+        return;
+    IntervalVector zero(2, Interval::ZERO);
+    if(zero.is_subset(vect))
+        return;
+
+    IntervalVector bool_seg(2), bool_vect(2, Interval::EMPTY_SET);
+    IntervalVector v(in?-vect:vect);
+
+    bool_seg[face%2] = Interval(0.0, 1.0);
+    if(face==0)
+        bool_seg[(face+1)%2] = Interval(0);
+    else if(face==1)
+        bool_seg[(face+1)%2] = Interval(1);
+    else if(face==2)
+        bool_seg[(face+1)%2] = Interval(1);
+    else if(face==3)
+        bool_seg[(face+1)%2] = Interval(0);
+
+    if(!(v[0] & Interval::POS_REALS).is_empty())
+        bool_vect[0] |= Interval(1);
+    if(!(v[0] & Interval::NEG_REALS).is_empty())
+        bool_vect[0] |= Interval(0);
+    if(!(v[1] & Interval::POS_REALS).is_empty())
+        bool_vect[1] |= Interval(1);
+    if(!(v[1] & Interval::NEG_REALS).is_empty())
+        bool_vect[1] |= Interval(0);
+
+    if((bool_seg & bool_vect).is_empty())
+        seg.set_empty();
+}
 
 
 

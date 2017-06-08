@@ -49,13 +49,10 @@ void test_chi_function();
 void test_diff_infinity();
 
 void test_contractor();
-<<<<<<< HEAD
 void test_contractor2();
 
 //void ctcNorm(ibex::IntervalVector &x, ibex::IntervalVector &u, ibex::Interval& d);
 void test_contractor_n();
-=======
 void test_hyperplan();
->>>>>>> 1a0df1c06061f47ee6a9ea6d781bd4f3d9012773
 
 #endif // TESTS_H

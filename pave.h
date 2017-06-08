@@ -5,8 +5,10 @@
 #include <border.h>
 #include <string>
 #include <omp.h>
+#include "utils.h"
 
 class Border;
+class Utils;
 class Pave
 {
 
@@ -33,6 +35,8 @@ public:
     void                        increment_cpt_continuity();
 
     void                        contract_initial_condition(ibex::Ctc *contractor_out, ibex::Ctc *contractor_inner);
+
+    void                        compute_possible_flow(Utils *u);
 
     // ******** Drawing functions ********
     void                        draw(bool filled, bool inner_only=false);

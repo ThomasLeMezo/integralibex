@@ -23,6 +23,8 @@ public:
     void                        mark_empty_node();
     void                        mark_empty_node_kernel_complementaire(Graph &g);
 
+    void                        process_possible_flow();
+
     void                        inter(const Graph &g, bool with_bwd=false);
     void                        inter_kernel(const Graph &g, const Graph &g_union);
     void                        diff(const Graph &g);

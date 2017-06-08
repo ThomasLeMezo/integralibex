@@ -5,6 +5,8 @@
 #include "iostream"
 #include "iomanip"
 
+#include "utils.h"
+
 using namespace std;
 using namespace ibex;
 
@@ -1958,3 +1960,15 @@ void Pave::unlock_pave_queue()
     //omp_unset_lock(&m_lock_queue);
 }
 
+void Pave::compute_possible_flow(Utils *u){
+    for(int face = 0; face < 4; face++){
+        IntervalVector seg_in(this->get_border(face)->get_segment_in_2D());
+        u->CtcVect(seg_in, m_vector_field, face, true);
+        this->get_border(face)->set_segment_in(seg_in[face%2], true);
+
+        IntervalVector seg_out(this->get_border(face)->get_segment_out_2D());
+        u->CtcVect(seg_out, m_vector_field, face, false);
+        this->get_border(face)->set_segment_out(seg_out[face%2], true);
+    }
+
+}

@@ -88,7 +88,7 @@ void van_der_pol_cycle(){
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);
 
     //int iterations_max, int graph_max, int process_iterations_max, bool remove_inside, bool do_not_bisect_inside, bool near_bassin, bool stop_first_pos_invariant
-    s.cameleon_cycle(10, 5, 1e9, false, false, false);
+    s.cameleon_cycle(15, 5, 1e9, false, false, false);
 
     gettimeofday(&end, NULL);
     double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
@@ -1738,11 +1738,11 @@ int main()
     //        car_on_the_hill_attractor();
 //            car_on_the_hill_bassin();
 
-    //        car_on_the_hill_kernel();
+//            car_on_the_hill_kernel();
 
-    //        car_on_the_hill_trajectory();
+//            car_on_the_hill_trajectory();
     //        car_on_the_hill_integrator();
-    //        car_on_the_hill_invariant();
+//            car_on_the_hill_invariant();
     //    car_on_the_hill_limit_path();
 
     /// **** CAPTURE BASSIN ***** //
@@ -1750,11 +1750,8 @@ int main()
     //    cercle_capture_bassin();
 
     /// **** VAN DER POL ***** //
-<<<<<<< HEAD
-//            van_der_pol_cycle();
-=======
             van_der_pol_cycle();
->>>>>>> 1a0df1c06061f47ee6a9ea6d781bd4f3d9012773
+
 //        van_der_pol_invariant();
 //    van_der_pol_kernel_invariant();
 //        van_der_pol_kernel();
@@ -1797,6 +1794,6 @@ int main()
     //    wave_cycle();
 
     /// **** TEST ***** //
-        test();
+//        test();
     return 0;
 }

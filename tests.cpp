@@ -1124,7 +1124,6 @@ void test_contractor_n(){
     cout << "b = " << b << endl;
     cout << "v = " << v << endl;
 
-<<<<<<< HEAD
     a[1] += Interval(-0.1, 0.1);
     b[0] += Interval(-0.1, 0.1);
     vibes::drawBox(a, "b[]");
@@ -1135,10 +1134,6 @@ void test_contractor_n(){
     vibes::drawLine(x, y);
 
     vibes::axisLimits(-1, 4, -1, 4);
-=======
-    IntervalVector box2 = initbox;
-    c2.contract(box2);
-    cout << "after c = " << box2 << endl;
 }
 
 void test_hyperplan(){
@@ -1187,5 +1182,4 @@ void test_CtcFlow(){
     cout << "a = " << a << endl;
     cout << "b = " << b << endl;
     cout << "v = " << vect << endl;
->>>>>>> 1a0df1c06061f47ee6a9ea6d781bd4f3d9012773
 }

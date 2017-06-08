@@ -227,6 +227,7 @@ int Graph::process(int max_iterations, GRAPH_BW_FW_DIRECTION direction, bool uni
     int iterations_thread = 0;
     //    omp_lock_t queue_lock;
     //    omp_init_lock(&queue_lock);
+    process_possible_flow();
 
     //#pragma omp parallel for private(iterations_thread)// schedule(dynamic)
     for(int iterations=0; iterations<max_iterations; iterations++){
@@ -1470,4 +1471,11 @@ void Graph::backward(int process_iterations_max){
     set_inner_mode(false);
     set_backward_function(true); // Invert bc of bwd
     process(process_iterations_max, GRAPH_FORWARD, false);
+}
+
+void Graph::process_possible_flow(){
+    for(Pave* p:m_node_list){
+        if(p->is_active())
+            p->compute_possible_flow(m_utils);
+    }
 }

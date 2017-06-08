@@ -5,6 +5,7 @@
 #include "pave.h"
 #include "ibex-geometry/ibex_CtcPolar.h"
 
+class Pave;
 class Utils
 {
 public:
@@ -47,6 +48,7 @@ public:
     // Experimental
     void CtcFlow(ibex::IntervalVector &in, ibex::IntervalVector &out, const ibex::IntervalVector &vect);
     void CtcPaveBackward2(Pave *p, bool inclusion, std::vector<bool> &change_tab);
+    void CtcVect(ibex::IntervalVector &seg, const ibex::IntervalVector &vect, int face, bool in);
 
 
     // ***********************************************************
