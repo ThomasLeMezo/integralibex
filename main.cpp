@@ -82,7 +82,7 @@ void van_der_pol_cycle(){
 
     IntervalVector box(2);
     box[0] = Interval(-4,4);
-    box[1] = Interval(-4,4);
+    box[1] = Interval(-4,4.1);
 
     // bool border_inner_in, bool border_inner_out, bool border_outer_in, bool border_outer_out
     Scheduler s(box, f_list, MAZE_DISEABLE_SINGLETON_OFF, false, false, false, false);

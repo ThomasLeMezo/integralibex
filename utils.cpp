@@ -263,13 +263,13 @@ void Utils::CtcConsistency(Pave *p, bool backward, std::vector<bool> &change_tab
             }
         }
         else{
-//            this->CtcPaveBackward(p, true, change_tab);
-            this->CtcPaveBackward2(p, true, change_tab);
+            this->CtcPaveBackward(p, true, change_tab);
+//            this->CtcPaveBackward2(p, true, change_tab);
         }
-//        Pave *p2 = new Pave(p);
-//        this->CtcPaveForward(p2, true, change_tab, union_functions); // Test ? union_functions
-//        *p &= *(p2);
-//        delete(p2);
+        Pave *p2 = new Pave(p);
+        this->CtcPaveForward(p2, true, change_tab, union_functions); // Test ? union_functions
+        *p &= *(p2);
+        delete(p2);
 
     }
     else{
