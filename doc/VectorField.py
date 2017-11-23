@@ -86,9 +86,32 @@ from numpy import *
 
 #### Van Der Pol
 # x1, x2 = np.meshgrid(np.arange(-1.0,13.0, .3), np.arange(-6.0,6.0, .2))
-x1, x2 = np.meshgrid(np.arange(-6.0,6.0, .3), np.arange(-6.0,6.0, .3))
-U = x2
-V = (1-x1**2)*x2-x1
+# x1, x2 = np.meshgrid(np.arange(-6.0,6.0, .3), np.arange(-6.0,6.0, .3))
+# U = x2
+# V = (1-x1**2)*x2-x1
+
+#### Cordelière
+# x1, x2 = np.meshgrid(np.arange(-1.0,13.0, .3), np.arange(-6.0,6.0, .2))
+
+def h(X1,X2):
+    return 2*np.exp(-((X1+2)**2+(X2+2)**2)/10) + 2*np.exp(-((X1-2)**2+(X2-2)**2)/10) - 10 
+
+
+def gradh(X1,X2):
+    return np.array([-0.4*(x1-2)*np.exp(-0.1*(np.square(x1-2)+np.square(x2-2)))-0.4*(x1+2)*np.exp(-0.1*(np.square(x1+2)+np.square(x2+2))), \
+    	             -0.4*(x2-2)*np.exp(-0.1*(np.square(x1-2)+np.square(x2-2)))-0.4*(x2+2)*np.exp(-0.1*(np.square(x1+2)+np.square(x2+2)))])
+
+def angle(X):
+    return np.arctan2(X[1], X[0])
+
+x1, x2 = np.meshgrid(np.arange(-10, 10, .3), np.arange(-10, 10, .3))
+
+h0=-9
+φ = np.tanh(h(x1,x2)-h0)
+ψbar=φ+angle(gradh(x1,x2))+np.pi/2.0
+
+U = cos(ψbar)
+V = sin(ψbar)
 
 #### Car on the hill ?
 # U = x2

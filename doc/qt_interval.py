@@ -11,9 +11,8 @@ def qdump__ibex__Interval(d, value):
 		d.putSubItem("SUP", value["itv"]["SUP"])
 
 def qdump__ibex__IntervalVector(d, value):
-	size = int(value["n"])
-	array = value["vec"]
-	if(size>0):
+	size = value["n"].integer()
+	if(size>0 and size<10):
 		d.putItemCount(size)
 		d.putNumChild(size)
 		with Children(d):
